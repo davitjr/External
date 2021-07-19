@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="TypeOfHbProductTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Transfers" />
+      <xs:enumeration value="Application" />
+      <xs:enumeration value="Payment" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="TypeOfHbProductTypes" nillable="true" type="tns:TypeOfHbProductTypes" />
+</xs:schema>

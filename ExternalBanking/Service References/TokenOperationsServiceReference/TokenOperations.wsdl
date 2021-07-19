@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="TokenOperations" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ITokenOperations_ActivateToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:ActivateToken" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_ActivateToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ActivateTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_BlockToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:BlockToken" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_BlockToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:BlockTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_BlockUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:BlockUser" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_BlockUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:BlockUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_UnlockToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:UnlockToken" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_UnlockToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UnlockTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_ActivateMobileToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:ActivateMobileToken" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_ActivateMobileToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ActivateMobileTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_GetPinCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPinCode" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_GetPinCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPinCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_ResetUserPasswordManualy_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResetUserPasswordManualy" />
+  </wsdl:message>
+  <wsdl:message name="ITokenOperations_ResetUserPasswordManualy_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResetUserPasswordManualyResponse" />
+  </wsdl:message>
+  <wsdl:portType name="ITokenOperations">
+    <wsdl:operation name="ActivateToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITokenOperations/ActivateToken" message="tns:ITokenOperations_ActivateToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ITokenOperations/ActivateTokenResponse" message="tns:ITokenOperations_ActivateToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="BlockToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITokenOperations/BlockToken" message="tns:ITokenOperations_BlockToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ITokenOperations/BlockTokenResponse" message="tns:ITokenOperations_BlockToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="BlockUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITokenOperations/BlockUser" message="tns:ITokenOperations_BlockUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ITokenOperations/BlockUserResponse" message="tns:ITokenOperations_BlockUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UnlockToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITokenOperations/UnlockToken" message="tns:ITokenOperations_UnlockToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ITokenOperations/UnlockTokenResponse" message="tns:ITokenOperations_UnlockToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ActivateMobileToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITokenOperations/ActivateMobileToken" message="tns:ITokenOperations_ActivateMobileToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ITokenOperations/ActivateMobileTokenResponse" message="tns:ITokenOperations_ActivateMobileToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPinCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITokenOperations/GetPinCode" message="tns:ITokenOperations_GetPinCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ITokenOperations/GetPinCodeResponse" message="tns:ITokenOperations_GetPinCode_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetUserPasswordManualy">
+      <wsdl:input wsaw:Action="http://tempuri.org/ITokenOperations/ResetUserPasswordManualy" message="tns:ITokenOperations_ResetUserPasswordManualy_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ITokenOperations/ResetUserPasswordManualyResponse" message="tns:ITokenOperations_ResetUserPasswordManualy_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_ITokenOperations" type="tns:ITokenOperations">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ActivateToken">
+      <soap:operation soapAction="http://tempuri.org/ITokenOperations/ActivateToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BlockToken">
+      <soap:operation soapAction="http://tempuri.org/ITokenOperations/BlockToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BlockUser">
+      <soap:operation soapAction="http://tempuri.org/ITokenOperations/BlockUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnlockToken">
+      <soap:operation soapAction="http://tempuri.org/ITokenOperations/UnlockToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ActivateMobileToken">
+      <soap:operation soapAction="http://tempuri.org/ITokenOperations/ActivateMobileToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPinCode">
+      <soap:operation soapAction="http://tempuri.org/ITokenOperations/GetPinCode" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResetUserPasswordManualy">
+      <soap:operation soapAction="http://tempuri.org/ITokenOperations/ResetUserPasswordManualy" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TokenOperations">
+    <wsdl:port name="BasicHttpBinding_ITokenOperations" binding="tns:BasicHttpBinding_ITokenOperations">
+      <soap:address location="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

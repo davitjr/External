@@ -1,0 +1,1901 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C2F928AE-9BC3-468C-95A7-628406671596}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExternalBanking</RootNamespace>
+    <AssemblyName>ExternalBanking</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Test\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ExcelFinancialFunctions, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelFinancialFunctions.2.4.1\lib\portable-net45+netcore45+wpa81+wp8\ExcelFinancialFunctions.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>\\web1021\wwwroot\ExternalBanking\bin\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Account.cs" />
+    <Compile Include="AccountOpeningClosingDetail.cs" />
+    <Compile Include="AccountAdditionalDataRemovableOrder.cs" />
+    <Compile Include="AccountClosingHistory.cs" />
+    <Compile Include="AccountClosingOrder.cs" />
+    <Compile Include="AccountDataChangeOrder.cs" />
+    <Compile Include="AccountFlowDetails.cs" />
+    <Compile Include="AccountRemovingOrder.cs" />
+    <Compile Include="AccountUnfreezeOrder.cs" />
+    <Compile Include="AccountFreezeOrder.cs" />
+    <Compile Include="AccountingTools.cs" />
+    <Compile Include="AccountOrder.cs" />
+    <Compile Include="AccountReOpenOrder.cs" />
+    <Compile Include="AccountStatement.cs" />
+    <Compile Include="AccountStatementDetail.cs" />
+    <Compile Include="Accreditive.cs" />
+    <Compile Include="ActionResultToken.cs" />
+    <Compile Include="ArrestsReasonTypes.cs" />
+    <Compile Include="ArrestTypes.cs" />
+    <Compile Include="ARUSHelper.cs" />
+    <Compile Include="ARUSInfo.cs" />
+    <Compile Include="AssigneeIdentificationOrder.cs" />
+    <Compile Include="AttachedCardTransactionReceipt.cs" />
+    <Compile Include="BillSplitOrder.cs" />
+    <Compile Include="BillSplitReminderOrder.cs" />
+    <Compile Include="BillSplitSenderRejectionOrder.cs" />
+    <Compile Include="Bond.cs" />
+    <Compile Include="BondAmountChargeOrder.cs" />
+    <Compile Include="BondFilter.cs" />
+    <Compile Include="BondIssue.cs" />
+    <Compile Include="BondIssueFilter.cs" />
+    <Compile Include="BondOrder.cs" />
+    <Compile Include="BondQualityUpdateOrder.cs" />
+    <Compile Include="CancelDelayOrder.cs" />
+    <Compile Include="Card3DSecureService.cs" />
+    <Compile Include="Card3DSecureServiceOrder.cs" />
+    <Compile Include="CardAccountClosingOrder.cs" />
+    <Compile Include="CardAccountRemovalOrder.cs" />
+    <Compile Include="CardAdditionalData.cs" />
+    <Compile Include="CardAdditionalDataOrder.cs" />
+    <Compile Include="CardAdditionalInfo.cs" />
+    <Compile Include="CardDeliveryOrder.cs" />
+    <Compile Include="CardHolderAndCardType - Copy.cs" />
+    <Compile Include="CardLessCashOutOrder.cs" />
+    <Compile Include="CardNotRenewOrder.cs" />
+    <Compile Include="CardRenewOrder.cs" />
+    <Compile Include="CardRetainHistory.cs" />
+    <Compile Include="CardReOpenOrder.cs" />
+    <Compile Include="CardStatementAddInf.cs" />
+    <Compile Include="CardTariffAdditionalInformation.cs" />
+    <Compile Include="CardToCardOrder.cs" />
+    <Compile Include="CardToOtherCardsOrder.cs" />
+    <Compile Include="CardUSSDServiceHistory.cs" />
+    <Compile Include="CardUSSDServiceOrder.cs" />
+    <Compile Include="CashBookOrder.cs" />
+    <Compile Include="CashierCashLimit.cs" />
+    <Compile Include="ChangeBranchOrder.cs" />
+    <Compile Include="CheckCustomerArrests.cs" />
+    <Compile Include="ClassifiedLoan.cs" />
+    <Compile Include="ClassifiedLoanActionOrders.cs" />
+    <Compile Include="Contracts.cs" />
+    <Compile Include="CouponRepaymentDateCollection.cs" />
+    <Compile Include="CreditCommitmentForgivenessOrder.cs" />
+    <Compile Include="CreditHereAndNow.cs" />
+    <Compile Include="CreditHereAndNowActivationOrders.cs" />
+    <Compile Include="CredentialActivationOrder.cs" />
+    <Compile Include="CreditLineActivatorARCA\ChangeExceedLimitRequest.cs" />
+    <Compile Include="CreditLineActivatorARCA\CreditLineMessageRequest.cs" />
+    <Compile Include="CreditLineCardReplaceOrder.cs" />
+    <Compile Include="CreditLinePrecontractData.cs" />
+    <Compile Include="CreditLineProlongationOrder.cs" />
+    <Compile Include="CTPayment\C2CTransferException.cs" />
+    <Compile Include="CTPayment\C2CTransferOrder.cs" />
+    <Compile Include="CTPayment\C2CTransferResult.cs" />
+    <Compile Include="CTPayment\C2CTransferStatus.cs" />
+    <Compile Include="CTPayment\CTAccessibleAction.cs" />
+    <Compile Include="CTPayment\CashTerminal.cs" />
+    <Compile Include="CTPayment\CTLoanMatureOrder.cs" />
+    <Compile Include="CTPayment\CTOrder.cs" />
+    <Compile Include="CTPayment\CTPaymentOrder.cs" />
+    <Compile Include="CTPayment\PaymentRegistrationResult.cs" />
+    <Compile Include="CTPayment\PaymentStatus.cs" />
+    <Compile Include="CustomerArrestInfo.cs" />
+    <Compile Include="DAHKFreezing.cs" />
+    <Compile Include="DataRowExtensions.cs" />
+    <Compile Include="DBManager\AccountRemovingOrderDB.cs" />
+    <Compile Include="DBManager\BillSplitOrderDB.cs" />
+    <Compile Include="DBManager\BillSplitOrderRejectionDB.cs" />
+    <Compile Include="DBManager\BillSplitReminderOrderDB.cs" />
+    <Compile Include="DBManager\BondAmountChargeOrderDB.cs" />
+    <Compile Include="DBManager\BondDB.cs" />
+    <Compile Include="DBManager\BondIssueDB.cs" />
+    <Compile Include="DBManager\BondIssueFilterDB.cs" />
+    <Compile Include="DBManager\BondOrderDB.cs" />
+    <Compile Include="DBManager\BondQualityUpdateOrderDB.cs" />
+    <Compile Include="DBManager\Card3DSecureServiceOrderDB.cs" />
+    <Compile Include="DBManager\CardAccountClosingOrderDB.cs" />
+    <Compile Include="DBManager\CardAccountRemovalOrderDB.cs" />
+    <Compile Include="DBManager\CardAdditionalDataDB.cs" />
+    <Compile Include="DBManager\CardAdditionalDataOrderDB.cs" />
+    <Compile Include="DBManager\CardDeliveryOrderDB.cs" />
+    <Compile Include="DBManager\CardLessCashOutOrderDB.cs" />
+    <Compile Include="DBManager\CardNotRenewOrderDB.cs" />
+    <Compile Include="DBManager\CardRenewOrderDB.cs" />
+    <Compile Include="DBManager\CardReOpenOrderDB.cs" />
+    <Compile Include="DBManager\CardToCardOrderDB.cs" />
+    <Compile Include="DBManager\CardToOtherCardsOrderDB.cs" />
+    <Compile Include="DBManager\CardUSSDServiceOrderDB.cs" />
+    <Compile Include="DBManager\CashBookOrderDB.cs" />
+    <Compile Include="DBManager\CashierCashLimitDB.CS" />
+    <Compile Include="DBManager\ChangeBranchOrderDB.cs" />
+    <Compile Include="DBManager\ClassifiedLoanDB.cs" />
+    <Compile Include="DBManager\CreditCommitmentForgivenessOrderDB.cs" />
+    <Compile Include="DBManager\CreditHereAndNowDB.cs" />
+    <Compile Include="DBManager\CreditLineCardReplaceOrderDB.cs" />
+    <Compile Include="DBManager\CreditLineProlongationOrderDB.cs" />
+    <Compile Include="DBManager\CTPayment\CardToCardTransferOrderDB.cs" />
+    <Compile Include="DBManager\CTPayment\CTOrderDB.cs" />
+    <Compile Include="DBManager\CTPayment\CTPaymentDB.cs" />
+    <Compile Include="DBManager\CustomerArrestsInfoDB.cs" />
+    <Compile Include="DBManager\DeleteLoanOrderDB.cs" />
+    <Compile Include="DBManager\DemandDepositRateChangeOrderDB.cs" />
+    <Compile Include="DBManager\DemandDepositRateDB.cs" />
+    <Compile Include="DBManager\DepositaryAccountDB.cs" />
+    <Compile Include="DBManager\DepositaryAccountOrderDB.cs" />
+    <Compile Include="DBManager\DepositCaseStoppingPenaltyCalculationOrderDB.cs" />
+    <Compile Include="DBManager\DepositDataChangeOrderDB.cs" />
+    <Compile Include="DBManager\DepositProductPricesDB.cs" />
+    <Compile Include="DBManager\DepositRateTariffDB.cs" />
+    <Compile Include="DBManager\DigitalAccountRestConfigurationsDB.cs" />
+    <Compile Include="DBManager\DocFlow\DocFlowDB.cs" />
+    <Compile Include="DBManager\DocFlow\MemoDocumentDB.cs" />
+    <Compile Include="DBManager\DocumentSignatureSettingDB.cs" />
+    <Compile Include="DBManager\EmailMessagingOperationsDB.cs" />
+    <Compile Include="DBManager\EmployeePersonalDetailsDB.cs" />
+    <Compile Include="DBManager\EmployeeSalaryDB.cs" />
+    <Compile Include="DBManager\EmployeeSalaryDetailsDB.cs" />
+    <Compile Include="DBManager\ENAPaymentsDB.cs" />
+    <Compile Include="DBManager\EOServiceDB.cs" />
+    <Compile Include="DBManager\Fond\FondDB.cs" />
+    <Compile Include="DBManager\Fond\FondOrderDB.cs" />
+    <Compile Include="DBManager\FTPRate\FTPRateDB.cs" />
+    <Compile Include="DBManager\FTPRate\FTPRateOrderDB.cs" />
+    <Compile Include="DBManager\HBDocumentsDB.cs" />
+    <Compile Include="DBManager\InfoDB.cs" />
+    <Compile Include="DBManager\InterestMargin\InterestMarginDB.cs" />
+    <Compile Include="DBManager\InterestMargin\InterestMarginOrderDB.cs" />
+    <Compile Include="DBManager\LeasingAccountDB.cs" />
+    <Compile Include="DBManager\LeasingCustomerClassificationDB.cs" />
+    <Compile Include="DBManager\LinkPaymentOrderDB.cs" />
+    <Compile Include="DBManager\LoanApplicationDB.cs" />
+    <Compile Include="DBManager\LoanDelayOrderDB.cs" />
+    <Compile Include="DBManager\LoanEquipmentDB.cs" />
+    <Compile Include="DBManager\LoanInterestRateChangeHistoryDB.cs" />
+    <Compile Include="DBManager\LoanInterestRateConcessionOrderDB.cs" />
+    <Compile Include="DBManager\LoanMonitoringConclusionDB.cs" />
+    <Compile Include="DBManager\LoanProductClassificationRemoveOrderDB.cs" />
+    <Compile Include="DBManager\LoanProductDataChangeOrderDB.cs" />
+    <Compile Include="DBManager\LoanProductMakeOutBalanceOrderDB.cs" />
+    <Compile Include="DBManager\LoanProductMakeOutOrderDB.cs" />
+    <Compile Include="DBManager\LoanProductTerminationOrderDB.cs" />
+    <Compile Include="DBManager\MembershipRewardsOrderDB.cs" />
+    <Compile Include="DBManager\NonCreditLineCardReplaceOrderDB.cs" />
+    <Compile Include="DBManager\OperDayModeDB.cs" />
+    <Compile Include="DBManager\OrderForCashRegisterDB.cs" />
+    <Compile Include="DBManager\OrderGroupDB.cs" />
+    <Compile Include="DBManager\OrderRejectionDB.cs" />
+    <Compile Include="DBManager\OtherInsuranceOrderDB.cs" />
+    <Compile Include="DBManager\PaymentToARCAOrderDB.cs" />
+    <Compile Include="DBManager\PensionPaymentOrderDB.cs" />
+    <Compile Include="DBManager\PINRegenerationOrderDB.cs" />
+    <Compile Include="DBManager\PlasticCardRemovalOrderDB.cs" />
+    <Compile Include="DBManager\PlasticCardSMSServiceOrderDB.cs" />
+    <Compile Include="DBManager\ProblemLoanTaxDB.cs" />
+    <Compile Include="DBManager\ProblemLoanTaxFilterDB.cs" />
+    <Compile Include="DBManager\ProductNoteDB.cs" />
+    <Compile Include="DBManager\RemittanceAmendmentOrderDB.cs" />
+    <Compile Include="DBManager\RemittanceCancellationOrderDB.cs" />
+    <Compile Include="DBManager\RemittanceChangeHistoryDB.cs" />
+    <Compile Include="DBManager\RenewedCardAccountRegOrderDB.cs" />
+    <Compile Include="DBManager\ReplacedCardAccountRegOrderDB.cs" />
+    <Compile Include="DBManager\SberTransfers\Order\SberIncomingTransferOrderDB.cs" />
+    <Compile Include="DBManager\SberTransfers\SberTransfersDB.cs" />
+    <Compile Include="DBManager\STAKPaymentOrderDB.cs" />
+    <Compile Include="DBManager\Templates\BudgetPaymentOrderTemplateDB.cs" />
+    <Compile Include="DBManager\Templates\CardToCardOrderTemplateDB.cs" />
+    <Compile Include="DBManager\Templates\CurrencyExchangeOrderTemplateDB.cs" />
+    <Compile Include="DBManager\Templates\InternationalOrderTemplateDB.cs" />
+    <Compile Include="DBManager\Templates\LoanMatureOrderTemplateDB.cs" />
+    <Compile Include="DBManager\Templates\PaymentOrderTemplateDB.cs" />
+    <Compile Include="DBManager\Templates\TemplateDB.cs" />
+    <Compile Include="DBManager\Templates\UtiilityPaymentOrderTemplateDB.cs" />
+    <Compile Include="DBManager\UploadedFileDB.cs" />
+    <Compile Include="DBManager\UtilityPaymentsManagment\UtilityOptionsDB.cs" />
+    <Compile Include="DBManager\UtilityPaymentsManagment\UtilityOptionsFilterDB.cs" />
+    <Compile Include="DBManager\VirtualCardDetailsDB.cs" />
+    <Compile Include="DBManager\VisaAliasDB.cs" />
+    <Compile Include="DBManager\XBManagement\HBApplicationFullPermissionsGrantingDB.cs" />
+    <Compile Include="DeleteLoanOrder.cs" />
+    <Compile Include="DeleteLoanOrderDetails.cs" />
+    <Compile Include="DepositRateTariff.cs" />
+    <Compile Include="DepositRepaymentRequest.cs" />
+    <Compile Include="DigitalAccountRestConfigurationItem.cs" />
+    <Compile Include="DigitalAccountRestConfigurations.cs" />
+    <Compile Include="EmailMessagingOperations.cs" />
+    <Compile Include="EmployeePersonalDetails.cs" />
+    <Compile Include="EmployeeSalary.cs" />
+    <Compile Include="EmployeeSalaryDetails.cs" />
+    <Compile Include="EncryptionOperations.cs" />
+    <Compile Include="GroupTemplateShrotInfo.cs" />
+    <Compile Include="HBDocumentAccountDetails.cs" />
+    <Compile Include="HBDocumentArCaBalance.cs" />
+    <Compile Include="HBDocumentBypassTransaction.cs" />
+    <Compile Include="HBDocumentConfirmationHistory.cs" />
+    <Compile Include="HBDocumentCustomerDetails.cs" />
+    <Compile Include="HBDocumentFilters.cs" />
+    <Compile Include="HBDocuments.cs" />
+    <Compile Include="HBDocumentsBypass.cs" />
+    <Compile Include="HBDocumentsDropdownLists.cs" />
+    <Compile Include="HBDocumentTransactionError.cs" />
+    <Compile Include="HBMessageFiles.cs" />
+    <Compile Include="HBMessages.cs" />
+    <Compile Include="HBMessagesSreach.cs" />
+    <Compile Include="DBManager\VirtualCardStatusChangeOrderDB.cs" />
+    <Compile Include="Helpers\CardHelper.cs" />
+    <Compile Include="Helpers\ShortIdHelper.cs" />
+    <Compile Include="Helpers\SMSHelper.cs" />
+    <Compile Include="IBankingHomePage.cs" />
+    <Compile Include="InterestMargin\InterestMargin.cs" />
+    <Compile Include="InterestMargin\InterestMarginOrder.cs" />
+    <Compile Include="Interfaces\IAttachedCard.cs" />
+    <Compile Include="InternationalOrderPrefilledData․cs.cs" />
+    <Compile Include="LeasingAccountsDetails.cs" />
+    <Compile Include="LeasingCustomerClassification.cs" />
+    <Compile Include="LinkPaymentOrder.cs" />
+    <Compile Include="LoanDelayOrder.cs" />
+    <Compile Include="LoanInterestRateChangeHistory.cs" />
+    <Compile Include="LoanInterestRateConcessionOrder.cs" />
+    <Compile Include="LoanRepaymentDelayDetails.cs" />
+    <Compile Include="LoanStatement.cs" />
+    <Compile Include="LoanStatementDetail.cs" />
+    <Compile Include="NonCreditLineCardReplaceOrder.cs" />
+    <Compile Include="OperDayModeFilter.cs" />
+    <Compile Include="DBManager\OperDayModeFilterDB.cs" />
+    <Compile Include="DBManager\OperDayOptionsDB.cs" />
+    <Compile Include="DBManager\OperDayOptionsFilterDB.cs" />
+    <Compile Include="DBManager\PeriodicTransferDataChangeOrderDB.cs" />
+    <Compile Include="DBManager\PreOrderDB.cs" />
+    <Compile Include="DBManager\ProductNotificationsConfigurationsDB.cs" />
+    <Compile Include="DBManager\ProductNotificationsConfigurationsOrderDB.cs" />
+    <Compile Include="DBManager\SearchSwiftMessageDB.cs" />
+    <Compile Include="DBManager\SSTerminal\SSterminalDB.cs" />
+    <Compile Include="DBManager\XBManagement\HBActivationOrderDB.cs" />
+    <Compile Include="DBManager\XBManagement\HBApplicationDB.cs" />
+    <Compile Include="DBManager\XBManagement\HBApplicationQualityChangeDB.cs" />
+    <Compile Include="DBManager\XBManagement\HBServletRequestOrderDB.cs" />
+    <Compile Include="DBManager\XBManagement\TokensDistributionDB.cs" />
+    <Compile Include="DBManager\XBManagement\HBTokenDB.cs" />
+    <Compile Include="DBManager\XBManagement\HBUserDB.cs" />
+    <Compile Include="DBManager\XBManagement\PhoneBankingContractClosingOrderDB.cs" />
+    <Compile Include="DBManager\XBManagement\PhoneBankingContractDB.cs" />
+    <Compile Include="DBManager\XBManagement\PhoneBankingContractOrderDB.cs" />
+    <Compile Include="DemandDepositRate.cs" />
+    <Compile Include="DemandDepositRateChangeOrder.cs" />
+    <Compile Include="DemandDepositRateTariffDetail.cs" />
+    <Compile Include="DepositAction.cs" />
+    <Compile Include="DepositaryAccount.cs" />
+    <Compile Include="DepositaryAccountOrder.cs" />
+    <Compile Include="DepositCaseStoppingPenaltyCalculationOrder.cs" />
+    <Compile Include="DepositDataChangeOrder.cs" />
+    <Compile Include="DepositProductPrices.cs" />
+    <Compile Include="DocFlowManagement\DocFlow.cs" />
+    <Compile Include="DocFlowManagement\Interfaces\IHBToDocFlow.cs" />
+    <Compile Include="DocFlowManagement\MemoDocument.cs" />
+    <Compile Include="DocFlowManagement\MemoField.cs" />
+    <Compile Include="DocFlowManagement\Utility.cs" />
+    <Compile Include="ArcaBalanceResponseData.cs" />
+    <Compile Include="CardActivationInArCa.cs" />
+    <Compile Include="CardActivationInArCaApigateDetails.cs" />
+    <Compile Include="CardActivationInArCaPaymentDetails.cs" />
+    <Compile Include="CardDataChangeOrder.cs" />
+    <Compile Include="CardRegistrationOrder.cs" />
+    <Compile Include="CardReReleaseOrder.cs" />
+    <Compile Include="CardServiceFee.cs" />
+    <Compile Include="AdditionalDetails.cs" />
+    <Compile Include="BOOrderPaymentAddition.cs" />
+    <Compile Include="BOOrderPaymentDetails.cs" />
+    <Compile Include="BOOrderProduct.cs" />
+    <Compile Include="BudgetPaymentOrder.cs" />
+    <Compile Include="CardClosingOrder.cs" />
+    <Compile Include="CardServiceFeeGrafik.cs" />
+    <Compile Include="CardServiceFeeGrafikDataChangeOrder.cs" />
+    <Compile Include="CardStatus.cs" />
+    <Compile Include="CardStatusChangeOrder.cs" />
+    <Compile Include="CardTariff.cs" />
+    <Compile Include="CardTariffContract.cs" />
+    <Compile Include="CardUnpaidPercentPayment.cs" />
+    <Compile Include="AccountFreezeDetails.cs" />
+    <Compile Include="CashBook.cs" />
+    <Compile Include="CashPosPaymentOrder.cs" />
+    <Compile Include="ChangeLog.cs" />
+    <Compile Include="Claim.cs" />
+    <Compile Include="ClaimEvent.cs" />
+    <Compile Include="Cofirmation.cs" />
+    <Compile Include="CorrespondentBankAccount.cs" />
+    <Compile Include="COWaterReestrDetails.cs" />
+    <Compile Include="CredentialOrder.cs" />
+    <Compile Include="Credentials\Assignee.cs" />
+    <Compile Include="Credentials\AssigneeOperation.cs" />
+    <Compile Include="Credentials\AssigneeOperationType.cs" />
+    <Compile Include="Credentials\Credential.cs" />
+    <Compile Include="CredentialTerminationOrder.cs" />
+    <Compile Include="CreditLineGrafik.cs" />
+    <Compile Include="CreditLineTerminationOrder.cs" />
+    <Compile Include="CrossExchangeRate.cs" />
+    <Compile Include="CustomerCommunalCard.cs" />
+    <Compile Include="CustomerDebts.cs" />
+    <Compile Include="DAHKDetail.cs" />
+    <Compile Include="DahkDetails.cs" />
+    <Compile Include="DBManager\AccountClosingOrderDB.cs" />
+    <Compile Include="DBManager\AccountUnfreezeOrderDB.cs" />
+    <Compile Include="DBManager\AccountFreezeOrderDB.cs" />
+    <Compile Include="DBManager\AccountDataChangeOrderDB.cs" />
+    <Compile Include="DBManager\AccountFreezeDB.cs" />
+    <Compile Include="DBManager\AccountDB.cs" />
+    <Compile Include="DBManager\AccountingToolsDB.cs" />
+    <Compile Include="DBManager\AccountOrderDB.cs" />
+    <Compile Include="DBManager\AccountReOpenOrderDB.cs" />
+    <Compile Include="DBManager\AccreditiveDB.cs" />
+    <Compile Include="DBManager\ApprovementSchemaDB.cs" />
+    <Compile Include="DBManager\ApprovementSchemaDetailsDB.cs" />
+    <Compile Include="DBManager\ApprovementSchemaStepDB.cs" />
+    <Compile Include="DBManager\BOOrderPaymentAdditionDB.cs" />
+    <Compile Include="DBManager\BOOrderProductDB.cs" />
+    <Compile Include="DBManager\BudgetPaymentOrderDB.cs" />
+    <Compile Include="DBManager\CardActivationInArCaDB.cs" />
+    <Compile Include="DBManager\CardClosingOrderDB.cs" />
+    <Compile Include="DBManager\CardDataChangeOrderDB.cs" />
+    <Compile Include="DBManager\CardDB.cs" />
+    <Compile Include="DBManager\CardRegistrationOrderDB.cs" />
+    <Compile Include="DBManager\CardReReleaseDB.cs" />
+    <Compile Include="DBManager\CardServiceFeeGrafikDataChangeOrderDB.cs" />
+    <Compile Include="DBManager\CardStatusChangeOrderDB.cs" />
+    <Compile Include="DBManager\CardTariffContractDB.cs" />
+    <Compile Include="DBManager\CardUnpaidPercentPaymentDB.cs" />
+    <Compile Include="DBManager\CashBookDB.cs" />
+    <Compile Include="DBManager\CashOrderDB.cs" />
+    <Compile Include="DBManager\CashPosPaymentOrderDB.cs" />
+    <Compile Include="DBManager\ChangeLogDB.cs" />
+    <Compile Include="DBManager\ChequeBookDB.cs" />
+    <Compile Include="DBManager\ChequeBookReceiveOrderDB.cs" />
+    <Compile Include="DBManager\ClaimDB.cs" />
+    <Compile Include="DBManager\ClaimEventDB.cs" />
+    <Compile Include="DBManager\CommunalDB.cs" />
+    <Compile Include="DBManager\ConfirmationDB.cs" />
+    <Compile Include="DBManager\ContactAccountDB.cs" />
+    <Compile Include="DBManager\ContactDB.cs" />
+    <Compile Include="DBManager\CorrespondentBankAccountDB.cs" />
+    <Compile Include="DBManager\CredentialOrderDB.cs" />
+    <Compile Include="DBManager\Credentials\AssigneeDB.cs" />
+    <Compile Include="DBManager\Credentials\AssigneeOperationDB.cs" />
+    <Compile Include="DBManager\Credentials\AssigneeOperationTypeDB.cs" />
+    <Compile Include="DBManager\Credentials\CredentialDB.cs" />
+    <Compile Include="DBManager\CreditLineDB.cs" />
+    <Compile Include="DBManager\CurrencyExchangeOrderDB.cs" />
+    <Compile Include="DBManager\CustomerCommunalCardDB.cs" />
+    <Compile Include="DBManager\CustomerDataOrderDB.cs" />
+    <Compile Include="DBManager\CustomerDB.cs" />
+    <Compile Include="DBManager\CustomerDebtsDB.cs" />
+    <Compile Include="DBManager\DahkDetailsDB.cs" />
+    <Compile Include="DBManager\DepositCaseDB.cs" />
+    <Compile Include="DBManager\DepositCaseOrderDB.cs" />
+    <Compile Include="DBManager\DepositCasePenaltyMatureOrderControllerDB.cs" />
+    <Compile Include="DBManager\DepositDB.cs" />
+    <Compile Include="DBManager\ExchangeRateDB.cs" />
+    <Compile Include="DBManager\FactoringDB.cs" />
+    <Compile Include="DBManager\FastTransferPaymentOrderDB.cs" />
+    <Compile Include="DBManager\FeeForServiceProvidedOrderDB.cs" />
+    <Compile Include="DBManager\GuaranteeDB.cs" />
+    <Compile Include="DBManager\InsuranceDB.cs" />
+    <Compile Include="DBManager\InsuranceOrderDB.cs" />
+    <Compile Include="DBManager\InternationalPaymentOrderDB.cs" />
+    <Compile Include="DBManager\LeasingDB.cs" />
+    <Compile Include="DBManager\LoanDB.cs" />
+    <Compile Include="DBManager\LoanProductActivationOrderDB.cs" />
+    <Compile Include="DBManager\LoanProductClassificationDB.cs" />
+    <Compile Include="DBManager\LoanProductDB.cs" />
+    <Compile Include="DBManager\LoanProductOrderDB.cs" />
+    <Compile Include="DBManager\MatureOrderDB.cs" />
+    <Compile Include="DBManager\MembershipRewardsDB.cs" />
+    <Compile Include="DBManager\MessageDB.cs" />
+    <Compile Include="DBManager\BOOrderCustomerDB.cs" />
+    <Compile Include="DBManager\OperationAccountHelperDB.cs" />
+    <Compile Include="DBManager\OrderDB.cs" />
+    <Compile Include="DBManager\OverdueDetailDB.cs" />
+    <Compile Include="DBManager\PaidAccreditiveDB.cs" />
+    <Compile Include="DBManager\PaidFactoringDB.cs" />
+    <Compile Include="DBManager\PaidGuaranteeDB.cs" />
+    <Compile Include="DBManager\PaymentOrderDB.cs" />
+    <Compile Include="DBManager\BOOrderPaymentDB.cs" />
+    <Compile Include="DBManager\PensionApplicationDB.cs" />
+    <Compile Include="DBManager\PensionApplicationOrderDB.cs" />
+    <Compile Include="DBManager\PeriodicTerminationOrderDB.cs" />
+    <Compile Include="DBManager\PeriodicTransferDB.cs" />
+    <Compile Include="DBManager\PeriodicTransferOrderDB.cs" />
+    <Compile Include="DBManager\PlasticCardDB.cs" />
+    <Compile Include="DBManager\PlasticCardOrderDB.cs" />
+    <Compile Include="DBManager\PosLocationDB.cs" />
+    <Compile Include="DBManager\PosTerminalDB.cs" />
+    <Compile Include="DBManager\ProductDocumentDB.cs" />
+    <Compile Include="DBManager\ProvisionDB.cs" />
+    <Compile Include="DBManager\ReceivedBankMailTransferDB.cs" />
+    <Compile Include="DBManager\ReceivedFastTransferPaymentOrderDB.cs" />
+    <Compile Include="DBManager\ReferenceOrderDB.cs" />
+    <Compile Include="DBManager\RejectedOrderMessageDB.cs" />
+    <Compile Include="DBManager\RemovalOrderDB.cs" />
+    <Compile Include="DBManager\SafekeepingItemDB.cs" />
+    <Compile Include="DBManager\SearchAccountsDB.cs" />
+    <Compile Include="DBManager\SearchBudgetAccountDB.cs" />
+    <Compile Include="DBManager\SearchInternationalTransferDB.cs" />
+    <Compile Include="DBManager\SearchReceivedTransferDB.cs" />
+    <Compile Include="DBManager\SearchSwiftCodesDB.cs" />
+    <Compile Include="DBManager\SearchCardsDB.cs" />
+    <Compile Include="DBManager\SearchTransferBankMailDB.cs" />
+    <Compile Include="DBManager\ServicePaymentNoteDB.cs" />
+    <Compile Include="DBManager\ServicePaymentOrderDB.cs" />
+    <Compile Include="DBManager\SMSMessageDB.cs" />
+    <Compile Include="DBManager\StatmentByEmailOrderDB.cs" />
+    <Compile Include="DBManager\SwiftCopyOrderDB.cs" />
+    <Compile Include="DBManager\SwiftMessageDB.cs" />
+    <Compile Include="DBManager\TaxDB.cs" />
+    <Compile Include="DBManager\TransferAdditionalDataDB.cs" />
+    <Compile Include="DBManager\TransferByCallDB.cs" />
+    <Compile Include="DBManager\TransferCallContractDB.cs" />
+    <Compile Include="DBManager\TransferCallContractDetailsDB.cs" />
+    <Compile Include="DBManager\TransferCallContractOrderDB.cs" />
+    <Compile Include="DBManager\TransfersDB.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DBManager\TransferToShopOrderDB.cs" />
+    <Compile Include="DBManager\TransitAccountForDebitTransactionsDB.cs" />
+    <Compile Include="DBManager\TransitPaymentOrderDB.cs" />
+    <Compile Include="DBManager\UserDB.cs" />
+    <Compile Include="DBManager\UtilityDB.cs" />
+    <Compile Include="DBManager\UtilityPaymentOrderDB.cs" />
+    <Compile Include="DBManager\ValidationDB.cs" />
+    <Compile Include="CurrencyExchangeOrder.cs" />
+    <Compile Include="DBManager\VehicleViolationResponseDB.cs" />
+    <Compile Include="DBManager\XBUserGroupDB.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DepositCaseMap.cs" />
+    <Compile Include="DepositCaseOrder.cs" />
+    <Compile Include="DepositCasePenaltyMatureOrder.cs" />
+    <Compile Include="DepositOption.cs" />
+    <Compile Include="DocumentSignatureSetting.cs" />
+    <Compile Include="ENAPayments.cs" />
+    <Compile Include="EOService\EOGetClientRequest.cs" />
+    <Compile Include="EOService\EOGetClientResponse.cs" />
+    <Compile Include="EOService\EOTransferRequest.cs" />
+    <Compile Include="EOService\EOTransferResponse.cs" />
+    <Compile Include="ExchangeRate.cs" />
+    <Compile Include="Factoring.cs" />
+    <Compile Include="FactoringTerminationOrder.cs" />
+    <Compile Include="FastTransferPaymentOrder.cs" />
+    <Compile Include="FicoScoreResult.cs" />
+    <Compile Include="Fond\Fond.cs" />
+    <Compile Include="Fond\FondOrder.cs" />
+    <Compile Include="Fond\FondProvidingDetail.cs" />
+    <Compile Include="FTPRate\FTPRate.cs" />
+    <Compile Include="FTPRate\FTPRateOrder.cs" />
+    <Compile Include="GivenGuaranteeReductions .cs" />
+    <Compile Include="GoodsDetails.cs" />
+    <Compile Include="Guarantee.cs" />
+    <Compile Include="InternationalPaymentOrder.cs" />
+    <Compile Include="LoanEquipment.cs" />
+    <Compile Include="LoanMonitoringConclusion.cs" />
+    <Compile Include="LoanProductClassificationRemoveOrder.cs" />
+    <Compile Include="LoanProductDataChangeOrder.cs" />
+    <Compile Include="LoanProductMakeOutBalanceOrder.cs" />
+    <Compile Include="LoanProductMakeOutOrder.cs" />
+    <Compile Include="LoanProductTerminationOrder.cs" />
+    <Compile Include="Insurance.cs" />
+    <Compile Include="InsuranceOrder.cs" />
+    <Compile Include="Interfaces\IEditableHBItem.cs" />
+    <Compile Include="Interfaces\IRedirectableToDocFlow.cs" />
+    <Compile Include="LoanApplication.cs" />
+    <Compile Include="LoanProductClassification.cs" />
+    <Compile Include="MembershipRewardsBonusHistory.cs" />
+    <Compile Include="MembershipRewardsOrder.cs" />
+    <Compile Include="OperDayMode.cs" />
+    <Compile Include="OperDayOptions.cs" />
+    <Compile Include="OperDayOptionsFilter.cs" />
+    <Compile Include="OrderFilter.cs" />
+    <Compile Include="OrderForCashRegister.cs" />
+    <Compile Include="OrderGroup.cs" />
+    <Compile Include="OrderListFilter.cs" />
+    <Compile Include="OrderRejection.cs" />
+    <Compile Include="PaymentToARCAOrder.cs" />
+    <Compile Include="PensionPaymentOrder.cs" />
+    <Compile Include="PensionSystem.cs" />
+    <Compile Include="PeriodicTransferDataChangeOrder.cs" />
+    <Compile Include="PINRegenerationOrder.cs" />
+    <Compile Include="PlasticCardRemovalOrder.cs" />
+    <Compile Include="PlasticCardSMSServiceHistory.cs" />
+    <Compile Include="PlasticCardSMSServiceOrder.cs" />
+    <Compile Include="ProblemLoanTax.cs" />
+    <Compile Include="ProblemLoanTaxFilter.cs" />
+    <Compile Include="ProductNote.cs" />
+    <Compile Include="ProductNotificationConfigurations.cs" />
+    <Compile Include="ProductNotificationConfigurationsOrder.cs" />
+    <Compile Include="R2ARequestOutputResponse.cs" />
+    <Compile Include="ReadXmlFileAndLog.cs" />
+    <Compile Include="RemittanceAmendmentOrder.cs" />
+    <Compile Include="RemittanceCancellationOrder.cs" />
+    <Compile Include="RemittanceChangeHistory.cs" />
+    <Compile Include="RemittanceDetails.cs" />
+    <Compile Include="RemittanceFeeData.cs" />
+    <Compile Include="RenewedCardAccountRegOrder.cs" />
+    <Compile Include="ReplacedCardAccountRegOrder.cs" />
+    <Compile Include="SberTransfers\Models\SberPreTransferRequisites.cs" />
+    <Compile Include="SberTransfers\Order\SberIncomingTransferOrder.cs" />
+    <Compile Include="SberTransfers\SberTransfers.cs" />
+    <Compile Include="SearchClassifiedLoan.cs" />
+    <Compile Include="SearchDepositProductPrices.cs" />
+    <Compile Include="SearchLoanEquipment.cs" />
+    <Compile Include="SearchSwiftMessage.cs" />
+    <Compile Include="PensionApplication.cs" />
+    <Compile Include="PensionApplicationOrder.cs" />
+    <Compile Include="PensionApplicationTerminationOrder.cs" />
+    <Compile Include="PreOrder.cs" />
+    <Compile Include="PreOrderProductDetails.cs" />
+    <Compile Include="ProvisionLoan.cs" />
+    <Compile Include="ReceivedBankMailTransfer.cs" />
+    <Compile Include="ReestrTransferAdditionalDetails.cs" />
+    <Compile Include="ReestrTransferOrder.cs" />
+    <Compile Include="ReestrUtilityPaymentOrder.cs" />
+    <Compile Include="RejectedOrderMessage.cs" />
+    <Compile Include="SafekeepingItem.cs" />
+    <Compile Include="SafekeepingItemOrder.cs" />
+    <Compile Include="SearchCreditHereAndNow.cs" />
+    <Compile Include="SearchLeasingLoans.cs" />
+    <Compile Include="SearchParams.cs" />
+    <Compile Include="SearchPreOrderDetails.cs" />
+    <Compile Include="SearchReceivedTransfer.cs" />
+    <Compile Include="Service References\ACBAServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\ArcaDataServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\ARUSDataService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\ContractServiceRef\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\EmailMessagingService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\PensionSystemRef\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\SMSMessagingService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\TokenOperationsCasServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\TokenOperationsSecService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\TokenOperationsServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\UtilityPaymentsServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceClient\ACBAOperationService.cs" />
+    <Compile Include="ServiceClient\ArcaDataService.cs" />
+    <Compile Include="ServiceClient\LoginOperationsService.cs" />
+    <Compile Include="ServiceClient\ProxyManager.cs" />
+    <Compile Include="ServiceClient\SMSMessagingOperations.cs" />
+    <Compile Include="ServiceClient\TokenOperationsCasService.cs" />
+    <Compile Include="ServiceClient\TokenOperationsSecurityService.cs" />
+    <Compile Include="ServiceClient\TokenOperationsService.cs" />
+    <Compile Include="ServiceClient\UtilityOperationService.cs" />
+    <Compile Include="Shop.cs" />
+    <Compile Include="ShowNewDahk.cs" />
+    <Compile Include="SSTerminal\SSTerminal.cs" />
+    <Compile Include="STAKPaymentOrder.cs" />
+    <Compile Include="STAKResponseConfirm.cs" />
+    <Compile Include="SwiftMessageRejectOrder.cs" />
+    <Compile Include="Templates\BudgetPaymentOrderTemplate.cs" />
+    <Compile Include="Templates\CardToCardOrderTemplate.cs" />
+    <Compile Include="Templates\CurrencyExchangeOrderTemplate.cs" />
+    <Compile Include="Templates\InternationalOrderTemplate.cs" />
+    <Compile Include="Templates\LoanMatureOrderTemplate.cs" />
+    <Compile Include="Templates\PaymentOrderTemplate.cs" />
+    <Compile Include="Templates\Template.cs" />
+    <Compile Include="Templates\TemplateFilter.cs" />
+    <Compile Include="Templates\UtilityPaymentOrderTemplate.cs" />
+    <Compile Include="TransactionDetail.cs" />
+    <Compile Include="TransactionSwiftConfirmOrder.cs" />
+    <Compile Include="Transfer.cs" />
+    <Compile Include="LeasingLoan.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LoanMainContract.cs" />
+    <Compile Include="LoanProduct.cs" />
+    <Compile Include="LoanProductActivationOrder.cs" />
+    <Compile Include="LoanProductOrder.cs" />
+    <Compile Include="LoanProductProlongation.cs" />
+    <Compile Include="MatureOrder.cs" />
+    <Compile Include="MembershipRewards.cs" />
+    <Compile Include="MembershipRewardsStatusHistory.cs" />
+    <Compile Include="OperationAccountHelper.cs" />
+    <Compile Include="OPPerson.cs" />
+    <Compile Include="BOOrderCustomer.cs" />
+    <Compile Include="Order.cs" />
+    <Compile Include="OrderAttachment.cs" />
+    <Compile Include="OrderFee.cs" />
+    <Compile Include="FeeForServiceProvidedOrder.cs" />
+    <Compile Include="Orders\ChequeBookOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Orders\ChequeBookReceiveOrder.cs" />
+    <Compile Include="Orders\SearchTransferBankMail.cs" />
+    <Compile Include="PaidAccreditive.cs" />
+    <Compile Include="PaidFactoring.cs" />
+    <Compile Include="PaidGuarantee.cs" />
+    <Compile Include="BOOrderPayment.cs" />
+    <Compile Include="PeriodicBudgetPaymentOrder.cs" />
+    <Compile Include="PeriodicOrder.cs" />
+    <Compile Include="PeriodicPaymentOrder.cs" />
+    <Compile Include="PeriodicSwiftStatementOrder.cs" />
+    <Compile Include="PeriodicTerminationOrder.cs" />
+    <Compile Include="PeriodicUtilityPaymentOrder.cs" />
+    <Compile Include="ActionPermission.cs" />
+    <Compile Include="PlasticCard.cs" />
+    <Compile Include="PlasticCardOrder.cs" />
+    <Compile Include="PosCashbackRate.cs" />
+    <Compile Include="PosLocation.cs" />
+    <Compile Include="PosRate.cs" />
+    <Compile Include="PosTerminal.cs" />
+    <Compile Include="ProblemLoanCalculationsDetail.cs" />
+    <Compile Include="ProductDocument.cs" />
+    <Compile Include="ProductOtherFee.cs" />
+    <Compile Include="Provision.cs" />
+    <Compile Include="ReceivedFastTransferPaymentOrder.cs" />
+    <Compile Include="RemovalOrder.cs" />
+    <Compile Include="SearchAccountResult.cs" />
+    <Compile Include="SearchAccounts.cs" />
+    <Compile Include="SearchBudgetAccount.cs" />
+    <Compile Include="SearchCardResult.cs" />
+    <Compile Include="SearchCashBook.cs" />
+    <Compile Include="SearchInternationalTransfer.cs" />
+    <Compile Include="SearchLeasingCustomer.cs" />
+    <Compile Include="SearchSwiftCodes.cs" />
+    <Compile Include="SearchCards.cs" />
+    <Compile Include="SearchOrders.cs" />
+    <Compile Include="ServicePaymentNote.cs" />
+    <Compile Include="ServicePaymentNoteOrder.cs" />
+    <Compile Include="ServicePaymentOrder.cs" />
+    <Compile Include="SMSMessage.cs" />
+    <Compile Include="DepositCase.cs" />
+    <Compile Include="DepositRepayment.cs" />
+    <Compile Include="LoanRepaymentGrafik.cs" />
+    <Compile Include="OrderHistory.cs" />
+    <Compile Include="Orders\CashOrder.cs" />
+    <Compile Include="Communal.cs" />
+    <Compile Include="CacheHelper.cs" />
+    <Compile Include="Card.cs" />
+    <Compile Include="CreditLine.cs" />
+    <Compile Include="CardStatement.cs" />
+    <Compile Include="CardStatementDetail.cs" />
+    <Compile Include="CommunalDetails.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Contact.cs" />
+    <Compile Include="ContactAccount.cs" />
+    <Compile Include="Orders\CustomerDataOrder.cs" />
+    <Compile Include="Culture.cs" />
+    <Compile Include="Customer.cs" />
+    <Compile Include="DepositOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DepositOrderCondition.cs" />
+    <Compile Include="DepositTerminationOrder.cs" />
+    <Compile Include="Enumerations.cs" />
+    <Compile Include="FutureBalance.cs" />
+    <Compile Include="Info.cs" />
+    <Compile Include="Loan.cs" />
+    <Compile Include="Localization.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="OverdueDetail.cs" />
+    <Compile Include="PaymentOrderFutureBalance.cs" />
+    <Compile Include="PeriodicTransfer.cs" />
+    <Compile Include="Deposit.cs" />
+    <Compile Include="PeriodicTransferHistory.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PaymentOrder.cs" />
+    <Compile Include="Orders\ReferenceOrder.cs" />
+    <Compile Include="SearchCommunal.cs" />
+    <Compile Include="Orders\StatmentByEmailOrder.cs" />
+    <Compile Include="Orders\SwiftCopyOrder.cs" />
+    <Compile Include="SwIftMessage.cs" />
+    <Compile Include="Tax.cs" />
+    <Compile Include="TransferAdditionalData.cs" />
+    <Compile Include="TransferApproveOrder.cs" />
+    <Compile Include="TransferByCall.cs" />
+    <Compile Include="TransferByCallChangeOrder.cs" />
+    <Compile Include="TransferByCallFilter.cs" />
+    <Compile Include="TransferByCallList.cs" />
+    <Compile Include="TransferCallContract.cs" />
+    <Compile Include="TransferCallContractDetails.cs" />
+    <Compile Include="TransferCallContractOrder.cs" />
+    <Compile Include="TransferCallContractTerminationOrder.cs" />
+    <Compile Include="TransferConfirmOrder.cs" />
+    <Compile Include="TransferDeleteOrder.cs" />
+    <Compile Include="TransferFilter.cs" />
+    <Compile Include="TransferToShopOrder.cs" />
+    <Compile Include="TransitAccountForDebitTransactions.cs" />
+    <Compile Include="TransitCurrencyExchangeOrder.cs" />
+    <Compile Include="TransitPaymentOrder.cs" />
+    <Compile Include="TypesOfDigitalAccountRest.cs" />
+    <Compile Include="UploadedFile.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="UserInfoForArrests.cs" />
+    <Compile Include="UserMessage.cs" />
+    <Compile Include="Utility.cs" />
+    <Compile Include="ActionResult.cs" />
+    <Compile Include="UtilityPaymentOrder.cs" />
+    <Compile Include="UtilityPaymentsManagment\BeelineAbonentSearch.cs" />
+    <Compile Include="UtilityPaymentsManagment\GasPromAbonentSearch.cs" />
+    <Compile Include="UtilityPaymentsManagment\UcomFixAbonentSearch.cs" />
+    <Compile Include="UtilityPaymentsManagment\UcomMobileAbonentSearch.cs" />
+    <Compile Include="UtilityPaymentsManagment\UtilityOptions.cs" />
+    <Compile Include="UtilityPaymentsManagment\UtilityOptionsFilter.cs" />
+    <Compile Include="DBManager\CardLimitChangeOrderDB.cs" />
+    <Compile Include="DBManager\ArcaCardsTransactionOrderDB.cs" />
+    <Compile Include="CardLimit.cs" />
+    <Compile Include="CardLimitChangeOrder.cs" />
+    <Compile Include="ArcaCardsTransactionOrder.cs" />
+    <Compile Include="UtilityPaymentsManagment\VivaCellBTFCheckDetails.cs" />
+    <Compile Include="UtilityPaymentsManagment\VivaCellSubscriberSearch.cs" />
+    <Compile Include="Validation.cs" />
+    <Compile Include="VehicleViolationResponse.cs" />
+    <Compile Include="VirtualCardDetails.cs" />
+    <Compile Include="VirtualCardStatusChangeOrder.cs" />
+    <Compile Include="VisaAliasOrder.cs" />
+    <Compile Include="WaterCoDetail.cs" />
+    <Compile Include="XBManagement\ApprovementSchema.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\ApprovementSchemaDetails.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\ApprovementSchemaStep.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\AssigneeCustomer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\Enumerations.cs" />
+    <Compile Include="XBManagement\HBActivationOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBActivationRejectionOrder.cs" />
+    <Compile Include="XBManagement\HBActivationRequest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBApplication.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBApplicationFullPermissionsGrantingOrder.cs" />
+    <Compile Include="XBManagement\HBApplicationOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBApplicationQualityChangeOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBApplicationUpdate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBProductPermission.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBRegistrationCodeResendOrder.cs" />
+    <Compile Include="XBManagement\HBServletOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBServletRequestOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBToken.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBUser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\HBUserLog.cs" />
+    <Compile Include="XBManagement\LogonInfo.cs" />
+    <Compile Include="XBManagement\PhoneBankingActivationRequest.cs" />
+    <Compile Include="XBManagement\PhoneBankingContract.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\PhoneBankingContractActivationOrder.cs" />
+    <Compile Include="XBManagement\PhoneBankingContractClosingOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\PhoneBankingContractOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\PhoneBankingContractQuestionAnswer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\TokensDistribution.cs" />
+    <Compile Include="XBManagement\Validation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XBManagement\XBUserGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\DataSources\System.Data.DataTable.datasource" />
+    <None Include="Properties\DataSources\System.Data.DataTable1.datasource" />
+    <None Include="Properties\DataSources\System.Data.DataTable2.datasource" />
+    <None Include="Properties\DataSources\System.Data.DataTable3.datasource" />
+    <None Include="Properties\DataSources\System.Data.DataTable4.datasource" />
+    <None Include="Properties\DataSources\System.Data.DataTable5.datasource" />
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Address.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.AttachmentDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.AttachmentDocumentHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.AuthorizedUser.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankLinkCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankLinkOrganisation.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankLinkPerson.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankService.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankServiceAccount.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankServiceCard.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankServiceCashTransaction.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankServiceDeposit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankServiceOtherBank.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankServiceTransfer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.BankServiceType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Cashier.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CBAccountStatusInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CBResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ChangeLog.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ChangeSet.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CitizenshipHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ClientPermissions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Community.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CompositeType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ContactChangingRiskVerificationData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Country.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Criminal.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CriminalCheckResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Customer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerAddress.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerAddressHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerClassDetailsHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerClosedDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerDocumentHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerEmail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerEmailHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerIdentificationResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerInvolvingSetNumbersHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerPhone.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerPhonesHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerPhoto.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerProfit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerProfitHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerServingEmployee.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerServingEmployeeHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerWebSite.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.CustomerWebSiteHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.DahkCheckResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.DocumentDefaultHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.EducationHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.EkengRequestInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.EkengRequestResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Email.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.EmployeeCredential.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Employment.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.EmploymentHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ERegisterRequest.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ERegisterRequestResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ERegisterResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.eregistry.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.FamilyMember.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.FamilyMemberHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.FatcaCountriesHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.FatcaHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.FloatKeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.GovernmentDataHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.GPMHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.GPMPresident.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.IntKeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.KeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Lead.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.LegalCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.LinkedCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.LinkedCustomerHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.MergedCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.NaturalDisaster.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.OrganisationHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.OtherBankAccount.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.OverdueCustomersForGPM.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Person.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.PersonalAccountUser.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.PersonHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.PersonNoteHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.PersonSocialGroupsHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.PhysicalCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Profit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.PSActionResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.RACitizen.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Range.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.RegionType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.RenamedGPMCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ReportData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Result.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ScopeOfActivity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ScopeOfActivityHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ScopeOfActivitySubType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.SearchCommunity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.SearchCustomers.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.SearchPersonNotes.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.StringKeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.User.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.VerificationData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.Village.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.ViolationRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.VipData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.VipDataHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ExternalBanking.ACBAServiceReference.WebSite.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService.wsdl" />
+    <None Include="Service References\ACBAServiceReference\OperationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService1.wsdl" />
+    <None Include="Service References\ACBAServiceReference\OperationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService14.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService18.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService19.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService20.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService21.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService22.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService23.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService24.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService25.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService26.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService27.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService1.wsdl" />
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService111.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService112.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService113.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService114.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService115.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService61.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService62.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService63.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService64.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.ArcaBalanceResponseData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.ArcaCardsTransactionResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.C2CTransferResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.CardLimitChangeResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.ChangeExceedLimitResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.CompositeType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.CreditCardEcommerceResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.getCardDataResponseType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.TransactionDetailsBResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ArcaDataServiceReference\ExternalBanking.ArcaDataServiceReference.TransactionResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService.wsdl" />
+    <None Include="Service References\ARUSDataService\ARUSOperationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService1.wsdl" />
+    <None Include="Service References\ARUSDataService\ARUSOperationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ARUSOperationService9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.ActionResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.AmendmentRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.CancellationRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.InfoResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.MTOListAndBestChoiceOutput.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.PayoutRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.R2ARequestOutput.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.RemittanceFeeRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.SendMoneyRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ARUSDataService\ExternalBanking.ARUSDataService.TransactionDetailsRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ContractServiceRef\Arrays.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceRef\ContractService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceRef\service.wsdl" />
+    <None Include="Service References\ContractServiceRef\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceRef\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceRef\System.Collections.Generic.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceRef\System.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EmailMessagingService\EmailMessagingService.wsdl" />
+    <None Include="Service References\EmailMessagingService\EmailMessagingService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EmailMessagingService\EmailMessagingService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EmailMessagingService\EmailMessagingService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EmailMessagingService\EmailMessagingService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EmailMessagingService\EmailMessagingService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EmailMessagingService\ExternalBanking.EmailMessagingService.ActionResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\PensionSystemRef\ExternalBanking.PensionSystemRef.ValueTupleOfdecimalResultUU8nXIbL.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\PensionSystemRef\PensionSystemService.wsdl" />
+    <None Include="Service References\PensionSystemRef\PensionSystemService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PensionSystemRef\PensionSystemService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PensionSystemRef\PensionSystemService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PensionSystemRef\PensionSystemService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SMSMessagingService\ExternalBanking.SMSMessagingService.SMSMessagingSession.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SMSMessagingService\SMSMessagingService1.wsdl" />
+    <None Include="Service References\SMSMessagingService\SMSMessagingService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SMSMessagingService\SMSMessagingService41.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SMSMessagingService\SMSMessagingService42.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SMSMessagingService\SMSMessagingService43.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\ExternalBanking.TokenOperationsCasServiceReference.TokenOperationsResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\ExternalBanking.TokenOperationsCasServiceReference.TokenOperationsSpecificUserResponce.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas1.wsdl" />
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas11.wsdl" />
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas41.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas42.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas43.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas44.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas45.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas46.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas47.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsSecService\ExternalBanking.TokenOperationsSecService.TokenOperationsResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TokenOperationsSecService\TokenOperations.wsdl" />
+    <None Include="Service References\TokenOperationsSecService\TokenOperations.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsSecService\TokenOperations1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsSecService\TokenOperations2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsServiceReference\AcbaOnlineSecurityService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsServiceReference\AcbaOnlineSecurityService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsServiceReference\AcbaOnlineSecurityService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TokenOperationsServiceReference\ExternalBanking.TokenOperationsServiceReference.TokenOperationsResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TokenOperationsServiceReference\TokenOperations.wsdl" />
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.ActionResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.BeelineAbonentCheckRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.BeelinePaymentRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.GasPromPaymentRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.GasPromSearchRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.GasPromSectionCodeRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.UcomFixAbonentCheckRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.UcomFixPaymentRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.UcomMobileSearchAccountData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.VivaCellPaymentBTFCheckRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.VivaCellPaymentCheckRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\ExternalBanking.UtilityPaymentsServiceReference.VivaCellPaymentRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService.wsdl" />
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\ACBAServiceReference\" />
+    <WCFMetadataStorage Include="Service References\ArcaDataServiceReference\" />
+    <WCFMetadataStorage Include="Service References\ARUSDataService\" />
+    <WCFMetadataStorage Include="Service References\ContractServiceRef\" />
+    <WCFMetadataStorage Include="Service References\EmailMessagingService\" />
+    <WCFMetadataStorage Include="Service References\PensionSystemRef\" />
+    <WCFMetadataStorage Include="Service References\SMSMessagingService\" />
+    <WCFMetadataStorage Include="Service References\TokenOperationsCasServiceReference\" />
+    <WCFMetadataStorage Include="Service References\TokenOperationsSecService\" />
+    <WCFMetadataStorage Include="Service References\TokenOperationsServiceReference\" />
+    <WCFMetadataStorage Include="Service References\UtilityPaymentsServiceReference\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\AcbaOnlineSecurityService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="obj\Debug\TempPE\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ContractServiceRef\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ContractServiceRef\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ContractServiceRef\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SMSMessagingService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SMSMessagingService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SMSMessagingService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsServiceReference\AcbaOnlineSecurityService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SMSMessagingService\SMSMessagingService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsSecService\TokenOperations.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsSecService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsSecService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsSecService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ArcaDataServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ArcaDataServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ArcaDataServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PensionSystemRef\PensionSystemService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PensionSystemRef\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PensionSystemRef\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PensionSystemRef\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EmailMessagingService\EmailMessagingService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EmailMessagingService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EmailMessagingService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EmailMessagingService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ArcaDataServiceReference\ArcaDataService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsCasServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsCasServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsCasServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ARUSDataService\ARUSOperationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ARUSDataService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ARUSDataService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ARUSDataService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\OperationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ARUSDataService\ARUSOperationService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\OperationService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UtilityPaymentsServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UtilityPaymentsServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UtilityPaymentsServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

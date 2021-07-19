@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="a5592638-98e8-4c2a-9ee6-66c4d38eecb1" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="https://authorizationService-Test/InformationSecurityService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="InformationSecurityService.xsd" MetadataType="Schema" ID="46659ee8-b81d-4513-955e-5aac053624b7" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd4" />
+    <MetadataFile FileName="InformationSecurityService.disco" MetadataType="Disco" ID="50342c73-f6a9-43d3-8a40-1e4eace937ac" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?disco" />
+    <MetadataFile FileName="InformationSecurityService1.xsd" MetadataType="Schema" ID="5dcf59e3-b2ca-414f-877e-052c4fdd0d4f" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd0" />
+    <MetadataFile FileName="InformationSecurityService2.xsd" MetadataType="Schema" ID="ba29af06-509a-40ef-bc0f-980945791039" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd1" />
+    <MetadataFile FileName="InformationSecurityService3.xsd" MetadataType="Schema" ID="20a6b4ed-8950-4da2-abc3-41140c080d09" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd2" />
+    <MetadataFile FileName="InformationSecurityService4.xsd" MetadataType="Schema" ID="d5233707-ae3a-4bee-8c53-5d0259b7f31e" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd3" />
+    <MetadataFile FileName="InfSecService.wsdl" MetadataType="Wsdl" ID="501b9f26-ef84-46dd-a2fd-666df009bea1" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

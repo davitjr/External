@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="e3be50c3-59fa-48e1-8215-9739a3497dd1" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="AcbaOnlineSecurityService4.xsd" MetadataType="Schema" ID="466a29e6-e0bd-4564-8780-5a83c707b960" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd0" />
+    <MetadataFile FileName="AcbaOnlineSecurityService5.xsd" MetadataType="Schema" ID="67c5ad77-234c-481b-b3cf-b06460c69d78" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd3" />
+    <MetadataFile FileName="AcbaOnlineSecurityService6.xsd" MetadataType="Schema" ID="7c4b99ad-a774-475e-afab-33eadd657b56" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd2" />
+    <MetadataFile FileName="AcbaOnlineSecurityService7.xsd" MetadataType="Schema" ID="8f25f104-388e-499c-abe2-6fec05b0ba7e" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd1" />
+    <MetadataFile FileName="AcbaOnlineSecurityService1.disco" MetadataType="Disco" ID="9bd18cea-74eb-4d90-82e2-c7051367d5b3" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?disco" />
+    <MetadataFile FileName="MobileLogin1.wsdl" MetadataType="Wsdl" ID="40eb8b24-868a-4205-bc5e-182884dda611" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

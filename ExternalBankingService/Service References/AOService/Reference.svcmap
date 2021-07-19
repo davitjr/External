@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="e0cb4b3c-2527-4c7f-a908-67d4634083d8" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" Protocol="mex" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="3fc167a3-7fd8-4752-b33e-6abf6bf46d6e" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="7715c566-aa5a-4cd1-bd40-740002a46aa2" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="1b5090a8-20d1-4477-9df3-a85a9ecfb9d1" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="AcbaOnlineSecurityService.Helpers.xsd" MetadataType="Schema" ID="81392cd8-0652-46bc-87c3-da4261d43ea0" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="Arrays.xsd" MetadataType="Schema" ID="65a86d23-ee36-42eb-b83b-f76be389be54" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

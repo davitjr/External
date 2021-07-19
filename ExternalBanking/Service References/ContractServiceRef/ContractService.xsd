@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ContractService" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ContractService" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/System.Collections.Generic" />
+  <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:complexType name="Contract">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ArraysList" nillable="true" type="tns:ArrayOfStringKeyValueArray" />
+      <xs:element minOccurs="0" name="AttachDocType" type="xs:int" />
+      <xs:element minOccurs="0" name="AttachFile" type="xs:unsignedByte" />
+      <xs:element minOccurs="0" name="AttachSourceType" type="xs:int" />
+      <xs:element minOccurs="0" name="ContractName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DigitalContract" type="xs:boolean" />
+      <xs:element minOccurs="0" name="DocID" type="xs:int" />
+      <xs:element minOccurs="0" name="Extension" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="FooterHeightForContracts" type="xs:int" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/System.Collections.Generic" minOccurs="0" name="FormulasList" nillable="true" type="q1:ArrayOfKeyValuePairOfstringstring" />
+      <xs:element minOccurs="0" name="IsFilled" type="xs:boolean" />
+      <xs:element minOccurs="0" name="LoanContractWithQR" type="xs:boolean" />
+      <xs:element minOccurs="0" name="NewGUID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ParametersList" nillable="true" type="tns:ArrayOfStringKeyValue" />
+      <xs:element minOccurs="0" name="ProductNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="content" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Contract" nillable="true" type="tns:Contract" />
+  <xs:complexType name="ArrayOfStringKeyValueArray">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="StringKeyValueArray" nillable="true" type="tns:StringKeyValueArray" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfStringKeyValueArray" nillable="true" type="tns:ArrayOfStringKeyValueArray" />
+  <xs:complexType name="StringKeyValueArray">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
+      <xs:element xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="Value" nillable="true" type="q2:ArrayOfstring" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="StringKeyValueArray" nillable="true" type="tns:StringKeyValueArray" />
+  <xs:complexType name="ArrayOfStringKeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="StringKeyValue" nillable="true" type="tns:StringKeyValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfStringKeyValue" nillable="true" type="tns:ArrayOfStringKeyValue" />
+  <xs:complexType name="StringKeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="StringKeyValue" nillable="true" type="tns:StringKeyValue" />
+</xs:schema>

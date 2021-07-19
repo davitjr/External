@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ACBALibrary" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ACBALibrary" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/ExternalBankingService/XBInfoService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:complexType name="User">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccountGroup" type="xs:long" />
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AdvancedOptions" nillable="true" type="q1:ArrayOfKeyValueOfstringstring" />
+      <xs:element minOccurs="0" name="DepartmentId" type="xs:short" />
+      <xs:element minOccurs="0" name="EmployeeID" type="xs:short" />
+      <xs:element minOccurs="0" name="GroupID" type="xs:short" />
+      <xs:element minOccurs="0" name="IsAutorized" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsChiefAcc" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsManager" type="xs:boolean" />
+      <xs:element minOccurs="0" name="PositionID" type="xs:short" />
+      <xs:element minOccurs="0" name="PositionName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TransactionLimit" type="xs:int" />
+      <xs:element minOccurs="0" name="UserSessionToken" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="filialCode" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="number_of_item" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="transRight" type="xs:int" />
+      <xs:element minOccurs="0" name="userCustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="userID" type="xs:short" />
+      <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userPermissionId" type="xs:short" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="User" nillable="true" type="tns:User" />
+</xs:schema>

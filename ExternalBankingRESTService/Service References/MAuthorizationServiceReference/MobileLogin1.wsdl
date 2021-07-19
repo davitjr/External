@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="MobileLogin" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" />
+      <xsd:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IMobileLogin_AuthorizeMobileUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeMobileUser" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_AuthorizeMobileUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeMobileUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_AuthorizeUserByUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_AuthorizeUserByUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_AuthorizeUserByToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByToken" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_AuthorizeUserByToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_ChangeUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_ChangeUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_CheckAuthorization_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAuthorization" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_CheckAuthorization_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAuthorizationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_SingData_InputMessage">
+    <wsdl:part name="parameters" element="tns:SingData" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_SingData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SingDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_VerifyToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyToken" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_VerifyToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_CheckRegistrationCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckRegistrationCode" />
+  </wsdl:message>
+  <wsdl:message name="IMobileLogin_CheckRegistrationCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckRegistrationCodeResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IMobileLogin">
+    <wsdl:operation name="AuthorizeMobileUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/AuthorizeMobileUser" message="tns:IMobileLogin_AuthorizeMobileUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/AuthorizeMobileUserResponse" message="tns:IMobileLogin_AuthorizeMobileUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/AuthorizeUserByUserPassword" message="tns:IMobileLogin_AuthorizeUserByUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/AuthorizeUserByUserPasswordResponse" message="tns:IMobileLogin_AuthorizeUserByUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/AuthorizeUserByToken" message="tns:IMobileLogin_AuthorizeUserByToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/AuthorizeUserByTokenResponse" message="tns:IMobileLogin_AuthorizeUserByToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/ChangeUserPassword" message="tns:IMobileLogin_ChangeUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/ChangeUserPasswordResponse" message="tns:IMobileLogin_ChangeUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorization">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/CheckAuthorization" message="tns:IMobileLogin_CheckAuthorization_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/CheckAuthorizationResponse" message="tns:IMobileLogin_CheckAuthorization_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SingData">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/SingData" message="tns:IMobileLogin_SingData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/SingDataResponse" message="tns:IMobileLogin_SingData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VerifyToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/VerifyToken" message="tns:IMobileLogin_VerifyToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/VerifyTokenResponse" message="tns:IMobileLogin_VerifyToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckRegistrationCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMobileLogin/CheckRegistrationCode" message="tns:IMobileLogin_CheckRegistrationCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMobileLogin/CheckRegistrationCodeResponse" message="tns:IMobileLogin_CheckRegistrationCode_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IMobileLogin" type="tns:IMobileLogin">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AuthorizeMobileUser">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/AuthorizeMobileUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/AuthorizeUserByUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByToken">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/AuthorizeUserByToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorization">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/CheckAuthorization" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SingData">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/SingData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyToken">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/VerifyToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckRegistrationCode">
+      <soap:operation soapAction="http://tempuri.org/IMobileLogin/CheckRegistrationCode" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MobileLogin">
+    <wsdl:port name="BasicHttpBinding_IMobileLogin" binding="tns:BasicHttpBinding_IMobileLogin">
+      <soap:address location="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

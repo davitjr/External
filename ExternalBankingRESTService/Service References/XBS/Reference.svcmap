@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="f24c0b85-0a32-4eb8-8028-c7e0c9a8487b" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost/ExternalBankingService/XBService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="XBService15.xsd" MetadataType="Schema" ID="23b7b48f-b0fc-4ed8-ac00-9d21ab0fc1da" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd17" />
+    <MetadataFile FileName="XBService.xsd" MetadataType="Schema" ID="48227569-1c54-4151-922e-3f5dd3682a4c" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd5" />
+    <MetadataFile FileName="XBService1.xsd" MetadataType="Schema" ID="4a5a2506-fdd6-41aa-b076-3e39c13f50a0" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd1" />
+    <MetadataFile FileName="XBService151.xsd" MetadataType="Schema" ID="d230fe83-9ac6-401c-bab7-48f8eaa1ab66" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd16" />
+    <MetadataFile FileName="XBService2.xsd" MetadataType="Schema" ID="a44cee31-d6ec-4f7b-beaa-e9afc6d10010" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd9" />
+    <MetadataFile FileName="XBService152.xsd" MetadataType="Schema" ID="2ea7635a-3b59-4828-a7f1-0bcf4df897b1" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd15" />
+    <MetadataFile FileName="XBService3.xsd" MetadataType="Schema" ID="952dc3bc-b7d2-41e8-bad8-22c75d6291c1" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd4" />
+    <MetadataFile FileName="XBService4.xsd" MetadataType="Schema" ID="0dc377ba-fa20-45ca-bf54-66b02b6d6b32" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd0" />
+    <MetadataFile FileName="XBService5.xsd" MetadataType="Schema" ID="0df1d398-e530-4fff-85b3-68df583a2cdf" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd8" />
+    <MetadataFile FileName="XBService13.xsd" MetadataType="Schema" ID="f2c2639f-589f-4730-a4bf-ef966b31605e" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd13" />
+    <MetadataFile FileName="XBService16.xsd" MetadataType="Schema" ID="1d9cedce-faf7-4705-9a51-2b7ad32bc1a9" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd21" />
+    <MetadataFile FileName="XBService6.xsd" MetadataType="Schema" ID="5c84f368-285a-49f7-ab78-754a29f7f082" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd14" />
+    <MetadataFile FileName="XBService7.xsd" MetadataType="Schema" ID="47968614-09ab-4f49-903e-0218705c6fd9" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd7" />
+    <MetadataFile FileName="XBService8.xsd" MetadataType="Schema" ID="aa47d50a-97b0-4f54-802c-e4ae5f3b8fb9" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd3" />
+    <MetadataFile FileName="XBService153.xsd" MetadataType="Schema" ID="cd09a4ca-61cd-45e8-8386-da3adb28fda3" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd19" />
+    <MetadataFile FileName="XBService9.xsd" MetadataType="Schema" ID="8354da99-77fb-4147-b396-0488e0ac4e34" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd11" />
+    <MetadataFile FileName="XBService154.xsd" MetadataType="Schema" ID="475dc058-3e59-4156-bb9d-e528e0bb5b8b" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd18" />
+    <MetadataFile FileName="XBService155.xsd" MetadataType="Schema" ID="7fa8fa2a-c268-4eb9-8769-9fa6927dac99" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd20" />
+    <MetadataFile FileName="XBService10.xsd" MetadataType="Schema" ID="9280ef21-25a4-4778-a4ba-0526333862e9" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd12" />
+    <MetadataFile FileName="XBService11.xsd" MetadataType="Schema" ID="4cba09b4-0bed-4a2b-95dc-6086c54d238e" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd6" />
+    <MetadataFile FileName="XBService12.xsd" MetadataType="Schema" ID="f94afb05-8111-40b4-8948-3fe82e1512de" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd2" />
+    <MetadataFile FileName="XBService17.xsd" MetadataType="Schema" ID="58beb029-fddf-4405-881d-40fb0773c95c" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd22" />
+    <MetadataFile FileName="XBService14.xsd" MetadataType="Schema" ID="a987ae99-1c5f-4710-bef6-d31743f21adc" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd10" />
+    <MetadataFile FileName="XBService.disco" MetadataType="Disco" ID="53f4898c-6856-4dd8-9368-5524b8ad9578" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?disco" />
+    <MetadataFile FileName="XBService.wsdl" MetadataType="Wsdl" ID="7b5e547f-7dc4-4982-ae01-70c74dad2000" SourceId="1" SourceUrl="http://localhost/ExternalBankingService/XBService.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

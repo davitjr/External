@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="ebd21418-a0eb-4ad8-81ce-e4e9d9da4b5e" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://wcf01-test:89/SMSMessagingService/SMSMessagingService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="SMSMessagingService1.disco" MetadataType="Disco" ID="e4db62e2-5840-4461-9c85-7aae83dcd1c3" SourceId="1" SourceUrl="http://wcf01-test:89/SMSMessagingService/SMSMessagingService.svc?disco" />
+    <MetadataFile FileName="SMSMessagingService1.wsdl" MetadataType="Wsdl" ID="3b736b7b-6871-4249-9b33-0a4fb322fffd" SourceId="1" SourceUrl="http://wcf01-test:89/SMSMessagingService/SMSMessagingService.svc?wsdl" />
+    <MetadataFile FileName="SMSMessagingService4.xsd" MetadataType="Schema" ID="2cb3531a-5a72-4504-ab06-c74f14d4f4c1" SourceId="1" SourceUrl="http://wcf01-test:89/SMSMessagingService/SMSMessagingService.svc?xsd=xsd0" />
+    <MetadataFile FileName="SMSMessagingService41.xsd" MetadataType="Schema" ID="e58d91e0-6c18-4c0a-85dd-3598bd6b1805" SourceId="1" SourceUrl="http://wcf01-test:89/SMSMessagingService/SMSMessagingService.svc?xsd=xsd1" />
+    <MetadataFile FileName="SMSMessagingService42.xsd" MetadataType="Schema" ID="006c3b3e-ebe6-4474-8c4d-b87597439a82" SourceId="1" SourceUrl="http://wcf01-test:89/SMSMessagingService/SMSMessagingService.svc?xsd=xsd2" />
+    <MetadataFile FileName="SMSMessagingService43.xsd" MetadataType="Schema" ID="b6d97f61-8d39-49b6-91b8-8881c1a1512b" SourceId="1" SourceUrl="http://wcf01-test:89/SMSMessagingService/SMSMessagingService.svc?xsd=xsd3" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

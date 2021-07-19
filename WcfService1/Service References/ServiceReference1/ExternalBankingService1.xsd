@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/ExternalBanking" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ExternalBanking" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:47427/ExternalBankingService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="Account">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccountNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AccountType" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="AccountTypeDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Balance" type="xs:double" />
+      <xs:element minOccurs="0" name="Currency" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Account" nillable="true" type="tns:Account" />
+  <xs:complexType name="ArrayOfAccount">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Account" nillable="true" type="tns:Account" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAccount" nillable="true" type="tns:ArrayOfAccount" />
+  <xs:complexType name="AccountStatement">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FinalBalance" type="xs:double" />
+      <xs:element minOccurs="0" name="InitialBalance" type="xs:double" />
+      <xs:element minOccurs="0" name="TotalCreditAmount" type="xs:double" />
+      <xs:element minOccurs="0" name="TotalDebitAmount" type="xs:double" />
+      <xs:element minOccurs="0" name="Transactions" nillable="true" type="tns:ArrayOfAccountStatementDetail" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AccountStatement" nillable="true" type="tns:AccountStatement" />
+  <xs:complexType name="ArrayOfAccountStatementDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AccountStatementDetail" nillable="true" type="tns:AccountStatementDetail" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAccountStatementDetail" nillable="true" type="tns:ArrayOfAccountStatementDetail" />
+  <xs:complexType name="AccountStatementDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Amount" type="xs:double" />
+      <xs:element minOccurs="0" name="AmountBase" type="xs:double" />
+      <xs:element minOccurs="0" name="CorrespondentAccount" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DebitCredit" type="ser:char" />
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TransactionDate" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AccountStatementDetail" nillable="true" type="tns:AccountStatementDetail" />
+  <xs:complexType name="Card">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Balance" type="xs:double" />
+      <xs:element minOccurs="0" name="CardAccount" nillable="true" type="tns:Account" />
+      <xs:element minOccurs="0" name="CardNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CardSystem" type="xs:int" />
+      <xs:element minOccurs="0" name="CardType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CreditLine" nillable="true" type="tns:CardCreditLine" />
+      <xs:element minOccurs="0" name="Currency" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="MainCardNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Note" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProductId" type="xs:long" />
+      <xs:element minOccurs="0" name="ValidationDate" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Card" nillable="true" type="tns:Card" />
+  <xs:complexType name="CardCreditLine">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Currency" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CurrentCapital" type="xs:double" />
+      <xs:element minOccurs="0" name="EndDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="ProductId" type="xs:long" />
+      <xs:element minOccurs="0" name="StartCapital" type="xs:double" />
+      <xs:element minOccurs="0" name="StartDate" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CardCreditLine" nillable="true" type="tns:CardCreditLine" />
+  <xs:complexType name="ArrayOfCard">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Card" nillable="true" type="tns:Card" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfCard" nillable="true" type="tns:ArrayOfCard" />
+  <xs:complexType name="CardStatement">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FinalBalance" type="xs:double" />
+      <xs:element minOccurs="0" name="InitialBalance" type="xs:double" />
+      <xs:element minOccurs="0" name="TotalCreditAmount" type="xs:double" />
+      <xs:element minOccurs="0" name="TotalDebitAmount" type="xs:double" />
+      <xs:element minOccurs="0" name="Transactions" nillable="true" type="tns:ArrayOfCardStatementDetail" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CardStatement" nillable="true" type="tns:CardStatement" />
+  <xs:complexType name="ArrayOfCardStatementDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CardStatementDetail" nillable="true" type="tns:CardStatementDetail" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfCardStatementDetail" nillable="true" type="tns:ArrayOfCardStatementDetail" />
+  <xs:complexType name="CardStatementDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Amount" type="xs:double" />
+      <xs:element minOccurs="0" name="CommissionFee" type="xs:double" />
+      <xs:element minOccurs="0" name="DebitCredit" type="xs:unsignedByte" />
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OperationAmount" type="xs:double" />
+      <xs:element minOccurs="0" name="OperationCardNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OperationCurrency" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OperationDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="TransactionDate" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CardStatementDetail" nillable="true" type="tns:CardStatementDetail" />
+  <xs:complexType name="Loan">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Currency" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CurrentCapital" type="xs:double" />
+      <xs:element minOccurs="0" name="CurrentRateValue" type="xs:double" />
+      <xs:element minOccurs="0" name="EndDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="InterestRate" type="xs:float" />
+      <xs:element minOccurs="0" name="LoanAccount" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LoanType" type="xs:int" />
+      <xs:element minOccurs="0" name="LoanTypeDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProductId" type="xs:long" />
+      <xs:element minOccurs="0" name="Quality" type="xs:int" />
+      <xs:element minOccurs="0" name="QualityDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StartCapital" type="xs:double" />
+      <xs:element minOccurs="0" name="StartDate" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Loan" nillable="true" type="tns:Loan" />
+  <xs:complexType name="ArrayOfLoan">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Loan" nillable="true" type="tns:Loan" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfLoan" nillable="true" type="tns:ArrayOfLoan" />
+</xs:schema>

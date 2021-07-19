@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ArcaDataService" />
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ArcaPaymentClient" />
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd1" namespace="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" />
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CardLimitChangeOrder" />
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.ApiGate" />
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CreditCardEcommerceOrder" />
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.ChangeExceedLimitOrder" />
+  <xs:element name="GetData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="value" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDataResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetDataResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDataUsingDataContract">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ArcaDataService" minOccurs="0" name="composite" nillable="true" type="q1:CompositeType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDataUsingDataContractResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ArcaDataService" minOccurs="0" name="GetDataUsingDataContractResult" nillable="true" type="q2:CompositeType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetBalance">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="cardNumber" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetBalanceResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ArcaPaymentClient" minOccurs="0" name="GetBalanceResult" nillable="true" type="q3:ArcaBalanceResponseData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="MakeTransaction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="request" nillable="true" type="q4:TransactionRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="MakeTransactionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="MakeTransactionResult" nillable="true" type="q5:TransactionResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Check">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="req" nillable="true" type="q6:TransactionStatusRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="CheckResult" nillable="true" type="q7:TransactionDetailsBResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="C2CTransfer">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="request" nillable="true" type="q8:C2CTransferRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="C2CTransferResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="C2CTransferResult" nillable="true" type="q9:C2CTransferResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="MakeCardTransaction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="transactionType" type="q10:CardTransactionType" />
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="data" nillable="true" type="q11:ArcaCardsTransactionOrderData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="MakeCardTransactionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="MakeCardTransactionResult" nillable="true" type="q12:ArcaCardsTransactionResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeCardLimit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CardLimitChangeOrder" minOccurs="0" name="data" nillable="true" type="q13:CardLimitChangeOrderData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeCardLimitResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CardLimitChangeOrder" minOccurs="0" name="ChangeCardLimitResult" nillable="true" type="q14:CardLimitChangeResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckCardEmbossingName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="cardIdentification" nillable="true" type="q15:CardIdentification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckCardEmbossingNameResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="CheckCardEmbossingNameResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCardData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.ApiGate" minOccurs="0" name="cardIdentification" nillable="true" type="q16:getCardDataRequestType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCardDataResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.ApiGate" minOccurs="0" name="GetCardDataResult" nillable="true" type="q17:getCardDataResponseType" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreditCardEcommerce">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CreditCardEcommerceOrder" minOccurs="0" name="data" nillable="true" type="q18:CreditCardEcommerceOrderData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreditCardEcommerceResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CreditCardEcommerceOrder" minOccurs="0" name="CreditCardEcommerceResult" nillable="true" type="q19:CreditCardEcommerceResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeExceedLimit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.ChangeExceedLimitOrder" minOccurs="0" name="data" nillable="true" type="q20:ChangeExceedLimitOrderData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeExceedLimitResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.ChangeExceedLimitOrder" minOccurs="0" name="ChangeExceedLimitResult" nillable="true" type="q21:ChangeExceedLimitResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCardArCaStatus">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="cardIdentification" nillable="true" type="q22:CardIdentification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCardArCaStatusResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetCardArCaStatusResult" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

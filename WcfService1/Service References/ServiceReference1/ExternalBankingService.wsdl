@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ExternalBankingService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://localhost:47427/ExternalBankingService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://localhost:47427/ExternalBankingService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://localhost:47427/ExternalBankingService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ExternalBanking" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IExternalBankingService_GetAccount_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAccount" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetAccount_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAccountResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetAccounts_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAccounts" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetAccounts_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAccountsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_AccountStatement_InputMessage">
+    <wsdl:part name="parameters" element="tns:AccountStatement" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_AccountStatement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AccountStatementResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetCard_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCard" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetCard_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCardResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetCards_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCards" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetCards_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCardsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetCardStatement_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCardStatement" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetCardStatement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCardStatementResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetLoan_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetLoan" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetLoan_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetLoanResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetLoans_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetLoans" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_GetLoans_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetLoansResponse" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_UpdateHttpContex_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateHttpContex" />
+  </wsdl:message>
+  <wsdl:message name="IExternalBankingService_UpdateHttpContex_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateHttpContexResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IExternalBankingService">
+    <wsdl:operation name="GetAccount">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/GetAccount" message="tns:IExternalBankingService_GetAccount_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/GetAccountResponse" message="tns:IExternalBankingService_GetAccount_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAccounts">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/GetAccounts" message="tns:IExternalBankingService_GetAccounts_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/GetAccountsResponse" message="tns:IExternalBankingService_GetAccounts_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AccountStatement">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/AccountStatement" message="tns:IExternalBankingService_AccountStatement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/AccountStatementResponse" message="tns:IExternalBankingService_AccountStatement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCard">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/GetCard" message="tns:IExternalBankingService_GetCard_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/GetCardResponse" message="tns:IExternalBankingService_GetCard_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCards">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/GetCards" message="tns:IExternalBankingService_GetCards_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/GetCardsResponse" message="tns:IExternalBankingService_GetCards_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCardStatement">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/GetCardStatement" message="tns:IExternalBankingService_GetCardStatement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/GetCardStatementResponse" message="tns:IExternalBankingService_GetCardStatement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLoan">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/GetLoan" message="tns:IExternalBankingService_GetLoan_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/GetLoanResponse" message="tns:IExternalBankingService_GetLoan_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLoans">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/GetLoans" message="tns:IExternalBankingService_GetLoans_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/GetLoansResponse" message="tns:IExternalBankingService_GetLoans_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateHttpContex">
+      <wsdl:input wsaw:Action="http://tempuri.org/IExternalBankingService/UpdateHttpContex" message="tns:IExternalBankingService_UpdateHttpContex_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IExternalBankingService/UpdateHttpContexResponse" message="tns:IExternalBankingService_UpdateHttpContex_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IExternalBankingService" type="tns:IExternalBankingService">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetAccount">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/GetAccount" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAccounts">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/GetAccounts" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AccountStatement">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/AccountStatement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCard">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/GetCard" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCards">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/GetCards" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCardStatement">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/GetCardStatement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLoan">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/GetLoan" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLoans">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/GetLoans" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateHttpContex">
+      <soap:operation soapAction="http://tempuri.org/IExternalBankingService/UpdateHttpContex" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ExternalBankingService">
+    <wsdl:port name="BasicHttpBinding_IExternalBankingService" binding="tns:BasicHttpBinding_IExternalBankingService">
+      <soap:address location="http://localhost:47427/ExternalBankingService.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://webc021:9820/ARUSOperationService.svc?xsd=xsd1" namespace="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" />
+  <xs:import schemaLocation="http://webc021:9820/ARUSOperationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" />
+  <xs:element name="InitARUSUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="currentUserSessionId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="clientIp" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="InitARUSUserResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTransactionDetailsByURN">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="URN" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTransactionDetailsByURNResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetTransactionDetailsByURNResult" nillable="true" type="q1:TransactionDetailsRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PayOutOperation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="payoutInput" nillable="true" type="q2:PayOutInput" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PayOutOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="PayOutOperationResult" nillable="true" type="q3:PayoutRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSexes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSexesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetSexesResult" nillable="true" type="q4:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetYesNo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetYesNoResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetYesNoResult" nillable="true" type="q5:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCountriesByMTO">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCountriesByMTOResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetCountriesByMTOResult" nillable="true" type="q6:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDocumentTypes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDocumentTypesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetDocumentTypesResult" nillable="true" type="q7:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSendingCurrencies">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSendingCurrenciesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetSendingCurrenciesResult" nillable="true" type="q8:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCitiesByCountry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="countryCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCitiesByCountryResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetCitiesByCountryResult" nillable="true" type="q9:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetStates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="countryCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetStatesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetStatesResult" nillable="true" type="q10:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCitiesByState">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="countryCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="stateCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCitiesByStateResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetCitiesByStateResult" nillable="true" type="q11:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMTOList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMTOListResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetMTOListResult" nillable="true" type="q12:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetRemittancePurposes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetRemittancePurposesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetRemittancePurposesResult" nillable="true" type="q13:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetPayoutDeliveryCodes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetPayoutDeliveryCodesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetPayoutDeliveryCodesResult" nillable="true" type="q14:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSendPayoutDivisionCodes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSendPayoutDivisionCodesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetSendPayoutDivisionCodesResult" nillable="true" type="q15:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CancellationOperation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="cancellationInput" nillable="true" type="q16:CancellationInput" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CancellationOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="CancellationOperationResult" nillable="true" type="q17:CancellationRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCancellationReversalCodes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCancellationReversalCodesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetCancellationReversalCodesResult" nillable="true" type="q18:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetRemittanceFee">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="feeInput" nillable="true" type="q19:RemittanceFeeInformationInput" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetRemittanceFeeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetRemittanceFeeResult" nillable="true" type="q20:RemittanceFeeRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendMoneyOperation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="sendMoneyInput" nillable="true" type="q21:SendMoneyInput" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendMoneyOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="SendMoneyOperationResult" nillable="true" type="q22:SendMoneyRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMTOAgencies">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="countryCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="cityCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="stateCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="currencyCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMTOAgenciesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetMTOAgenciesResult" nillable="true" type="q23:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAmendmentReasonCodes">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAmendmentReasonCodesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetAmendmentReasonCodesResult" nillable="true" type="q24:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AmendmentOperation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="amendmentInput" nillable="true" type="q25:AmendmentInput" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AmendmentOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="AmendmentOperationResult" nillable="true" type="q26:AmendmentRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="R2AOperation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" minOccurs="0" name="r2ARequest" nillable="true" type="q27:R2ARequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="R2AOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" minOccurs="0" name="R2AOperationResult" nillable="true" type="q28:R2ARequestOutput" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ForServiceVisibility">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q29="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" minOccurs="0" name="r2ARequest" nillable="true" type="q29:R2ARequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ForServiceVisibilityResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" minOccurs="0" name="ForServiceVisibilityResult" nillable="true" type="q30:R2ARequestOutput" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResponseConfirm">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q31="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="responseConfirmInput" nillable="true" type="q31:ResponseConfirmInput" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResponseConfirmResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q32="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="ResponseConfirmResult" nillable="true" type="q32:ActionResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetPayoutDeliveryCodesByBenificiaryAgentCode">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="MTOAgentCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="parent" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetPayoutDeliveryCodesByBenificiaryAgentCodeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q33="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetPayoutDeliveryCodesByBenificiaryAgentCodeResult" nillable="true" type="q33:ArrayOfInfoResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateInfoDictionaries">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateInfoDictionariesResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TestMethod">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TestMethodResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMTOListAndBestChoice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q34="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="bestChoice" nillable="true" type="q34:MTOListAndBestChoiceInput" />
+        <xs:element minOccurs="0" name="messageUniqueNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionCode" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMTOListAndBestChoiceResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q35="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" minOccurs="0" name="GetMTOListAndBestChoiceResult" nillable="true" type="q35:ArrayOfMTOListAndBestChoiceOutput" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

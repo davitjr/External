@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/UtilityPayments.VivaCell" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/UtilityPayments.VivaCell" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" />
+  <xs:complexType name="VivaCellPaymentRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q1:ActionResult" />
+      <xs:element minOccurs="0" name="VivaCellBTFPaymentOutputsList" nillable="true" type="tns:ArrayOfVivaCellBTFPaymentOutput" />
+      <xs:element minOccurs="0" name="VivaCellPaymentOutputsList" nillable="true" type="tns:ArrayOfVivaCellPaymentOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentRequestResponse" nillable="true" type="tns:VivaCellPaymentRequestResponse" />
+  <xs:complexType name="ArrayOfVivaCellBTFPaymentOutput">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="VivaCellBTFPaymentOutput" nillable="true" type="tns:VivaCellBTFPaymentOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfVivaCellBTFPaymentOutput" nillable="true" type="tns:ArrayOfVivaCellBTFPaymentOutput" />
+  <xs:complexType name="VivaCellBTFPaymentOutput">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="vivaCellPaymentBTFProcessRequestResponse" nillable="true" type="tns:VivaCellPaymentBTFProcessRequestResponse" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellBTFPaymentOutput" nillable="true" type="tns:VivaCellBTFPaymentOutput" />
+  <xs:complexType name="VivaCellPaymentBTFProcessRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q2:ActionResult" />
+      <xs:element minOccurs="0" name="VivaCellPaymentBTFProcessOutput" nillable="true" type="tns:VivaCellPaymentBTFProcessOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentBTFProcessRequestResponse" nillable="true" type="tns:VivaCellPaymentBTFProcessRequestResponse" />
+  <xs:complexType name="VivaCellPaymentBTFProcessOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:VivaCellPaymentResponsResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="PaymentTransactionDateTime" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PaymentTransactionDateTimeFormated" nillable="true" type="xs:dateTime" />
+          <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="StatusCode" type="q3:VivaCellStatusCodes" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentBTFProcessOutput" nillable="true" type="tns:VivaCellPaymentBTFProcessOutput" />
+  <xs:complexType name="VivaCellPaymentResponsResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FaultCode" type="xs:int" />
+      <xs:element minOccurs="0" name="FaultDescr" nillable="true" type="xs:string" />
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ResponseCode" type="q4:VivaCellResponseCodes" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentResponsResult" nillable="true" type="tns:VivaCellPaymentResponsResult" />
+  <xs:complexType name="ArrayOfVivaCellPaymentOutput">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="VivaCellPaymentOutput" nillable="true" type="tns:VivaCellPaymentOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfVivaCellPaymentOutput" nillable="true" type="tns:ArrayOfVivaCellPaymentOutput" />
+  <xs:complexType name="VivaCellPaymentOutput">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="VivaCellPaymentBTFProcessRequestResponse" nillable="true" type="tns:VivaCellPaymentBTFProcessRequestResponse" />
+      <xs:element minOccurs="0" name="VivaCellPaymentProcessRequestResponse" nillable="true" type="tns:VivaCellPaymentProcessRequestResponse" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentOutput" nillable="true" type="tns:VivaCellPaymentOutput" />
+  <xs:complexType name="VivaCellPaymentProcessRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q5:ActionResult" />
+      <xs:element minOccurs="0" name="VivaCellPaymentProcessOutput" nillable="true" type="tns:VivaCellPaymentProcessOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentProcessRequestResponse" nillable="true" type="tns:VivaCellPaymentProcessRequestResponse" />
+  <xs:complexType name="VivaCellPaymentProcessOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:VivaCellPaymentResponsResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="PaymentTransactionDateTime" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PaymentTransactionDateTimeFormated" nillable="true" type="xs:dateTime" />
+          <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="StatusCode" type="q6:VivaCellStatusCodes" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentProcessOutput" nillable="true" type="tns:VivaCellPaymentProcessOutput" />
+  <xs:complexType name="VivaCellPaymentCheckRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q7:ActionResult" />
+      <xs:element minOccurs="0" name="VivaCellPaymentCheckOutput" nillable="true" type="tns:VivaCellPaymentCheckOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentCheckRequestResponse" nillable="true" type="tns:VivaCellPaymentCheckRequestResponse" />
+  <xs:complexType name="VivaCellPaymentCheckOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:VivaCellPaymentResponsResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="BalanceContract" nillable="true" type="xs:float" />
+          <xs:element minOccurs="0" name="BalanceSub" nillable="true" type="xs:float" />
+          <xs:element minOccurs="0" name="BilledToDate" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="MaxAmount" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="MinAmount" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="SubscriberName" nillable="true" type="xs:string" />
+          <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="SubscriberType" type="q8:VivaCellSubscriberType" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentCheckOutput" nillable="true" type="tns:VivaCellPaymentCheckOutput" />
+  <xs:complexType name="VivaCellPaymentBTFCheckRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q9:ActionResult" />
+      <xs:element minOccurs="0" name="VivaCellPaymentBTFCheckOutput" nillable="true" type="tns:VivaCellPaymentBTFCheckOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentBTFCheckRequestResponse" nillable="true" type="tns:VivaCellPaymentBTFCheckRequestResponse" />
+  <xs:complexType name="VivaCellPaymentBTFCheckOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:VivaCellPaymentResponsResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="PaymentTransactionDateTime" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PaymentTransactionDateTimeFormated" nillable="true" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="PaymentTransactionID" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="VivaCellPaymentBTFCheckOutput" nillable="true" type="tns:VivaCellPaymentBTFCheckOutput" />
+</xs:schema>

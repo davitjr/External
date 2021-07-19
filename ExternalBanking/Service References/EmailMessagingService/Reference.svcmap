@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="21902dcc-a599-4224-95bf-3881381f60a6" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="EmailMessagingService.wsdl" MetadataType="Wsdl" ID="23ac25fc-8ad7-4ab4-9458-e564a8516b3b" SourceId="1" SourceUrl="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc?wsdl" />
+    <MetadataFile FileName="EmailMessagingService.disco" MetadataType="Disco" ID="5a3d9202-5fca-4f36-92af-878ae3fd8d55" SourceId="1" SourceUrl="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc?disco" />
+    <MetadataFile FileName="EmailMessagingService.xsd" MetadataType="Schema" ID="5c3a39f9-babb-4547-b45f-8131f5a61e69" SourceId="1" SourceUrl="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc?xsd=xsd0" />
+    <MetadataFile FileName="EmailMessagingService1.xsd" MetadataType="Schema" ID="86fb5393-7556-40a0-8cf4-0736f1e2e404" SourceId="1" SourceUrl="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc?xsd=xsd1" />
+    <MetadataFile FileName="EmailMessagingService2.xsd" MetadataType="Schema" ID="376b1dcd-21fa-46ff-b514-999ae67561e6" SourceId="1" SourceUrl="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc?xsd=xsd2" />
+    <MetadataFile FileName="EmailMessagingService3.xsd" MetadataType="Schema" ID="41d80d0f-db27-4c81-be45-12833620bd44" SourceId="1" SourceUrl="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc?xsd=xsd3" />
+    <MetadataFile FileName="EmailMessagingService4.xsd" MetadataType="Schema" ID="e7850bf2-a389-49eb-8098-be94ab73c977" SourceId="1" SourceUrl="http://wcf01-test:89/EmailMessagingService/EmailMessagingService.svc?xsd=xsd4" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

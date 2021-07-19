@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="b03c3300-e91b-4a69-ab94-853335e55ac0" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://webc021:9820/ARUSOperationService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="ARUSOperationService1.disco" MetadataType="Disco" ID="4ae68ea3-5115-4cb3-a7ac-0e8c036c198b" SourceId="1" SourceUrl="http://webc021:9820/ARUSOperationService.svc?disco" />
+    <MetadataFile FileName="ARUSOperationService5.xsd" MetadataType="Schema" ID="a40a7dff-3938-412c-88b8-ed5160851c9c" SourceId="1" SourceUrl="http://webc021:9820/ARUSOperationService.svc?xsd=xsd4" />
+    <MetadataFile FileName="ARUSOperationService6.xsd" MetadataType="Schema" ID="68bee7e2-7da1-46c0-bc7f-f7036a5fb70d" SourceId="1" SourceUrl="http://webc021:9820/ARUSOperationService.svc?xsd=xsd2" />
+    <MetadataFile FileName="ARUSOperationService1.wsdl" MetadataType="Wsdl" ID="55aba79c-a06c-4d60-ae89-e43c2cf0faf8" SourceId="1" SourceUrl="http://webc021:9820/ARUSOperationService.svc?wsdl" />
+    <MetadataFile FileName="ARUSOperationService7.xsd" MetadataType="Schema" ID="483c199e-5201-41c9-b9fd-9301476ef371" SourceId="1" SourceUrl="http://webc021:9820/ARUSOperationService.svc?xsd=xsd3" />
+    <MetadataFile FileName="ARUSOperationService8.xsd" MetadataType="Schema" ID="0ba4b753-685b-4986-9b21-ebbb61de81bf" SourceId="1" SourceUrl="http://webc021:9820/ARUSOperationService.svc?xsd=xsd1" />
+    <MetadataFile FileName="ARUSOperationService9.xsd" MetadataType="Schema" ID="375b4c86-2202-4306-8f91-8224fe13c794" SourceId="1" SourceUrl="http://webc021:9820/ARUSOperationService.svc?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

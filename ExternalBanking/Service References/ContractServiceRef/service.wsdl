@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ContractOerationService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="IContractOperationService_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
+        </msb:BinaryEncoding>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <msf:WindowsTransportSecurity xmlns:msf="http://schemas.microsoft.com/ws/2006/05/framing/policy">
+                  <msf:ProtectionLevel>EncryptAndSign</msf:ProtectionLevel>
+                </msf:WindowsTransportSecurity>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256>
+                </sp:Basic256>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict>
+                </sp:Strict>
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <wsaw:UsingAddressing>
+        </wsaw:UsingAddressing>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import namespace="http://tempuri.org/" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/ContractService" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/System.Collections.Generic" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/System" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IContractOerationService_DownloadContract_InputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContract" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadContract_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContractResponse" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadContractEXCEL_InputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContractEXCEL" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadContractEXCEL_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContractEXCELResponse" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadContractWORD_InputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContractWORD" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadContractWORD_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContractWORDResponse" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadContractHTML_InputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContractHTML" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadContractHTML_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadContractHTMLResponse" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadEmployeesContractWord_InputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadEmployeesContractWord" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_DownloadEmployeesContractWord_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DownloadEmployeesContractWordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_CheckProgramVersion_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckProgramVersion" />
+  </wsdl:message>
+  <wsdl:message name="IContractOerationService_CheckProgramVersion_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckProgramVersionResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IContractOerationService">
+    <wsdl:operation name="DownloadContract">
+      <wsdl:input wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContract" message="tns:IContractOerationService_DownloadContract_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContractResponse" message="tns:IContractOerationService_DownloadContract_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DownloadContractEXCEL">
+      <wsdl:input wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContractEXCEL" message="tns:IContractOerationService_DownloadContractEXCEL_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContractEXCELResponse" message="tns:IContractOerationService_DownloadContractEXCEL_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DownloadContractWORD">
+      <wsdl:input wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContractWORD" message="tns:IContractOerationService_DownloadContractWORD_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContractWORDResponse" message="tns:IContractOerationService_DownloadContractWORD_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DownloadContractHTML">
+      <wsdl:input wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContractHTML" message="tns:IContractOerationService_DownloadContractHTML_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IContractOerationService/DownloadContractHTMLResponse" message="tns:IContractOerationService_DownloadContractHTML_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DownloadEmployeesContractWord">
+      <wsdl:input wsaw:Action="http://tempuri.org/IContractOerationService/DownloadEmployeesContractWord" message="tns:IContractOerationService_DownloadEmployeesContractWord_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IContractOerationService/DownloadEmployeesContractWordResponse" message="tns:IContractOerationService_DownloadEmployeesContractWord_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramVersion">
+      <wsdl:input wsaw:Action="http://tempuri.org/IContractOerationService/CheckProgramVersion" message="tns:IContractOerationService_CheckProgramVersion_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IContractOerationService/CheckProgramVersionResponse" message="tns:IContractOerationService_CheckProgramVersion_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="IContractOperationService" type="tns:IContractOerationService">
+    <wsp:PolicyReference URI="#IContractOperationService_policy">
+    </wsp:PolicyReference>
+    <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
+    <wsdl:operation name="DownloadContract">
+      <soap12:operation soapAction="http://tempuri.org/IContractOerationService/DownloadContract" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DownloadContractEXCEL">
+      <soap12:operation soapAction="http://tempuri.org/IContractOerationService/DownloadContractEXCEL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DownloadContractWORD">
+      <soap12:operation soapAction="http://tempuri.org/IContractOerationService/DownloadContractWORD" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DownloadContractHTML">
+      <soap12:operation soapAction="http://tempuri.org/IContractOerationService/DownloadContractHTML" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DownloadEmployeesContractWord">
+      <soap12:operation soapAction="http://tempuri.org/IContractOerationService/DownloadEmployeesContractWord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramVersion">
+      <soap12:operation soapAction="http://tempuri.org/IContractOerationService/CheckProgramVersion" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ContractOerationService">
+    <wsdl:port name="IContractOperationService" binding="tns:IContractOperationService">
+      <soap12:address location="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/ContractOperation" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/ContractOperation</wsa10:Address>
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Dns>localhost</Dns>
+        </Identity>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

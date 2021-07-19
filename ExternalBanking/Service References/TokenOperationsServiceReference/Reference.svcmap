@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="04765efe-c53f-40fa-bb10-76ef32747dec" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="AcbaOnlineSecurityService.xsd" MetadataType="Schema" ID="05f7c2d5-d3e6-4d4f-ae27-ad7687ae5d63" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?xsd=xsd2" />
+    <MetadataFile FileName="AcbaOnlineSecurityService1.xsd" MetadataType="Schema" ID="8a03cbb0-3985-48a2-b653-4f88d966d607" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?xsd=xsd0" />
+    <MetadataFile FileName="AcbaOnlineSecurityService2.xsd" MetadataType="Schema" ID="553932ed-8b9e-41a0-aa70-af047e262c44" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?xsd=xsd1" />
+    <MetadataFile FileName="AcbaOnlineSecurityService.disco" MetadataType="Disco" ID="e16b8ea5-fa54-4527-b7f0-416f0b952e9c" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?disco" />
+    <MetadataFile FileName="TokenOperations.wsdl" MetadataType="Wsdl" ID="85bef173-f4f6-494c-aa3e-091527af16a9" SourceId="1" SourceUrl="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.TokenOperations.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

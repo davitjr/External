@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.Beeline" />
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" />
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.UcomMobile" />
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.VivaCell" />
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" />
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.UcomFix" />
+  <xs:element name="BeelinePaymentOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BeelinePaymentOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/UtilityPayments.Beeline" minOccurs="0" name="BeelinePaymentOperationResult" nillable="true" type="q1:BeelinePaymentRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BeelineAbonentNumberCheck">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="abonentNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="amount" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BeelineAbonentNumberCheckResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/UtilityPayments.Beeline" minOccurs="0" name="BeelineAbonentNumberCheckResult" nillable="true" type="q2:BeelineAbonentCheckRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BeelineOperationByPeriodOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BeelineOperationByPeriodOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="BeelineOperationByPeriodOperationResult" nillable="true" type="q3:ActionResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomPaymentMobileOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomPaymentMobileOperationResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomMobileAccountData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="phoneNumber" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomMobileAccountDataResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/UtilityPayments.UcomMobile" minOccurs="0" name="UcomMobileAccountDataResult" nillable="true" type="q4:UcomMobileSearchAccountData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellPaymentOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellPaymentOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/UtilityPayments.VivaCell" minOccurs="0" name="VivaCellPaymentOperationResult" nillable="true" type="q5:VivaCellPaymentRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellSubscriberCheck">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="phoneNumber" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellSubscriberCheckResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/UtilityPayments.VivaCell" minOccurs="0" name="VivaCellSubscriberCheckResult" nillable="true" type="q6:VivaCellPaymentCheckRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellOperationByPeriodOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellOperationByPeriodOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="VivaCellOperationByPeriodOperationResult" nillable="true" type="q7:ActionResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellBTFCheck">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="transferNote" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="amount" type="xs:double" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VivaCellBTFCheckResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/UtilityPayments.VivaCell" minOccurs="0" name="VivaCellBTFCheckResult" nillable="true" type="q8:VivaCellPaymentBTFCheckRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GasPromPaymentOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GasPromPaymentOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" minOccurs="0" name="GasPromPaymentOperationResult" nillable="true" type="q9:GasPromPaymentRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GasPromAbonentSearch">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" minOccurs="0" name="gasPromSearchInput" nillable="true" type="q10:GasPromSearchInput" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GasPromAbonentSearchResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" minOccurs="0" name="GasPromAbonentSearchResult" nillable="true" type="q11:GasPromSearchRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetGasPromSectionCodes">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetGasPromSectionCodesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" minOccurs="0" name="GetGasPromSectionCodesResult" nillable="true" type="q12:GasPromSectionCodeRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GasPromOperationByPeriodOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GasPromOperationByPeriodOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="GasPromOperationByPeriodOperationResult" nillable="true" type="q13:ActionResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomMobileOperationByPeriodOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomMobileOperationByPeriodOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="UcomMobileOperationByPeriodOperationResult" nillable="true" type="q14:ActionResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomFixOperationByPeriodOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomFixOperationByPeriodOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="UcomFixOperationByPeriodOperationResult" nillable="true" type="q15:ActionResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomFixAbonentNumberCheck">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="abonentNumber" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomFixAbonentNumberCheckResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/UtilityPayments.UcomFix" minOccurs="0" name="UcomFixAbonentNumberCheckResult" nillable="true" type="q16:UcomFixAbonentCheckRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomFixPaymentOperation">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UcomFixPaymentOperationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/UtilityPayments.UcomFix" minOccurs="0" name="UcomFixPaymentOperationResult" nillable="true" type="q17:UcomFixPaymentRequestResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

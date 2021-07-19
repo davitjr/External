@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="e981a0ca-a543-46f5-af2d-ffd1412fa471" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://upayservice-dev:81/UtilityOperationService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="UtilityOperationService.xsd" MetadataType="Schema" ID="50839f95-da27-435f-9d01-ed55abbca03e" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd3" />
+    <MetadataFile FileName="UtilityOperationService1.xsd" MetadataType="Schema" ID="e4740e7e-c522-46dd-90cc-1038d8eedac0" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd7" />
+    <MetadataFile FileName="UtilityOperationService.disco" MetadataType="Disco" ID="ae54887e-6c49-4c18-a4c1-1804d6075696" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?disco" />
+    <MetadataFile FileName="UtilityOperationService2.xsd" MetadataType="Schema" ID="16a5c5dc-6251-4216-bec6-491014660cca" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd2" />
+    <MetadataFile FileName="UtilityOperationService3.xsd" MetadataType="Schema" ID="b2b2c11f-6a35-41ac-9a24-b8d06ba1bba2" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd6" />
+    <MetadataFile FileName="UtilityOperationService4.xsd" MetadataType="Schema" ID="8dbfbe5d-249d-49c4-aca0-fc0a42727f1f" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd10" />
+    <MetadataFile FileName="UtilityOperationService5.xsd" MetadataType="Schema" ID="b34c10b6-912d-48c7-a8e5-5f1b673b2c74" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd1" />
+    <MetadataFile FileName="UtilityOperationService6.xsd" MetadataType="Schema" ID="375e42d2-7f5c-458b-8d27-50a7e25a76da" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd5" />
+    <MetadataFile FileName="UtilityOperationService7.xsd" MetadataType="Schema" ID="5c9b5ac9-83ee-430c-aad8-efac41ec713f" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd9" />
+    <MetadataFile FileName="UtilityOperationService8.xsd" MetadataType="Schema" ID="2d78a1f7-f5f4-4422-a113-340df575b104" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd11" />
+    <MetadataFile FileName="UtilityOperationService9.xsd" MetadataType="Schema" ID="ee7e5644-392d-4643-9787-e84db00e7185" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd0" />
+    <MetadataFile FileName="UtilityOperationService10.xsd" MetadataType="Schema" ID="0656e1ae-1d3c-4813-a46c-251ccc709fd1" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd4" />
+    <MetadataFile FileName="UtilityOperationService11.xsd" MetadataType="Schema" ID="53b19903-2db0-457a-9298-2d56ef58ffad" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd8" />
+    <MetadataFile FileName="UtilityOperationService.wsdl" MetadataType="Wsdl" ID="2a9fa907-d56e-4596-a6ca-c9f132af6381" SourceId="1" SourceUrl="http://upayservice-dev:81/UtilityOperationService.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

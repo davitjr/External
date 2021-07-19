@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="https://xbsecurity-dev:4443/Services/TokenOperationsCas.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" />
+  <xs:import schemaLocation="https://xbsecurity-dev:4443/Services/TokenOperationsCas.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary" />
+  <xs:element name="ActivateToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q1:TokenOperationsInfo" />
+        <xs:element minOccurs="0" name="customerNumber" type="xs:unsignedLong" />
+        <xs:element minOccurs="0" name="regEmail" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="customerQuality" type="xs:int" />
+        <xs:element minOccurs="0" name="isRegistered" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActivateTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="ActivateTokenResult" nillable="true" type="q2:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActivateDevice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q3:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActivateDeviceResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="ActivateDeviceResult" nillable="true" type="q4:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActivateSeed">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q5:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActivateSeedResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="ActivateSeedResult" nillable="true" type="q6:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q7:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="BlockTokenResult" nillable="true" type="q8:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSpecificUserInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="IpAddress" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetSpecificUserInfoResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="GetSpecificUserInfoResult" nillable="true" type="q9:TokenOperationsSpecificUserResponce" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q10:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="BlockUserResult" nillable="true" type="q11:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeactivateUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q12:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeactivateUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="DeactivateUserResult" nillable="true" type="q13:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnBlockUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q14:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnBlockUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="UnBlockUserResult" nillable="true" type="q15:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnlockUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q16:TokenOperationsInfo" />
+        <xs:element minOccurs="0" name="phoneNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="customerNumber" type="xs:unsignedLong" />
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary" minOccurs="0" name="sourceType" type="q17:SourceType" />
+        <xs:element minOccurs="0" name="lang" type="xs:unsignedByte" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnlockUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="UnlockUserResult" nillable="true" type="q18:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnlockToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q19:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnlockTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="UnlockTokenResult" nillable="true" type="q20:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActivateMobileToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q21:TokenOperationsInfo" />
+        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string" />
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary" minOccurs="0" name="sourceType" type="q22:SourceType" />
+        <xs:element minOccurs="0" name="isRegistered" type="xs:boolean" />
+        <xs:element minOccurs="0" name="phoneNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="customerNumber" type="xs:unsignedLong" />
+        <xs:element minOccurs="0" name="regEmail" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="customerQuality" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActivateMobileTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="ActivateMobileTokenResult" nillable="true" type="q23:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetPinCode">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="cardNumber" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetPinCodeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetPinCodeResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetUserPasswordManualy">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="tInfo" nillable="true" type="q24:TokenOperationsInfo" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetUserPasswordManualyResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="ResetUserPasswordManualyResult" nillable="true" type="q25:TokenOperationsResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

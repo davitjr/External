@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CreditCardEcommerceOrder" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure.CreditCardEcommerceOrder" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:58671/ArcaDataService.svc?xsd=xsd1" namespace="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" />
+  <xs:complexType name="CreditCardEcommerceOrderData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Amount" type="xs:decimal" />
+      <xs:element minOccurs="0" name="Currency" type="xs:int" />
+      <xs:element minOccurs="0" name="DestinationAccountNumber" nillable="true" type="xs:string" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="DestinationCardIdentification" nillable="true" type="q1:CardIdentification" />
+      <xs:element minOccurs="0" name="DocId" type="xs:long" />
+      <xs:element minOccurs="0" name="ExtId" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="IPAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="MerchanId" nillable="true" type="xs:string" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="Recepient" nillable="true" type="q2:PersonMoneySendType" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="Sender" nillable="true" type="q3:PersonMoneySendType" />
+      <xs:element minOccurs="0" name="SourceAccountNumber" nillable="true" type="xs:string" />
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="SourceCardIdentification" nillable="true" type="q4:CardIdentification" />
+      <xs:element minOccurs="0" name="TerminalId" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CreditCardEcommerceOrderData" nillable="true" type="tns:CreditCardEcommerceOrderData" />
+  <xs:complexType name="CreditCardEcommerceResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AuthorizationIdResponse" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LocalTransactionDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="ProcessingCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RRN" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ResponseCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ResponseCodeDescription" nillable="true" type="xs:string" />
+      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiGateInfrastructure" minOccurs="0" name="ResultCode" type="q5:TransactionProcessingResultType" />
+      <xs:element minOccurs="0" name="ResultCodeDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SystemTraceAuditNumber" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CreditCardEcommerceResponse" nillable="true" type="tns:CreditCardEcommerceResponse" />
+</xs:schema>

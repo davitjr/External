@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" />
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.GasPromService" />
+  <xs:complexType name="GasPromPaymentRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q1:ActionResult" />
+      <xs:element minOccurs="0" name="GasPromPaymentOutputsList" nillable="true" type="tns:ArrayOfGasPromPaymentOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromPaymentRequestResponse" nillable="true" type="tns:GasPromPaymentRequestResponse" />
+  <xs:complexType name="ArrayOfGasPromPaymentOutput">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="GasPromPaymentOutput" nillable="true" type="tns:GasPromPaymentOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfGasPromPaymentOutput" nillable="true" type="tns:ArrayOfGasPromPaymentOutput" />
+  <xs:complexType name="GasPromPaymentOutput">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="GasPromGetPaymentRequestResponse" nillable="true" type="tns:GasPromGetPaymentRequestResponse" />
+      <xs:element minOccurs="0" name="GasPromPayRequestResponse" nillable="true" type="tns:GasPromPayRequestResponse" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromPaymentOutput" nillable="true" type="tns:GasPromPaymentOutput" />
+  <xs:complexType name="GasPromGetPaymentRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q2:ActionResult" />
+      <xs:element minOccurs="0" name="GasPromGetPaymentOutput" nillable="true" type="tns:GasPromGetPaymentOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromGetPaymentRequestResponse" nillable="true" type="tns:GasPromGetPaymentRequestResponse" />
+  <xs:complexType name="GasPromGetPaymentOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:GasPromStateCode">
+        <xs:sequence>
+          <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/UtilityPayments.GasPromService" minOccurs="0" name="GetPaymentRespons" nillable="true" type="q3:GetPaymentRespons" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="GasPromGetPaymentOutput" nillable="true" type="tns:GasPromGetPaymentOutput" />
+  <xs:complexType name="GasPromStateCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="GasPromStateDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OurDescriptionInArmenian" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StateCode" type="xs:short" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromStateCode" nillable="true" type="tns:GasPromStateCode" />
+  <xs:complexType name="GasPromPayRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q4:ActionResult" />
+      <xs:element minOccurs="0" name="GasPromPayOutput" nillable="true" type="tns:GasPromPayOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromPayRequestResponse" nillable="true" type="tns:GasPromPayRequestResponse" />
+  <xs:complexType name="GasPromPayOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:GasPromStateCode">
+        <xs:sequence>
+          <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/UtilityPayments.GasPromService" minOccurs="0" name="PaymentResponse" nillable="true" type="q5:PaymentResponse" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="GasPromPayOutput" nillable="true" type="tns:GasPromPayOutput" />
+  <xs:complexType name="GasPromSearchInput">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AbonentNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Home" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="House" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PhoneNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SectionCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Street" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromSearchInput" nillable="true" type="tns:GasPromSearchInput" />
+  <xs:complexType name="GasPromSearchRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q6:ActionResult" />
+      <xs:element minOccurs="0" name="GasPromSearchOutputList" nillable="true" type="tns:ArrayOfGasPromSearchOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromSearchRequestResponse" nillable="true" type="tns:GasPromSearchRequestResponse" />
+  <xs:complexType name="ArrayOfGasPromSearchOutput">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="GasPromSearchOutput" nillable="true" type="tns:GasPromSearchOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfGasPromSearchOutput" nillable="true" type="tns:ArrayOfGasPromSearchOutput" />
+  <xs:complexType name="GasPromSearchOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:GasPromStateCode">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="AbonentNumber" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="CurrentGasDebt" type="xs:double" />
+          <xs:element minOccurs="0" name="CurrentServiceFeeDebt" type="xs:double" />
+          <xs:element minOccurs="0" name="DebtAtEndOfMonth" type="xs:double" />
+          <xs:element minOccurs="0" name="DebtDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="ExpenseByVolumeForSameMonthPreviousYear" type="xs:double" />
+          <xs:element minOccurs="0" name="GasDebtAtBeginningOfMonth" type="xs:double" />
+          <xs:element minOccurs="0" name="GasExpenseByAmount" type="xs:double" />
+          <xs:element minOccurs="0" name="GasExpenseByVolume" type="xs:double" />
+          <xs:element minOccurs="0" name="GasPreviousPayment" type="xs:double" />
+          <xs:element minOccurs="0" name="Home" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="House" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="LastName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="MeterLastTestimony" type="xs:double" />
+          <xs:element minOccurs="0" name="MeterPreviousTestimony" type="xs:double" />
+          <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PaidAmountInCurrentMonth" type="xs:double" />
+          <xs:element minOccurs="0" name="PaidServiceFeeInCurrentMonth" type="xs:double" />
+          <xs:element minOccurs="0" name="Penalty" type="xs:double" />
+          <xs:element minOccurs="0" name="PhoneNumber" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="RecalculatedAmount" type="xs:double" />
+          <xs:element minOccurs="0" name="SectionCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ServiceFeeAtEndOfMonth" type="xs:double" />
+          <xs:element minOccurs="0" name="ServiceFeeByAmount" type="xs:double" />
+          <xs:element minOccurs="0" name="ServiceFeeDebtAtBeginningOfMonth" type="xs:double" />
+          <xs:element minOccurs="0" name="ServiceFeePreviousPayment" type="xs:double" />
+          <xs:element minOccurs="0" name="ServiceFeeRecalculatedAmount" type="xs:double" />
+          <xs:element minOccurs="0" name="Street" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Tariff" type="xs:double" />
+          <xs:element minOccurs="0" name="ViolationByAmount" type="xs:double" />
+          <xs:element minOccurs="0" name="ViolationByVolume" type="xs:double" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="GasPromSearchOutput" nillable="true" type="tns:GasPromSearchOutput" />
+  <xs:complexType name="GasPromSectionCodeRequestResponse">
+    <xs:sequence>
+      <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" minOccurs="0" name="ActionResult" nillable="true" type="q7:ActionResult" />
+      <xs:element minOccurs="0" name="GasPromSectionCodeOutput" nillable="true" type="tns:GasPromSectionCodeOutput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GasPromSectionCodeRequestResponse" nillable="true" type="tns:GasPromSectionCodeRequestResponse" />
+  <xs:complexType name="GasPromSectionCodeOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:GasPromStateCode">
+        <xs:sequence>
+          <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/UtilityPayments.GasPromService" minOccurs="0" name="TtResponse" nillable="true" type="q8:TtResponse" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="GasPromSectionCodeOutput" nillable="true" type="tns:GasPromSectionCodeOutput" />
+</xs:schema>

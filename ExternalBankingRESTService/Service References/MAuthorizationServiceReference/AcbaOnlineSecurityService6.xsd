@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://as1001.acbaca.local:85/AcbaOnlineSecurityService.Services.MobileLogin.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="LoginInfo">
+    <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AdditionalDetails" nillable="true" type="q1:ArrayOfKeyValueOfstringstring" />
+      <xs:element minOccurs="0" name="IpAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OTP" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LoginInfo" nillable="true" type="tns:LoginInfo" />
+  <xs:complexType name="MobileUserData">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:AcbaOnlineUserData">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MobileUserData" nillable="true" type="tns:MobileUserData" />
+  <xs:complexType name="AcbaOnlineUserData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AllowDataEntry" type="xs:int" />
+      <xs:element minOccurs="0" name="ApprovementScheme" type="xs:int" />
+      <xs:element minOccurs="0" name="AuthorizationResult" nillable="true" type="tns:LoginResult" />
+      <xs:element minOccurs="0" name="BranchCode" type="xs:int" />
+      <xs:element minOccurs="0" name="ChangeRequirement" type="xs:int" />
+      <xs:element minOccurs="0" name="CustomerNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DailyTransactionsLimit" type="xs:double" />
+      <xs:element minOccurs="0" name="FullName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GoodLogons" type="xs:int" />
+      <xs:element minOccurs="0" name="IsLastConfirmer" type="xs:boolean" />
+      <xs:element minOccurs="0" name="LimitedAccess" type="xs:int" />
+      <xs:element minOccurs="0" name="OneTransactionLimit" type="xs:double" />
+      <xs:element minOccurs="0" name="PasswordChangeResult" nillable="true" type="tns:ChangePasswordResult" />
+      <xs:element minOccurs="0" name="Permission" type="xs:int" />
+      <xs:element minOccurs="0" name="SecondConfirm" type="xs:int" />
+      <xs:element minOccurs="0" name="SessionID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TypeOfClient" type="xs:int" />
+      <xs:element minOccurs="0" name="UserGroups" nillable="true" type="tns:ArrayOfUserGroup" />
+      <xs:element minOccurs="0" name="UserID" type="xs:int" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserSecurityInformation" nillable="true" type="tns:UserSecurityInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AcbaOnlineUserData" nillable="true" type="tns:AcbaOnlineUserData" />
+  <xs:complexType name="LoginResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DescriptionAM" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsAuthorized" type="xs:boolean" />
+      <xs:element minOccurs="0" name="ResultCode" type="tns:LoginResultCode" />
+      <xs:element minOccurs="0" name="SessionID" type="ser:guid" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LoginResult" nillable="true" type="tns:LoginResult" />
+  <xs:simpleType name="LoginResultCode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ChangePassword" />
+      <xs:enumeration value="VerificationFailed" />
+      <xs:enumeration value="OtherError" />
+      <xs:enumeration value="CorrectLogin" />
+      <xs:enumeration value="DataNotVerified" />
+      <xs:enumeration value="EmptyData" />
+      <xs:enumeration value="EnterenceDenied" />
+      <xs:enumeration value="Locked15min" />
+      <xs:enumeration value="AuthorizationObjectNotFoundInCache" />
+      <xs:enumeration value="AuthorizationObjectCanNotBeNull" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="LoginResultCode" nillable="true" type="tns:LoginResultCode" />
+  <xs:complexType name="ChangePasswordResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DescriptionAM" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsChanged" type="xs:boolean" />
+      <xs:element minOccurs="0" name="ResultCode" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ChangePasswordResult" nillable="true" type="tns:ChangePasswordResult" />
+  <xs:complexType name="ArrayOfUserGroup">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserGroup" nillable="true" type="tns:UserGroup" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfUserGroup" nillable="true" type="tns:ArrayOfUserGroup" />
+  <xs:complexType name="UserGroup">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="GroupID" type="xs:int" />
+      <xs:element minOccurs="0" name="GroupName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GroupNumber" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserGroup" nillable="true" type="tns:UserGroup" />
+  <xs:complexType name="UserSecurityInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BadIP" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BadLogons" type="xs:int" />
+      <xs:element minOccurs="0" name="DailyTransactionsLimit" type="xs:double" />
+      <xs:element minOccurs="0" name="DateOfRegistration" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="GoodIP" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GoodLogons" type="xs:int" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="LastBadLogonDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="LastGoodLogonDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="OneTransactionLimit" type="xs:double" />
+      <xs:element minOccurs="0" name="PasswordChangeDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Permission" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserSecurityInfo" nillable="true" type="tns:UserSecurityInfo" />
+  <xs:complexType name="ChangePasswordInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IpAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NewPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RetypePassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ChangePasswordInfo" nillable="true" type="tns:ChangePasswordInfo" />
+</xs:schema>

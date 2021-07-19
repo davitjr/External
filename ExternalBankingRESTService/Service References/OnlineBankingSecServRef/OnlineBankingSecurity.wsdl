@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="OnlineBankingSecurity" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="BasicHttpsBinding_IOnlineBankingSecurity_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false" />
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="NetTcpBinding_IOnlineBankingSecurity_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <msf:WindowsTransportSecurity xmlns:msf="http://schemas.microsoft.com/ws/2006/05/framing/policy">
+                  <msf:ProtectionLevel>EncryptAndSign</msf:ProtectionLevel>
+                </msf:WindowsTransportSecurity>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <wsaw:UsingAddressing />
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="https://xbsecurity-dev:4443/Services/OnlineBankingSecurity.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="https://xbsecurity-dev:4443/Services/OnlineBankingSecurity.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="https://xbsecurity-dev:4443/Services/OnlineBankingSecurity.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary" />
+      <xsd:import schemaLocation="https://xbsecurity-dev:4443/Services/OnlineBankingSecurity.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IOnlineBankingSecurity_AuthorizeMobileUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeMobileUser" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_AuthorizeMobileUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeMobileUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_AuthorizeUserByUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_AuthorizeUserByUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_AuthorizeUserByToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByToken" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_AuthorizeUserByToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_ChangeUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_ChangeUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_CheckAuthorization_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAuthorization" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_CheckAuthorization_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAuthorizationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_SingData_InputMessage">
+    <wsdl:part name="parameters" element="tns:SingData" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_SingData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SingDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_VerifyToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyToken" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_VerifyToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_CheckRegistrationCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckRegistrationCode" />
+  </wsdl:message>
+  <wsdl:message name="IOnlineBankingSecurity_CheckRegistrationCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckRegistrationCodeResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IOnlineBankingSecurity">
+    <wsdl:operation name="AuthorizeMobileUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/AuthorizeMobileUser" message="tns:IOnlineBankingSecurity_AuthorizeMobileUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/AuthorizeMobileUserResponse" message="tns:IOnlineBankingSecurity_AuthorizeMobileUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByUserPassword" message="tns:IOnlineBankingSecurity_AuthorizeUserByUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByUserPasswordResponse" message="tns:IOnlineBankingSecurity_AuthorizeUserByUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByToken" message="tns:IOnlineBankingSecurity_AuthorizeUserByToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByTokenResponse" message="tns:IOnlineBankingSecurity_AuthorizeUserByToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/ChangeUserPassword" message="tns:IOnlineBankingSecurity_ChangeUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/ChangeUserPasswordResponse" message="tns:IOnlineBankingSecurity_ChangeUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorization">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/CheckAuthorization" message="tns:IOnlineBankingSecurity_CheckAuthorization_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/CheckAuthorizationResponse" message="tns:IOnlineBankingSecurity_CheckAuthorization_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SingData">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/SingData" message="tns:IOnlineBankingSecurity_SingData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/SingDataResponse" message="tns:IOnlineBankingSecurity_SingData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VerifyToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/VerifyToken" message="tns:IOnlineBankingSecurity_VerifyToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/VerifyTokenResponse" message="tns:IOnlineBankingSecurity_VerifyToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckRegistrationCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/CheckRegistrationCode" message="tns:IOnlineBankingSecurity_CheckRegistrationCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IOnlineBankingSecurity/CheckRegistrationCodeResponse" message="tns:IOnlineBankingSecurity_CheckRegistrationCode_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpsBinding_IOnlineBankingSecurity" type="tns:IOnlineBankingSecurity">
+    <wsp:PolicyReference URI="#BasicHttpsBinding_IOnlineBankingSecurity_policy" />
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AuthorizeMobileUser">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/AuthorizeMobileUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByToken">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorization">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/CheckAuthorization" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SingData">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/SingData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyToken">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/VerifyToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckRegistrationCode">
+      <soap:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/CheckRegistrationCode" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="NetTcpBinding_IOnlineBankingSecurity" type="tns:IOnlineBankingSecurity">
+    <wsp:PolicyReference URI="#NetTcpBinding_IOnlineBankingSecurity_policy" />
+    <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
+    <wsdl:operation name="AuthorizeMobileUser">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/AuthorizeMobileUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByUserPassword">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByUserPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByToken">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/AuthorizeUserByToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorization">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/CheckAuthorization" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SingData">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/SingData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyToken">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/VerifyToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckRegistrationCode">
+      <soap12:operation soapAction="http://tempuri.org/IOnlineBankingSecurity/CheckRegistrationCode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="OnlineBankingSecurity">
+    <wsdl:port name="BasicHttpsBinding_IOnlineBankingSecurity" binding="tns:BasicHttpsBinding_IOnlineBankingSecurity">
+      <soap:address location="https://xbsecurity-dev:4443/Services/OnlineBankingSecurity.svc" />
+    </wsdl:port>
+    <wsdl:port name="NetTcpBinding_IOnlineBankingSecurity" binding="tns:NetTcpBinding_IOnlineBankingSecurity">
+      <soap12:address location="net.tcp://as1001-d.acbaca.local:9080/Services/OnlineBankingSecurity.svc" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>net.tcp://as1001-d.acbaca.local:9080/Services/OnlineBankingSecurity.svc</wsa10:Address>
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>xbsecurityDev@acbaca.local</Upn>
+        </Identity>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

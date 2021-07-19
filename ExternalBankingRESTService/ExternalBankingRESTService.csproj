@@ -1,0 +1,1692 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D9D49463-68E2-491B-B748-F99E2021961E}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExternalBankingRESTService</RootNamespace>
+    <AssemblyName>ExternalBankingRESTService</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+    <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <FilesToIncludeForPublish>OnlyFilesToRunTheApp</FilesToIncludeForPublish>
+    <DeployEncryptKey>Encryption password is used only if any deployment setting is marked as secure</DeployEncryptKey>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.3.2.0.0\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\Real.pubxml" />
+    <None Include="Properties\PublishProfiles\TestProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\WEB1004-1 REAL.pubxml" />
+    <None Include="Properties\PublishProfiles\WEB1004-t.pubxml" />
+    <None Include="Service References\ACBAServiceReference\ACBALibrary.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\ACBAOperationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\Arrays.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\CBDataService.PoliceViolations.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\CBDataService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Address.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.AttachmentDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.AttachmentDocumentHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.AuthorizedUser.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankLinkCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankLinkOrganisation.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankLinkPerson.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankService.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankServiceAccount.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankServiceCard.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankServiceCashTransaction.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankServiceDeposit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankServiceOtherBank.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankServiceTransfer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.BankServiceType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Cashier.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CBAccountStatusInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CBResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ChangeLog.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ChangeSet.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CitizenshipHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ClientPermissions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Community.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CompositeType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Country.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Criminal.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CriminalCheckResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Customer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerAddress.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerAddressHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerClassDetailsHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerClosedDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerDocumentHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerEmail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerEmailHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerInvolvingSetNumbersHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerPhone.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerPhonesHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerPhoto.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerProfit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerProfitHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerServingEmployee.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerServingEmployeeHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerWebSite.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.CustomerWebSiteHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.DahkCheckResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.DocumentDefaultHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.EducationHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Email.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.EmployeeCredential.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Employment.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.EmploymentHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ERegisterRequest.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ERegisterRequestResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ERegisterResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.eregistry.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.FamilyMember.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.FamilyMemberHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.FatcaCountriesHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.FatcaHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.FloatKeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.GovernmentDataHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.GPMHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.GPMPresident.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.IntKeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.KeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.LegalCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.LinkedCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.LinkedCustomerHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.MergedCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.NaturalDisaster.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.OrganisationHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Person.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.PersonHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.PersonNoteHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.PersonSocialGroupsHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.PhysicalCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Profit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.RACitizen.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Range.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.RegionType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.RenamedGPMCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ReportData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Result.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ScopeOfActivity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ScopeOfActivityHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ScopeOfActivitySubType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.SearchCommunity.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.SearchCustomers.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.SearchPersonNotes.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.StringKeyValue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.User.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.VerificationData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.Village.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.ViolationRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.VipData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.VipDataHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ACBAServiceReference\ExternalBankingRESTService.ACBAServiceReference.WebSite.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\ACBAServiceReference\InformationSecurityLibrary.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\service.wsdl" />
+    <None Include="Service References\ACBAServiceReference\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\System.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceReference\service1.wsdl" />
+    <None Include="Service References\ContractServiceReference\service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceReference\service21.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceReference\System.Collections.Generic1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ContractServiceReference\System1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService.disco" />
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\configuration91.svcinfo" />
+    <None Include="Service References\MAuthorizationServiceReference\configuration.svcinfo" />
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService1.disco" />
+    <None Include="Service References\ContractServiceReference\configuration91.svcinfo" />
+    <None Include="Service References\ContractServiceReference\configuration.svcinfo" />
+    <None Include="Service References\ContractServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\ACBAServiceReference\configuration91.svcinfo" />
+    <None Include="Service References\ACBAServiceReference\configuration.svcinfo" />
+    <None Include="Service References\ACBAServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <Content Include="Service References\MAuthorizationServiceReference\ExternalBankingRESTService.MAuthorizationServiceReference.MobileUserData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\MAuthorizationServiceReference\MobileLogin1.wsdl" />
+    <None Include="Service References\MAuthorizationServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MAuthorizationServiceReference\AcbaOnlineSecurityService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\OnlineBankingSecServRef\ExternalBankingRESTService.OnlineBankingSecServRef.OnlineBankingUser.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\OnlineBankingSecServRef\OnlineBankingSecurity.disco" />
+    <None Include="Service References\OnlineBankingSecServRef\configuration91.svcinfo" />
+    <None Include="Service References\OnlineBankingSecServRef\configuration.svcinfo" />
+    <None Include="Service References\OnlineBankingSecServRef\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <Content Include="Service References\XBSInfo\ExternalBankingRESTService.XBSInfo.ActionPermission.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBSInfo\ExternalBankingRESTService.XBSInfo.CardTariffAdditionalInformation.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBSInfo\ExternalBankingRESTService.XBSInfo.DepositOption.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBSInfo\ExternalBankingRESTService.XBSInfo.Shop.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBSInfo\ExternalBankingRESTService.XBSInfo.WaterCoDetail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBSInfo\ExternalBankingRESTService.XBSInfo.CardTariff.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBSInfo\ExternalBankingRESTService.XBSInfo.CardTariffContract.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\OnlineBankingSecServRef\OnlineBankingSecurity.wsdl" />
+    <None Include="Service References\OnlineBankingSecServRef\OnlineBankingSecurity.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OnlineBankingSecServRef\OnlineBankingSecurity1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OnlineBankingSecServRef\OnlineBankingSecurity2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OnlineBankingSecServRef\OnlineBankingSecurity3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBSInfo\XBInfoService.disco" />
+    <None Include="Service References\XBSInfo\configuration91.svcinfo" />
+    <None Include="Service References\XBSInfo\configuration.svcinfo" />
+    <None Include="Service References\XBSInfo\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\XBSInfo\XBInfoService.wsdl" />
+    <None Include="Service References\XBSInfo\XBInfoService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBSInfo\XBInfoService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBSInfo\XBInfoService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBSInfo\XBInfoService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBSInfo\XBInfoService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBSInfo\XBInfoService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Account.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountClosingHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountClosingOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountDataChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountFlowDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountFreezeDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountFreezeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountOpeningClosingDetail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountReOpenOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountStatement.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AccountUnfreezeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Accreditive.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ActionError.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ActionResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AdditionalDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ApplicationClientPermissions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ArcaBalanceResponseData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ArcaCardsTransactionOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AssigneeIdentificationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AssigneeOperation.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AttachmentDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AuthorizedCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.AuthorizedUser.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Bond.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.BondAmountChargeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.BondIssue.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.BondOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.BondQualityUpdateOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.BudgetPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Card.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Card3DSecureService.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardAccountRemovalOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardActivationInArCa.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardActivationInArCaApigateDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardClosingOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardDataChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardLimitChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardRegistrationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardReNewOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardRePlaceOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardReReleaseOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardServiceFee.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardServiceFeeGrafik.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardServiceFeeGrafikDataChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardServiceQualities.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardStatement.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardStatus.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardStatusChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardTariff.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardTariffContract.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardUnpaidPercentPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardUSSDServiceHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardUSSDServiceOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CashBook.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CashBookOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CashierCashLimit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CashOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CashPosPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CheckCustomerArrests.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ChequeBookOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ChequeBookReceiveOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Claim.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ClaimEvent.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ClassifiedLoan.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Communal.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CommunalDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Contact.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CorrespondentBankAccount.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Credential.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CredentialActivationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CredentialOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditCommitmentForgivenessOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditHereAndNow.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditLine.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditLineGrafik.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditLinePrecontractData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditLineProlongationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditLineTerminationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CrossExchangeRate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CTLoanMatureOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CTPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CurrencyExchangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Customer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CustomerCommunalCard.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CustomerDataOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CustomerDebts.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CustomerMainData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DahkAmountTotals.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DAHKDetail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DahkDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DahkEmployer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DemandDepositRate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DemandDepositRateChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Deposit.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositAction.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositaryAccount.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositaryAccountOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositCase.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositCaseMap.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositCaseOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositCasePenaltyMatureOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositCaseStoppingPenaltyCalculationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositDataChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositOrderCondition.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositProductPrices.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositRepayment.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositTerminationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DocumentSignatureSetting.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ENAPayments.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ExchangeRate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Factoring.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.FactoringTerminationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.FastTransferPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.FeeForServiceProvidedOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.FicoScoreResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Fond.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.FondOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.FTPRate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.FTPRateOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.GetClassifiedLoansResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.GetCreditsHereAndNowResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.GetSearchedPreOrderDetailsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.GivenGuaranteeReduction.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.GoodsDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Guarantee.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HasHB.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBDocumentConfirmationHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBDocuments.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBDocumentTransactionError.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBMessageFiles.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBMessages.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBProductPermission.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Insurance.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.InsuranceOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.InterestMargin.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.InterestMarginOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.InternationalPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LeasingLoan.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Loan.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanApplication.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanEquipment.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanMainContract.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanMonitoringConclusion.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanProductActivationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanProductClassification.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanProductDataChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanProductOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanProductProlongation.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanProductTerminationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanRepaymentGrafik.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.MatureOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.MembershipRewards.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.MembershipRewardsBonusHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.MembershipRewardsOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.MembershipRewardsStatusHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Message.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.MonitoringConclusionLinkedLoan.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OperDayMode.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OperDayOptions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OPPerson.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Order.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OrderAttachment.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OrderHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OrderQuality.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OverdueDetail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PaidAccreditive.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PaidFactoring.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PaidGuarantee.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PaymentOrderFutureBalance.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PensionApplication.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PensionApplicationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PensionApplicationTerminationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicBudgetPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicSwiftStatementOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicTerminationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicTransfer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicTransferDataChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicTransferHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PeriodicUtilityPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PlasticCard.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PlasticCardOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PlasticCardRemovalOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PosCashbackRate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PosLocation.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PosRate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PreOrderDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProblemLoanCalculationsDetail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProblemLoanTax.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProductDocument.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProductNotificationConfigurations.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProductNotificationConfigurationsOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProductOtherFee.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Provision.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProvisionLoan.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReceivedBankMailTransfer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReceivedFastTransferPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReestrTransferAdditionalDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReestrTransferOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReestrUtilityPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReferenceOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.RejectedOrderMessage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.RemovalOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SafekeepingItem.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchAccountResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchBudgetAccount.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchCardResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchInternationalTransfer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchLeasingCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchReceivedTransfer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchSwiftCodes.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SearchTransferBankMail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ServicePaymentNote.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ServicePaymentNoteOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SourceType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.StatmentByEmailOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SwiftCopyOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.SwiftMessage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Tax.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransactionSwiftConfirmOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Transfer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransferByCall.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransferByCallList.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransferCallContract.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransferCallContractDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransferCallContractOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransferCallContractTerminationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransferToShopOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransitAccountForDebitTransactions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.TransitPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.User.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.UserAccessForCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.UtilityOptions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.UtilityPaymentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.VehicleViolationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.VivaCellBTFCheckDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\XBSInfo\XBInfoService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OrderForCashRegister.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.VirtualCardStatusChangeOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\XBSInfo\XBInfoService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.BudgetPaymentOrderTemplate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardAdditionalInfo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardToCardOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardToCardOrderTemplate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DAHKFreezing.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DepositRateTariff.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.DigitalAccountRestConfigurations.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.EmployeePersonalDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.EmployeeSalary.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.EmployeeSalaryDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBActivationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBActivationRequest.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBApplication.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBApplicationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBServletRequestOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBToken.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.HBUser.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.IBankingHomePage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.InternationalOrderPrefilledData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.InternationalOrderTemplate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanMatureOrderTemplate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanStatement.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OrderGroup.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.OrderType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PaymentOrderTemplate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PensionSystem.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PlasticCardSMSServiceHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PlasticCardSMSServiceOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ProductNote.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReadXmlFileAndLog.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.Template.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.UtilityPaymentOrderTemplate.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.VirtualCardDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanDelayOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanRepaymentDelayDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.R2ARequestOutput.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.RemittanceAmendmentOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.RemittanceCancellationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.RemittanceDetailsRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.RemittanceFeeDataRequestResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\XBSInfo\XBInfoService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CancelDelayOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardToOtherCardsOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardAdditionalData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardAdditionalDataOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CardStatementAddInf.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.CreditLineCardReplaceOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.NonCreditLineCardReplaceOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.PINRegenerationOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.ReplacedCardAccountRegOrder.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\XBS\ExternalBankingRESTService.XBS.LoanInterestRateChangeHistory.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\XBS\XBService.disco" />
+    <None Include="Service References\XBS\configuration91.svcinfo" />
+    <None Include="Service References\XBS\configuration.svcinfo" />
+    <None Include="Service References\XBS\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <Content Include="XBRESTService.svc" />
+    <Content Include="packages.config" />
+    <Content Include="Properties\DataSources\System.Data.DataTable.datasource" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccountDescriptionRequestResponse.cs" />
+    <Compile Include="AccountRequestResponse.cs" />
+    <Compile Include="AccountsRequestResponse.cs" />
+    <Compile Include="AccountStatementRequestResponse.cs" />
+    <Compile Include="AccreditiveRequestResponse.cs" />
+    <Compile Include="AccreditivesRequestResponse.cs" />
+    <Compile Include="ACRAAgreementTextRequestResponse.cs" />
+    <Compile Include="ArcaBalanceRequestResponse.cs" />
+    <Compile Include="BudgetPaymentOrderRequestResponse.cs" />
+    <Compile Include="ByteArrayRequestResponse.cs" />
+    <Compile Include="CardRequestResponse.cs" />
+    <Compile Include="CardsRequestResponse.cs" />
+    <Compile Include="CardStatementRequestResponse.cs" />
+    <Compile Include="CommunalDetailsRequestResponse.cs" />
+    <Compile Include="ContactRequestResponse.cs" />
+    <Compile Include="ContactsRequestResponse.cs" />
+    <Compile Include="Contracts.cs" />
+    <Compile Include="CreditLineGrafikRequestResponse.cs" />
+    <Compile Include="CreditLineRequestResponse.cs" />
+    <Compile Include="CustomerInfoForAuthenticationRequestResponse.cs" />
+    <Compile Include="DepositCaseRequestResponse.cs" />
+    <Compile Include="DepositCasesRequestResponse.cs" />
+    <Compile Include="DepositRepaymentResponse.cs" />
+    <Compile Include="DepositRequestResponse.cs" />
+    <Compile Include="DepositsRequestResponse.cs" />
+    <Compile Include="DescriptionRequestResponse.cs" />
+    <Compile Include="Enumerations.cs" />
+    <Compile Include="FactoringRequestResponse.cs" />
+    <Compile Include="FactoringsRequestResponse.cs" />
+    <Compile Include="FastOverdrafStartAndEndDateRequestResponse.cs" />
+    <Compile Include="FastOverdraftContractRequestResponse.cs" />
+    <Compile Include="FastOverdraftFeeAmountRequestResponse.cs" />
+    <Compile Include="GuaranteeRequestResponse.cs" />
+    <Compile Include="GuaranteesRequestResponse.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="InfoListRequestResponse.cs" />
+    <Compile Include="ExchangeRateRequestResponse.cs" />
+    <Compile Include="InternationalPaymentOrderRequestResponse.cs" />
+    <Compile Include="LoanMatureCapitalPenaltyRequestResponse.cs" />
+    <Compile Include="LoanProductInterestRateRequestResponse.cs" />
+    <Compile Include="LoanProductOrderRequestResponse.cs" />
+    <Compile Include="LoanRepaymentResponse.cs" />
+    <Compile Include="LoanRequestResponse.cs" />
+    <Compile Include="LoansRequestResponse.cs" />
+    <Compile Include="LoginRequestResponse.cs" />
+    <Compile Include="MatureOrderRequestResponse.cs" />
+    <Compile Include="MembershipRewardsRequestResponse.cs" />
+    <Compile Include="MessagesCountResponceRequest.cs" />
+    <Compile Include="MessagesRequestResponse.cs" />
+    <Compile Include="OrderActionRequestResponse.cs" />
+    <Compile Include="OrderHistoryRequestResponse.cs" />
+    <Compile Include="OrdersRequestResponse.cs" />
+    <Compile Include="PaymentOrderFeeRequestResponse.cs" />
+    <Compile Include="PaymentOrderFutureBalanceRequestResponse.cs" />
+    <Compile Include="PaymentOrderRequestResponse.cs" />
+    <Compile Include="PeriodicTransferHistoryRequestResponse.cs" />
+    <Compile Include="PeriodicTransferRequestResponse.cs" />
+    <Compile Include="PeriodicTransfersRequestResponse.cs" />
+    <Compile Include="ReceivedFastTransferPaymentOrderRequestResponse.cs" />
+    <Compile Include="ReferenceOrderRequestResponse.cs" />
+    <Compile Include="RemovalOrderRequestResponse.cs" />
+    <Compile Include="Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SearchCommunalRequestResponse.cs" />
+    <Compile Include="Service References\ACBAServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\ContractServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\MAuthorizationServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\OnlineBankingSecServRef\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\XBSInfo\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\XBS\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="StringRequestResponse.cs" />
+    <Compile Include="TransferCallContractRequestResponse.cs" />
+    <Compile Include="TransferCallContractsRequestResponse.cs" />
+    <Compile Include="UtilityPaymentOrderRequestResponse.cs" />
+    <Compile Include="ValidateRegistrationCodeRequestResponse.cs" />
+    <Compile Include="VehicleViolationRequestRespone.cs" />
+    <Compile Include="XBRESTService.svc.cs">
+      <DependentUpon>XBRESTService.svc</DependentUpon>
+    </Compile>
+    <Compile Include="IXBRESTService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Result.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Fakes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\XBS\XBService.wsdl" />
+    <None Include="Service References\XBS\XBService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService14.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService151.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService152.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService153.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService154.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService155.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\XBS\XBService9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\ACBAServiceReference\" />
+    <WCFMetadataStorage Include="Service References\ContractServiceReference\" />
+    <WCFMetadataStorage Include="Service References\MAuthorizationServiceReference\" />
+    <WCFMetadataStorage Include="Service References\OnlineBankingSecServRef\" />
+    <WCFMetadataStorage Include="Service References\XBSInfo\" />
+    <WCFMetadataStorage Include="Service References\XBS\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>40388</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:40388</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

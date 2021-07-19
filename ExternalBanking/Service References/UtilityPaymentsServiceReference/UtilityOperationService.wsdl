@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="UtilityOperationService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="IExternalOperationService_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <msf:WindowsTransportSecurity xmlns:msf="http://schemas.microsoft.com/ws/2006/05/framing/policy">
+                  <msf:ProtectionLevel>EncryptAndSign</msf:ProtectionLevel>
+                </msf:WindowsTransportSecurity>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <wsaw:UsingAddressing />
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.Beeline" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.Common" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.UcomMobile" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.VivaCell" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.GasProm" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.GasPromService" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/System.ComponentModel" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/System" />
+      <xsd:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/UtilityPayments.UcomFix" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IUtilityOperationService_BeelinePaymentOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:BeelinePaymentOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_BeelinePaymentOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:BeelinePaymentOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_BeelineAbonentNumberCheck_InputMessage">
+    <wsdl:part name="parameters" element="tns:BeelineAbonentNumberCheck" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_BeelineAbonentNumberCheck_OutputMessage">
+    <wsdl:part name="parameters" element="tns:BeelineAbonentNumberCheckResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_BeelineOperationByPeriodOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:BeelineOperationByPeriodOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_BeelineOperationByPeriodOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:BeelineOperationByPeriodOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomPaymentMobileOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:UcomPaymentMobileOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomPaymentMobileOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UcomPaymentMobileOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomMobileAccountData_InputMessage">
+    <wsdl:part name="parameters" element="tns:UcomMobileAccountData" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomMobileAccountData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UcomMobileAccountDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellPaymentOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellPaymentOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellPaymentOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellPaymentOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellSubscriberCheck_InputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellSubscriberCheck" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellSubscriberCheck_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellSubscriberCheckResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellOperationByPeriodOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellOperationByPeriodOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellOperationByPeriodOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellOperationByPeriodOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellBTFCheck_InputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellBTFCheck" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_VivaCellBTFCheck_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VivaCellBTFCheckResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GasPromPaymentOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:GasPromPaymentOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GasPromPaymentOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GasPromPaymentOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GasPromAbonentSearch_InputMessage">
+    <wsdl:part name="parameters" element="tns:GasPromAbonentSearch" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GasPromAbonentSearch_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GasPromAbonentSearchResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GetGasPromSectionCodes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetGasPromSectionCodes" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GetGasPromSectionCodes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetGasPromSectionCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GasPromOperationByPeriodOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:GasPromOperationByPeriodOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_GasPromOperationByPeriodOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GasPromOperationByPeriodOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomMobileOperationByPeriodOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:UcomMobileOperationByPeriodOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomMobileOperationByPeriodOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UcomMobileOperationByPeriodOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomFixOperationByPeriodOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:UcomFixOperationByPeriodOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomFixOperationByPeriodOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UcomFixOperationByPeriodOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomFixAbonentNumberCheck_InputMessage">
+    <wsdl:part name="parameters" element="tns:UcomFixAbonentNumberCheck" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomFixAbonentNumberCheck_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UcomFixAbonentNumberCheckResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomFixPaymentOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:UcomFixPaymentOperation" />
+  </wsdl:message>
+  <wsdl:message name="IUtilityOperationService_UcomFixPaymentOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UcomFixPaymentOperationResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IUtilityOperationService">
+    <wsdl:operation name="BeelinePaymentOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/BeelinePaymentOperation" message="tns:IUtilityOperationService_BeelinePaymentOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/BeelinePaymentOperationResponse" message="tns:IUtilityOperationService_BeelinePaymentOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="BeelineAbonentNumberCheck">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/BeelineAbonentNumberCheck" message="tns:IUtilityOperationService_BeelineAbonentNumberCheck_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/BeelineAbonentNumberCheckResponse" message="tns:IUtilityOperationService_BeelineAbonentNumberCheck_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="BeelineOperationByPeriodOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/BeelineOperationByPeriodOperation" message="tns:IUtilityOperationService_BeelineOperationByPeriodOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/BeelineOperationByPeriodOperationResponse" message="tns:IUtilityOperationService_BeelineOperationByPeriodOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UcomPaymentMobileOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomPaymentMobileOperation" message="tns:IUtilityOperationService_UcomPaymentMobileOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomPaymentMobileOperationResponse" message="tns:IUtilityOperationService_UcomPaymentMobileOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UcomMobileAccountData">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomMobileAccountData" message="tns:IUtilityOperationService_UcomMobileAccountData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomMobileAccountDataResponse" message="tns:IUtilityOperationService_UcomMobileAccountData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellPaymentOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellPaymentOperation" message="tns:IUtilityOperationService_VivaCellPaymentOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellPaymentOperationResponse" message="tns:IUtilityOperationService_VivaCellPaymentOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellSubscriberCheck">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellSubscriberCheck" message="tns:IUtilityOperationService_VivaCellSubscriberCheck_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellSubscriberCheckResponse" message="tns:IUtilityOperationService_VivaCellSubscriberCheck_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellOperationByPeriodOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellOperationByPeriodOperation" message="tns:IUtilityOperationService_VivaCellOperationByPeriodOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellOperationByPeriodOperationResponse" message="tns:IUtilityOperationService_VivaCellOperationByPeriodOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellBTFCheck">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellBTFCheck" message="tns:IUtilityOperationService_VivaCellBTFCheck_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/VivaCellBTFCheckResponse" message="tns:IUtilityOperationService_VivaCellBTFCheck_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GasPromPaymentOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/GasPromPaymentOperation" message="tns:IUtilityOperationService_GasPromPaymentOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/GasPromPaymentOperationResponse" message="tns:IUtilityOperationService_GasPromPaymentOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GasPromAbonentSearch">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/GasPromAbonentSearch" message="tns:IUtilityOperationService_GasPromAbonentSearch_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/GasPromAbonentSearchResponse" message="tns:IUtilityOperationService_GasPromAbonentSearch_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGasPromSectionCodes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/GetGasPromSectionCodes" message="tns:IUtilityOperationService_GetGasPromSectionCodes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/GetGasPromSectionCodesResponse" message="tns:IUtilityOperationService_GetGasPromSectionCodes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GasPromOperationByPeriodOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/GasPromOperationByPeriodOperation" message="tns:IUtilityOperationService_GasPromOperationByPeriodOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/GasPromOperationByPeriodOperationResponse" message="tns:IUtilityOperationService_GasPromOperationByPeriodOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UcomMobileOperationByPeriodOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomMobileOperationByPeriodOperation" message="tns:IUtilityOperationService_UcomMobileOperationByPeriodOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomMobileOperationByPeriodOperationResponse" message="tns:IUtilityOperationService_UcomMobileOperationByPeriodOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UcomFixOperationByPeriodOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomFixOperationByPeriodOperation" message="tns:IUtilityOperationService_UcomFixOperationByPeriodOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomFixOperationByPeriodOperationResponse" message="tns:IUtilityOperationService_UcomFixOperationByPeriodOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UcomFixAbonentNumberCheck">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomFixAbonentNumberCheck" message="tns:IUtilityOperationService_UcomFixAbonentNumberCheck_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomFixAbonentNumberCheckResponse" message="tns:IUtilityOperationService_UcomFixAbonentNumberCheck_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UcomFixPaymentOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomFixPaymentOperation" message="tns:IUtilityOperationService_UcomFixPaymentOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUtilityOperationService/UcomFixPaymentOperationResponse" message="tns:IUtilityOperationService_UcomFixPaymentOperation_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="IExternalOperationService" type="tns:IUtilityOperationService">
+    <wsp:PolicyReference URI="#IExternalOperationService_policy" />
+    <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
+    <wsdl:operation name="BeelinePaymentOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/BeelinePaymentOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BeelineAbonentNumberCheck">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/BeelineAbonentNumberCheck" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BeelineOperationByPeriodOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/BeelineOperationByPeriodOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UcomPaymentMobileOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/UcomPaymentMobileOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UcomMobileAccountData">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/UcomMobileAccountData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellPaymentOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/VivaCellPaymentOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellSubscriberCheck">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/VivaCellSubscriberCheck" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellOperationByPeriodOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/VivaCellOperationByPeriodOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VivaCellBTFCheck">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/VivaCellBTFCheck" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GasPromPaymentOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/GasPromPaymentOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GasPromAbonentSearch">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/GasPromAbonentSearch" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGasPromSectionCodes">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/GetGasPromSectionCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GasPromOperationByPeriodOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/GasPromOperationByPeriodOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UcomMobileOperationByPeriodOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/UcomMobileOperationByPeriodOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UcomFixOperationByPeriodOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/UcomFixOperationByPeriodOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UcomFixAbonentNumberCheck">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/UcomFixAbonentNumberCheck" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UcomFixPaymentOperation">
+      <soap12:operation soapAction="http://tempuri.org/IUtilityOperationService/UcomFixPaymentOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="UtilityOperationService">
+    <wsdl:port name="IExternalOperationService" binding="tns:IExternalOperationService">
+      <soap12:address location="net.tcp://web1035-d.acbaca.local:8080/UtilityOperationService.svc/UtilityOperationService" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>net.tcp://web1035-d.acbaca.local:8080/UtilityOperationService.svc/UtilityOperationService</wsa10:Address>
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>UtilityPayUserTest@acbaca.local</Upn>
+        </Identity>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

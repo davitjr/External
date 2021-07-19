@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="R2ARequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:R2ARequestDetails">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="ForXBSTest" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PurposeRemittanceCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="SendAmount" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="SendCurrencyCode" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="R2ARequest" nillable="true" type="tns:R2ARequest" />
+  <xs:complexType name="R2ARequestDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccountNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BankCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryAgentCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryCityCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryCountryCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryEMailName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryFee" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryFeeCurrencyCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryFirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryLastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryMiddleName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryMobileNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryPhoneNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BeneficiaryStateCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DestinationText" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ENGBeneficiaryFirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ENGBeneficiaryLastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ENGBeneficiaryMiddleName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ENGSenderFirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ENGSenderLastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ENGSenderMiddleName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SendAgentCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderAddressName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderBirthDate" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderBirthPlaceName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderCityCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderCountryCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderDocumentTypeCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderEMailName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderExpirationDate" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderFirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderIssueCityCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderIssueCountryCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderIssueDate" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderIssueIDNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderLastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderMiddleName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderMobileNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderOccupationName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderPhoneNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderSexCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderStateCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderZipCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="URN" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="R2ARequestDetails" nillable="true" type="tns:R2ARequestDetails" />
+  <xs:complexType name="R2ARequestOutput">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:R2ARequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="BeneficiaryBirthDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="BeneficiaryBirthPlaceName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryDocumentTypeCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryExpirationDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="BeneficiaryFiscalCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryIssueCityCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryIssueCountryCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryIssueDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="BeneficiaryIssueIDNo" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryOccupationName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryResidencyCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiarySexCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="BeneficiaryZipCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PayoutAmount" type="xs:decimal" />
+          <xs:element minOccurs="0" name="PayoutCurrencyCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PayoutDeliveryCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ResponseCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ResponseMessage" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="StatusCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="StatusCodeName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="TransactionCode" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="R2ARequestOutput" nillable="true" type="tns:R2ARequestOutput" />
+</xs:schema>

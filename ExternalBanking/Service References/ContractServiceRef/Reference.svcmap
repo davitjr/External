@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="f9b27b06-4b0f-4d7b-b801-24394e63d847" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" Protocol="mex" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="bbfaf09e-2128-40f0-8566-ce4dbe3eb207" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="1658ab05-c2b0-483c-9e6d-3f40847ba174" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="3d085b60-15f6-4e20-8e7b-3f95f9211972" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" />
+    <MetadataFile FileName="ContractService.xsd" MetadataType="Schema" ID="eebba4e4-7595-44c9-86b9-7399f8a4dd48" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" />
+    <MetadataFile FileName="Arrays.xsd" MetadataType="Schema" ID="ddb8a6aa-2108-4aea-af09-4c11e7ba78dd" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" />
+    <MetadataFile FileName="System.Collections.Generic.xsd" MetadataType="Schema" ID="8b561bb8-839d-4be1-985c-461dac95df07" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" />
+    <MetadataFile FileName="System.xsd" MetadataType="Schema" ID="fc07b349-c234-406d-9119-6dd6648506ae" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8082/ContractOerationService.svc/mex" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

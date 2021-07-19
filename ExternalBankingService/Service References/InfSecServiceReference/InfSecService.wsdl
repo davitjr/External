@@ -1,0 +1,1202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="InfSecService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="BasicHttpsBinding_IInfSec_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false" />
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" />
+      <xsd:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary.CustomerAuthorization" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IInfSec_AutorizeUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:AutorizeUser" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AutorizeUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AutorizeUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AuthorizeUserBySession_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserBySession" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AuthorizeUserBySession_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserBySessionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AutorizeUserTablet_InputMessage">
+    <wsdl:part name="parameters" element="tns:AutorizeUserTablet" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AutorizeUserTablet_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AutorizeUserTabletResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_ChangePassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangePassword" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_ChangePassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckProgramVersion_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckProgramVersion" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckProgramVersion_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckProgramVersionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetTransactionFingerprint_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetTransactionFingerprint" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetTransactionFingerprint_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetTransactionFingerprintResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckTransactionFingerprint_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckTransactionFingerprint" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckTransactionFingerprint_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckTransactionFingerprintResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetDocumentsPermissions_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetDocumentsPermissions" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetDocumentsPermissions_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetDocumentsPermissionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermissionForPage_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermissionForPage" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermissionForPage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermissionForPageResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetVarPermissionForPage_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetVarPermissionForPage" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetVarPermissionForPage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetVarPermissionForPageResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetVarPermissionsForPageBySession_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetVarPermissionsForPageBySession" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetVarPermissionsForPageBySession_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetVarPermissionsForPageBySessionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermissionsForForm_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermissionsForForm" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermissionsForForm_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermissionsForFormResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetGridAccessListForForm_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetGridAccessListForForm" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetGridAccessListForForm_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetGridAccessListForFormResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetVarPermissionForForm_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetVarPermissionForForm" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetVarPermissionForForm_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetVarPermissionForFormResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermitedBranches_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermitedBranches" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermitedBranches_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermitedBranchesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetUserAccessForCustomer_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserAccessForCustomer" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetUserAccessForCustomer_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserAccessForCustomerResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetUserAccessForCustomerByCustomerNumber_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserAccessForCustomerByCustomerNumber" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetUserAccessForCustomerByCustomerNumber_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserAccessForCustomerByCustomerNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetUserAccessForCustomerBySession_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserAccessForCustomerBySession" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetUserAccessForCustomerBySession_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserAccessForCustomerBySessionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckProgramAccessBySession_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckProgramAccessBySession" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckProgramAccessBySession_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckProgramAccessBySessionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AutorizeWindowsUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:AutorizeWindowsUser" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AutorizeWindowsUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AutorizeWindowsUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_ChangeWindowsUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeWindowsUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_ChangeWindowsUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeWindowsUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetAllUsersFromCache_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllUsersFromCache" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetAllUsersFromCache_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllUsersFromCacheResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_DeleteUserFromCache_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteUserFromCache" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_DeleteUserFromCache_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteUserFromCacheResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetOneUsersFromCache_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetOneUsersFromCache" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetOneUsersFromCache_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetOneUsersFromCacheResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetProgListByGroup_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetProgListByGroup" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetProgListByGroup_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetProgListByGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetEmployeesTempData_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetEmployeesTempData" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetEmployeesTempData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetEmployeesTempDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetDBServerNamesForConnectionString_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetDBServerNamesForConnectionString" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetDBServerNamesForConnectionString_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetDBServerNamesForConnectionStringResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermissionsGroupsLists_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermissionsGroupsLists" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPermissionsGroupsLists_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPermissionsGroupsListsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AddEmployeesRequest_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddEmployeesRequest" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AddEmployeesRequest_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddEmployeesRequestResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetRequestData_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetRequestData" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetRequestData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetRequestDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckOrderStatus_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckOrderStatus" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckOrderStatus_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckOrderStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AddCashersOrderInstructions_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddCashersOrderInstructions" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AddCashersOrderInstructions_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddCashersOrderInstructionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPositionsByDepForOrderInstructions_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPositionsByDepForOrderInstructions" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetPositionsByDepForOrderInstructions_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPositionsByDepForOrderInstructionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckUserNameAndLogIn_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckUserNameAndLogIn" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckUserNameAndLogIn_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckUserNameAndLogInResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetGroupIdForEmp_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetGroupIdForEmp" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_GetGroupIdForEmp_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetGroupIdForEmpResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_NewConfigDBConnectionSString_InputMessage">
+    <wsdl:part name="parameters" element="tns:NewConfigDBConnectionSString" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_NewConfigDBConnectionSString_OutputMessage">
+    <wsdl:part name="parameters" element="tns:NewConfigDBConnectionSStringResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AuthorizeUserBySAPTicket_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserBySAPTicket" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AuthorizeUserBySAPTicket_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserBySAPTicketResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AuthorizeCustomer_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeCustomer" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_AuthorizeCustomer_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeCustomerResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckCustomerAuthorization_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckCustomerAuthorization" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CheckCustomerAuthorization_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckCustomerAuthorizationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CreateAssertionTicket_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateAssertionTicket" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CreateAssertionTicket_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateAssertionTicketResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CreateLogonTicket_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateLogonTicket" />
+  </wsdl:message>
+  <wsdl:message name="IInfSec_CreateLogonTicket_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateLogonTicketResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IInfSec">
+    <wsdl:operation name="AutorizeUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AutorizeUser" message="tns:IInfSec_AutorizeUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AutorizeUserResponse" message="tns:IInfSec_AutorizeUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserBySession">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AuthorizeUserBySession" message="tns:IInfSec_AuthorizeUserBySession_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AuthorizeUserBySessionResponse" message="tns:IInfSec_AuthorizeUserBySession_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AutorizeUserTablet">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AutorizeUserTablet" message="tns:IInfSec_AutorizeUserTablet_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AutorizeUserTabletResponse" message="tns:IInfSec_AutorizeUserTablet_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/ChangePassword" message="tns:IInfSec_ChangePassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/ChangePasswordResponse" message="tns:IInfSec_ChangePassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramVersion">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CheckProgramVersion" message="tns:IInfSec_CheckProgramVersion_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CheckProgramVersionResponse" message="tns:IInfSec_CheckProgramVersion_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTransactionFingerprint">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetTransactionFingerprint" message="tns:IInfSec_GetTransactionFingerprint_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetTransactionFingerprintResponse" message="tns:IInfSec_GetTransactionFingerprint_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckTransactionFingerprint">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CheckTransactionFingerprint" message="tns:IInfSec_CheckTransactionFingerprint_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CheckTransactionFingerprintResponse" message="tns:IInfSec_CheckTransactionFingerprint_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDocumentsPermissions">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetDocumentsPermissions" message="tns:IInfSec_GetDocumentsPermissions_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetDocumentsPermissionsResponse" message="tns:IInfSec_GetDocumentsPermissions_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionForPage">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetPermissionForPage" message="tns:IInfSec_GetPermissionForPage_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetPermissionForPageResponse" message="tns:IInfSec_GetPermissionForPage_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionForPage">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetVarPermissionForPage" message="tns:IInfSec_GetVarPermissionForPage_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetVarPermissionForPageResponse" message="tns:IInfSec_GetVarPermissionForPage_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionsForPageBySession">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetVarPermissionsForPageBySession" message="tns:IInfSec_GetVarPermissionsForPageBySession_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetVarPermissionsForPageBySessionResponse" message="tns:IInfSec_GetVarPermissionsForPageBySession_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionsForForm">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetPermissionsForForm" message="tns:IInfSec_GetPermissionsForForm_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetPermissionsForFormResponse" message="tns:IInfSec_GetPermissionsForForm_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGridAccessListForForm">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetGridAccessListForForm" message="tns:IInfSec_GetGridAccessListForForm_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetGridAccessListForFormResponse" message="tns:IInfSec_GetGridAccessListForForm_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionForForm">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetVarPermissionForForm" message="tns:IInfSec_GetVarPermissionForForm_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetVarPermissionForFormResponse" message="tns:IInfSec_GetVarPermissionForForm_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPermitedBranches">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetPermitedBranches" message="tns:IInfSec_GetPermitedBranches_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetPermitedBranchesResponse" message="tns:IInfSec_GetPermitedBranches_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomer">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetUserAccessForCustomer" message="tns:IInfSec_GetUserAccessForCustomer_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetUserAccessForCustomerResponse" message="tns:IInfSec_GetUserAccessForCustomer_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomerByCustomerNumber">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetUserAccessForCustomerByCustomerNumber" message="tns:IInfSec_GetUserAccessForCustomerByCustomerNumber_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetUserAccessForCustomerByCustomerNumberResponse" message="tns:IInfSec_GetUserAccessForCustomerByCustomerNumber_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomerBySession">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetUserAccessForCustomerBySession" message="tns:IInfSec_GetUserAccessForCustomerBySession_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetUserAccessForCustomerBySessionResponse" message="tns:IInfSec_GetUserAccessForCustomerBySession_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramAccessBySession">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CheckProgramAccessBySession" message="tns:IInfSec_CheckProgramAccessBySession_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CheckProgramAccessBySessionResponse" message="tns:IInfSec_CheckProgramAccessBySession_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AutorizeWindowsUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AutorizeWindowsUser" message="tns:IInfSec_AutorizeWindowsUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AutorizeWindowsUserResponse" message="tns:IInfSec_AutorizeWindowsUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeWindowsUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/ChangeWindowsUserPassword" message="tns:IInfSec_ChangeWindowsUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/ChangeWindowsUserPasswordResponse" message="tns:IInfSec_ChangeWindowsUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllUsersFromCache">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetAllUsersFromCache" message="tns:IInfSec_GetAllUsersFromCache_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetAllUsersFromCacheResponse" message="tns:IInfSec_GetAllUsersFromCache_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFromCache">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/DeleteUserFromCache" message="tns:IInfSec_DeleteUserFromCache_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/DeleteUserFromCacheResponse" message="tns:IInfSec_DeleteUserFromCache_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetOneUsersFromCache">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetOneUsersFromCache" message="tns:IInfSec_GetOneUsersFromCache_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetOneUsersFromCacheResponse" message="tns:IInfSec_GetOneUsersFromCache_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetProgListByGroup">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetProgListByGroup" message="tns:IInfSec_GetProgListByGroup_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetProgListByGroupResponse" message="tns:IInfSec_GetProgListByGroup_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEmployeesTempData">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetEmployeesTempData" message="tns:IInfSec_GetEmployeesTempData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetEmployeesTempDataResponse" message="tns:IInfSec_GetEmployeesTempData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDBServerNamesForConnectionString">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetDBServerNamesForConnectionString" message="tns:IInfSec_GetDBServerNamesForConnectionString_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetDBServerNamesForConnectionStringResponse" message="tns:IInfSec_GetDBServerNamesForConnectionString_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionsGroupsLists">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetPermissionsGroupsLists" message="tns:IInfSec_GetPermissionsGroupsLists_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetPermissionsGroupsListsResponse" message="tns:IInfSec_GetPermissionsGroupsLists_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AddEmployeesRequest">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AddEmployeesRequest" message="tns:IInfSec_AddEmployeesRequest_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AddEmployeesRequestResponse" message="tns:IInfSec_AddEmployeesRequest_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRequestData">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetRequestData" message="tns:IInfSec_GetRequestData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetRequestDataResponse" message="tns:IInfSec_GetRequestData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckOrderStatus">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CheckOrderStatus" message="tns:IInfSec_CheckOrderStatus_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CheckOrderStatusResponse" message="tns:IInfSec_CheckOrderStatus_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AddCashersOrderInstructions">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AddCashersOrderInstructions" message="tns:IInfSec_AddCashersOrderInstructions_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AddCashersOrderInstructionsResponse" message="tns:IInfSec_AddCashersOrderInstructions_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPositionsByDepForOrderInstructions">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetPositionsByDepForOrderInstructions" message="tns:IInfSec_GetPositionsByDepForOrderInstructions_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetPositionsByDepForOrderInstructionsResponse" message="tns:IInfSec_GetPositionsByDepForOrderInstructions_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckUserNameAndLogIn">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CheckUserNameAndLogIn" message="tns:IInfSec_CheckUserNameAndLogIn_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CheckUserNameAndLogInResponse" message="tns:IInfSec_CheckUserNameAndLogIn_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupIdForEmp">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/GetGroupIdForEmp" message="tns:IInfSec_GetGroupIdForEmp_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/GetGroupIdForEmpResponse" message="tns:IInfSec_GetGroupIdForEmp_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="NewConfigDBConnectionSString">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/NewConfigDBConnectionSString" message="tns:IInfSec_NewConfigDBConnectionSString_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/NewConfigDBConnectionSStringResponse" message="tns:IInfSec_NewConfigDBConnectionSString_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserBySAPTicket">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AuthorizeUserBySAPTicket" message="tns:IInfSec_AuthorizeUserBySAPTicket_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AuthorizeUserBySAPTicketResponse" message="tns:IInfSec_AuthorizeUserBySAPTicket_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeCustomer">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/AuthorizeCustomer" message="tns:IInfSec_AuthorizeCustomer_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/AuthorizeCustomerResponse" message="tns:IInfSec_AuthorizeCustomer_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckCustomerAuthorization">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CheckCustomerAuthorization" message="tns:IInfSec_CheckCustomerAuthorization_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CheckCustomerAuthorizationResponse" message="tns:IInfSec_CheckCustomerAuthorization_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateAssertionTicket">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CreateAssertionTicket" message="tns:IInfSec_CreateAssertionTicket_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CreateAssertionTicketResponse" message="tns:IInfSec_CreateAssertionTicket_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateLogonTicket">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInfSec/CreateLogonTicket" message="tns:IInfSec_CreateLogonTicket_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInfSec/CreateLogonTicketResponse" message="tns:IInfSec_CreateLogonTicket_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IInfSec" type="tns:IInfSec">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AutorizeUser">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AutorizeUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AuthorizeUserBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AutorizeUserTablet">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AutorizeUserTablet" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramVersion">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckProgramVersion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTransactionFingerprint">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetTransactionFingerprint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckTransactionFingerprint">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckTransactionFingerprint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDocumentsPermissions">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetDocumentsPermissions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionForPage">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermissionForPage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionForPage">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetVarPermissionForPage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionsForPageBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetVarPermissionsForPageBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionsForForm">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermissionsForForm" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGridAccessListForForm">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetGridAccessListForForm" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionForForm">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetVarPermissionForForm" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermitedBranches">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermitedBranches" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomer">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetUserAccessForCustomer" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomerByCustomerNumber">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetUserAccessForCustomerByCustomerNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomerBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetUserAccessForCustomerBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramAccessBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckProgramAccessBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AutorizeWindowsUser">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AutorizeWindowsUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeWindowsUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/ChangeWindowsUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllUsersFromCache">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetAllUsersFromCache" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFromCache">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/DeleteUserFromCache" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOneUsersFromCache">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetOneUsersFromCache" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetProgListByGroup">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetProgListByGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEmployeesTempData">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetEmployeesTempData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBServerNamesForConnectionString">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetDBServerNamesForConnectionString" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionsGroupsLists">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermissionsGroupsLists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddEmployeesRequest">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AddEmployeesRequest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRequestData">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetRequestData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckOrderStatus">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckOrderStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddCashersOrderInstructions">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AddCashersOrderInstructions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPositionsByDepForOrderInstructions">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPositionsByDepForOrderInstructions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckUserNameAndLogIn">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckUserNameAndLogIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupIdForEmp">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetGroupIdForEmp" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NewConfigDBConnectionSString">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/NewConfigDBConnectionSString" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserBySAPTicket">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AuthorizeUserBySAPTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeCustomer">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AuthorizeCustomer" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckCustomerAuthorization">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckCustomerAuthorization" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAssertionTicket">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CreateAssertionTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateLogonTicket">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CreateLogonTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="BasicHttpsBinding_IInfSec" type="tns:IInfSec">
+    <wsp:PolicyReference URI="#BasicHttpsBinding_IInfSec_policy" />
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AutorizeUser">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AutorizeUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AuthorizeUserBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AutorizeUserTablet">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AutorizeUserTablet" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramVersion">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckProgramVersion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTransactionFingerprint">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetTransactionFingerprint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckTransactionFingerprint">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckTransactionFingerprint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDocumentsPermissions">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetDocumentsPermissions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionForPage">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermissionForPage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionForPage">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetVarPermissionForPage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionsForPageBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetVarPermissionsForPageBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionsForForm">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermissionsForForm" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGridAccessListForForm">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetGridAccessListForForm" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetVarPermissionForForm">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetVarPermissionForForm" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermitedBranches">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermitedBranches" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomer">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetUserAccessForCustomer" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomerByCustomerNumber">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetUserAccessForCustomerByCustomerNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAccessForCustomerBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetUserAccessForCustomerBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckProgramAccessBySession">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckProgramAccessBySession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AutorizeWindowsUser">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AutorizeWindowsUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeWindowsUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/ChangeWindowsUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllUsersFromCache">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetAllUsersFromCache" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFromCache">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/DeleteUserFromCache" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOneUsersFromCache">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetOneUsersFromCache" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetProgListByGroup">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetProgListByGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEmployeesTempData">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetEmployeesTempData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDBServerNamesForConnectionString">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetDBServerNamesForConnectionString" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPermissionsGroupsLists">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPermissionsGroupsLists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddEmployeesRequest">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AddEmployeesRequest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRequestData">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetRequestData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckOrderStatus">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckOrderStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddCashersOrderInstructions">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AddCashersOrderInstructions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPositionsByDepForOrderInstructions">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetPositionsByDepForOrderInstructions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckUserNameAndLogIn">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckUserNameAndLogIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupIdForEmp">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/GetGroupIdForEmp" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NewConfigDBConnectionSString">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/NewConfigDBConnectionSString" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserBySAPTicket">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AuthorizeUserBySAPTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeCustomer">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/AuthorizeCustomer" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckCustomerAuthorization">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CheckCustomerAuthorization" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAssertionTicket">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CreateAssertionTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateLogonTicket">
+      <soap:operation soapAction="http://tempuri.org/IInfSec/CreateLogonTicket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="InfSecService">
+    <wsdl:port name="BasicHttpBinding_IInfSec" binding="tns:BasicHttpBinding_IInfSec">
+      <soap:address location="http://as1001-t1.acbaca.local:90/InformationSecurityService.svc" />
+    </wsdl:port>
+    <wsdl:port name="BasicHttpsBinding_IInfSec" binding="tns:BasicHttpsBinding_IInfSec">
+      <soap:address location="https://authorizationservice-test/InformationSecurityService.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

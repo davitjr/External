@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/MessagingLibrary.Services.EmailMessagingService.Model" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/MessagingLibrary.Services.EmailMessagingService.Model" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="EmailNotification">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="notificationList" nillable="true" type="tns:ArrayOfnotification" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EmailNotification" nillable="true" type="tns:EmailNotification" />
+  <xs:complexType name="ArrayOfnotification">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="notification" nillable="true" type="tns:notification" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfnotification" nillable="true" type="tns:ArrayOfnotification" />
+  <xs:complexType name="notification">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="parameters" nillable="true" type="tns:ArrayOfparameter" />
+      <xs:element minOccurs="0" name="properties" nillable="true" type="tns:properties" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="notification" nillable="true" type="tns:notification" />
+  <xs:complexType name="ArrayOfparameter">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="parameter" nillable="true" type="tns:parameter" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfparameter" nillable="true" type="tns:ArrayOfparameter" />
+  <xs:complexType name="parameter">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="key" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="location" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="value" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="parameter" nillable="true" type="tns:parameter" />
+  <xs:complexType name="properties">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="emailAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="recipientUserID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="referenceID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="templateID" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="properties" nillable="true" type="tns:properties" />
+  <xs:complexType name="Email">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Attachments" nillable="true" type="tns:ArrayOfMailAttachment" />
+      <xs:element minOccurs="0" name="Content" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="From" type="xs:int" />
+      <xs:element minOccurs="0" name="Subject" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="To" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Email" nillable="true" type="tns:Email" />
+  <xs:complexType name="ArrayOfMailAttachment">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MailAttachment" nillable="true" type="tns:MailAttachment" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMailAttachment" nillable="true" type="tns:ArrayOfMailAttachment" />
+  <xs:complexType name="MailAttachment">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DataBinary" nillable="true" type="xs:base64Binary" />
+      <xs:element minOccurs="0" name="FileExtension" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="FileName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MailAttachment" nillable="true" type="tns:MailAttachment" />
+</xs:schema>

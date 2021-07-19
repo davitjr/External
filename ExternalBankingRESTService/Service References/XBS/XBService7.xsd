@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ExternalBanking.XBManagement" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ExternalBanking.XBManagement" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd1" namespace="http://schemas.datacontract.org/2004/07/ExternalBanking" />
+  <xs:import schemaLocation="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ACBALibrary" />
+  <xs:import schemaLocation="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd0" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd20" namespace="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" />
+  <xs:import schemaLocation="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd21" namespace="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" />
+  <xs:import schemaLocation="http://localhost/ExternalBankingService/XBService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:complexType name="HBToken">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ActivationDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="ActivationSetID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="BlockingDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DayLimit" type="xs:double" />
+      <xs:element minOccurs="0" name="DeactivationDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DeactivationSetID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="DeviceTypeDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="HBUser" nillable="true" type="tns:HBUser" />
+      <xs:element minOccurs="0" name="HBUserID" type="xs:int" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="IsBlocked" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsRegistered" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsRestorable" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Issuer" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Pin" nillable="true" type="xs:string" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ExternalBanking" minOccurs="0" name="Quality" type="q1:HBTokenQuality" />
+      <xs:element minOccurs="0" name="QualityDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TokenNumber" nillable="true" type="xs:string" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ExternalBanking" minOccurs="0" name="TokenSubType" type="q2:HBTokenSubType" />
+      <xs:element minOccurs="0" name="TokenSubTypeDescription" nillable="true" type="xs:string" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ExternalBanking" minOccurs="0" name="TokenType" type="q3:HBTokenTypes" />
+      <xs:element minOccurs="0" name="TokenTypeDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TransLimit" type="xs:double" />
+      <xs:element minOccurs="0" name="UserCustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="UserFullName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HBToken" nillable="true" type="tns:HBToken" />
+  <xs:complexType name="HBUser">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AllowDataEntry" type="xs:boolean" />
+      <xs:element minOccurs="0" name="BlockingDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="BlockingSetID" type="xs:int" />
+      <xs:element minOccurs="0" name="CustomerNumber" type="xs:unsignedLong" />
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ACBALibrary" minOccurs="0" name="Email" nillable="true" type="q4:CustomerEmail" />
+      <xs:element minOccurs="0" name="HBAppID" type="xs:int" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="IdentificationPerOrder" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsBlocked" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsCas" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsLocked" type="xs:boolean" />
+      <xs:element minOccurs="0" name="LimitedAccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="LogonInformation" nillable="true" type="tns:LogonInfo" />
+      <xs:element minOccurs="0" name="PassChangeReq" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProductsPermissions" nillable="true" type="tns:ArrayOfHBProductPermission" />
+      <xs:element minOccurs="0" name="RegistrationDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="UserFullName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserFullNameEng" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HBUser" nillable="true" type="tns:HBUser" />
+  <xs:complexType name="LogonInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BadLogons" type="xs:int" />
+      <xs:element minOccurs="0" name="BadResetCounter" type="xs:short" />
+      <xs:element minOccurs="0" name="GoodLogons" type="xs:int" />
+      <xs:element minOccurs="0" name="LastBadLogonDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="LastGoodLogonDate" nillable="true" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LogonInfo" nillable="true" type="tns:LogonInfo" />
+  <xs:complexType name="ArrayOfHBProductPermission">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HBProductPermission" nillable="true" type="tns:HBProductPermission" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfHBProductPermission" nillable="true" type="tns:ArrayOfHBProductPermission" />
+  <xs:complexType name="HBProductPermission">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IsActive" type="xs:boolean" />
+      <xs:element minOccurs="0" name="ProductAccountNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProductAppID" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="ProductType" type="tns:HBProductPermissionType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HBProductPermission" nillable="true" type="tns:HBProductPermission" />
+  <xs:simpleType name="HBProductPermissionType">
+    <xs:annotation>
+      <xs:appinfo>
+        <ActualType Name="short" Namespace="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Loan">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="CommercialCreditLine">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">3</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Guarantee">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Deposit">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">5</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Card">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">6</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="CurrentAccount">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">7</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Periodic">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">8</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Overdraft">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">9</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Factoring">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">10</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Paidfactoring">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">12</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="HBProductPermissionType" nillable="true" type="tns:HBProductPermissionType" />
+  <xs:complexType name="HBServletRequestOrder">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:HBServletOrder">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="HBServletRequestOrder" nillable="true" type="tns:HBServletRequestOrder" />
+  <xs:complexType name="HBServletOrder">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q5="http://schemas.datacontract.org/2004/07/ExternalBanking" base="q5:Order">
+        <xs:sequence>
+          <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="CasServletRequest" nillable="true" type="q6:TokenOperationsInfo" />
+          <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="CasServletResult" nillable="true" type="q7:TokenOperationsResult" />
+          <xs:element minOccurs="0" name="ClientIP" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="HBtoken" nillable="true" type="tns:HBToken" />
+          <xs:element minOccurs="0" name="Language" type="xs:unsignedByte" />
+          <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="SecServletRequest" nillable="true" type="q8:TokenOperationsInfo" />
+          <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ExternalBankingSecurityLibrary.TokenOperations" minOccurs="0" name="SecServletResult" nillable="true" type="q9:TokenOperationsResult" />
+          <xs:element minOccurs="0" name="ServletAction" type="q5:HBServletAction" />
+          <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" minOccurs="0" name="ServletRequest" nillable="true" type="q10:TokenOperationsInfo" />
+          <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" minOccurs="0" name="ServletResult" nillable="true" type="q11:TokenOperationsResult" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="HBServletOrder" nillable="true" type="tns:HBServletOrder" />
+  <xs:complexType name="HBApplicationOrder">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q12="http://schemas.datacontract.org/2004/07/ExternalBanking" base="q12:Order">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="ApprovementSchema" nillable="true" type="tns:ApprovementSchema" />
+          <xs:element minOccurs="0" name="HBApplication" nillable="true" type="tns:HBApplication" />
+          <xs:element minOccurs="0" name="HBApplicationUpdate" nillable="true" type="tns:HBApplicationUpdate" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="HBApplicationOrder" nillable="true" type="tns:HBApplicationOrder" />
+  <xs:complexType name="ApprovementSchema">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="SchemaDetails" nillable="true" type="tns:ArrayOfApprovementSchemaDetails" />
+      <xs:element minOccurs="0" name="isModified" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ApprovementSchema" nillable="true" type="tns:ApprovementSchema" />
+  <xs:complexType name="ArrayOfApprovementSchemaDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ApprovementSchemaDetails" nillable="true" type="tns:ApprovementSchemaDetails" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfApprovementSchemaDetails" nillable="true" type="tns:ArrayOfApprovementSchemaDetails" />
+  <xs:complexType name="ApprovementSchemaDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Group" nillable="true" type="tns:XBUserGroup" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Order" type="xs:unsignedByte" />
+      <xs:element minOccurs="0" name="Step" nillable="true" type="tns:ApprovementSchemaStep" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ApprovementSchemaDetails" nillable="true" type="tns:ApprovementSchemaDetails" />
+  <xs:complexType name="XBUserGroup">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="GroupName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="HBUsers" nillable="true" type="tns:ArrayOfHBUser" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="XBUserGroup" nillable="true" type="tns:XBUserGroup" />
+  <xs:complexType name="ArrayOfHBUser">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HBUser" nillable="true" type="tns:HBUser" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfHBUser" nillable="true" type="tns:ArrayOfHBUser" />
+  <xs:complexType name="ApprovementSchemaStep">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ApprovementSchemaStep" nillable="true" type="tns:ApprovementSchemaStep" />
+  <xs:complexType name="HBApplication">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ApplicationDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="ChiefAcc" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ContractDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="ContractNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ContractType" type="xs:unsignedByte" />
+      <xs:element minOccurs="0" name="CustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="FilialCode" type="xs:int" />
+      <xs:element minOccurs="0" name="FullName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="InvolvingSetNumber" type="xs:int" />
+      <xs:element minOccurs="0" name="Manager" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PermissionType" nillable="true" type="xs:unsignedByte" />
+      <xs:element minOccurs="0" name="Position" nillable="true" type="xs:string" />
+      <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ExternalBanking" minOccurs="0" name="Quality" type="q13:HBApplicationQuality" />
+      <xs:element minOccurs="0" name="QualityDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SetID" type="xs:int" />
+      <xs:element minOccurs="0" name="SetName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StatusChangeDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="StatusChangeSetID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HBApplication" nillable="true" type="tns:HBApplication" />
+  <xs:complexType name="HBApplicationUpdate">
+    <xs:sequence>
+      <xs:element xmlns:q14="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AddedItems" nillable="true" type="q14:ArrayOfanyType" />
+      <xs:element xmlns:q15="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="DeactivatedItems" nillable="true" type="q15:ArrayOfanyType" />
+      <xs:element xmlns:q16="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="UpdatedItems" nillable="true" type="q16:ArrayOfanyType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HBApplicationUpdate" nillable="true" type="tns:HBApplicationUpdate" />
+  <xs:complexType name="ArrayOfHBActivationRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HBActivationRequest" nillable="true" type="tns:HBActivationRequest" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfHBActivationRequest" nillable="true" type="tns:ArrayOfHBActivationRequest" />
+  <xs:complexType name="HBActivationRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="HBToken" nillable="true" type="tns:HBToken" />
+      <xs:element minOccurs="0" name="Id" type="xs:long" />
+      <xs:element minOccurs="0" name="IsFree" type="xs:boolean" />
+      <xs:element minOccurs="0" name="RequestDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="RequestType" type="xs:short" />
+      <xs:element minOccurs="0" name="RequestTypeDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ServiceFee" type="xs:double" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HBActivationRequest" nillable="true" type="tns:HBActivationRequest" />
+  <xs:complexType name="HBActivationOrder">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q17="http://schemas.datacontract.org/2004/07/ExternalBanking" base="q17:Order">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="CreditAccount" nillable="true" type="q17:Account" />
+          <xs:element minOccurs="0" name="HBActivationRequests" nillable="true" type="tns:ArrayOfHBActivationRequest" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="HBActivationOrder" nillable="true" type="tns:HBActivationOrder" />
+  <xs:complexType name="ArrayOfHBToken">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HBToken" nillable="true" type="tns:HBToken" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfHBToken" nillable="true" type="tns:ArrayOfHBToken" />
+</xs:schema>

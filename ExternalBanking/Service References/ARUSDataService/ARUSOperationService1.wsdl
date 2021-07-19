@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ARUSOperationService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="IARUSOperationService_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <msf:WindowsTransportSecurity xmlns:msf="http://schemas.microsoft.com/ws/2006/05/framing/policy">
+                  <msf:ProtectionLevel>EncryptAndSign</msf:ProtectionLevel>
+                </msf:WindowsTransportSecurity>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <wsaw:UsingAddressing />
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://webc021:9820/ARUSOperationService.svc?xsd=xsd2" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://webc021:9820/ARUSOperationService.svc?xsd=xsd0" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://webc021:9820/ARUSOperationService.svc?xsd=xsd1" namespace="http://schemas.datacontract.org/2004/07/ARUSInfrastructure" />
+      <xsd:import schemaLocation="http://webc021:9820/ARUSOperationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://webc021:9820/ARUSOperationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ARUSInfrastructure.ACBAAPI" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IARUSOperationService_InitARUSUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:InitARUSUser" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_InitARUSUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:InitARUSUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetTransactionDetailsByURN_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetTransactionDetailsByURN" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetTransactionDetailsByURN_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetTransactionDetailsByURNResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_PayOutOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:PayOutOperation" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_PayOutOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:PayOutOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetSexes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetSexes" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetSexes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetSexesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetYesNo_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetYesNo" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetYesNo_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetYesNoResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCountriesByMTO_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCountriesByMTO" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCountriesByMTO_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCountriesByMTOResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetDocumentTypes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetDocumentTypes" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetDocumentTypes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetDocumentTypesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetSendingCurrencies_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetSendingCurrencies" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetSendingCurrencies_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetSendingCurrenciesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCitiesByCountry_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCitiesByCountry" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCitiesByCountry_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCitiesByCountryResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetStates_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetStates" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetStates_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetStatesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCitiesByState_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCitiesByState" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCitiesByState_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCitiesByStateResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetMTOList_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMTOList" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetMTOList_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMTOListResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetRemittancePurposes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetRemittancePurposes" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetRemittancePurposes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetRemittancePurposesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetPayoutDeliveryCodes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPayoutDeliveryCodes" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetPayoutDeliveryCodes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPayoutDeliveryCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetSendPayoutDivisionCodes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetSendPayoutDivisionCodes" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetSendPayoutDivisionCodes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetSendPayoutDivisionCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_CancellationOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:CancellationOperation" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_CancellationOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CancellationOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCancellationReversalCodes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCancellationReversalCodes" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetCancellationReversalCodes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCancellationReversalCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetRemittanceFee_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetRemittanceFee" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetRemittanceFee_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetRemittanceFeeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_SendMoneyOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:SendMoneyOperation" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_SendMoneyOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SendMoneyOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetMTOAgencies_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMTOAgencies" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetMTOAgencies_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMTOAgenciesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetAmendmentReasonCodes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAmendmentReasonCodes" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetAmendmentReasonCodes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAmendmentReasonCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_AmendmentOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:AmendmentOperation" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_AmendmentOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AmendmentOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_R2AOperation_InputMessage">
+    <wsdl:part name="parameters" element="tns:R2AOperation" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_R2AOperation_OutputMessage">
+    <wsdl:part name="parameters" element="tns:R2AOperationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_ForServiceVisibility_InputMessage">
+    <wsdl:part name="parameters" element="tns:ForServiceVisibility" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_ForServiceVisibility_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ForServiceVisibilityResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_ResponseConfirm_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResponseConfirm" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_ResponseConfirm_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResponseConfirmResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetPayoutDeliveryCodesByBenificiaryAgentCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPayoutDeliveryCodesByBenificiaryAgentCode" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetPayoutDeliveryCodesByBenificiaryAgentCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPayoutDeliveryCodesByBenificiaryAgentCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_UpdateInfoDictionaries_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateInfoDictionaries" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_UpdateInfoDictionaries_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateInfoDictionariesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_TestMethod_InputMessage">
+    <wsdl:part name="parameters" element="tns:TestMethod" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_TestMethod_OutputMessage">
+    <wsdl:part name="parameters" element="tns:TestMethodResponse" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetMTOListAndBestChoice_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMTOListAndBestChoice" />
+  </wsdl:message>
+  <wsdl:message name="IARUSOperationService_GetMTOListAndBestChoice_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMTOListAndBestChoiceResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IARUSOperationService">
+    <wsdl:operation name="InitARUSUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/InitARUSUser" message="tns:IARUSOperationService_InitARUSUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/InitARUSUserResponse" message="tns:IARUSOperationService_InitARUSUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTransactionDetailsByURN">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetTransactionDetailsByURN" message="tns:IARUSOperationService_GetTransactionDetailsByURN_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetTransactionDetailsByURNResponse" message="tns:IARUSOperationService_GetTransactionDetailsByURN_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="PayOutOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/PayOutOperation" message="tns:IARUSOperationService_PayOutOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/PayOutOperationResponse" message="tns:IARUSOperationService_PayOutOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSexes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetSexes" message="tns:IARUSOperationService_GetSexes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetSexesResponse" message="tns:IARUSOperationService_GetSexes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetYesNo">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetYesNo" message="tns:IARUSOperationService_GetYesNo_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetYesNoResponse" message="tns:IARUSOperationService_GetYesNo_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCountriesByMTO">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetCountriesByMTO" message="tns:IARUSOperationService_GetCountriesByMTO_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetCountriesByMTOResponse" message="tns:IARUSOperationService_GetCountriesByMTO_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDocumentTypes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetDocumentTypes" message="tns:IARUSOperationService_GetDocumentTypes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetDocumentTypesResponse" message="tns:IARUSOperationService_GetDocumentTypes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSendingCurrencies">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetSendingCurrencies" message="tns:IARUSOperationService_GetSendingCurrencies_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetSendingCurrenciesResponse" message="tns:IARUSOperationService_GetSendingCurrencies_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCitiesByCountry">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetCitiesByCountry" message="tns:IARUSOperationService_GetCitiesByCountry_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetCitiesByCountryResponse" message="tns:IARUSOperationService_GetCitiesByCountry_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetStates">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetStates" message="tns:IARUSOperationService_GetStates_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetStatesResponse" message="tns:IARUSOperationService_GetStates_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCitiesByState">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetCitiesByState" message="tns:IARUSOperationService_GetCitiesByState_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetCitiesByStateResponse" message="tns:IARUSOperationService_GetCitiesByState_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMTOList">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetMTOList" message="tns:IARUSOperationService_GetMTOList_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetMTOListResponse" message="tns:IARUSOperationService_GetMTOList_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRemittancePurposes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetRemittancePurposes" message="tns:IARUSOperationService_GetRemittancePurposes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetRemittancePurposesResponse" message="tns:IARUSOperationService_GetRemittancePurposes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPayoutDeliveryCodes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetPayoutDeliveryCodes" message="tns:IARUSOperationService_GetPayoutDeliveryCodes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetPayoutDeliveryCodesResponse" message="tns:IARUSOperationService_GetPayoutDeliveryCodes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSendPayoutDivisionCodes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetSendPayoutDivisionCodes" message="tns:IARUSOperationService_GetSendPayoutDivisionCodes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetSendPayoutDivisionCodesResponse" message="tns:IARUSOperationService_GetSendPayoutDivisionCodes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CancellationOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/CancellationOperation" message="tns:IARUSOperationService_CancellationOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/CancellationOperationResponse" message="tns:IARUSOperationService_CancellationOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCancellationReversalCodes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetCancellationReversalCodes" message="tns:IARUSOperationService_GetCancellationReversalCodes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetCancellationReversalCodesResponse" message="tns:IARUSOperationService_GetCancellationReversalCodes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRemittanceFee">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetRemittanceFee" message="tns:IARUSOperationService_GetRemittanceFee_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetRemittanceFeeResponse" message="tns:IARUSOperationService_GetRemittanceFee_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SendMoneyOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/SendMoneyOperation" message="tns:IARUSOperationService_SendMoneyOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/SendMoneyOperationResponse" message="tns:IARUSOperationService_SendMoneyOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMTOAgencies">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetMTOAgencies" message="tns:IARUSOperationService_GetMTOAgencies_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetMTOAgenciesResponse" message="tns:IARUSOperationService_GetMTOAgencies_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAmendmentReasonCodes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetAmendmentReasonCodes" message="tns:IARUSOperationService_GetAmendmentReasonCodes_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetAmendmentReasonCodesResponse" message="tns:IARUSOperationService_GetAmendmentReasonCodes_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AmendmentOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/AmendmentOperation" message="tns:IARUSOperationService_AmendmentOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/AmendmentOperationResponse" message="tns:IARUSOperationService_AmendmentOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="R2AOperation">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/R2AOperation" message="tns:IARUSOperationService_R2AOperation_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/R2AOperationResponse" message="tns:IARUSOperationService_R2AOperation_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ForServiceVisibility">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/ForServiceVisibility" message="tns:IARUSOperationService_ForServiceVisibility_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/ForServiceVisibilityResponse" message="tns:IARUSOperationService_ForServiceVisibility_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResponseConfirm">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/ResponseConfirm" message="tns:IARUSOperationService_ResponseConfirm_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/ResponseConfirmResponse" message="tns:IARUSOperationService_ResponseConfirm_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPayoutDeliveryCodesByBenificiaryAgentCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetPayoutDeliveryCodesByBenificiaryAgentCode" message="tns:IARUSOperationService_GetPayoutDeliveryCodesByBenificiaryAgentCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetPayoutDeliveryCodesByBenificiaryAgentCodeResponse" message="tns:IARUSOperationService_GetPayoutDeliveryCodesByBenificiaryAgentCode_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInfoDictionaries">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/UpdateInfoDictionaries" message="tns:IARUSOperationService_UpdateInfoDictionaries_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/UpdateInfoDictionariesResponse" message="tns:IARUSOperationService_UpdateInfoDictionaries_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="TestMethod">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/TestMethod" message="tns:IARUSOperationService_TestMethod_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/TestMethodResponse" message="tns:IARUSOperationService_TestMethod_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMTOListAndBestChoice">
+      <wsdl:input wsaw:Action="http://tempuri.org/IARUSOperationService/GetMTOListAndBestChoice" message="tns:IARUSOperationService_GetMTOListAndBestChoice_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IARUSOperationService/GetMTOListAndBestChoiceResponse" message="tns:IARUSOperationService_GetMTOListAndBestChoice_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="IARUSOperationService" type="tns:IARUSOperationService">
+    <wsp:PolicyReference URI="#IARUSOperationService_policy" />
+    <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
+    <wsdl:operation name="InitARUSUser">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/InitARUSUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTransactionDetailsByURN">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetTransactionDetailsByURN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PayOutOperation">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/PayOutOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSexes">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetSexes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetYesNo">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetYesNo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountriesByMTO">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetCountriesByMTO" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDocumentTypes">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetDocumentTypes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSendingCurrencies">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetSendingCurrencies" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCitiesByCountry">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetCitiesByCountry" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetStates">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetStates" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCitiesByState">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetCitiesByState" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMTOList">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetMTOList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemittancePurposes">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetRemittancePurposes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPayoutDeliveryCodes">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetPayoutDeliveryCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSendPayoutDivisionCodes">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetSendPayoutDivisionCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancellationOperation">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/CancellationOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCancellationReversalCodes">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetCancellationReversalCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemittanceFee">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetRemittanceFee" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendMoneyOperation">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/SendMoneyOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMTOAgencies">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetMTOAgencies" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAmendmentReasonCodes">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetAmendmentReasonCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AmendmentOperation">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/AmendmentOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="R2AOperation">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/R2AOperation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ForServiceVisibility">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/ForServiceVisibility" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResponseConfirm">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/ResponseConfirm" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPayoutDeliveryCodesByBenificiaryAgentCode">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetPayoutDeliveryCodesByBenificiaryAgentCode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInfoDictionaries">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/UpdateInfoDictionaries" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestMethod">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/TestMethod" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMTOListAndBestChoice">
+      <soap12:operation soapAction="http://tempuri.org/IARUSOperationService/GetMTOListAndBestChoice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ARUSOperationService">
+    <wsdl:port name="IARUSOperationService" binding="tns:IARUSOperationService">
+      <soap12:address location="net.tcp://web1021.acbaca.local:9020/ARUSOperationService.svc/ARUSOperationService" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>net.tcp://web1021.acbaca.local:9020/ARUSOperationService.svc/ARUSOperationService</wsa10:Address>
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>stakserviceDev@acbaca.local</Upn>
+        </Identity>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

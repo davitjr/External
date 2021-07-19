@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/UtilityPayments.GasPromService" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/UtilityPayments.GasPromService" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://upayservice-dev:81/UtilityOperationService.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/System.ComponentModel" />
+  <xs:complexType name="GetPaymentRespons">
+    <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/System.ComponentModel" name="PropertyChanged" nillable="true" type="q1:PropertyChangedEventHandler" />
+      <xs:element name="paymentField" nillable="true" type="tns:Payment" />
+      <xs:element name="stateField" nillable="true" type="tns:Status" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GetPaymentRespons" nillable="true" type="tns:GetPaymentRespons" />
+  <xs:complexType name="Payment">
+    <xs:sequence>
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/System.ComponentModel" name="PropertyChanged" nillable="true" type="q2:PropertyChangedEventHandler" />
+      <xs:element name="addressField" nillable="true" type="xs:string" />
+      <xs:element name="bankField" nillable="true" type="xs:string" />
+      <xs:element name="codField" nillable="true" type="xs:string" />
+      <xs:element name="code_bField" nillable="true" type="xs:string" />
+      <xs:element name="date_pField" type="xs:dateTime" />
+      <xs:element name="fioField" nillable="true" type="xs:string" />
+      <xs:element name="idField" type="xs:int" />
+      <xs:element name="order_pField" nillable="true" type="xs:string" />
+      <xs:element name="texcodField" nillable="true" type="xs:string" />
+      <xs:element name="timeField" nillable="true" type="xs:string" />
+      <xs:element name="vgazField" type="xs:double" />
+      <xs:element name="vidplatField" nillable="true" type="xs:string" />
+      <xs:element name="vspasField" type="xs:double" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Payment" nillable="true" type="tns:Payment" />
+  <xs:complexType name="Status">
+    <xs:sequence>
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/System.ComponentModel" name="PropertyChanged" nillable="true" type="q3:PropertyChangedEventHandler" />
+      <xs:element name="codeField" nillable="true" type="xs:string" />
+      <xs:element name="messageField" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Status" nillable="true" type="tns:Status" />
+  <xs:complexType name="PaymentResponse">
+    <xs:sequence>
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/System.ComponentModel" name="PropertyChanged" nillable="true" type="q4:PropertyChangedEventHandler" />
+      <xs:element name="idField" type="xs:int" />
+      <xs:element name="stateField" nillable="true" type="tns:Status" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PaymentResponse" nillable="true" type="tns:PaymentResponse" />
+  <xs:complexType name="TtResponse">
+    <xs:sequence>
+      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/System.ComponentModel" name="PropertyChanged" nillable="true" type="q5:PropertyChangedEventHandler" />
+      <xs:element name="gazTtField" nillable="true" type="tns:ArrayOfGaz_tt" />
+      <xs:element name="stateField" nillable="true" type="tns:Status" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TtResponse" nillable="true" type="tns:TtResponse" />
+  <xs:complexType name="ArrayOfGaz_tt">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Gaz_tt" nillable="true" type="tns:Gaz_tt" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfGaz_tt" nillable="true" type="tns:ArrayOfGaz_tt" />
+  <xs:complexType name="Gaz_tt">
+    <xs:sequence>
+      <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/System.ComponentModel" name="PropertyChanged" nillable="true" type="q6:PropertyChangedEventHandler" />
+      <xs:element name="anunField" nillable="true" type="xs:string" />
+      <xs:element name="kodField" nillable="true" type="xs:string" />
+      <xs:element name="marzkodField" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Gaz_tt" nillable="true" type="tns:Gaz_tt" />
+</xs:schema>

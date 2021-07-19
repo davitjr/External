@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="ff86d52d-bad3-4891-8b9b-9b57c5a2cfee" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" Protocol="mex" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="9e256ba8-7382-4ca2-8088-4b62e3629493" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="62766279-3b30-41f4-bc26-2ca46ad13bbc" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="5ec17445-1eb2-42dc-97a8-5141f10d1c5f" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="InformationSecurityLibrary.xsd" MetadataType="Schema" ID="04b600e5-8eb4-4c91-86b8-ba96a72f9f47" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="ACBALibrary.xsd" MetadataType="Schema" ID="933d0360-576e-4345-be54-c67439bd76c8" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="Arrays.xsd" MetadataType="Schema" ID="c7de4d36-b87f-44b4-99b5-874cad38a29d" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="System.xsd" MetadataType="Schema" ID="908255eb-25e6-483b-8ba2-18927d7aad38" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="ACBAOperationService.xsd" MetadataType="Schema" ID="48e45dec-6b3c-42ba-bbca-9f35fd7cb580" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="CBDataService.xsd" MetadataType="Schema" ID="a7f8b0b3-38ba-4611-b37d-b1e75e94ff9c" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+    <MetadataFile FileName="CBDataService.PoliceViolations.xsd" MetadataType="Schema" ID="2b3345df-9943-4fab-8ee7-9b1febd6b56e" SourceId="1" SourceUrl="net.tcp://webc021.acbaca.local:8080/OperationService.svc/mex" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

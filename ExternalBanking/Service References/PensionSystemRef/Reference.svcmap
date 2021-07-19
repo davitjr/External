@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="de86ef54-15f3-4560-b47b-201b06d330bb" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:62680/PensionSystemService.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="PensionSystemService.xsd" MetadataType="Schema" ID="4baa3498-cddd-4351-ae33-c9615029e9a6" SourceId="1" SourceUrl="http://localhost:62680/PensionSystemService.svc?xsd=xsd3" />
+    <MetadataFile FileName="PensionSystemService.wsdl" MetadataType="Wsdl" ID="45478159-7436-46c9-b33c-8d1f640cd56d" SourceId="1" SourceUrl="http://localhost:62680/PensionSystemService.svc?wsdl" />
+    <MetadataFile FileName="PensionSystemService1.xsd" MetadataType="Schema" ID="9faaa9f2-fe43-401b-90db-2a4461708275" SourceId="1" SourceUrl="http://localhost:62680/PensionSystemService.svc?xsd=xsd0" />
+    <MetadataFile FileName="PensionSystemService.disco" MetadataType="Disco" ID="c99cc1b3-f5cf-44ae-b60f-c8f67ad9a356" SourceId="1" SourceUrl="http://localhost:62680/PensionSystemService.svc?disco" />
+    <MetadataFile FileName="PensionSystemService2.xsd" MetadataType="Schema" ID="3c7847f4-eb33-4832-b1f7-19382171dc9c" SourceId="1" SourceUrl="http://localhost:62680/PensionSystemService.svc?xsd=xsd2" />
+    <MetadataFile FileName="PensionSystemService3.xsd" MetadataType="Schema" ID="56caa8f4-5e71-41a0-94f8-1376d95a6cc9" SourceId="1" SourceUrl="http://localhost:62680/PensionSystemService.svc?xsd=xsd1" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>
