@@ -681,7 +681,7 @@ namespace ExternalBanking.DBManager
             List<DahkDetails> dahklist = new List<DahkDetails>();
             List<DahkDetails> newlist = new List<DahkDetails>();
 
-            string sql = "pr_customer_DAHK_details";
+            string sql = "pr_customer_DAHK_details_for_digital";
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
@@ -786,12 +786,17 @@ namespace ExternalBanking.DBManager
 
             dahk.ActiveDahkList = new List<string>();
 
-            string sql = @"SELECT  d.[inquestID] FROM Tbl_customers_dahk_details d 	
-                        INNER JOIN (SELECT INQUESTID,customer_number,blockage_type,MAX(set_ID) AS lsetID FROM Tbl_customers_dahk_details 
-                        GROUP BY INQUESTID,customer_number,blockage_type) ld ON d.INQUESTID=ld.INQUESTID 
-                        AND d.customer_number=ld.customer_number AND d.blockage_type=ld.blockage_type 
-                        where d.INQUESTID not in (select inquest_code from tbl_dahk_read_inquests where isread = 1) and
-                        d.quality = 1 and ld.lsetID = d.set_ID  and d.customer_number = @customerNumber";
+            string sql = @"SELECT (CASE WHEN (ld.lsetID = d.set_ID AND d.quality = 1 or (ld.lsetID = d.set_ID AND d.quality = 0 and IsTemporar = 1)) THEN 1	 
+						WHEN (d.quality =1 AND NOT EXISTS(SELECT 1 FROM Tbl_customers_dahk_details	WHERE customer_number = d.customer_number AND inquestID = d.inquestID AND 
+                        blockage_type = d.blockage_type  AND (quality = 1 OR (quality = 0 AND IsTemporar = 0 )) AND set_ID >d.set_ID))  THEN 2	   ELSE   0  END) AS isBold ,
+                        d.inquestid  FROM Tbl_customers_dahk_details d INNER JOIN (SELECT INQUESTID,customer_number,blockage_type,MAX(set_ID) AS lsetID 
+                        FROM Tbl_customers_dahk_details WHERE blockage_type=0 GROUP BY INQUESTID,customer_number,blockage_type) ld ON d.INQUESTID=ld.INQUESTID AND
+                        d.customer_number=ld.customer_number inner join tbl_dahk_customers c on d.reasonID=c.ID inner join v_DAHK_attach_message_amounts  v	
+                        on c.message_tbl_ID = v.message_tbl_ID OUTER APPLY(SELECT h.UnUsed_amount freezed_amount,CASE WHEN ISNULL(f.kurs_for_account_currency,0)<>1 THEN
+                        f.freeze_amount ELSE 0 END freezed_amount_in_amd, all_acc.currency blocked_currency FROM Tbl_DAHK_freeze_details f INNER JOIN Tbl_acc_freeze_history h
+                        ON h.ID = f.freeze_ID INNER JOIN [tbl_all_accounts;] all_acc on h.account_number = all_acc.Arm_number WHERE f.customer_number = d.customer_number AND
+                        f.inquestID=d.INQUESTID	AND f.closing_message_table_ID IS NULL AND f.closing_message_type IS NULL AND h.closing_date IS NULL) DF
+                        where d.customer_number = @customerNumber and d.INQUESTID not in (select inquest_code from tbl_dahk_read_inquests where isread=1) and message_type=1";
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -807,13 +812,20 @@ namespace ExternalBanking.DBManager
                 }
                 if (dt.Rows.Count > 0)
                 {
-                    dahk.HasNewDAHK = true;
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        DataRow row = dt.Rows[i];
-                        string inquestCode = row["inquestID"].ToString();
-                        dahk.ActiveDahkList.Add(inquestCode);
+                        int isBold = int.Parse(dt.Rows[i]["isBold"].ToString());
+                        if (isBold == 1)
+                        {
+                            DataRow row = dt.Rows[i];
+                            string inquestCode = row["inquestID"].ToString();
+                            dahk.ActiveDahkList.Add(inquestCode);
+                        }
                     }
+
+                    if(dahk.ActiveDahkList.Count > 0)
+                        dahk.HasNewDAHK = true;
+
                 }
             }
             return dahk;

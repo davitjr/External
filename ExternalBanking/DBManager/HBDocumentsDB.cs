@@ -22,7 +22,7 @@ namespace ExternalBanking.DBManager
             obj.EndDate = null;
             obj.OperationType = 2;
             obj.QualityType = 3;
-         //   obj.BankCode = 22000;
+            //   obj.BankCode = 22000;
             obj.OnlySelectedCustomer = false;
             obj.OnlyACBA = 0;
 
@@ -35,9 +35,9 @@ namespace ExternalBanking.DBManager
             List<HBDocuments> documents = new List<HBDocuments>();
             double totalAmount = 0;
             int totalQuantity = 0;
-           // obj.BankCode = 22000;
+            // obj.BankCode = 22000;
 
-            if(obj.OperationType == null)
+            if (obj.OperationType == null)
             {
                 obj.OperationType = 0;
             }
@@ -291,7 +291,7 @@ namespace ExternalBanking.DBManager
                                             documents.Add(doc);
 
                                             rowCount++;
-                                        }                                        
+                                        }
                                     }
                                     else if (rowCount > obj.LastGetRowCount)
                                     {
@@ -745,7 +745,7 @@ namespace ExternalBanking.DBManager
                                 }
 
                             }
-                                                       
+
                             _con.Close();
                         }
                         catch (Exception ex)
@@ -753,7 +753,7 @@ namespace ExternalBanking.DBManager
                             string error = ex.Message;
                         }
                     }
-                    
+
                 }
 
                 obj.AccountDetails = account;
@@ -947,7 +947,7 @@ namespace ExternalBanking.DBManager
             {
                 if (obj != null)
                 {
-                   
+
                     using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                     {
                         string current_sp = "pr_set_hb_document_automat_confirmation_sign";
@@ -1174,7 +1174,7 @@ namespace ExternalBanking.DBManager
         internal static string GetHBAccountNumber(string cardNumber)
         {
             string accountNumber = string.Empty;
-            if(cardNumber != "")
+            if (cardNumber != "")
             {
                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
                 {
@@ -1297,7 +1297,7 @@ namespace ExternalBanking.DBManager
 
                             reader.Close();
 
-                            msgText = "Հարգելի հաճախորդ, \n Ձեր N " + hbDocID.ToString() + " գործարքը մերժվել է:\n Մերժման պատճառ` §" + rejectArm + "¦\n  Dear Client,\n  Your N " + hbDocID.ToString() + " transaction have been rejected for the following reason: " + rejectEng+"' ";
+                            msgText = "Հարգելի հաճախորդ, \n Ձեր N " + hbDocID.ToString() + " գործարքը մերժվել է:\n Մերժման պատճառ` §" + rejectArm + "¦\n  Dear Client,\n  Your N " + hbDocID.ToString() + " transaction have been rejected for the following reason: " + rejectEng + "' ";
 
                             if (document.TransactionSource == 1 || document.TransactionSource == 5)
                             {
@@ -1930,7 +1930,7 @@ namespace ExternalBanking.DBManager
             return done;
         }
 
-        internal static List<HBMessages> GetHBMessages()
+        internal static List<HBMessages> GetHBMessages(ushort filalCode, string WatchAllMessages)
         {
             List<HBMessages> msg = new List<HBMessages>();
             DateTime operDay = Utility.GetNextOperDay().Date;
@@ -1946,7 +1946,7 @@ namespace ExternalBanking.DBManager
                     "WHERE  ms.customer_number <> 0  and convert(datetime, convert(nvarchar(11), sent_date, 103), 103) = @operDay and sentrecieve = '1'  and status = 1) ms " +
                     "CROSS Apply " +
                     "(SELECT * FROM  V_CustomerDesription where customer_number = ms.customer_number and " +
-                    "(filialcode = 22000 or 1 = 1)) c order by ms.sent_date desc";
+                    "(filialcode = @filalCode or 1 = @WatchAllMessages)) c order by ms.sent_date desc";
 
                 try
                 {
@@ -1956,6 +1956,8 @@ namespace ExternalBanking.DBManager
 
                         _cmd.CommandType = CommandType.Text;
                         _cmd.Parameters.Add("@operDay", SqlDbType.NVarChar).Value = operDay.ToString("dd/MMM/yyyy");
+                        _cmd.Parameters.Add("@WatchAllMessages", SqlDbType.Bit).Value = Convert.ToInt16(WatchAllMessages);
+                        _cmd.Parameters.Add("@filalCode", SqlDbType.Int).Value = filalCode;
 
                         SqlDataReader reader = _cmd.ExecuteReader();
 
@@ -2028,7 +2030,7 @@ namespace ExternalBanking.DBManager
 
         }
 
-        internal static List<HBMessages> GetSearchedHBMessages(HBMessagesSreach obj)
+        internal static List<HBMessages> GetSearchedHBMessages(HBMessagesSreach obj, ushort filalCode, string WatchAllMessages)
         {
             List<HBMessages> msg = new List<HBMessages>();
             DateTime operDay = Utility.GetNextOperDay().Date;
@@ -2042,7 +2044,7 @@ namespace ExternalBanking.DBManager
                     ",case when isnull(c.description,'')<> '' then c.description else name + ' ' + lastname end As name_lastname " +
                     " from(  " + filter + " ) ms " +
                     "CROSS APPLY (Select * From V_CustomerDesription " +
-                    "where customer_number = ms.customer_number and(filialcode = 22000 or 1 = 1)) c order by ms.sent_date desc";
+                    "where customer_number = ms.customer_number and(filialcode = @filalCode or 1 = @WatchAllMessages)) c order by ms.sent_date desc";
 
 
                 try
@@ -2052,6 +2054,8 @@ namespace ExternalBanking.DBManager
                         _con.Open();
                         _cmd.CommandType = CommandType.Text;
                         //_cmd.Parameters.Add("@filter", SqlDbType.NVarChar).Value = filter;
+                        _cmd.Parameters.Add("@WatchAllMessages", SqlDbType.Bit).Value = Convert.ToInt16(WatchAllMessages);
+                        _cmd.Parameters.Add("@filalCode", SqlDbType.Int).Value = filalCode;
 
                         _cmd.CommandTimeout = 120;
                         SqlDataReader reader = _cmd.ExecuteReader();
@@ -2725,13 +2729,13 @@ namespace ExternalBanking.DBManager
 
                 }
 
-                foreach(ReestrTransferAdditionalDetails detail in details)
+                foreach (ReestrTransferAdditionalDetails detail in details)
                 {
-                    if(detail.HbDAHKCheckResult == false && detail.PaymentType != 0)
+                    if (detail.HbDAHKCheckResult == false && detail.PaymentType != 0)
                     {
                         detail.HbDAHKCheckResult = true;
                     }
-                    else if(detail.HbDAHKCheckResult == true && detail.PaymentType == 0)
+                    else if (detail.HbDAHKCheckResult == true && detail.PaymentType == 0)
                     {
                         detail.HbDAHKCheckResult = false;
                     }

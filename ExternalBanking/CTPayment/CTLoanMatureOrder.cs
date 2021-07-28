@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ExternalBanking.DBManager;
 using System.Transactions;
+using ExternalBanking.CTPayment;
 
 namespace ExternalBanking
 {
@@ -17,7 +18,7 @@ namespace ExternalBanking
         /// Կրեդիտագրվող հաշիվ
         /// </summary>
         public Account CreditAccount { get; set; }
-
+        
         /// <summary>
         /// Փոխանակման փոխարժեք
         /// </summary>
@@ -37,6 +38,11 @@ namespace ExternalBanking
         /// Պրոդուկտի հաշիվ
         /// </summary>
         public Account ConnectAccount { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public MatureMode MatureMode { get; set; }
 
         public PaymentRegistrationResult SaveCTLoanMatureOrder(string userName)
         {
@@ -78,8 +84,8 @@ namespace ExternalBanking
                 this.Description = this.CTCustomerDescription + " " + "Վարկի մարում այլ կանխիկ տերմինալով: " + this?.Description; 
 
                 this.Quality = OrderQuality.Draft;
-                this.Type = OrderType.LoanMatureByOtherCashTerminal;
-                this.SubType = 1;
+                this.Type = OrderType.LoanMature;
+                this.SubType = 6;
                 this.Currency = this.DebitAccount.Currency;
             }
 
@@ -122,5 +128,9 @@ namespace ExternalBanking
 
             return result;
         }
-    }
+        public static Loan GetLoanByLoanFullNumber(string loanFullNumber)
+        {
+            return Loan.GetLoan(loanFullNumber);
+        }
+}
 }

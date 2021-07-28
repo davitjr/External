@@ -39,7 +39,7 @@ namespace ExternalBanking.DBManager.Templates
                     }
 
 
-                  
+
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = template.TemplateCustomerNumber;
 
                     cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = template.CurrencyExchangeOrder.DebitAccount.AccountNumber;
@@ -224,6 +224,7 @@ namespace ExternalBanking.DBManager.Templates
 
                 }
             }
+
         }
     }
 }

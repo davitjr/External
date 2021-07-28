@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ACBALibrary.ContactsChangingRiskDetails" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ACBALibrary.ContactsChangingRiskDetails" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="ContactChangingRiskRequestData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ChangingRiskRequest" nillable="true" type="tns:ContactChangingRiskRequest" />
+      <xs:element minOccurs="0" name="ChangingRiskVerificationAction" nillable="true" type="tns:ArrayOfContactChangingRiskVerificationAction" />
+      <xs:element minOccurs="0" name="ChangingRiskVerificationData" nillable="true" type="tns:ArrayOfContactChangingRiskVerificationData" />
+      <xs:element minOccurs="0" name="ChangingRiskverificationContact" nillable="true" type="tns:ArrayOfContactChangingRiskVerificationContact" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ContactChangingRiskRequestData" nillable="true" type="tns:ContactChangingRiskRequestData" />
+  <xs:complexType name="ContactChangingRiskRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="FilialCode" type="xs:int" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="RequestDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="RequestGUID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RequestId" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="Status" type="xs:short" />
+      <xs:element minOccurs="0" name="UserSetNumber" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="ValidaDate" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ContactChangingRiskRequest" nillable="true" type="tns:ContactChangingRiskRequest" />
+  <xs:complexType name="ArrayOfContactChangingRiskVerificationAction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ContactChangingRiskVerificationAction" nillable="true" type="tns:ContactChangingRiskVerificationAction" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfContactChangingRiskVerificationAction" nillable="true" type="tns:ArrayOfContactChangingRiskVerificationAction" />
+  <xs:complexType name="ContactChangingRiskVerificationAction">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ActionDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="ActionReason" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ActionUser" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="Actiontype" type="xs:short" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="RequestId" type="xs:unsignedInt" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ContactChangingRiskVerificationAction" nillable="true" type="tns:ContactChangingRiskVerificationAction" />
+  <xs:complexType name="ArrayOfContactChangingRiskVerificationData">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ContactChangingRiskVerificationData" nillable="true" type="tns:ContactChangingRiskVerificationData" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfContactChangingRiskVerificationData" nillable="true" type="tns:ArrayOfContactChangingRiskVerificationData" />
+  <xs:complexType name="ContactChangingRiskVerificationData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ContactType" type="xs:short" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="NewValue" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OldValue" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RequestId" type="xs:unsignedInt" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ContactChangingRiskVerificationData" nillable="true" type="tns:ContactChangingRiskVerificationData" />
+  <xs:complexType name="ArrayOfContactChangingRiskVerificationContact">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ContactChangingRiskVerificationContact" nillable="true" type="tns:ContactChangingRiskVerificationContact" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfContactChangingRiskVerificationContact" nillable="true" type="tns:ArrayOfContactChangingRiskVerificationContact" />
+  <xs:complexType name="ContactChangingRiskVerificationContact">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Contact" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ContactType" type="xs:short" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="NeedSendSMSForVerification" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RequestId" type="xs:unsignedInt" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ContactChangingRiskVerificationContact" nillable="true" type="tns:ContactChangingRiskVerificationContact" />
+</xs:schema>

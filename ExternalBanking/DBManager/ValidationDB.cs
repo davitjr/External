@@ -688,6 +688,7 @@ namespace ExternalBanking.DBManager
                 }
                 return result;
             }
+
         }
 
         /// <summary>
@@ -701,8 +702,9 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"SELECT opday_status FROM Tbl_current_oper_day", conn))
+                using (SqlCommand cmd = new SqlCommand(@"select opday_status FROM Tbl_current_oper_day", conn))
                 {
+
                     var temp = cmd.ExecuteScalar();
 
                     if (temp != null)
@@ -711,8 +713,12 @@ namespace ExternalBanking.DBManager
                     }
                     return isClosed;
                 }
+
+
             }
         }
+
+        
 
         public static bool CheckLoanDelete(ulong appId)
         {
@@ -728,7 +734,7 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.Read())
                         {
-                            result = Convert.ToBoolean(dr["result"]);
+                            result = Convert.ToBoolean(dr["result"]);                            
                         }
                     }
                 }

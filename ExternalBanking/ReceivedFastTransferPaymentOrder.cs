@@ -789,7 +789,6 @@ namespace ExternalBanking
                     }
                 }
             }
-
             return result;
         }
 

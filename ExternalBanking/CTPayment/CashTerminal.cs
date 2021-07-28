@@ -31,6 +31,10 @@ namespace ExternalBanking
         /// </summary>
         public int ID { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public int UserID { get { return 2840; } }
 
 
         public CashTerminal()
@@ -51,15 +55,37 @@ namespace ExternalBanking
             order.DebitAccount = GetCTDebitAccount();
             order.CTCustomerDescription =Utility.ConvertAnsiToUnicode(Customer.GetCustomerDescription(this.CustomerNumber));
             result = order.SaveCTPaymentOrder(UserName);
+           
+            
+            if (result.ResultCode == 0)
+                
+            {                
+                CTOrderDB.ConfirmOrderOnline(result.PaymentID, this.UserID);                
+            }
             return result;
         }
 
         public PaymentRegistrationResult SaveCTLoanMatureOrder(CTLoanMatureOrder order)
         {
-            PaymentRegistrationResult result = new PaymentRegistrationResult();
-            order.DebitAccount = GetCTDebitAccount();
+            PaymentRegistrationResult result = new PaymentRegistrationResult(); 
+            
+            if (order.DebitAccount == null)
+            {
+                order.DebitAccount = GetCTDebitAccount();
+            }
             order.CTCustomerDescription = Utility.ConvertAnsiToUnicode(Customer.GetCustomerDescription(this.CustomerNumber));
             result = order.SaveCTLoanMatureOrder(UserName);
+           
+            if (result.ResultCode == 0)
+            {
+                try
+                {
+                    CTOrderDB.ConfirmOrderOnline(result.PaymentID, this.UserID);
+                }
+                catch
+                {
+                }
+            }
             return result;
         }
 

@@ -157,14 +157,14 @@ namespace ExternalBanking
             return HBDocumentsDB.SaveInternationalPaymentAddresses(order);
         }
 
-        public static List<HBMessages> GetHBMessages()
+        public static List<HBMessages> GetHBMessages(ushort filalCode,string WatchAllMessages)
         {
-            return HBDocumentsDB.GetHBMessages();
+            return HBDocumentsDB.GetHBMessages(filalCode, WatchAllMessages);
         }
 
-        public static List<HBMessages> GetSearchedHBMessages(HBMessagesSreach obj)
+        public static List<HBMessages> GetSearchedHBMessages(HBMessagesSreach obj, ushort filalCode, string WatchAllMessages)
         {
-            return HBDocumentsDB.GetSearchedHBMessages(obj);
+            return HBDocumentsDB.GetSearchedHBMessages(obj, filalCode, WatchAllMessages);
         }
 
         public static string PostMessageAsRead(long msgId, int setNumber)

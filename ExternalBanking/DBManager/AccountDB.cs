@@ -6209,6 +6209,148 @@ namespace ExternalBanking.DBManager
             return accountList;
         }
 
+        internal static ulong CheckCustomerFreeFunds(string accountNumber)
+        {
+            ActionResult actionResult = new ActionResult();
+            DateTime operDay = Utility.GetNextOperDay().Date;
+            ulong thirdPersonCustomerNumber = 0;
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                string script = @"SELECT acc.customer_number, third_person_Customer_number, m.closing_date, acc.balance, acc.currency 
+	                        FROM tbl_co_accounts_main m 
+	                        INNER JOIN tbl_co_accounts a ON m.id = a.co_main_id 
+	                        INNER JOIN [tbl_all_accounts;] acc on acc.Arm_number = m.arm_number 
+	                        WHERE m.arm_number = @arm_number 
+                            GROUP BY acc.customer_number, third_person_Customer_number, m.closing_date, acc.balance, acc.currency";
+                using (SqlCommand cmd = new SqlCommand(script, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            string query = @"select dbo.fnc_available_CustomerAmount(@customer_number, @currency, @today) as avalible_amount";
+                            using (SqlCommand cmdCheck = new SqlCommand(query, conn))
+                            {
+                                cmdCheck.CommandType = CommandType.Text;
+                                cmdCheck.Parameters.Add("@customer_number", SqlDbType.Float).Value = Convert.ToInt64(reader["customer_number"]);
+                                cmdCheck.Parameters.Add("@currency", SqlDbType.NVarChar).Value = Convert.ToString(reader["currency"]);
+                                cmdCheck.Parameters.Add("@today", SqlDbType.SmallDateTime).Value = operDay;
+                                SqlDataReader readerCheck = cmdCheck.ExecuteReader();
+
+                                if (readerCheck.HasRows)
+                                {
+                                    while (readerCheck.Read())
+                                    {
+                                        if (Convert.ToDouble(readerCheck["avalible_amount"]) - Convert.ToDouble(reader["balance"]) >= 0)
+                                        {
+                                            thirdPersonCustomerNumber = Convert.ToUInt64(reader["third_person_Customer_number"]);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return thirdPersonCustomerNumber;
+        }
+
+        internal static bool GetRightsTransferAvailability(string accountNumber)
+        {
+            bool exists = false;
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                string script = @"SELECT arm_number FROM Tbl_define_sint_acc  INNER JOIN [tbl_all_accounts;] ON type_of_account_new = sint_acc_new 
+                            where type_of_product = 10 AND arm_number = @arm_number";
+                using (SqlCommand cmd = new SqlCommand(script, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        exists = true;
+                    }
+                }
+            }
+
+            return exists;
+        }
+
+        internal static bool GetRightsTransferVisibility(string accountNumber)
+        {
+            bool result = false;
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                string script = @"SELECT CASE WHEN DATEADD(YEAR,18,P.birth) < [dbo].[get_oper_day]() THEN 1 ELSE 0 END AS result
+                                FROM Tbl_co_accounts  CA
+                                inner join tbl_co_accounts_main M on CA.co_main_id = M.id 
+                                INNER JOIN [Tbl_customers] C  with (nolock) ON third_person_customer_number = C.customer_number
+                                LEFT JOIN Tbl_Persons P   with (nolock) ON C.identityId  = p.identityId 
+                                WHERE m.closing_date IS NULL AND M.[arm_number] = @arm_number 
+                                GROUP BY M.[arm_number],P.birth";
+
+                using (SqlCommand cmd = new SqlCommand(script, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            result = Convert.ToBoolean(reader["result"]);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        internal static bool GetCheckCustomerIsThirdPerson(string accountNumber, ulong customerNumber)
+        {
+            bool result = false;
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                string script = @"SELECT acc.customer_number, third_person_Customer_number
+                                FROM Tbl_co_accounts  CA
+                                inner join tbl_co_accounts_main M on CA.co_main_id = M.id 
+                                inner join [tbl_all_accounts;] acc on acc.Arm_number = m.arm_number 
+                                WHERE acc.Arm_number = @arm_number AND acc.customer_number = @customer_number";
+
+                using (SqlCommand cmd = new SqlCommand(script, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        result = true;
+                    }
+                }
+            }
+
+            return result;
+        }
+
 
     }
 }

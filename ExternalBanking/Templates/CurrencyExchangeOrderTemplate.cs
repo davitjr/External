@@ -32,7 +32,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             this.Complete(source);
-
+            
             this.CurrencyExchangeOrder.Complete();
 
             result = base.Validate();
@@ -66,7 +66,7 @@ namespace ExternalBanking
                         if (result.Errors.Count == 0)
                         {
                             if (TemplateType == TemplateType.CreatedAsGroupService)
-                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo, result.Id, action);
+                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo,result.Id,action);
                             ActionResult resultOrderFee = base.SaveTemplateFee(this.CurrencyExchangeOrder);
                         }
 
@@ -97,6 +97,7 @@ namespace ExternalBanking
             }
             else
                 CurrencyExchangeOrder.SubType = 2; //Արտարժույթի առք
+
 
             if (TemplateType == TemplateType.CreatedAsGroupService)
             {

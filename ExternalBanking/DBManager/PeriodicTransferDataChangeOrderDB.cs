@@ -113,7 +113,7 @@ namespace ExternalBanking.DBManager
                                                         d.source_type,
                                                         I.App_id
                                                         FROM Tbl_HB_documents d INNER JOIN Tbl_HB_Operations_by_period o ON d.doc_ID=o.docID
-                                                        INNER JOIN Tbl_HB_Products_Identity I ON d.doc_ID = I.HB_Doc_ID
+                                                        LEFT JOIN Tbl_HB_Products_Identity I ON d.doc_ID = I.HB_Doc_ID
                                                         WHERE d.doc_ID=@doc_ID and d.customer_number=@customer_number", conn);
                 cmd.Parameters.Add("@doc_ID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
@@ -150,7 +150,7 @@ namespace ExternalBanking.DBManager
                 {
                     order.FirstTransferDate = Convert.ToDateTime(dt.Rows[0]["first_repayment_date"]);
                 }
-                order.ProductId = Convert.ToUInt64(dt.Rows[0]["App_id"].ToString());
+                order.ProductId = Convert.ToUInt64(dt.Rows[0]["App_id"] != DBNull.Value ? dt.Rows[0]["App_id"].ToString() : default);
                 order.Type = (OrderType)Convert.ToInt32(dt.Rows[0]["document_type"]);
             }
             return order;

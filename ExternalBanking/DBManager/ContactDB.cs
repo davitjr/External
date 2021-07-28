@@ -114,6 +114,8 @@ namespace ExternalBanking.DBManager
 								contact.PhoneNumber = dr["Phonenumber"].ToString();
 								contact.Email = dr["email"].ToString();
 								contact.Picture = dr["picture"] == DBNull.Value ? "" : Convert.ToBase64String((byte[])dr["picture"]);
+								var base64EncodedBytes = System.Convert.FromBase64String(contact.Picture);
+								contact.Picture = Encoding.UTF8.GetString(base64EncodedBytes);
 							}
 						}
 					}
@@ -143,16 +145,38 @@ namespace ExternalBanking.DBManager
 
 		internal static void AddContactHistory(ulong contactId, ulong changeLogID, SqlConnection connection)
 		{
-			using (SqlCommand command = new SqlCommand())
-			{
-				command.Connection = connection;
-				command.CommandText = @"INSERT INTO tbl_ContactsHistory (ContactId,Description,CustomerNumber,ChangeLogID)
-									SELECT ID as ContactId,Description,CustomerNumber,@ChangeLogID from tbl_Contacts where id  = @Id";
-				command.Parameters.Add("@ChangeLogID", SqlDbType.BigInt).Value = changeLogID;
-				command.Parameters.Add("@Id", SqlDbType.BigInt).Value = contactId;
-				command.ExecuteNonQuery();
 
+			bool isTestVersion = bool.Parse(ConfigurationManager.AppSettings["TestVersion"].ToString());
+			if (isTestVersion)
+			{
+				using (SqlCommand command = new SqlCommand())
+				{
+					command.Connection = connection;
+					command.CommandText = @"INSERT INTO tbl_ContactsHistory (ContactId,Description,CustomerNumber,ChangeLogID,PhoneNumber,Email,Picture,IsNew)
+									SELECT ID as ContactId,Description,CustomerNumber,@ChangeLogID,PhoneNumber,Email,Picture,IsNew from tbl_Contacts where id  = @Id";
+					command.Parameters.Add("@ChangeLogID", SqlDbType.BigInt).Value = changeLogID;
+					command.Parameters.Add("@Id", SqlDbType.BigInt).Value = contactId;
+					command.ExecuteNonQuery();
+
+				}
 			}
+			else
+			{
+				using (SqlCommand command = new SqlCommand())
+				{
+					command.Connection = connection;
+					command.CommandText = @"INSERT INTO tbl_ContactsHistory (ContactId,Description,CustomerNumber,ChangeLogID)
+									SELECT ID as ContactId,Description,CustomerNumber,@ChangeLogID from tbl_Contacts where id  = @Id";
+					command.Parameters.Add("@ChangeLogID", SqlDbType.BigInt).Value = changeLogID;
+					command.Parameters.Add("@Id", SqlDbType.BigInt).Value = contactId;
+					command.ExecuteNonQuery();
+
+
+
+				}
+			}
+
+
 
 		}
 
@@ -180,6 +204,8 @@ namespace ExternalBanking.DBManager
 							contact.PhoneNumber = dr["Phonenumber"].ToString();
 							contact.Email = dr["email"].ToString();
 							contact.Picture = dr["picture"] == DBNull.Value ? "" : Convert.ToBase64String((byte[])dr["picture"]);
+							var base64EncodedBytes = System.Convert.FromBase64String(contact.Picture);
+							contact.Picture = Encoding.UTF8.GetString(base64EncodedBytes);
 						}
 					}
 				}

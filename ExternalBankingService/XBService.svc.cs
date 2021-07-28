@@ -1,27 +1,32 @@
-﻿using NLog;
+﻿using ExternalBanking;
+using ExternalBanking.ARUSDataService;
+using ExternalBanking.PreferredAccounts;
+using ExternalBanking.QrTransfers;
+using ExternalBanking.ServiceClient;
+using ExternalBanking.UtilityPaymentsManagment;
+using ExternalBanking.XBManagement;
+using ExternalBankingService.InfSecServiceReference;
+using ExternalBankingService.Interfaces;
+using NLog;
+using NLog.Targets;
 using System;
 using System.Collections.Generic;
-using System.ServiceModel;
-using ExternalBanking;
-using ExternalBankingService.Interfaces;
-using xbs = ExternalBanking.ACBAServiceReference;
-using infsec = ExternalBankingService.InfSecServiceReference;
-using ExternalBanking.XBManagement;
-using System.Web.Configuration;
-using NLog.Targets;
-using System.Threading.Tasks;
-using System.Data;
-using ExternalBanking.UtilityPaymentsManagment;
-using System.Data.SqlClient;
 using System.Configuration;
-using ExternalBankingService.InfSecServiceReference;
+using System.Data;
+using System.Data.SqlClient;
+using System.ServiceModel;
+using System.Threading.Tasks;
+using System.Web.Configuration;
 using System.Web.Script.Serialization;
-using ExternalBanking.ServiceClient;
-using ExternalBanking.ARUSDataService;
-using ActionResult = ExternalBanking.ActionResult;
 using ActionError = ExternalBanking.ActionError;
+using ActionResult = ExternalBanking.ActionResult;
+using infsec = ExternalBankingService.InfSecServiceReference;
 using ResultCode = ExternalBanking.ResultCode;
+using xbs = ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
+using static ExternalBanking.ReceivedBillSplitRequest;
 //using ExternalBankingService.Filters;
+using ExternalBanking.Leasing;
 
 
 
@@ -12871,7 +12876,7 @@ namespace ExternalBankingService
         {
             try
             {
-                return HBDocuments.GetHBMessages();
+                return HBDocuments.GetHBMessages(User.filialCode, User.AdvancedOptions["WatchAllMessages"]);
             }
             catch (Exception ex)
             {
@@ -12884,7 +12889,7 @@ namespace ExternalBankingService
         {
             try
             {
-                return HBDocuments.GetSearchedHBMessages(obj);
+                return HBDocuments.GetSearchedHBMessages(obj, User.filialCode, User.AdvancedOptions["WatchAllMessages"]);
             }
             catch (Exception ex)
             {
@@ -17314,7 +17319,7 @@ namespace ExternalBankingService
             }
         }
 
-        public (bool, CardlessCashoutOrder) GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode)
+        public CardlessCashoutOrder GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode)
         {
             try
             {
@@ -17749,11 +17754,11 @@ namespace ExternalBankingService
             }
         }
 
-        public ContentResult<string> ApproveBillSplitOrder(BillSplitOrder order)
+        public ContentResult<List<BillSplitLinkResult>> ApproveBillSplitOrder(BillSplitOrder order)
         {
             try
             {
-                ContentResult<string> result = new ContentResult<string>();
+                ContentResult<List<BillSplitLinkResult>> result = new ContentResult<List<BillSplitLinkResult>>();
 
                 Customer customer = CreateCustomer();
                 InitOrder(order);
@@ -17879,7 +17884,6 @@ namespace ExternalBankingService
 
         public ReceivedBillSplitRequest GetReceivedBillSplitRequest(int billSplitSenderId)
         {
-
             try
             {
                 return ReceivedBillSplitRequest.GetReceivedBillSplitRequest(billSplitSenderId);
@@ -17948,7 +17952,6 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-
         public void WriteCardlessCashoutLog(ulong docID, bool isOk, string msgArm, string msgEng, string AtmId, byte step)
         {
             try
@@ -18149,6 +18152,219 @@ namespace ExternalBankingService
             }
         }
 
+        public bool GetRightsTransferAvailability(string accountNumber)
+        {
+            try
+            {
+                return Account.GetRightsTransferAvailability(accountNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ulong CheckCustomerFreeFunds(string accountNumber)
+        {
+            try
+            {
+                return Account.CheckCustomerFreeFunds(accountNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAndApproveThirdPersonAccountRightsTransfer(ThirdPersonAccountRightsTransferOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveAndApproveThirdPersonAccountRightsTransfer(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public bool GetRightsTransferVisibility(string accountNumber)
+        {
+            try
+            {
+                return Account.GetRightsTransferVisibility(accountNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public bool IsCardlessCashCodeCorrect(string cardlessCashoutCode)
+        {
+            try
+            {
+                return CardlessCashoutOrder.IsCardlessCashCodeCorrect(cardlessCashoutCode);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public bool GetCheckCustomerIsThirdPerson(string accountNumber, ulong customerNumber)
+        {
+            try
+            {
+                return Account.GetCheckCustomerIsThirdPerson(accountNumber, customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SavePreferredAccountOrder(PreferredAccountOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SavePreferredAccountOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ApprovePreferredAccountOrder(long id)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                return customer.ApprovePreferredAccountOrder(id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public PreferredAccount GetSelectedOrDefaultPreferredAccountNumber(PreferredAccountServiceTypes serviceType, ulong customerNumber)
+        {
+            try
+            {
+                PreferredAccount preferredAccount = new PreferredAccount();
+                preferredAccount = preferredAccount.GetSelectedOrDefaultPreferredAccountNumber(serviceType, customerNumber);
+                return preferredAccount;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public PreferredAccountOrder GetPreferredAccountOrder(long id)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetPreferredAccountOrder(id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public bool IsDisabledPreferredAccountService(ulong customerNumber, PreferredAccountServiceTypes preferredAccountServiceType)
+        {
+            try
+            {
+                PreferredAccount preferredAccount = new PreferredAccount();
+                bool isDisabled = preferredAccount.IsDisabledPreferredAccountService(customerNumber, preferredAccountServiceType);
+                return isDisabled;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAccountQrCode(string accountNumber, string guid, ulong customerNumber)
+        {
+            try
+            {
+                QrTransfer qrTransfers = new QrTransfer(accountNumber, guid, customerNumber);
+                return qrTransfers.SaveAccountQrCode();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public QrTransfer SearchAccountByQrCode(string guid)
+        {
+            try
+            {
+                QrTransfer qrTransfers = new QrTransfer
+                {
+                    Guid = guid
+                };
+                return qrTransfers.SearchAccountByQrCode();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public string GetAccountQrCodeGuid(string accountNumber)
+        {
+            try
+            {
+                QrTransfer qrTransfers = new QrTransfer
+                {
+                    AccountNumber = accountNumber
+                };
+                return qrTransfers.GetAccountQrCodeGuid();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<Account> GetQrAccounts()
+        {
+            try
+            {
+                Customer customer = new Customer(User, AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetQrAccounts();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
         public ActionResult SaveAndApproveVisaAliasOrder(VisaAliasOrder order)
         {
             try
@@ -18221,13 +18437,170 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
+        public string GetVisaAliasGuidByCutomerNumber(ulong customerNumber)
+        {
+            try
+            {
+                return VisaAliasDB.GetVisaAliasGuidByCutomerNumber(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
         public CardHolderAndCardType GetCardTypeAndCardHolder(string cardNumber)
         {
             try
             {
                 Customer customer = CreateCustomer();
-
                 return customer.GetCardTypeAndCardHolder(cardNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public bool GetMRDataChangeAvailability(int mrID)
+        {
+            try
+            {
+                return MRDataChangeOrder.GetMRDataChangeAvailability(mrID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAndApproveMRDataChangeOrder(MRDataChangeOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveAndApproveMRDataChangeOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<CustomerLeasingLoans> GetHBLeasingLoans(ulong customerNumber)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetHBLeasingLoans(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public LeasingLoanDetails GetHBLeasingLoanDetails(ulong productId)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetHBLeasingLoanDetails(productId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingLoanRepayments> GetHBLeasingLoanRepayments(ulong productId)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetHBLeasingLoanRepayments(productId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingLoanStatements> GetHBLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetHBLeasingLoanStatements(productId, dateFrom, dateTo, minAmount, maxAmount, pageNumber, pageRowCount, orderByAscDesc);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<AdditionalDetails> GetHBLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0)
+        {
+            try
+            {
+
+                return SearchLeasingLoan.GetHBLeasingDetailsByAppID(productId, leasingInsuranceId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingPaymentsType> GetHBLeasingPaymentsType()
+        {
+            try
+            {
+                return SearchLeasingLoan.GetHBLeasingPaymentsType();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public Account SetHBLeasingReceiver()
+        {
+            try
+            {
+                return SearchLeasingLoan.SetHBLeasingReceiver();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public string GetHBLeasingPaymentDescription(short paymentType, short paymentSubType)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetHBLeasingPaymentDescription(paymentType, paymentSubType);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public LeasingLoanRepayments GetHBLeasingPaymentDetails(ulong productId)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetHBLeasingPaymentDetails(productId);
             }
             catch (Exception ex)
             {

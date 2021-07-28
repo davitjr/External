@@ -297,11 +297,11 @@ namespace ExternalBanking
                         {
                             loanProlong = list.Find(m => m.ActivationDate == null);
                         }
-                        if (loanProlong is null)
-                        {
-                            //Անհրաժեշտ է երկարաձգել կամ դադարեցնել վարկային գիծը:
-                            result.Add(new ActionError(1893));
-                        }
+                        //if (loanProlong is null)
+                        //{
+                        //    //Անհրաժեշտ է երկարաձգել կամ դադարեցնել վարկային գիծը:
+                        //    result.Add(new ActionError(1893));
+                        //}
 
                         if (accountRest != 0 && loanProlong == null)
                         {

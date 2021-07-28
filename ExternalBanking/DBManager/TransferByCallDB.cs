@@ -770,5 +770,6 @@ namespace ExternalBanking.DBManager
             }
             return result;
         }
+
     }
 }

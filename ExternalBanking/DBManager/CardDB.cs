@@ -3641,5 +3641,29 @@ namespace ExternalBanking.DBManager
             }
             return historyList;
         }
+        public static string GetCustomerEmailByCardNumber(string cardNumber)
+        {
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+
+                string sqltext = @"	select ISNULL(emailAddress,'') from tbl_emails e
+	                                join Tbl_Customer_Emails ce on e.id=ce.emailId
+	                                join Tbl_Customers c on ce.identityId=c.identityId
+	                                where customer_number=(	SELECT  distinct case when   b.customer_number is null then a.Customer_Number else b.customer_number end
+	                                FROM      Tbl_VISA_applications a
+	                                LEFT JOIN [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id	
+	                                where cardnumber=@cardNumber ) and priority=1";
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 16).Value = cardNumber;
+                    var email = cmd.ExecuteScalar();
+                    return email == null ? null : email.ToString();
+                }
+            }
+
+        }
     }
 }

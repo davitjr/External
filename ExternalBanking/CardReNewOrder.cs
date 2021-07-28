@@ -178,49 +178,59 @@ namespace ExternalBanking
                 if (newCard.CardNumber != "" && order.Quality == OrderQuality.Completed)
                 {
                     result.ResultCode = ResultCode.DoneAndReturnedValues;
-
-                    if (order.WithCreditLineClosing is null)
+                    if (RenewWithCardNewType)
                     {
-                        if (RenewWithCardNewType)
-                        {
-                            //Քարտի վերաթողարկման հայտը հաստատվել է։ Գրանցվել է newCard.CardNumber համարով քարտ, որին կցվել են հին քարտի քարտային և գերածախսի հաշիվները:
-                            result.Errors.Add(new ActionError(1936, new string[] { newCard.CardNumber }));
-                        }
-                        else
-                        {
-                            //Քարտի վերաթողարկման հայտը հաստատվել է։ Վերաթողարկված քարտին կցվել են հին քարտի քարտային և գերածախսի հաշիվները:
-                            result.Errors.Add(new ActionError(1935));
-                        }
+                        //Քարտի վերաթողարկման հայտը հաստատվել է: Գրանցվել է newCard.CardNumber համարով քարտ:
+                        result.Errors.Add(new ActionError(1940, new string[] { newCard.CardNumber }));
                     }
                     else
                     {
-                        if (order.WithCreditLineClosing is true)
-                        {
-                            if (RenewWithCardNewType)
-                            {
-                                //Քարտի վերաթողարկման հայտը հաստատվել է: Գրանցվել է newCard.CardNumber համարով քարտ, որին կցվել են հին քարտի քարտային և գերածախսի հաշիվները, իսկ քարտին առկա վարկային գիծը դադարեցվել է:
-                                result.Errors.Add(new ActionError(1940, new string[] { newCard.CardNumber }));
-                            }
-                            else
-                            {
-                                //Քարտի վերաթողարկման հայտը հաստատվել է։ Վերաթողարկված քարտին կցվել են հին քարտի քարտային և գերածախսի հաշիվները, իսկ քարտին առկա վարկային գիծը դադարեցվել է:
-                                result.Errors.Add(new ActionError(1939));
-                            }
-                        }
-                        else
-                        {
-                            if (RenewWithCardNewType)
-                            {
-                                //Քարտի վերաթողարկման հայտը հաստատվել է: Գրանցվել է newCard.CardNumber համարով քարտ։ Վ/գ երկարաձգումից հետո անհրաժեշտ է իրականացնել հաշվի կցում <<Վերաթողարկված քարտի հաշվի կցում>> հայտով:
-                                result.Errors.Add(new ActionError(1938, new string[] { newCard.CardNumber }));
-                            }
-                            else
-                            {
-                                //Քարտի վերաթողարկման հայտը հաստատվել է, քարտը վերաթողարկվել է: Վ/գ երկարաձգումից հետո անհրաժեշտ է իրականացնել հաշվի կցում <<Վերաթողարկված քարտի հաշվի կցում>> հայտով:
-                                result.Errors.Add(new ActionError(1937));
-                            }
-                        }
+                        //Քարտի վերաթողարկման հայտը հաստատվել է:
+                        result.Errors.Add(new ActionError(1939, new string[] { newCard.CardNumber }));
                     }
+
+                    //if (order.WithCreditLineClosing is null)
+                    //{
+                    //    if (RenewWithCardNewType)
+                    //    {
+                    //        //Քարտի վերաթողարկման հայտը հաստատվել է։ Գրանցվել է newCard.CardNumber համարով քարտ, որին կցվել են հին քարտի քարտային և գերածախսի հաշիվները:
+                    //        result.Errors.Add(new ActionError(1936, new string[] { newCard.CardNumber }));
+                    //    }
+                    //    else
+                    //    {
+                    //        //Քարտի վերաթողարկման հայտը հաստատվել է։ Վերաթողարկված քարտին կցվել են հին քարտի քարտային և գերածախսի հաշիվները:
+                    //        result.Errors.Add(new ActionError(1935));
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    if (order.WithCreditLineClosing is true)
+                    //    {
+                    //        if (RenewWithCardNewType)
+                    //        {
+                    //            //Քարտի վերաթողարկման հայտը հաստատվել է: Գրանցվել է newCard.CardNumber համարով քարտ, որին կցվել են հին քարտի քարտային և գերածախսի հաշիվները, իսկ քարտին առկա վարկային գիծը դադարեցվել է:
+                    //            result.Errors.Add(new ActionError(1940, new string[] { newCard.CardNumber }));
+                    //        }
+                    //        else
+                    //        {
+                    //            //Քարտի վերաթողարկման հայտը հաստատվել է։ Վերաթողարկված քարտին կցվել են հին քարտի քարտային և գերածախսի հաշիվները, իսկ քարտին առկա վարկային գիծը դադարեցվել է:
+                    //            result.Errors.Add(new ActionError(1939));
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        if (RenewWithCardNewType)
+                    //        {
+                    //            //Քարտի վերաթողարկման հայտը հաստատվել է: Գրանցվել է newCard.CardNumber համարով քարտ։ Վ/գ երկարաձգումից հետո անհրաժեշտ է իրականացնել հաշվի կցում <<Վերաթողարկված քարտի հաշվի կցում>> հայտով:
+                    //            result.Errors.Add(new ActionError(1938, new string[] { newCard.CardNumber }));
+                    //        }
+                    //        else
+                    //        {
+                    //            //Քարտի վերաթողարկման հայտը հաստատվել է, քարտը վերաթողարկվել է: Վ/գ երկարաձգումից հետո անհրաժեշտ է իրականացնել հաշվի կցում <<Վերաթողարկված քարտի հաշվի կցում>> հայտով:
+                    //            result.Errors.Add(new ActionError(1937));
+                    //        }
+                    //    }
+                    //}
                 }
                 else if (newCard.CardNumber == "" && order.Quality == OrderQuality.TransactionLimitApprovement)
                 {
@@ -407,10 +417,15 @@ namespace ExternalBanking
                 // Հաճախորդի հիմնական փաստափուղթը լրացված չէ:
                 result.Errors.Add(new ActionError(1588));
             }
-            if (!CardRenewOrderDB.CheckCustomerDocument(cardHolderCustomerNumber, 2))
+
+            string motherName = CardDB.GetCardMotherName((ulong)Card.ProductId);
+            if (motherName.Equals(""))
             {
-                // Գաղտնաբառ դաշտը բացակայում է:
-                result.Errors.Add(new ActionError(1947));
+                if (!CardRenewOrderDB.CheckCustomerDocument(cardHolderCustomerNumber, 2))
+                {
+                    // Գաղտնաբառ դաշտը բացակայում է:
+                    result.Errors.Add(new ActionError(1947));
+                }
             }
 
             if (Card.RelatedOfficeNumber == 1692)
@@ -445,16 +460,16 @@ namespace ExternalBanking
                 }
             }
 
-            CreditLine creditLineOverdraft = CreditLine.GetCardOverdraft(Card.CardNumber);
+            //CreditLine creditLineOverdraft = CreditLine.GetCardOverdraft(Card.CardNumber);
 
-            if (!(WithCreditLineClosing is false))
-            {
-                if (!(creditLineOverdraft is null) && Math.Abs(creditLineOverdraft.CurrentCapital) + Math.Abs(creditLineOverdraft.OutCapital) + Math.Abs(creditLineOverdraft.CurrentRateValue) != 0)
-                {
-                    //Քարտային հաշվին առկա է գերածախս: Քարտի վերաթողարկման համար անհրաժեշտ է մարել գերածախսը: 
-                    result.Errors.Add(new ActionError(1931, new string[] { "Քարտի վերաթողարկման " }));
-                }
-            }
+            //if (!(WithCreditLineClosing is false))
+            //{
+            //    if (!(creditLineOverdraft is null) && Math.Abs(creditLineOverdraft.CurrentCapital) + Math.Abs(creditLineOverdraft.OutCapital) + Math.Abs(creditLineOverdraft.CurrentRateValue) != 0)
+            //    {
+            //        //Քարտային հաշվին առկա է գերածախս: Քարտի վերաթողարկման համար անհրաժեշտ է մարել գերածախսը: 
+            //        result.Errors.Add(new ActionError(1931, new string[] { "Քարտի վերաթողարկման " }));
+            //    }
+            //}
 
             if (!RenewWithCardNewType)
             {

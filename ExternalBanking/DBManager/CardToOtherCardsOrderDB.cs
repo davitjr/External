@@ -40,6 +40,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@sender_card_number", SqlDbType.NVarChar, 20).Value = order.SenderCardNumber;
                     cmd.Parameters.Add("@receiver_card_number", SqlDbType.NVarChar, 20).Value = order.ReceiverCardNumber;
                     cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 30).Value = order.ReceiverName;
+                    cmd.Parameters.Add("@visa_alias", SqlDbType.NVarChar, 250).Value = order.VisaAlias;                 
                     if (order.GroupId != 0)
                     {
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
@@ -120,6 +121,7 @@ namespace ExternalBanking.DBManager
                     order.SenderCardNumber = dt.Rows[0]["sender_card_number"].ToString();
                     order.ReceiverCardNumber = dt.Rows[0]["receiver_card_number"].ToString();
                     order.ReceiverName = dt.Rows[0]["receiver_name"].ToString();
+                    order.VisaAlias = dt.Rows[0]["visa_alias"].ToString();
                     order.GroupId = dt.Rows[0]["order_group_id"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["order_group_id"]) : 0;
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
                     order.ArcaExtensionID = dt.Rows[0]["arca_ext_id"]!=DBNull.Value? Convert.ToUInt64(dt.Rows[0]["arca_ext_id"].ToString()):0;

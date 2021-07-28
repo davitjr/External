@@ -324,5 +324,22 @@ namespace ExternalBankingService
 
         }
 
+        public string GetCreditAccountNumberFromLoanFullNumber(string loanFullNumber)
+        {
+            SSTerminalService terminalService = new SSTerminalService();
+            Loan loan = CTLoanMatureOrder.GetLoanByLoanFullNumber(loanFullNumber);
+            return terminalService.GetCreditCodeAccountForMature(loan.CreditCode, loan.Currency, "AMD").AccountNumber;
+
+        }
+
+        public Account GetAccount(string accountNumber)
+        {
+
+            return Account.GetAccount(accountNumber);
+
+
+        }
+
+
     }
 }

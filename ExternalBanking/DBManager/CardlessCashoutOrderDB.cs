@@ -12,7 +12,7 @@ namespace ExternalBanking.DBManager
 {
     internal class CardlessCashoutOrderDB
     {
-        internal static CardlessCashoutOrder Get(CardlessCashoutOrder order,Languages lang)
+        internal static CardlessCashoutOrder Get(CardlessCashoutOrder order, Languages lang)
         {
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
@@ -49,7 +49,7 @@ namespace ExternalBanking.DBManager
 											   L.operation_Date,
 											   L.rejection_msg_arm,
 											   L.rejection_msg_eng
-                                        FROM   tbl_hb_documents D 
+                                      FROM   tbl_hb_documents D 
                                                INNER JOIN tbl_cardless_cashout_order_details C 
                                                ON D.doc_id = C.doc_id 
 											   LEFT JOIN tbl_cardless_cashout_operations_log L
@@ -141,7 +141,7 @@ namespace ExternalBanking.DBManager
                             order.UseCreditLine = dr["use_credit_line"] != DBNull.Value ? Convert.ToBoolean(dr["use_credit_line"]) : false;
 
                             order.CashoutAttemptDate = dr.FieldOrDefault<DateTime?>("operation_Date");
-                            if(dr["is_Ok"] != DBNull.Value)
+                            if (dr["is_Ok"] != DBNull.Value)
                             {
                                 bool isOk = Convert.ToBoolean(dr["is_Ok"]);
                                 order.AttemptStatus = isOk ? order.AttemptStatus = CardLessCashoutStatus.Completed : CardLessCashoutStatus.Rejected;
@@ -193,7 +193,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Currency;
-                    cmd.Parameters.Add("@debit_acc", SqlDbType.VarChar,50).Value = order.DebitAccount.AccountNumber;
+                    cmd.Parameters.Add("@debit_acc", SqlDbType.VarChar, 50).Value = order.DebitAccount.AccountNumber;
                     cmd.Parameters.Add("@service_fee_account", SqlDbType.VarChar, 50).Value = order.FeeAccount.AccountNumber;
                     cmd.Parameters.Add("@amount_for_payment", SqlDbType.Float).Value = order.TransferFee;
                     cmd.Parameters.Add("@mobile_phone_number", SqlDbType.NVarChar, 50).Value = order.MobilePhoneNumber;
@@ -252,13 +252,13 @@ namespace ExternalBanking.DBManager
                 string sql = @"UPDATE TBl_cardless_cashout_order_details
                                SET order_OTP = @OTP , order_OTP_generation_date = GETDATE()
                                WHERE doc_id = @docId";
-                                
+
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@OTP", SqlDbType.VarChar, 10).Value = OTP;
                     cmd.Parameters.Add("@docId", SqlDbType.Float).Value = docId;
-                    
+
                     conn.Open();
 
                     try
@@ -293,8 +293,8 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.Read())
                         {
-                            order.CustomerNumber =ulong.Parse( dr["customer_number"].ToString());
-                            order.PhoneNumber = (dr["mobile_phone_number"].ToString());
+                            order.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
+                            order.MobilePhoneNumber = (dr["mobile_phone_number"].ToString());
                             order.AmountInAmd = double.Parse(dr["amount_amd"].ToString());
                         }
                     }
@@ -383,7 +383,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@setNumber", SqlDbType.Int).Value = 88;
                     cmd.Parameters.Add("@TransactionId", SqlDbType.NVarChar).Value = TransactionId;
                     cmd.Parameters.Add("@AtmId", SqlDbType.NVarChar).Value = AtmId;
-                    cmd.Parameters.Add( new SqlParameter( "@itemNumber", SqlDbType.Int)  { Direction = ParameterDirection.Output });
+                    cmd.Parameters.Add(new SqlParameter("@itemNumber", SqlDbType.Int) { Direction = ParameterDirection.Output });
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -397,6 +397,40 @@ namespace ExternalBanking.DBManager
             }
         }
 
+        internal static CardlessCashoutOrder GetCardlessCashoutOrder(string cardlessCashOutCode)
+        {
+            CardlessCashoutOrder order = new CardlessCashoutOrder();
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = @"SELECT   HB.customer_number, COD.mobile_phone_number, COD.amount_amd, HB.doc_id, HB.quality, order_OTP_generation_date
+                                                                            FROM tbL_hb_documents HB 
+										                                    INNER JOIN 
+										                                    TBl_cardless_cashout_order_details COD 
+										                                    ON hb.doc_id = cod.doc_id
+									                                    	WHERE  cod.order_OTP = @cardlessCashOutCode";
+                    cmd.Parameters.Add("@cardlessCashOutCode", SqlDbType.NVarChar).Value = cardlessCashOutCode;
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                        {
+                            order.Id = long.Parse(dr["doc_id"].ToString());
+                            if (dr["order_OTP_generation_date"] != DBNull.Value)
+                                order.OTPGenerationDate = Convert.ToDateTime(dr["order_OTP_generation_date"].ToString());
+                            order.Quality = (OrderQuality)Convert.ToInt16(dr["quality"]);
+                            order.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
+                            order.MobilePhoneNumber = dr["mobile_phone_number"].ToString();
+                            order.AmountInAmd = double.Parse(dr["amount_amd"].ToString());
+                        }
+                    }
+                }
+            }
+            return order;
+        }
         public static void WriteCardlessCashoutLog(ulong docID, bool isOk, string msgArm, string msgEng, string AtmId, byte step)
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -412,10 +446,10 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = docID;
                     cmd.Parameters.Add("@is_Ok", SqlDbType.Bit).Value = isOk;
                     cmd.Parameters.Add("@operation_date", SqlDbType.DateTime).Value = DateTime.Now;
-                    cmd.Parameters.Add("@rejection_msg_arm", SqlDbType.NVarChar,200).Value = msgArm;
+                    cmd.Parameters.Add("@rejection_msg_arm", SqlDbType.NVarChar, 200).Value = msgArm;
                     cmd.Parameters.Add("@rejection_msg_eng", SqlDbType.NVarChar, 200).Value = msgEng;
                     cmd.Parameters.Add("@step", SqlDbType.TinyInt).Value = step;
-                    cmd.Parameters.Add("@ATM_id", SqlDbType.NVarChar,50).Value = AtmId;
+                    cmd.Parameters.Add("@ATM_id", SqlDbType.NVarChar, 50).Value = AtmId;
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -424,7 +458,7 @@ namespace ExternalBanking.DBManager
                     {
                         //return new ActionResult { ResultCode = ResultCode.Failed }; քոմենթ քանի դեռ կատարման կտորը վերջնական պատրաստ չէ
                     }
-                    
+
                 }
             }
         }

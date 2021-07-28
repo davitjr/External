@@ -37,6 +37,7 @@ namespace ExternalBanking
         public ulong ArcaExtensionID { get; set; }
         public string RRN { get; set; }
         public string AuthId { get; set; }
+        public string VisaAlias { get; set; }
 
         protected void Complete()
         {

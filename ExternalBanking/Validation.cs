@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Configuration;
+using static ExternalBanking.CardlessCashoutOrder;
 
 namespace ExternalBanking
 {
@@ -1845,7 +1846,7 @@ namespace ExternalBanking
         {
             List<ActionError> result = new List<ActionError>();
 
-            if (Account.CheckAccessToThisAccounts(order.Account?.AccountNumber) == 119)
+            if (Account.CheckAccessToThisAccounts(order.Account?.AccountNumber) == 119 || (!string.IsNullOrEmpty(order.PercentAccount?.AccountNumber) && Account.CheckAccessToThisAccounts(order.PercentAccount?.AccountNumber) == 119))
             {
                 //Նշված հաշվից ելքերն արգելված են
                 result.Add(new ActionError(1966));
@@ -6330,7 +6331,23 @@ namespace ExternalBanking
                 result.AddRange(Validation.CheckCustomerDebtsAndDahk(order.CustomerNumber, order.DebitAccount));
             }
 
+            
+            return result;
+        }
 
+        /// <summary>
+        /// Ստուգում է վարկը ենթակա է հեռացման 
+        /// </summary>
+        /// <param name="appId">Վարկի ունիկալ համար</param>
+        /// <returns>Վերադարձնում է error, եթե վարկը ենթակա չէ հեռացման</returns>
+        public static List<ActionError> CheckDeleteAvailability(ulong appId)
+        {            
+            List<ActionError> result = new List<ActionError>();
+            if (ValidationDB.CheckLoanDelete(appId) == false)
+            {
+                //Վարկը տրված է, հնարավոր չէ հեռացնել
+                result.Add(new ActionError(1964));
+            }            
             return result;
         }
 
@@ -6794,7 +6811,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(834));
                 return result;
             }
-
+           
             if (pensionApplication.Quality != 0 && !order.user.IsChiefAcc)
             {
                 //Դադարեցնել կարելի է միայն գործող պայմանագիրը
@@ -9104,10 +9121,6 @@ namespace ExternalBanking
                 result.Add(new ActionError(1434, new string[] { "Նշված քարտի համար արդեն մուտքագրված է տվյալ տեսակի հայտ" }));
             }
 
-            //string canChangeCardService = null;
-            //order.user.AdvancedOptions.TryGetValue("canChangeCardService", out canChangeCardService);
-
-
             Card card = Card.GetCardWithOutBallance(order.ProductID);
 
             if (order.user.filialCode == 22059 && card.FilialCode == 22000)
@@ -9115,15 +9128,10 @@ namespace ExternalBanking
                 order.user.filialCode = (ushort)card.FilialCode;
             }
 
-            //if (canChangeCardService != "1" && order.user.filialCode != card.FilialCode)
-            //{
-            //    //Քարտը պատկանում է այլ մասնաճյուղի
-            //    result.Add(new ActionError(905));
-            //    return result;
-            //}
+
             if (order.Source == SourceType.Bank)
             {
-                if (order.OperationType != 2 && (string.IsNullOrEmpty(order.MobilePhone) || order.MobilePhone.Substring(0, 3) != "374" || order.MobilePhone.Length < 11))
+                if (order.IsArmenia && order.OperationType != 2 && (string.IsNullOrEmpty(order.MobilePhone) || order.MobilePhone.Substring(0, 3) != "374" || order.MobilePhone.Length < 11))
                 {
                     //Բջջային հեռախոսի ֆորմատը սխալ է (ճիշտ ֆորմատը՝ 374XXYYYYYY)
                     result.Add(new ActionError(1433, new string[] { "Բջջային հեռախոսի ֆորմատը սխալ է(ճիշտ ֆորմատը՝ 374XXYYYYYY) " }));
@@ -12033,22 +12041,25 @@ namespace ExternalBanking
             return ValidationDB.BankOpDayIsClosed();
         }
 
-        /// <summary>
-        /// Ստուգում է վարկը ենթակա է հեռացման 
-        /// </summary>
-        /// <param name="appId">Վարկի ունիկալ համար</param>
-        /// <returns>Վերադարձնում է error, եթե վարկը ենթակա չէ հեռացման</returns>
-        public static List<ActionError> CheckDeleteAvailability(ulong appId)
+        internal static SvipErrorResponse ValidateGetCardlessCashoutOrderWithVerification(CardlessCashoutOrder cardlessCashoutOrder)
         {
-            List<ActionError> result = new List<ActionError>();
-            if (ValidationDB.CheckLoanDelete(appId) == false)
-            {
-                //Վարկը տրված է, հնարավոր չէ հեռացնել
-                result.Add(new ActionError(1964));
-            }
-            return result;
-        }
+            SvipErrorResponse response = new SvipErrorResponse();
 
+            if (cardlessCashoutOrder.Id == 0)
+            {
+                response = new SvipErrorResponse { ErrorCode = "14", ErrorDescription = "Incorrect Order_Id" };
+            }
+            else if (cardlessCashoutOrder.Quality == OrderQuality.Completed)
+            {
+                response = new SvipErrorResponse { ErrorCode = "AA", ErrorDescription = "Order_Id is already used" };
+            }
+            else if (cardlessCashoutOrder?.OTPGenerationDate.Value.AddHours(cardlessCashoutOrder.ValidHours) < DateTime.Now)
+            {
+                response = new SvipErrorResponse { ErrorCode = "95", ErrorDescription = "Order_Id is expired" };
+            }
+            return response;
+        }
+     
         ///<summary>
         ///Հաշվի հեռացման ստուգումների իրականացում 
         /// </summary>
@@ -12199,5 +12210,62 @@ namespace ExternalBanking
             return result;
         }
 
+        ///<summary>
+        ///Երրորդ անձի իրավունքի փոխանցման ստուգումների իրականացում 
+        /// </summary>
+        internal static List<ActionError> ValidateThirdPersonAccountRightsTransfer(ThirdPersonAccountRightsTransferOrder order)
+        {
+            List<ActionError> result = new List<ActionError>();
+            if (order.JointAccount != null)
+            {
+
+                Account account = Account.GetAccount(order.JointAccount.AccountNumber);
+
+                if (ThirdPersonAccountRightsTransferOrder.IsSecondClosing(order.CustomerNumber, account.AccountNumber, order.Source) == true && order.Id == 0)
+                {
+                    //Տվյալ հաշվի համար գոյություն ունի հեռացման չհաստատված հայտ
+                    result.Add(new ActionError(1988, new string[] { account.AccountNumber }));
+                }
+                else if (AccountDB.CheckCustomerFreeFunds(account.AccountNumber) == 0)
+                {
+                    //Հաճախորդի ազատ միջոցները բավարար չեն
+                    result.Add(new ActionError(1989, new string[] { order.CustomerNumber.ToString() }));
+                }
+                else if (ThirdPersonAccountRightsTransferOrder.CheckRightsWereTransferred(account.AccountNumber))
+                {
+                    //Իրավունքն արդեն փոխանցված է III անձին
+                    result.Add(new ActionError(1990));
+                }
+                else if (ThirdPersonAccountRightsTransferOrder.CheckAccountHasArrest(order.CustomerNumber))
+                {
+                    //Հաճախորդը ունի հաշիվներ արգելանքի տակ
+                    result.Add(new ActionError(1991, new string[] { order.ThirdPersonCustomerNumber.ToString() }));
+                }
+                else if (!ThirdPersonAccountRightsTransferOrder.CheckThirdPersonIsCustomer(order.ThirdPersonCustomerNumber))
+                {
+                    //Երրորդ անձին նախ պետք է դարձնել հաճախորդ կարգավիճակ նոր իրավունքը փոխանցել իրեն
+                    result.Add(new ActionError(1992, new string[] { order.ThirdPersonCustomerNumber.ToString() }));
+                }
+
+            }
+
+            return result;
+        }
+
+        internal static List<ActionError> ValidateMRDataChangeOrder(MRDataChangeOrder order)
+        {
+            List<ActionError> result = new List<ActionError>();
+
+            if (order.DataChangeCard != null)
+            {
+                if (MRDataChangeOrderDB.GetCardMRStatus(order.MRId) != MRStatus.NORM)
+                {
+                    //Հնարավոր չէ կատարել տվյալ կարգավիճակով MR ծառայության համար
+                    result.Add(new ActionError(1993));
+                }
+            }
+
+            return result;
+        }
     }
 }

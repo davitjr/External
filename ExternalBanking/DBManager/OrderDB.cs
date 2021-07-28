@@ -483,7 +483,7 @@ namespace ExternalBanking.DBManager
                      && order.Type != OrderType.HBApplicationUpdateOrder && order.Type != OrderType.HBApplicationOrder && order.Type != OrderType.HBApplicationRestoreOrder
                      && order.Type != OrderType.HBActivation && order.Type != OrderType.HBApplicationTerminationOrder
                      && order.Type != OrderType.ArcaCardsTransactionOrder && order.Type != OrderType.CardLimitChangeOrder && order.Type != OrderType.CardRegistrationOrder
-                     && order.Type != OrderType.SberBankTransferOrder && order.Type != OrderType.BillSplitReminder && order.Type != OrderType.BillSplitSenderRejection)
+                     && order.Type != OrderType.SberBankTransferOrder && order.Type != OrderType.BillSplitReminder && order.Type != OrderType.BillSplitSenderRejection && order.Type != OrderType.VisaAlias)
                 {
 
                     using (SqlCommand cmd = new SqlCommand())
@@ -1125,7 +1125,7 @@ namespace ExternalBanking.DBManager
 
         public static void ChangeBOOrderQuality(long docId, OrderQuality quality, ACBAServiceReference.User user)
         {
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
                 {
@@ -1986,7 +1986,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"IF @source_type <> 10
+                using (SqlCommand cmd = new SqlCommand(@"IF @source_type <> 10 AND @source_type <> 8
 	                                                        SELECT  hb.doc_ID  from Tbl_HB_documents hb
 	                                                        INNER JOIN tbl_payment_registration_request_details req
 	                                                        ON hb.doc_ID=req.Doc_ID
@@ -1995,7 +1995,7 @@ namespace ExternalBanking.DBManager
 	                                                        SELECT  hb.doc_ID  from Tbl_HB_documents hb
 	                                                        INNER JOIN tbl_payment_registration_request_details req
 	                                                        ON hb.doc_ID=req.Doc_ID
-	                                                        WHERE req.order_id=@paymentId and document_type = @document_type", conn))
+	                                                        WHERE req.order_id=@paymentId and document_type = @document_type and hb.debet_account=@accountNumber", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;

@@ -112,13 +112,15 @@ namespace ExternalBanking.DBManager
                                                          HB.document_type,
                                                          HB.document_subtype,
                                                          HB.quality,
+                                                         HB.doc_ID,
                                                          HB.operation_date ,
                                                          HB.operationFilialCode,
+                                                         HB.order_group_id,
+                                                         HB.confirmation_date,
                                                          DT.RecipientPrimaryAccountNumber,
+                                                         DT.RecipientFulltName,
                                                          DT.Alias,
-                                                         DT.CardType,
-														 HB.order_group_id,
-                                                         HB.confirmation_date
+                                                         DT.CardType										 
                                     FROM Tbl_HB_documents AS HB 
 		                            INNER JOIN tbl_visa_alias_order_details AS DT ON HB.doc_ID = DT.doc_id
                                     INNER JOIN tbl_hb_quality_history AS QH on HB.doc_ID = QH.Doc_ID and QH.quality = 1
@@ -140,6 +142,7 @@ namespace ExternalBanking.DBManager
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
                     order.Id = Convert.ToUInt32(dt.Rows[0]["doc_ID"]);
                     order.RecipientPrimaryAccountNumber = dt.Rows[0]["RecipientPrimaryAccountNumber"].ToString();
+                    order.RecipientFullName = dt.Rows[0]["RecipientFulltName"].ToString();
                     order.CardType = dt.Rows[0]["CardType"].ToString();
                     order.Alias = dt.Rows[0]["Alias"].ToString();
                 }
@@ -148,6 +151,19 @@ namespace ExternalBanking.DBManager
             return order;
         }
 
+        public static string GetVisaAliasGuidByCutomerNumber(ulong customerNumber)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(@"SELECT TOP 1  [Guid]							 
+                                    FROM tbl_visa_alias
+                                    WHERE customernumber= @customer_number ", conn);
+
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                return cmd.ExecuteScalar().ToString();
+            }
+        }
         public static CardHolderAndCardType GetCardTypeAndCardHolder(string cardNumber)
         {
             DataTable dt = new DataTable();
@@ -155,33 +171,22 @@ namespace ExternalBanking.DBManager
             string sql = @"SELECT TOP 1 c.name_eng, c.lastname_eng, t.ApplicationsCardType FROM Tbl_VISA_applications ap 
                            INNER JOIN tbl_type_of_card t ON ap.cardType = t.ID 
                            INNER JOIN [Tbl_Customers;] c ON c.customer_number = ap.customer_number WHERE Cardnumber = @Cardnumber";
-
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     conn.Open();
-
                     cmd.Parameters.Add("@Cardnumber", SqlDbType.Float).Value = cardNumber;
-
                     dt.Load(cmd.ExecuteReader());
-
                     if (dt.Rows.Count > 0)
                     {
                         cardHolderAndCardType.CardHolderFirsName = dt.Rows[0]["name_eng"].ToString();
                         cardHolderAndCardType.CardHolderLastName = dt.Rows[0]["lastname_eng"].ToString();
                         cardHolderAndCardType.CardTypeDescription = dt.Rows[0]["ApplicationsCardType"].ToString();
-
                     }
-
                 }
-
                 return cardHolderAndCardType;
             }
-
-
-
-
         }
     }
 }

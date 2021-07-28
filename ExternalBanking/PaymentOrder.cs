@@ -372,6 +372,10 @@ namespace ExternalBanking
             {
 
                 result = PaymentOrderDB.Save(this, userName, source);
+                if (this.AdditionalParametrs != null && this.AdditionalParametrs.Exists(m => m.AdditionValue == "LeasingAccount"))
+                {
+                    LeasingDB.SaveLeasingPaymentOrderDetails(this);
+                }
 
                 ActionResult resultOrderFee = SaveOrderFee();
                 ActionResult resultOpPerson = base.SaveOrderOPPerson();
@@ -428,28 +432,60 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            string developerSpecialAccounts = "0";
-            user?.AdvancedOptions?.TryGetValue("checkAccessToDeveloperSpecialAccounts", out developerSpecialAccounts);
-
-            if ((Account.CheckAccessToThisAccounts(this.ReceiverAccount?.AccountNumber) == 118 && this.DebitAccount?.AccountNumber != "220004130948000") ||
-                (Account.CheckAccessToThisAccounts(this.ReceiverAccount?.AccountNumber) == 119 && developerSpecialAccounts == "0")
-                || ((this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation) && Account.CheckAccessToThisAccounts(this.ReceiverAccount?.AccountNumber) == 119))
+            if (this.OnlySaveAndApprove == false)
             {
-                //Նշված հաշվին մուտքերն արգելված են
-                result.Errors.Add(new ActionError(1891));
-                return result;
+                string developerSpecialAccountsNonCash = user?.AdvancedOptions?["checkAccessToDeveloperSpecialAccountsNonCash"];
+                string developerSpecialAccounts = user?.AdvancedOptions?["checkAccessToDeveloperSpecialAccounts"];
+
+                if (Account.CheckAccessToThisAccounts(this.ReceiverAccount?.AccountNumber) == 118 && this.DebitAccount?.AccountNumber != "220004130948000"
+                    || (!(this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation) && this.ReceiverAccount?.AccountType == 119))
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1891));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation)
+                    && this.ReceiverAccount?.AccountType == 119 && !(developerSpecialAccounts == "1" || developerSpecialAccountsNonCash == "1"))
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1891));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation)
+                    && this.ReceiverAccount?.AccountType == 119 && developerSpecialAccountsNonCash == "1")
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1891));
+                    return result;
+                }
+
+
+                if (!(this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation) &&
+                    this.DebitAccount?.AccountType == 119 || this.FeeAccount?.AccountType == 119)
+                {
+                    //Նշված հաշվից ելքերն արգելված են
+                    result.Errors.Add(new ActionError(1966));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation)
+                    && this.DebitAccount?.AccountType == 119 && !(developerSpecialAccounts == "1" || developerSpecialAccountsNonCash == "1"))
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1966));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation)
+                    && this.DebitAccount?.AccountType == 119 && developerSpecialAccountsNonCash == "1")
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1966));
+                    return result;
+                }
             }
-
-
-            if ((this.Type == OrderType.CashCredit || this.Type == OrderType.CashConvertation || this.Type == OrderType.CashCreditConvertation || this.Type == OrderType.CashForRATransfer)
-                && Account.CheckAccessToThisAccounts(this.DebitAccount?.AccountNumber) == 119 ||
-                (Account.CheckAccessToThisAccounts(this.DebitAccount?.AccountNumber) == 119 && developerSpecialAccounts == "0"))
-            {
-                //Նշված հաշվից ելքերն արգելված են
-                result.Errors.Add(new ActionError(1966));
-                return result;
-            }
-
 
             if (Source == SourceType.Bank && (this.Type == OrderType.RATransfer || this.Type == OrderType.Convertation || this.Type == OrderType.InternationalTransfer || this.Type == OrderType.CashCredit))
             {
@@ -1357,6 +1393,62 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
+
+            if (this.OnlySaveAndApprove == false)
+            {
+                string developerSpecialAccountsNonCash = user?.AdvancedOptions?["checkAccessToDeveloperSpecialAccountsNonCash"];
+                string developerSpecialAccounts = user?.AdvancedOptions?["checkAccessToDeveloperSpecialAccounts"];
+
+                if (Account.CheckAccessToThisAccounts(this.ReceiverAccount?.AccountNumber) == 118 && this.DebitAccount?.AccountNumber != "220004130948000"
+                    || (!(this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation) && this.ReceiverAccount?.AccountType == 119))
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1891));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation)
+                    && this.ReceiverAccount?.AccountType == 119 && !(developerSpecialAccounts == "1" || developerSpecialAccountsNonCash == "1"))
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1891));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation)
+                    && this.ReceiverAccount?.AccountType == 119 && developerSpecialAccountsNonCash == "1")
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1891));
+                    return result;
+                }
+
+
+                if (!(this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation) &&
+                    this.DebitAccount?.AccountType == 119 || this.FeeAccount?.AccountType == 119)
+                {
+                    //Նշված հաշվից ելքերն արգելված են
+                    result.Errors.Add(new ActionError(1966));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.RATransfer && (this.SubType == 1 || this.SubType == 3) || this.Type == OrderType.Convertation || this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation || this.Type == OrderType.InBankConvertation)
+                    && this.DebitAccount?.AccountType == 119 && !(developerSpecialAccounts == "1" || developerSpecialAccountsNonCash == "1"))
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1966));
+                    return result;
+                }
+
+                if ((this.Type == OrderType.CashDebit || this.Type == OrderType.CashDebitConvertation)
+                    && this.DebitAccount?.AccountType == 119 && developerSpecialAccountsNonCash == "1")
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1966));
+                    return result;
+                }
+            }
+
             if (this.Quality != OrderQuality.Draft && this.Quality != OrderQuality.Approved)
             {
                 //Տվյալ կարգավիճակով փաստաթուղթը հնարավոր չէ ուղարկել:
@@ -2159,6 +2251,7 @@ namespace ExternalBanking
 
             if (Source != SourceType.SberBankTransfer)
                 this.CheckDillingConfirm();
+
         }
 
 

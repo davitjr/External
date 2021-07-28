@@ -14,6 +14,8 @@ using ExternalBanking.TokenOperationsCasServiceReference;
 using ExternalBanking.ServiceClient;
 using ExternalBanking.ARUSDataService;
 using ExternalBanking.SberTransfers.Order;
+using ExternalBanking.PreferredAccounts;
+using static ExternalBanking.ReceivedBillSplitRequest;
 
 namespace ExternalBanking
 {
@@ -428,7 +430,7 @@ namespace ExternalBanking
                 Localization.SetCulture(result, Culture);
                 return result;
             }
-            if(order.DebitAccount.IsAttachedCard == true)
+            if (order.DebitAccount.IsAttachedCard == true)
             {
                 if (Utility.ValidateAttachedCardOpeartionLimit(order.Amount, order.Currency) == false)
                 {
@@ -1095,6 +1097,68 @@ namespace ExternalBanking
         public List<Account> GetAccountsForOrder(OrderType orderType, byte orderSubType, OrderAccountType accountType, SourceType source, bool includingAttachedCards = true)
         {
             List<Account> accounts = new List<Account>();
+            if ((orderType == OrderType.PreferredAccountActivationOrder || orderType == OrderType.PreferredAccountDeactivationOrder) && orderSubType == 1) // Mobile/Email Preferred Accounts
+            {
+                List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
+                currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount);
+
+                List<Account> cardAccounts = Account.GetCardAccounts(this.CustomerNumber);
+                cardAccounts.RemoveAll(m => m.Currency != "AMD" || m.ClosingDate != null);
+
+                Localization.SetCulture(cardAccounts, Culture);
+                cardAccounts.ForEach(m =>
+                {
+                    Card card = Card.GetCardWithOutBallance(m.AccountNumber);
+                    if (card != null)
+                        m.AccountDescription = card.CardNumber + " " + card.CardType;
+                });
+
+                accounts.AddRange(currentAccounts);
+                accounts.AddRange(cardAccounts);
+
+                return accounts;
+            }
+            else if ((orderType == OrderType.PreferredAccountActivationOrder || orderType == OrderType.PreferredAccountDeactivationOrder) && orderSubType == 2) // Visa Alias Preferred Accounts
+            {
+                List<Account> cardAccounts = Account.GetCardAccounts(this.CustomerNumber);
+                List<Account> notVisaMasterCards = new List<Account>();
+                cardAccounts.ForEach(m =>
+                {
+                    Card card = Card.GetCardWithOutBallance(m.AccountNumber);
+                    if (card.CardSystem != 4 && card.CardSystem != 5)
+                        notVisaMasterCards.Add(m);
+                });
+                cardAccounts.RemoveAll(m => notVisaMasterCards.Contains(m));
+                cardAccounts.RemoveAll(m => m.ClosingDate != null);
+
+                Localization.SetCulture(cardAccounts, Culture);
+                cardAccounts.ForEach(m =>
+                {
+                    Card card = Card.GetCardWithOutBallance(m.AccountNumber);
+                    if (card != null)
+                        m.AccountDescription = card.CardNumber + " " + card.CardType;
+                });
+
+                accounts.AddRange(cardAccounts);
+
+                return accounts;
+            }
+            else if ((orderType == OrderType.PreferredAccountActivationOrder || orderType == OrderType.PreferredAccountDeactivationOrder) && orderSubType == 3) // Sberbank Preferred Accounts
+            {
+                List<Account> cardAccounts = Account.GetCardAccounts(this.CustomerNumber);
+                cardAccounts.RemoveAll(m => m.ClosingDate != null);
+
+                Localization.SetCulture(cardAccounts, Culture);
+                cardAccounts.ForEach(m =>
+                {
+                    Card card = Card.GetCardWithOutBallance(m.AccountNumber);
+                    if (card != null)
+                        m.AccountDescription = card.CardNumber + " " + card.CardType;
+                });
+
+                accounts.AddRange(cardAccounts);
+                return accounts;
+            }
 
             if (orderType == OrderType.PeriodicTransfer)
             {
@@ -1260,7 +1324,7 @@ namespace ExternalBanking
 
                 currentAccounts.RemoveAll(m => m.TypeOfAccount == 283 || m.TypeOfAccount == 282);  //Սահմանափակ հասանելիությամ հաշվիներ
                 accounts.AddRange(currentAccounts);
-            }
+            }           
             else
             {
                 if (orderType != OrderType.CommunalPayment && (accountType == OrderAccountType.DebitAccount || accountType == OrderAccountType.CreditAccount))
@@ -1510,9 +1574,14 @@ namespace ExternalBanking
 
             accounts.RemoveAll(m => m.Status == 1);
 
-            if(orderType == OrderType.BillSplit)
+            if (orderType == OrderType.BillSplit || orderType == OrderType.LeasingPaymentOrder)
             {
                 accounts.RemoveAll(m => m.Currency != "AMD");
+            }
+
+            if (orderType == OrderType.LeasingPaymentOrder)
+            {
+                accounts.RemoveAll(m => m.AccountType != 10 && m.AccountType != 11);
             }
 
             return accounts;
@@ -4545,7 +4614,7 @@ namespace ExternalBanking
                     if (blockingReasons.Contains(order.UnfreezeReason))
                     {
                         Card unFreezingCard = Card.GetCard(order.FreezedAccount);
-                        if(unFreezingCard != null)
+                        if (unFreezingCard != null)
                         {
                             List<Card> cards = Card.GetAttachedCards((ulong)unFreezingCard.ProductId, CustomerNumber);
                             cards.Add(unFreezingCard);
@@ -6441,7 +6510,7 @@ namespace ExternalBanking
                 card = null;
             return card;
         }
-                
+
 
         public List<LoanProductClassification> GetLoanProductClassifications(ulong productId, DateTime dateFrom)
         {
@@ -10536,7 +10605,8 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                Task.Factory.StartNew(() => {
+                Task.Factory.StartNew(() =>
+                {
                     ActionResult confirmResult = order.Confirm(order.user);
 
                     if (confirmResult.ResultCode == ResultCode.Normal)
@@ -10547,12 +10617,99 @@ namespace ExternalBanking
         }
 
         /// <summary>
+        /// Գումարի փոխանցման հայտի պահպանում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult SaveBillSplitOrder(BillSplitOrder order, string userName)
+        {
+            ActionResult result = new ActionResult();
+
+            result = order.Save(userName, Source, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// </summary>
+        /// <param name="order">Հղումով փոխանցման</param>
+        /// <returns></returns>
+        public ActionResult SaveLinkPaymentOrder(LinkPaymentOrder order)
+        {
+            ActionResult result = new ActionResult();
+
+            if (Utility.CheckOperationLimit(order.Amount, order.Currency, OneOperationAmountLimit))
+            {
+                result = order.Save();
+            }
+            else
+            {
+                result.Errors.Add(new ActionError(66));
+                result.ResultCode = ResultCode.ValidationError;
+            }
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Հղումով փոխանցման հայտի հաստատում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="schemaType"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ContentResult<string> ApproveLinkPaymentOrder(LinkPaymentOrder order, short schemaType, string userName)
+        {
+            ContentResult<string> result = new ContentResult<string>();
+            result = order.Approve(schemaType, userName, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+        public ActionResult SavePreferredAccountOrder(PreferredAccountOrder order, string userName)
+        {
+            ActionResult result = order.SavePreferredAccountOrder(order, userName);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public PreferredAccountOrder GetPreferredAccountOrder(long id)
+        {
+            PreferredAccountOrder order = new PreferredAccountOrder
+            {
+                Id = id,
+                CustomerNumber = CustomerNumber
+            };
+            order.Get();
+            Localization.SetCulture(order, Culture);
+
+            return order;
+        }
+
+        public List<Account> GetQrAccounts()
+        {
+            List<Account> accounts = new List<Account>();
+
+            List<Account> currentAccounts = Account.GetCurrentAccounts(CustomerNumber, ProductQualityFilter.Opened);
+            List<Account> depositAccounts = Account.GetDepositAccounts(CustomerNumber);
+            List<Account> cardAccounts = Account.GetCardAccounts(CustomerNumber);
+            accounts.AddRange(depositAccounts);
+            currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount);
+            accounts.AddRange(currentAccounts);
+            accounts.AddRange(cardAccounts);
+            accounts.RemoveAll(m => m.Currency != "AMD" || m.ISDahkCardTransitAccount(m.AccountNumber) == true);
+
+            return accounts;
+        }
+
+        /// <summary>
         /// Քարտի վերաբացման մուտքագրման հայտի պահպանում և հաստատում
+        /// Վերադարձնում է հաշվի հեռացման հայտի տվյալները
         /// </summary>
         /// <param name="order"></param>
         /// <param name="userName"></param>
         /// <param name="source"></param>
         /// <param name="schemaType"></param>
+        /// <param name="ID"></param>
         /// <returns></returns>
         public ActionResult SaveAndApproveCardReOpenOrder(CardReOpenOrder order, string userName, short schemaType)
         {
@@ -10587,6 +10744,12 @@ namespace ExternalBanking
             return order;
         }
 
+        public ActionResult ApprovePreferredAccountOrder(long id)
+        {
+            PreferredAccountOrder preferredAccountOrder = new PreferredAccountOrder();
+            ActionResult result = preferredAccountOrder.ApprovePreferredAccountOrder(id);
+            return result;
+        }
         ///// <summary>
         ///// "Վերաթողարկել քարտը" հայտի պահպանում և հաստատում
         ///// </summary>
@@ -10684,55 +10847,6 @@ namespace ExternalBanking
         //    return order;
         //}
 
-        /// <summary>
-        /// Գումարի փոխանցման հայտի պահպանում
-        /// </summary>
-        /// <param name="order"></param>
-        /// <param name="userName"></param>
-        /// <returns></returns>
-        public ActionResult SaveBillSplitOrder(BillSplitOrder order, string userName)
-        {
-            ActionResult result = new ActionResult();
-
-            result = order.Save(userName, Source, User);
-            Localization.SetCulture(result, Culture);
-            return result;
-        }
-
-        /// </summary>
-        /// <param name="order">Հղումով փոխանցման</param>
-        /// <returns></returns>
-        public ActionResult SaveLinkPaymentOrder(LinkPaymentOrder order)
-        {
-            ActionResult result = new ActionResult();
-
-            if (Utility.CheckOperationLimit(order.Amount, order.Currency, OneOperationAmountLimit))
-            {
-                result = order.Save();
-            }
-            else
-            {
-                result.Errors.Add(new ActionError(66));
-                result.ResultCode = ResultCode.ValidationError;
-            }
-            Localization.SetCulture(result, Culture);
-            return result;
-        }
-
-        /// <summary>
-        /// Հղումով փոխանցման հայտի հաստատում
-        /// </summary>
-        /// <param name="order"></param>
-        /// <param name="schemaType"></param>
-        /// <param name="userName"></param>
-        /// <returns></returns>
-        public ContentResult<string> ApproveLinkPaymentOrder(LinkPaymentOrder order, short schemaType, string userName)
-        {
-            ContentResult<string> result = new ContentResult<string>();
-            result = order.Approve(schemaType, userName, User);
-            Localization.SetCulture(result, Culture);
-            return result;
-        }
 
         /// <summary>
         /// BillSplit հայտի ստացում
@@ -10757,9 +10871,9 @@ namespace ExternalBanking
         /// <param name="schemaType"></param>
         /// <param name="userName"></param>
         /// <returns></returns>
-        public ContentResult<string> ApproveBillSplitOrder(BillSplitOrder order, short schemaType, string userName)
+        public ContentResult<List<BillSplitLinkResult>> ApproveBillSplitOrder(BillSplitOrder order, short schemaType, string userName)
         {
-            ContentResult<string> result = new ContentResult<string>();
+            ContentResult<List<BillSplitLinkResult>> result = new ContentResult<List<BillSplitLinkResult>>();
             result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
@@ -10856,6 +10970,32 @@ namespace ExternalBanking
             order.Id = ID;
             order.CustomerNumber = this.CustomerNumber;
             order = CardRenewOrder.GetCardRenewOrder(ID);
+            Localization.SetCulture(order, Culture);
+            return order;
+        }
+        public ActionResult SaveVisaAliasOrder(VisaAliasOrder order, string userName)
+        {
+            order.user = User;
+            ActionResult result = order.Save(userName, Source);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+        public ActionResult ApproveVisaAliasOrder(VisaAliasOrder order, string userName, short approvementScheme)
+        {
+            ActionResult result = order.Approve(approvementScheme, userName, User);
+            if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
+            {
+                Localization.SetCulture(result, Culture);
+            }
+            return result;
+        }
+        public VisaAliasOrder GetVisaAliasOrder(long ID)
+        {
+            VisaAliasOrder order = new VisaAliasOrder();
+            order.Id = ID;
+            order.CustomerNumber = CustomerNumber;
+            order.Get();
+
             Localization.SetCulture(order, Culture);
             return order;
         }
@@ -10987,41 +11127,42 @@ namespace ExternalBanking
             visaAliasOrder = visaAliasOrder.GetVisaAliasOrder(orderId);
             return visaAliasOrder;
         }
-
         public CardHolderAndCardType GetCardTypeAndCardHolder(string CardNumber)
         {
             VisaAliasOrder visaAliasOrder = new VisaAliasOrder();
-
             return visaAliasOrder.GetCardTypeAndCardHolder(CardNumber);
         }
-
-        public ActionResult SaveVisaAliasOrder(VisaAliasOrder order, string userName)
+        public ActionResult SaveAndApproveThirdPersonAccountRightsTransfer(ThirdPersonAccountRightsTransferOrder order, string userName, short schemaType)
         {
-            order.user = User;
-            ActionResult result = order.Save(userName, Source);
+            ActionResult result = new ActionResult();
+            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
+            if (result.Errors.Count > 0)
+            {
+                Localization.SetCulture(result, Culture);
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+            result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
-        public ActionResult ApproveVisaAliasOrder(VisaAliasOrder order, string userName, short approvementScheme)
+
+        public ActionResult SaveAndApproveMRDataChangeOrder(MRDataChangeOrder order, string userName, short schemaType)
         {
-            ActionResult result = order.Approve(approvementScheme, userName, User);
-            if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
+            ActionResult result = new ActionResult();
+
+            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
+            if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
             }
+
+            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            Localization.SetCulture(result, Culture);
             return result;
         }
-        public VisaAliasOrder GetVisaAliasOrder(long ID)
-        {
-            VisaAliasOrder order = new VisaAliasOrder();
-            order.Id = ID;
-            order.CustomerNumber = CustomerNumber;
-            order.Get();
-
-            Localization.SetCulture(order, Culture);
-            return order;
-        }
-
-
     }
 }
+

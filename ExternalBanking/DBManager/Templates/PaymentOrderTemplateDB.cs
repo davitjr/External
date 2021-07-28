@@ -89,7 +89,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@DebitorName", SqlDbType.NVarChar).Value = template.PaymentOrder.CreditorDescription;
                     }
 
-                    if(template.TemplateType == TemplateType.CreatedAsGroupService)
+                    if (template.TemplateType == TemplateType.CreatedAsGroupService)
                     {
                         cmd.Parameters.Add("@fee_acc", SqlDbType.NVarChar,50).Value = template.PaymentOrder.FeeAccount.AccountNumber;
                         cmd.Parameters.Add("@Transfer_Fee", SqlDbType.Float).Value = template.PaymentOrder.TransferFee;

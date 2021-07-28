@@ -139,8 +139,6 @@ namespace ExternalBanking
             resultConfirm.Errors = warnings;
 
             return resultConfirm;
-
-
         }
 
         private void Complete()

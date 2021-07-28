@@ -861,5 +861,14 @@ namespace ExternalBanking
             }
             result.Errors = result.Errors.GroupBy(i => i.Description).Select(g => g.First()).ToList();
         }
+
+        public static void SetCulture<T>(ContentResult<T> result, Culture culture)
+        {
+            if (result.Errors != null && result.Errors.Count > 0)
+            {
+                result.Errors.ForEach(m => SetCulture(m, culture));
+            }
+            result.Errors = result.Errors.GroupBy(i => i.Description).Select(g => g.First()).ToList();
+        }
     }
 }

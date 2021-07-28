@@ -221,9 +221,9 @@ namespace ExternalBanking
             if (account == null)
                 account = AccountDB.GetAparikTexumAccount(accountNumber, customerNumber);
             if (account == null)
-                account = AccountDB.GetClosedAparikTexumAccount(accountNumber, customerNumber);
-            if (account == null)
                 account = AccountDB.GetCardDahkAccount(accountNumber, customerNumber);
+            if (account == null)
+                account = AccountDB.GetClosedAparikTexumAccount(accountNumber, customerNumber);
             if (account == null)
                 account = AccountDB.GetBankruptAccount(accountNumber, customerNumber);
             if (account == null)
@@ -1141,6 +1141,22 @@ namespace ExternalBanking
         {
             return AccountDB.CheckAccessToThisAccounts(accountNumber);
         }
-                     
+
+        public static ulong CheckCustomerFreeFunds(string accountNumber)
+        {
+            return AccountDB.CheckCustomerFreeFunds(accountNumber);
+        }
+        public static bool GetRightsTransferAvailability(string accountNumber)
+        {
+            return AccountDB.GetRightsTransferAvailability(accountNumber);
+        }
+        public static bool GetRightsTransferVisibility(string accountNumber)
+        {
+            return AccountDB.GetRightsTransferVisibility(accountNumber);
+        }
+        public static bool GetCheckCustomerIsThirdPerson(string accountNumber, ulong customerNumber)
+        {
+            return AccountDB.GetCheckCustomerIsThirdPerson(accountNumber, customerNumber);
+        }
     }
 }

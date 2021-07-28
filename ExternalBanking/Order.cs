@@ -368,7 +368,7 @@ namespace ExternalBanking
         {
             OrderQuality result;
             Account debitAccount = new Account();
-            if (Source == SourceType.Bank || Source == SourceType.ExternalCashTerminal || Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking
+            if (Source == SourceType.Bank || Source == SourceType.ExternalCashTerminal || Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking 
                                     || Source == SourceType.ArmSoft || Source == SourceType.AcbaOnlineXML || Source == SourceType.STAK)
             {
 
@@ -622,7 +622,7 @@ namespace ExternalBanking
                 {
                     OrderDB.ChangeQuality(Id, nextQuality, userName);
                 }
-                if (Source != SourceType.ExternalCashTerminal && Source != SourceType.CashInTerminal)
+                if (Source != SourceType.ExternalCashTerminal && Source!=SourceType.CashInTerminal)
                 {
                     if (nextQuality == OrderQuality.Sent)
                     {
@@ -853,7 +853,7 @@ namespace ExternalBanking
                 else
                 {
                     if (Quality == OrderQuality.Sent3 || (Quality == OrderQuality.SBQprocessed &&
-                        (Type == OrderType.ReestrPaymentOrder || Type == OrderType.AddFondOrder || Type == OrderType.ChangeFondOrder || Type == OrderType.ChangeFTPRateOrder || Type == OrderType.InterestMarginOrder))
+                        (Type == OrderType.VisaAlias || Type == OrderType.ReestrPaymentOrder || Type == OrderType.AddFondOrder || Type == OrderType.ChangeFondOrder || Type == OrderType.ChangeFTPRateOrder || Type == OrderType.InterestMarginOrder))
                         || ((this.Source != SourceType.Bank && this.Source != SourceType.SSTerminal && this.Source != SourceType.CashInTerminal) && this.Quality == OrderQuality.SBQprocessed)
                         || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.RemittanceCancellationOrder)
                         || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.FastTransferPaymentOrder && SubType == 23)
@@ -861,7 +861,7 @@ namespace ExternalBanking
                          || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.ArcaCardsTransactionOrder))
                     {
                         if (!IsAutomatConfirm(this.Type, this.SubType) && Source != SourceType.SSTerminal && this.Source != SourceType.CashInTerminal && ((this.Source == SourceType.Bank || this.Source == SourceType.SSTerminal || this.Source == SourceType.CashInTerminal) && this.Type != OrderType.RosterTransfer
-                                                && this.Type != OrderType.ReceivedFastTransferPaymentOrder && this.Type != OrderType.CredentialOrder && this.Type != OrderType.ArcaCardsTransactionOrder && this.Type != OrderType.CardLimitChangeOrder && this.Type != OrderType.BillSplitReminder && this.Type != OrderType.BillSplitSenderRejection) && this.Type != OrderType.DeleteLoanOrder && this.Type != OrderType.AccountRemove)
+                                                && this.Type != OrderType.ReceivedFastTransferPaymentOrder && this.Type != OrderType.CredentialOrder && this.Type != OrderType.ArcaCardsTransactionOrder && this.Type != OrderType.CardLimitChangeOrder && this.Type != OrderType.BillSplitReminder && this.Type != OrderType.BillSplitSenderRejection) && this.Type != OrderType.DeleteLoanOrder && this.Type != OrderType.AccountRemove && this.Type != OrderType.ThirdPersonAccountRightsTransfer && this.Type != OrderType.MRDataChangeOrder)
                         {
                             result.ResultCode = ResultCode.NoneAutoConfirm;
                             ActionError actionError = new ActionError();
@@ -1579,7 +1579,7 @@ namespace ExternalBanking
                     order.ConfirmOrderStep2(user);
                 }
             }
-
+           
             result.ResultCode = ResultCode.Normal;
             result.Id = docID;
 
@@ -1692,7 +1692,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public int GetOrderDailyCount()
         {
-            return OrderDB.GetOrderDailyCount((short)Type, SubType, RegistrationDate, CustomerNumber);
+            return OrderDB.GetOrderDailyCount((short)Type,SubType, RegistrationDate, CustomerNumber);
         }
 
         /// <summary>
@@ -1701,7 +1701,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public double GetOrderDailyAmount()
         {
-            return OrderDB.GetOrderDailyAmount((short)Type, (short)SubType, RegistrationDate, CustomerNumber);
+            return OrderDB.GetOrderDailyAmount((short)Type,(short)SubType, RegistrationDate, CustomerNumber);
         }
 
         public ActionResult Reject(int rejectId, User user)
@@ -1713,9 +1713,9 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            if ((this.Type == OrderType.CreditLineActivation &&
+            if (   (this.Type == OrderType.CreditLineActivation && 
                     (Source == SourceType.Bank || Source == SourceType.EContract))
-                || (this.Type == OrderType.CreditLineSecureDeposit &&
+                || (this.Type == OrderType.CreditLineSecureDeposit && 
                    (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline))
                 || (this.Type == OrderType.FastOverdraftApplication &&
                    (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)))
@@ -1724,19 +1724,19 @@ namespace ExternalBanking
                 activationOrder.Id = Id;
                 activationOrder.Get();
 
-                Utility.SaveCreditLineLogs(activationOrder.ProductId, "ConfirmOrderStep2", " ");
+                Utility.SaveCreditLineLogs(activationOrder.ProductId,  "ConfirmOrderStep2", " ");
                 try
                 {
-                    result.Errors = ChangeExceedLimitRequest.ActivateCreditLine(activationOrder.CustomerNumber, activationOrder.ProductId, activationOrder.Id, user.userID, Source);
+                    result.Errors = ChangeExceedLimitRequest.ActivateCreditLine(activationOrder.CustomerNumber, activationOrder.ProductId, activationOrder.Id, user.userID,Source);
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     result.Errors.AddRange(new List<ActionError> { new ActionError { Description = "Ուղարկվելու է ԱՐՔԱ՝ հերթական ֆայլով" } });
-
+                    
                     string message = (ex.Message != null ? ex.Message : " ") +
                     Environment.NewLine + " InnerException:" + (ex.InnerException != null ? ex.InnerException.Message : "")
-                    + " stacktrace:" + (ex.StackTrace != null ? ex.StackTrace : " ");
-
+                    + " stacktrace:" +(ex.StackTrace != null?ex.StackTrace:" ") ;
+                    
                     Utility.SaveCreditLineLogs(activationOrder.ProductId, " ", message);
                 }
             }
@@ -1762,7 +1762,7 @@ namespace ExternalBanking
             if (this.Type == OrderType.CreditLineMature &&
                 (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline))
             {
-
+                
                 Utility.SaveCreditLineLogs(Convert.ToUInt64(OrderNumber), "ConfirmOrderStepTerm2", " ");
                 try
                 {

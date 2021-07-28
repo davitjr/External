@@ -61,5 +61,11 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         int GetLastKeyNumber(int keyID);
+        
+        [OperationContract]
+        string GetCreditAccountNumberFromLoanFullNumber(string loanFullNumber);
+
+        [OperationContract]
+        Account GetAccount(string accountNumber);
     }
 }

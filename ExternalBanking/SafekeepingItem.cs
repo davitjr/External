@@ -91,6 +91,14 @@ namespace ExternalBanking
         /// </summary>
         public ulong CustomerNumber { get; set; }
 
+        /// <summary>
+        /// Մասնաճյուղ
+        /// </summary>
+        public int FilialCode { get; set; }
+        /// <summary>
+        /// Նկարագրություն
+        /// </summary>
+        public string Description { get; set; }
 
         /// <summary>
         /// Վերդարձնում է հաճախորդի Ի պահ ընդունված արժեքները

@@ -17,7 +17,7 @@ namespace ExternalBanking.DBManager
 				using (SqlCommand command = new SqlCommand())
 				{
 					command.Connection = connection;
-					command.CommandText = @"INSERT INTO tbl_ContactAccounts (ContactId,Description,AccountNumber,ObjectType,ObjectValue) Values(@ContactId,@Description,0,@ObjectType,@ObjectValue) Select SCOPE_IDENTITY() as ID ";
+					command.CommandText = @"INSERT INTO tbl_ContactAccounts (ContactId,Description,AccountNumber,ObjectType,ObjectValue) Values(@ContactId,@Description,@ObjectValue,@ObjectType,@ObjectValue) Select SCOPE_IDENTITY() as ID ";
 					command.Parameters.Add("@Description", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(contactAccount.Description) ? (object)DBNull.Value : contactAccount.Description;
 					command.Parameters.Add("@ObjectType", SqlDbType.TinyInt).Value = contactAccount.ObjectType;
 					command.Parameters.Add("@ObjectValue", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(contactAccount.ObjectValue) ? (object)DBNull.Value : contactAccount.ObjectValue;
@@ -53,9 +53,9 @@ namespace ExternalBanking.DBManager
 				{
 					command1.Connection = connection;
 					command1.CommandText = "UPDATE tbl_ContactAccounts SET  Description = @Description, ObjectType = @ObjectType, ObjectValue = @ObjectValue WHERE ID = @ID ";
-					command1.Parameters.Add("@Description", SqlDbType.NVarChar).Value = contactAccount.Description;
+					command1.Parameters.Add("@Description", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(contactAccount.Description) ? (object)DBNull.Value : contactAccount.Description;
 					command1.Parameters.Add("@ObjectType", SqlDbType.SmallInt).Value = contactAccount.ObjectType;
-					command1.Parameters.Add("@ObjectValue", SqlDbType.NVarChar).Value = contactAccount.ObjectValue;
+					command1.Parameters.Add("@ObjectValue", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(contactAccount.ObjectValue) ? (object)DBNull.Value : contactAccount.ObjectValue;
 					command1.Parameters.Add("@ID", SqlDbType.BigInt).Value = contactAccount.Id;
 					command1.ExecuteNonQuery();
 				}
@@ -186,17 +186,32 @@ namespace ExternalBanking.DBManager
 
 		internal static void AddContactAccountsHistory(ulong contactAccountId, ulong changeLogID, SqlConnection connection)
 		{
-			using (SqlCommand command = new SqlCommand())
+
+			bool isTestVersion = bool.Parse(ConfigurationManager.AppSettings["TestVersion"].ToString());
+			if (isTestVersion)
 			{
-				command.Connection = connection;
-				command.CommandText = @"INSERT INTO tbl_ContactAccountsHistory (ContactAccountId,ContactId,AccountNumber,Description,ChangeLogID)
-									SELECT ID as ContactAccountId,ContactId,AccountNumber,Description,@ChangeLogID from tbl_ContactAccounts where id  = @Id";
-				command.Parameters.Add("@ChangeLogID", SqlDbType.BigInt).Value = changeLogID;
-				command.Parameters.Add("@Id", SqlDbType.BigInt).Value = contactAccountId;
-				command.ExecuteNonQuery();
-
+				using (SqlCommand command = new SqlCommand())
+				{
+					command.Connection = connection;
+					command.CommandText = @"INSERT INTO tbl_ContactAccountsHistory (ContactAccountId,ContactId,AccountNumber,Description,ChangeLogID,ObjectType,ObjectValue)
+									SELECT ID as ContactAccountId,ContactId,AccountNumber,Description,@ChangeLogID,ObjectType,ObjectValue from tbl_ContactAccounts where id  = @Id";
+					command.Parameters.Add("@ChangeLogID", SqlDbType.BigInt).Value = changeLogID;
+					command.Parameters.Add("@Id", SqlDbType.BigInt).Value = contactAccountId;
+					command.ExecuteNonQuery();
+				}
 			}
-
+			else
+			{
+				using (SqlCommand command = new SqlCommand())
+				{
+					command.Connection = connection;
+					command.CommandText = @"INSERT INTO tbl_ContactAccountsHistory (ContactAccountId,ContactId,AccountNumber,Description,ChangeLogID)
+									SELECT ID as ContactAccountId,ContactId,AccountNumber,Description,@ChangeLogID from tbl_ContactAccounts where id  = @Id";
+					command.Parameters.Add("@ChangeLogID", SqlDbType.BigInt).Value = changeLogID;
+					command.Parameters.Add("@Id", SqlDbType.BigInt).Value = contactAccountId;
+					command.ExecuteNonQuery();
+				}
+			}
 		}
 	}
 }

@@ -11,7 +11,11 @@ using ExternalBanking.UtilityPaymentsManagment;
 using ExternalBanking.ARUSDataService;
 using ActionResult = ExternalBanking.ActionResult;
 using ActionError = ExternalBanking.ActionError;
+using ExternalBanking.PreferredAccounts;
+using ExternalBanking.QrTransfers;
+using static ExternalBanking.ReceivedBillSplitRequest;
 
+using ExternalBanking.Leasing;
 namespace ExternalBankingService.Interfaces
 {
     [ServiceContract]
@@ -83,6 +87,7 @@ namespace ExternalBankingService.Interfaces
     [ServiceKnownType(typeof(CurrencyExchangeOrder))]
     [ServiceKnownType(typeof(RenewedCardAccountRegOrder))]
     [ServiceKnownType(typeof(VisaAliasOrder))]
+
     public interface IXBService
     {
 
@@ -3175,8 +3180,6 @@ namespace ExternalBankingService.Interfaces
         string GetNotFreezedCurrentAccount(ulong customerNumber);
 
         [OperationContract]
-        (bool, CardlessCashoutOrder) GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode);
-        [OperationContract]
         List<PlasticCard> GetCustomerMainCardsForAttachedCardOrder();
 
         [OperationContract]
@@ -3257,7 +3260,7 @@ namespace ExternalBankingService.Interfaces
         [OperationContract]
         BillSplitOrder GetBillSplitOrder(long id);
         [OperationContract]
-        ContentResult<string> ApproveBillSplitOrder(BillSplitOrder order);
+        ContentResult<List<BillSplitLinkResult>> ApproveBillSplitOrder(BillSplitOrder order);
 
         [OperationContract]
         ActionResult SaveAndApproveBillSplitSenderRejectionOrder(BillSplitSenderRejectionOrder order);
@@ -3330,6 +3333,39 @@ namespace ExternalBankingService.Interfaces
         CardReOpenOrder GetCardReOpenOrder(long ID);
 
         [OperationContract]
+        CardlessCashoutOrder GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode);
+
+        [OperationContract]
+        ActionResult SavePreferredAccountOrder(PreferredAccountOrder order);
+
+        [OperationContract]
+        ActionResult ApprovePreferredAccountOrder(long id);
+
+        [OperationContract]
+        PreferredAccount GetSelectedOrDefaultPreferredAccountNumber(PreferredAccountServiceTypes serviceType, ulong customerNumber);
+
+        [OperationContract]
+        PreferredAccountOrder GetPreferredAccountOrder(long id);
+
+        [OperationContract]
+        bool IsDisabledPreferredAccountService(ulong customerNumber, PreferredAccountServiceTypes preferredAccountServiceType);
+
+        [OperationContract]
+        ActionResult SaveAccountQrCode(string accountNumber, string guid, ulong customerNumber);
+
+        [OperationContract]
+        QrTransfer SearchAccountByQrCode(string guid);
+
+        [OperationContract]
+        string GetAccountQrCodeGuid(string accountNumber);
+
+        [OperationContract]
+        List<Account> GetQrAccounts();
+
+        [OperationContract]
+        bool IsCardlessCashCodeCorrect(string cardlessCashoutCode);
+
+        [OperationContract]
         ActionResult SaveAndApproveVisaAliasOrder(VisaAliasOrder order);
 
         [OperationContract]
@@ -3345,7 +3381,59 @@ namespace ExternalBankingService.Interfaces
         VisaAliasOrder GetVisaAliasOrder(long ID);
 
         [OperationContract]
+        string GetVisaAliasGuidByCutomerNumber(ulong customerNumber);
+
+        [OperationContract]
         CardHolderAndCardType GetCardTypeAndCardHolder(string cardNumber);
+        [OperationContract]
+        ulong CheckCustomerFreeFunds(string accountNumber);
+
+        [OperationContract]
+        ActionResult SaveAndApproveThirdPersonAccountRightsTransfer(ThirdPersonAccountRightsTransferOrder order);
+
+        [OperationContract]
+        bool GetRightsTransferAvailability(string accountNumber);
+
+        [OperationContract]
+        bool GetRightsTransferVisibility(string accountNumber);
+        [OperationContract]
+        bool GetCheckCustomerIsThirdPerson(string accountNumber, ulong customerNumber);
+
+        [OperationContract]
+        List<string> GetRenewedCardAccountRegWarnings(Card oldCard);
+
+        [OperationContract]
+        bool GetMRDataChangeAvailability(int mrID);
+
+        [OperationContract]
+        ActionResult SaveAndApproveMRDataChangeOrder(MRDataChangeOrder order);
+        
+        [OperationContract]
+        List<CustomerLeasingLoans> GetHBLeasingLoans(ulong customerNumber);
+
+        [OperationContract]
+        LeasingLoanDetails GetHBLeasingLoanDetails(ulong productId);
+
+        [OperationContract]
+        List<LeasingLoanRepayments> GetHBLeasingLoanRepayments(ulong productId);
+
+        [OperationContract]
+        List<LeasingLoanStatements> GetHBLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0);
+
+        [OperationContract]
+        List<AdditionalDetails> GetHBLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0);
+
+        [OperationContract]
+        List<LeasingPaymentsType> GetHBLeasingPaymentsType();
+
+        [OperationContract]
+        Account SetHBLeasingReceiver();
+
+        [OperationContract]
+        string GetHBLeasingPaymentDescription(short paymentType, short paymentSubType);
+
+        [OperationContract]
+        LeasingLoanRepayments GetHBLeasingPaymentDetails(ulong productId);
 
     }
 }

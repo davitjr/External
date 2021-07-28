@@ -264,6 +264,7 @@ namespace ExternalBanking.ServiceClient
             });
             return customerPhone;
         }
+
         private static void Use(Action<ICustomerOperations> action)
         {
             ICustomerOperations client = ProxyManager<ICustomerOperations>.GetProxy(nameof(ICustomerOperations));

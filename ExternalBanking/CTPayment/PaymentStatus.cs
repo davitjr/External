@@ -34,6 +34,11 @@ namespace ExternalBanking
         public DateTime StatusDateTime { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public long PaymentID { get; set; }
+
+        /// <summary>
         /// Գործարքի կարգավիճակի հարցում հայտի համարով
         /// </summary>
         /// <param name="paymentID">Գործարքի նույնականացուցիչը համակարգում </param>

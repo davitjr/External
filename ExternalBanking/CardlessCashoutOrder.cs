@@ -90,6 +90,15 @@ namespace ExternalBanking
         /// </summary>
         public string RejectionMessage { get; set; }
         /// <summary>
+        /// կանխիկացման խնդրի նկարագրություն
+        /// </summary>
+        public SvipErrorResponse SvipError { get; set; }
+        public class SvipErrorResponse
+        {
+            public string ErrorCode { get; set; }
+            public string ErrorDescription { get; set; }
+        }
+        /// <summary>
         /// կանխիկացման կարգավիճակ
         /// </summary>
         public CardLessCashoutStatus AttemptStatus { get; set; }
@@ -191,10 +200,10 @@ namespace ExternalBanking
 
         public void Get(Languages lang)
         {
-            CardlessCashoutOrderDB.Get(this,lang);
+            CardlessCashoutOrderDB.Get(this, lang);
             OPPerson = OrderDB.GetOrderOPPerson(Id);
             Fees = GetOrderFees(Id);
-            CardFee = Fees.Where(x => x.Type == 7).FirstOrDefault() is null? 0 : Fees.Where(x => x.Type == 7).FirstOrDefault().Amount;
+            CardFee = Fees.Where(x => x.Type == 7).FirstOrDefault() is null ? 0 : Fees.Where(x => x.Type == 7).FirstOrDefault().Amount;
             TransferFee = Fees.Where(x => x.Type == 20).FirstOrDefault().Amount;
         }
 
@@ -220,33 +229,26 @@ namespace ExternalBanking
             CardlessCashoutOrderDB.UpdateInDB(OTP, docId);
         }
 
-        public static (bool IsCodeVerified, CardlessCashoutOrder cardlessCashoutOrder) GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode)
+        public static CardlessCashoutOrder GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode)
         {
-            //TODO Remove next 3 lines after going to production
-            (bool isTestVersion, bool IsTestCodeVerified, CardlessCashoutOrder cardlessCashoutTestOrder) = TestCardlessCashoutCodeForTestEnvironment(cardlessCashOutCode);
-            if (isTestVersion)
-            {
-                return (IsTestCodeVerified, cardlessCashoutTestOrder);
-            }
+            CardlessCashoutOrder cardlessCashoutOrder = CardlessCashoutOrderDB.GetCardlessCashoutOrder(cardlessCashOutCode);
+            cardlessCashoutOrder.SvipError = Validation.ValidateGetCardlessCashoutOrderWithVerification(cardlessCashoutOrder);
 
-            CardlessCashoutOrder cardLessCashOutOrder = new CardlessCashoutOrder();
-            bool IsCodeVerified = CardlessCashoutOrderDB.IsCardlessCashCodeCorrect(cardlessCashOutCode);
-            if (IsCodeVerified)
+            if (string.IsNullOrEmpty(cardlessCashoutOrder.SvipError.ErrorCode))
             {
-                cardLessCashOutOrder = CardlessCashoutOrderDB.GetCardlessCashoutOrderForAtmView(cardlessCashOutCode);
-                SendAtmOtpWithSms(cardLessCashOutOrder);
+                SendAtmOtpWithSms(cardlessCashoutOrder);
             }
-            return (IsCodeVerified, cardLessCashOutOrder);
+            return cardlessCashoutOrder;
         }
-
         private ActionResult Validate(User user)
         {
             ActionResult result = new ActionResult();
+
             if (AmountInAMDNotConverted == 0 || (AmountInAMDNotConverted % 1000) != 0)
             {//Մուտքագրված գումարը սխալ է։ Գումարը պետք է լինի 1000 ՀՀ դրամի և ամբողջ թվի բազմապատիկ։
                 result.Errors.Add(new ActionError(1884));
             }
-            if(AmountInAMDNotConverted > 399_000)
+            if (AmountInAMDNotConverted > 399_000)
             {
                 //Գործարքի առավելագույն սահմանաչափը 399,000 ՀՀ դրամ է:
                 result.Errors.Add(new ActionError(1886));
@@ -267,6 +269,7 @@ namespace ExternalBanking
             }
             //Դեբետ հաշվի ստուգում
             result.Errors.AddRange(Validation.ValidateDebitAccount(this, DebitAccount));
+
             return result;
         }
         private void Complete()
@@ -319,14 +322,14 @@ namespace ExternalBanking
             }
             Description = $"Անքարտ Կանխիկացում (հեռ․ {MobilePhoneNumber})";
         }
-        private static (bool isTestVersion, bool IsCodeVerified, CardlessCashoutOrder cardlessCashoutOrder) TestCardlessCashoutCodeForTestEnvironment(string cardlessCashOutCode)
+        private static (bool isTestVersion, bool IsCodeVerified, CardlessCashoutOrder cardlessCashoutOrder) TestCardlessCashoutCodeForTestEnvironmentNCR(string cardlessCashOutCode)
         {
             bool IsCodeVerified = false;
             CardlessCashoutOrder cardlessCashoutOrder = new CardlessCashoutOrder();
             bool isTestVersion = bool.Parse(WebConfigurationManager.AppSettings["TestVersion"].ToString());
             if (!isTestVersion)
             {
-                return (isTestVersion : false, IsCodeVerified, cardlessCashoutOrder);
+                return (isTestVersion: false, IsCodeVerified, cardlessCashoutOrder);
             }
 
             switch (cardlessCashOutCode)
@@ -368,7 +371,7 @@ namespace ExternalBanking
         public static (bool IsCodeVerified, CardlessCashoutOrder cardlessCashoutOrder) GetCardlessCashoutOrderWithVerificationForNCR(string otp)
         {
             //TODO Remove next 3 lines after going to production
-            (bool isTestVersion, bool IsTestCodeVerified, CardlessCashoutOrder cardlessCashoutTestOrder) = TestCardlessCashoutCodeForTestEnvironment(otp);
+            (bool isTestVersion, bool IsTestCodeVerified, CardlessCashoutOrder cardlessCashoutTestOrder) = TestCardlessCashoutCodeForTestEnvironmentNCR(otp);
             if (isTestVersion)
             {
                 return (IsTestCodeVerified, cardlessCashoutTestOrder);
@@ -377,7 +380,7 @@ namespace ExternalBanking
             CardlessCashoutOrder cardLessCashOutOrder = new CardlessCashoutOrder();
             bool IsCodeVerified = CardlessCashoutOrderDB.IsCardlessCashCodeCorrect(otp);
             if (IsCodeVerified)
-            {           
+            {
                 cardLessCashOutOrder = CardlessCashoutOrderDB.GetCardlessCashoutOrderForAtmView(otp);
                 SendAtmOtpWithSms(cardLessCashOutOrder);
             }
@@ -402,9 +405,15 @@ namespace ExternalBanking
             SmsHelper.SendSms(phoneNumber, CustomerNumber, message, 88, 42);
         }
 
+        public static bool IsCardlessCashCodeCorrect(string cardlessCashoutCode)
+        {
+            return CardlessCashoutOrderDB.IsCardlessCashCodeCorrect(cardlessCashoutCode);
+        }
+
         public static void WriteCardlessCashoutLog(ulong docID, bool isOk, string msgArm, string msgEng, string AtmId, byte step)
         {
             CardlessCashoutOrderDB.WriteCardlessCashoutLog(docID, isOk, msgArm, msgEng, AtmId, step);
         }
+
     }
 }

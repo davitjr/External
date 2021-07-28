@@ -99,6 +99,7 @@ namespace ExternalBanking
         public string ARUSErrorMessage { get; set; }
 
 
+
         /// <summary>
         /// Արագ Դրամական Համակարգերով ստացված/ուղարկված փոխանցման տվյալների փոփոխման հայտի պահպանում
         /// </summary>

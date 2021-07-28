@@ -19,6 +19,7 @@ namespace ExternalBanking.DBManager
         {
             string account = "";
 
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();

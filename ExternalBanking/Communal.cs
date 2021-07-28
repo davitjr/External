@@ -150,7 +150,5 @@ namespace ExternalBanking
         {
             return CommunalDB.GetCommunalDescriptionByType(type, lang);
         }
-
-
     }
 }

@@ -146,6 +146,12 @@ namespace ExternalBanking
             if (this.Source == SourceType.Bank)
             {
                 this.UserId = user.userID;
+                byte customerType = Customer.GetCustomerType(CustomerNumber);
+                if (customerType == 6)
+                {
+                    Customer customer = new Customer(user, CustomerNumber, Languages.hy);
+                    this.MotherName = customer.GetPasswordForCustomerDataOrder();
+                }
             }
 
             if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
@@ -416,6 +422,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
+            byte customerType = Customer.GetCustomerType(CustomerNumber);
 
             if (this.PlasticCard.CardType == 0)
             { //Քարտի տեակը ընտրված չէ:
@@ -483,7 +490,8 @@ namespace ExternalBanking
                     this.PlasticCard.FilialCode = mainplasticCard.FilialCode;
                 }
             }
-            if (this.PlasticCard.SupplementaryType != SupplementaryType.Attached)
+            
+            if (this.PlasticCard.SupplementaryType != SupplementaryType.Attached && customerType != 6)
             {
                 if (this.MotherName.Length > 24)
                 { // Մայրանուն դաշտի նիշերի քանակը գերազանցում է թույլատրելի 24 նիշը:
@@ -494,7 +502,7 @@ namespace ExternalBanking
                     result.Errors.Add(new ActionError(1581));
                 }
             }
-
+            
             int productType = Utility.GetCardProductType(this.PlasticCard.CardType);
 
             if (!Validation.CheckProductAvailabilityByCustomerCountry(customerNumber, productType))
@@ -836,6 +844,12 @@ namespace ExternalBanking
             {
                 //Հաճախորդն ունի սոցիալական ապահովության նշանակությամբ հաշիվ
                 result.Errors.Add(new ActionError(1881));
+            }
+
+            if (customerType == 6 && String.IsNullOrEmpty(this.MotherName) && this.Source == SourceType.Bank)
+            {
+                //Պահպանումը չհաջողվեց, SAP CRM ծրագրում հաճախորդի գաղտնաբառը բացակայում է:
+                result.Errors.Add(new ActionError(1978));
             }
 
             return result;

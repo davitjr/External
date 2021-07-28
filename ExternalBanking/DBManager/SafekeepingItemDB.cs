@@ -24,7 +24,8 @@ namespace ExternalBanking.DBManager
                                                             packet_number,
                                                             quality,
                                                             closing_date,
-                                                            customer_number
+                                                            customer_number,
+                                                            filialcode
                                                             FROM
                                                             Tbl_gold_list
                                                             WHERE quality=1 and  customer_number=@customer_number
@@ -41,9 +42,12 @@ namespace ExternalBanking.DBManager
 
                 if (dt.Rows.Count > 0)
                 {
-                    DataRow row = dt.Rows[0];
-                    SafekeepingItem item = SetSafekeepingItem(row);
-                    items.Add(item);
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        SafekeepingItem item = SetSafekeepingItem(row);
+                        items.Add(item);
+                    }
+
                 }
 
             }
@@ -74,6 +78,9 @@ namespace ExternalBanking.DBManager
             if (row["quality"] != DBNull.Value)
                 item.Quality = Convert.ToUInt16(row["quality"]);
 
+            if (row["filialcode"] != DBNull.Value)
+                item.FilialCode = Convert.ToInt32(row["filialcode"]);
+
             return item;
         }
 
@@ -92,7 +99,8 @@ namespace ExternalBanking.DBManager
                                                             packet_number,
                                                             quality,
                                                             closing_date,
-                                                            customer_number
+                                                            customer_number,
+                                                            filialcode
                                                             FROM
                                                             Tbl_gold_list
                                                             WHERE quality=0 and  customer_number=@customer_number
@@ -109,9 +117,12 @@ namespace ExternalBanking.DBManager
 
                 if (dt.Rows.Count > 0)
                 {
-                    DataRow row = dt.Rows[0];
-                    SafekeepingItem item = SetSafekeepingItem(row);
-                    items.Add(item);
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        SafekeepingItem item = SetSafekeepingItem(row);
+                        items.Add(item);
+                    }
+
                 }
 
             }
@@ -135,7 +146,8 @@ namespace ExternalBanking.DBManager
                                                             packet_number,
                                                             quality,
                                                             closing_date,
-                                                            customer_number
+                                                            customer_number,
+                                                            filialcode
                                                             FROM
                                                             Tbl_gold_list
                                                             WHERE  customer_number=@customer_number AND key_num=@product_id

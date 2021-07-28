@@ -4868,19 +4868,13 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        public List<string> GetCardMobilePhones(ulong customerNumber, ulong curdNumber)
+        public List<Tuple<string,bool>> GetCardMobilePhones(ulong customerNumber, ulong curdNumber)
         {
             try
             {
-                List<string> list = new List<string>();
-                DataTable dt = PlasticCardSMSServiceOrder.GetCardMobilePhones(customerNumber, curdNumber);
+                return PlasticCardSMSServiceOrder.GetCardMobilePhones(customerNumber, curdNumber);
 
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    list.Add(dt.Rows[i]["phone"].ToString());
-
-                }
-                return list;
+        
             }
             catch (Exception ex)
             {
@@ -4902,6 +4896,19 @@ namespace ExternalBankingService
             }
         }
 
+        public string GetCustomerEmailByCardNumber(string cardNumber)
+        {
+            try
+            {
+                return Card.GetCustomerEmailByCardNumber(cardNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        
 
         public string SMSTypeAndValue(string curdNumber)
         {

@@ -12,6 +12,11 @@ namespace ExternalBanking
         public string RecipientPrimaryAccountNumber { get; set; }
 
         /// <summary>
+        /// CardHolder Full Name
+        /// </summary>
+        public string RecipientFullName { get; set; }
+        
+        /// <summary>
         /// Visa Alias(հեռախոսահամար)
         /// </summary>
         public string Alias { get; set; }
@@ -136,11 +141,9 @@ namespace ExternalBanking
         {
             VisaAliasDB.Get(this);
         }
-
         public CardHolderAndCardType GetCardTypeAndCardHolder(string cardNumber)
         {
             return VisaAliasDB.GetCardTypeAndCardHolder(cardNumber);
         }
-
     }
 }

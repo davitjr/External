@@ -984,7 +984,7 @@ namespace ExternalBanking
         /// <summary>
         /// Կցված Քարտից քարտ փոխանցման հայտ
         /// </summary>
-        AttachedCardToCardOrder = 235,        
+        AttachedCardToCardOrder = 235,
 
         /// <summary>
         /// Վարկի տոկոսագումարի զիջման հայտ
@@ -1005,11 +1005,23 @@ namespace ExternalBanking
         /// SberBank փոխանցման հայտ
         /// </summary>
         SberBankTransferOrder = 239,
-    
+
+        /// <summary>
+        /// Նախընտրելի հաշվի ակտիվացում
+        /// </summary>
+        PreferredAccountActivationOrder = 240,
+
+        /// <summary>
+        /// Նախընտրելի հաշվի ապաակտիվացում
+        /// </summary>
+        PreferredAccountDeactivationOrder = 241,
+
+
         /// <summary>
         /// Քարտի վերաթողարկման հայտ
         /// </summary>
         LinkPaymentOrder = 242,
+
 
         /// <summary>
         /// Քարտի վերաթողարկման հայտ
@@ -1035,11 +1047,11 @@ namespace ExternalBanking
         /// Bill Split Հիշեցման ուղարկում
         /// </summary>
         BillSplitReminder = 247,
+
         /// <summary>
         /// Ավանդի գրավով սպառողական վարկի հեռացում
         /// </summary>
-        DeleteLoanOrder = 248,
-
+        DeleteLoanOrder = 248,   
         /// <summary>
         /// Հաշվի հեռացում
         /// </summary>
@@ -1047,9 +1059,22 @@ namespace ExternalBanking
         /// <summary>
         /// Visa Alias հայտեր
         /// </summary>
-        VisaAlias = 250
-    }
+        VisaAlias = 250,
+        /// <summary>
+        /// Երրորդ անձի իրավունքի փոխանցման
+        /// </summary>
+        ThirdPersonAccountRightsTransfer = 251,        
 
+        /// <summary>
+        /// Լիզինգի մարում
+        /// </summary>
+        LeasingPaymentOrder = 252,       
+
+        /// <summary>
+        /// MR ծառայության տվյալների խմբագրման հայտ
+        /// </summary>
+        MRDataChangeOrder = 253
+    }
 
     /// <summary>
     /// Հանձնարարականի համար նախատեսված հաշիվների տեսակներ
@@ -2794,6 +2819,46 @@ namespace ExternalBanking
 
     }
 
+    public enum MRStatus : short
+    {
+        /// <summary>
+        /// Չվերագրված
+        /// </summary>
+        NotFound = 0,
+
+        /// <summary>
+        /// Նոր գրանցված
+        /// </summary>
+        NORM,
+
+        /// <summary>
+        /// Սպ. վարձը գանձված
+        /// </summary>
+        ACTIVE,
+
+        /// <summary>
+        /// Ավարտված
+        /// </summary>
+        CLSB,
+
+        /// <summary>
+        /// Փակված
+        /// </summary>
+        EXP,
+
+        /// <summary>
+        /// Վերաթողարկված
+        /// </summary>
+        RNEW,
+
+        /// <summary>
+        /// Հեռացված
+        /// </summary>
+        DELETED
+
+    }
+
+
 }
 
 
@@ -3290,6 +3355,5 @@ public enum LinkPaymentSourceType : byte
     /// </summary>
     FromBillSplit
 }
-
 
 

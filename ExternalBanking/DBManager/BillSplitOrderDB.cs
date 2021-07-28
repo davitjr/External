@@ -327,6 +327,9 @@ namespace ExternalBanking.DBManager
                         if (row["link_payment_doc_id"] != DBNull.Value)
                             sender.LinkPaymnentOrderId = Convert.ToUInt32(row["link_payment_doc_id"]);
                         sender.Status = Convert.ToInt16((row["status"]));
+                        if (row["full_name"] != DBNull.Value)
+                            sender.FullName = row["full_name"].ToString();
+
 
                         if (sender.Status == 0)
                         {
@@ -493,7 +496,7 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
 
 
-                    cmd.CommandText = @"select D.[description], d.amount, d.currency, d.registration_date, s.[status], s.id, D.receiver_name, D.credit_account, D.credit_bank_code
+                    cmd.CommandText = @"select D.[description], S.amount, d.currency, d.registration_date, s.[status], s.id, D.receiver_name, D.credit_account, D.credit_bank_code
 											from Tbl_BIll_split_senders S inner join TBl_HB_Documents D on S.doc_id = D.doc_id
 											where S.customer_number = @customer_number and status in (0,1) and D.quality in (3,30)";
 

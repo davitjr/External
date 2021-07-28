@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using static ExternalBanking.ReceivedBillSplitRequest;
 
 namespace ExternalBanking
 {
@@ -71,7 +72,7 @@ namespace ExternalBanking
 
                 if (Senders.Where(x => x.IsLinkPayment).ToList().Count > 0)
                 {
-                   
+
                     ActionResult resultLinkPaymnet = new ActionResult();
 
                     foreach (BillSplitSenderInfo sender in Senders.Where(x => x.IsLinkPayment).ToList())
@@ -312,9 +313,10 @@ namespace ExternalBanking
         /// <param name="userName"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public ContentResult<string> Approve(short schemaType, string userName, ACBAServiceReference.User user)
+        public ContentResult<List<BillSplitLinkResult>> Approve(short schemaType, string userName, ACBAServiceReference.User user)
         {
-            ContentResult<string> result = new ContentResult<string>();
+            ContentResult<List<BillSplitLinkResult>> result = new ContentResult<List<BillSplitLinkResult>>();
+            result.Content = new List<BillSplitLinkResult>();
             ActionResult validationResult = ValidateForSend(user);
             result.Errors = validationResult.Errors;
             result.ResultCode = validationResult.ResultCode;
@@ -328,60 +330,63 @@ namespace ExternalBanking
                     List<BillSplitSenderInfo> billSplitSenders = Senders.Where(x => x.IsLinkPayment).ToList();
 
 
-                if (billSplitSenders.Count > 0)
-                {
-                    result.Content = "";
-                    LinkPaymentOrder linkPaymentOrder = new LinkPaymentOrder();
-                    foreach (BillSplitSenderInfo sender in billSplitSenders)
+                    if (billSplitSenders.Count > 0)
                     {
-
-                        linkPaymentOrder.Id = sender.LinkPaymnentOrderId;
-                        linkPaymentOrder = LinkPaymentOrder.Get(linkPaymentOrder.Id);
-                        linkPaymentOrder.user = user;
-                        linkPaymentOrder.user.userName = userName;
-                        linkPaymentOrder.OperationDate = OperationDate;
-                        linkPaymentOrder.CustomerNumber = this.CustomerNumber;
-                        linkPaymentOrder.Source = Source;
-
-                        ContentResult<string> linkPaymentResult = linkPaymentOrder.Approve(schemaType, userName, user);
-
-                        if (linkPaymentResult.ResultCode != ResultCode.Normal)
+                        LinkPaymentOrder linkPaymentOrder = new LinkPaymentOrder();
+                        foreach (BillSplitSenderInfo sender in billSplitSenders)
                         {
 
-                            result.ResultCode = linkPaymentResult.ResultCode;
-                            result.Errors = linkPaymentResult.Errors;
-                            Transaction currentTransaction = Transaction.Current;
-                            currentTransaction.Rollback();
-                            return result;
-                        }
-                        else
-                        {
-                            result.Content += (String.IsNullOrEmpty(sender.PhoneNumber) ? (String.IsNullOrEmpty(sender.EmailAddress)? "" : sender.EmailAddress) : sender.PhoneNumber) + linkPaymentResult.Content + Environment.NewLine;
-                        }
+                            linkPaymentOrder.Id = sender.LinkPaymnentOrderId;
+                            linkPaymentOrder = LinkPaymentOrder.Get(linkPaymentOrder.Id);
+                            linkPaymentOrder.user = user;
+                            linkPaymentOrder.user.userName = userName;
+                            linkPaymentOrder.OperationDate = OperationDate;
+                            linkPaymentOrder.CustomerNumber = this.CustomerNumber;
+                            linkPaymentOrder.Source = Source;
 
+                            ContentResult<string> linkPaymentResult = linkPaymentOrder.Approve(schemaType, userName, user);
+
+                            if (linkPaymentResult.ResultCode != ResultCode.Normal)
+                            {
+
+                                result.ResultCode = linkPaymentResult.ResultCode;
+                                result.Errors = linkPaymentResult.Errors;
+                                Transaction currentTransaction = Transaction.Current;
+                                currentTransaction.Rollback();
+                                return result;
+                            }
+                            else
+                            {
+                                BillSplitLinkResult billSplitLinkResult = new BillSplitLinkResult();
+                                billSplitLinkResult.Email = sender.EmailAddress;
+                                billSplitLinkResult.PhoneNumber = sender.PhoneNumber;
+                                billSplitLinkResult.Link = linkPaymentResult.Content;
+                                result.Content.Add(billSplitLinkResult);
+                            }
+
+                        }
+                    }
+
+                    BillSplitOrderDB.SendBillSplitSendersNotifications(this.Id);
+
+                    ActionResult actionResult = base.Approve(schemaType, userName);
+
+
+                    if (actionResult.ResultCode == ResultCode.Normal)
+                    {
+                        result.ResultCode = ResultCode.Normal;
+                        Quality = OrderQuality.Sent3;
+                        base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
+                        base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
+                        LogOrderChange(user, Action.Update);
+                        scope.Complete();
+                    }
+                    else
+                    {
+                        result.ResultCode = ResultCode.Failed;
+                        return result;
                     }
                 }
-
-                BillSplitOrderDB.SendBillSplitSendersNotifications(this.Id);
-
-                ActionResult actionResult = base.Approve(schemaType, userName);
-
-
-                if (actionResult.ResultCode == ResultCode.Normal)
-                {
-                    result.ResultCode = ResultCode.Normal;
-                    Quality = OrderQuality.Sent3;
-                    base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
-                    base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
-                    LogOrderChange(user, Action.Update);
-                    scope.Complete();
-                }
-                else
-                {
-                    result.ResultCode = ResultCode.Failed;
-                    return result;
-                }
-            }
             }
 
             return result;
@@ -620,5 +625,13 @@ namespace ExternalBanking
         {
             return BillSplitOrderDB.GetReceivedBillSplitRequest(billSplitSenderId);
         }
+    }
+
+    public class BillSplitLinkResult
+    {
+        public string Link { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
+
     }
 }

@@ -34,16 +34,16 @@ namespace ExternalBanking.DBManager
                     status.StatusDateTime = Convert.ToDateTime(dr["change_date"]);
                     if (quality == 30)
                     {
-                        status.StatusCode = 0;
+                        status.StatusCode = 1;
                     }
                     else
                     {
-                        status.StatusCode = 1;
+                        status.StatusCode = 2;
                     }
                 }
                 else
                 {
-                    status.StatusCode = 2;
+                    status.StatusCode = 6;
                 }
 
             }
@@ -104,12 +104,13 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT hb.quality,hq.change_date FROM Tbl_HB_documents hb
+                SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 hb.quality,hq.change_date ,hb.Doc_ID FROM Tbl_HB_documents hb
                                                     INNER JOIN tbl_payment_registration_request_details dt
                                                     ON hb.doc_ID=dt.doc_ID
 													INNER JOIN Tbl_HB_quality_history hq
-													on hq.quality=hb.quality and hq.Doc_ID=hb.doc_ID
-                                                    WHERE dt.order_id=@orderId", conn);
+													ON hq.quality=hb.quality and hq.Doc_ID=hb.doc_ID
+                                                    WHERE dt.order_id=@orderId
+                                                    ORDER BY doc_id DESC", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@orderId", SqlDbType.Float).Value = orderID;
 
@@ -119,18 +120,22 @@ namespace ExternalBanking.DBManager
                 {
                     ushort quality = Convert.ToUInt16(dr["quality"]);
                     status.StatusDateTime = Convert.ToDateTime(dr["change_date"]);
+                    status.PaymentID = Convert.ToInt32(dr["Doc_ID"]);
+
                     if (quality == 30)
                     {
-                        status.StatusCode = 0;
+                        status.StatusCode = 1;
                     }
                     else
                     {
-                        status.StatusCode = 1;
+                        status.StatusCode = 2;
                     }
                 }
                 else
                 {
-                    status.StatusCode = 2;
+                    status.StatusCode = 6;
+                    status.PaymentID = 0;
+                    status.StatusDateTime = DateTime.Now;
                 }
 
             }

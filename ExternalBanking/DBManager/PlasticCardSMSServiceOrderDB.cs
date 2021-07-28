@@ -305,19 +305,20 @@ namespace ExternalBanking.DBManager
 
 
 
-        public static DataTable GetCardMobilePhones(ulong customerNumber, ulong cardNumber)
+        public static List<Tuple<string, bool>> GetCardMobilePhones(ulong customerNumber, ulong cardNumber)
         {
             int type_of_client = GetTypeOfClient(customerNumber);
-            DataTable dt = new DataTable();
+            List<Tuple<string, bool>> list = null;
             string sqltext = string.Empty;
-            ulong mainCustomerNumber = 0;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
 
                 if (type_of_client == 6)
                 {
-                    sqltext = @"select distinct(substring(countryCode,2,3)+areaCode+phoneNumber) as phone from [Tbl_Customers] C 
+                    sqltext = @"select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                from [Tbl_Customers] C 
                                 join Tbl_Customer_Phones cp on c.identityId=cp.identityId and phoneType=1 and priority=1 join  Tbl_Phones p on cp.phoneid=p.id
                                 where customer_number=@customer_number or customer_number in(select b.customer_number from Tbl_VISA_applications a 
                                 left join [Tbl_SupplementaryCards] b on a.app_id=b.app_id
@@ -326,54 +327,71 @@ namespace ExternalBanking.DBManager
                 }
                 else
                 {
-                    type_of_client = -1;
-                    mainCustomerNumber = GetMainCustomerNumber(customerNumber, cardNumber);
-                    if (mainCustomerNumber != 0)
-                    {
-                        type_of_client = GetTypeOfClient(mainCustomerNumber);
-                    }
-                    if (type_of_client != 6)
-                    {
-                        sqltext = @"select distinct(substring(countryCode,2,3)+areaCode+phoneNumber) as phone from [Tbl_Customers] C 
-                                   join Tbl_Customer_Phones cp on c.identityId = cp.identityId and phoneType=1 and priority=1 
-                                   join Tbl_Phones p on cp.phoneid = p.id
-                                   where customer_number in(
-                                   select distinct clp.lpcustomer_number from Tbl_Customers c
-                                   join Tbl_Customers_Link_Persons clp
-                                   on    c.customer_number = clp.customer_number
-                                   where c.customer_number = @customer_number and quality = 1 and clp.type in(1, 4,8)								   
-								   ) ";
-                    }
-                    else
-                    {
-                        sqltext = @"select distinct(substring(countryCode,2,3)+areaCode+phoneNumber) as phone from [Tbl_Customers] C 
-                                   join Tbl_Customer_Phones cp on c.identityId = cp.identityId and phoneType=1 and priority=1
-                                   join Tbl_Phones p on cp.phoneid = p.id
-                                   where customer_number=@mainCustomerNumber or customer_number in
-                                   (select distinct clp.lpcustomer_number from Tbl_Customers c
-                                   join Tbl_Customers_Link_Persons clp
-                                   on    c.customer_number = clp.customer_number
-                                   where c.customer_number = @customer_number and quality = 1 and clp.type in(1, 4,8))";
-                    }
-
+                    sqltext = @"select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                    as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                    from [Tbl_Customers] C 
+                                    join Tbl_Customer_Phones cp on c.identityId = cp.identityId and phoneType=1 and priority=1 
+                                    join Tbl_Phones p on cp.phoneid = p.id
+                                    where customer_number in( select customer_number from Tbl_Customers
+                                    where customer_number in(
+                                    select distinct clp.lpcustomer_number from Tbl_Customers c
+                                    join Tbl_Customers_Link_Persons clp
+                                    on    c.customer_number = clp.customer_number
+                                    where c.customer_number = @customer_number and quality = 1 and clp.type in(1, 4,8) )
+                                    and type_of_client=6  )
+	                                 UNION 
+                                    select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                                        as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                    from tbl_Phones e
+                                    join Tbl_Customer_Phones ce on e.id=ce.phoneId
+                                    join Tbl_Customers c on ce.identityId=c.identityId
+                                    where customer_number=(	SELECT  distinct case when   b.customer_number is null then a.Customer_Number else b.customer_number end
+                                    FROM      Tbl_VISA_applications a
+                                    LEFT JOIN [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id	
+                                    where cardnumber=@cardNumber ) and priority=1 and phoneType=1
+                                    UNION 
+                                    select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                                        as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                    from tbl_Phones e
+                                    join Tbl_Customer_Phones ce on e.id=ce.phoneId
+                                    join Tbl_Customers c on ce.identityId=c.identityId
+                                    where customer_number=(	SELECT  distinct case when   b.customer_number is null then a.Customer_Number else b.customer_number end
+                                    FROM      Tbl_VISA_applications a
+                                    LEFT JOIN [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id	
+                                    where cardnumber=(select distinct maincardnumber                          from Tbl_VISA_applications 
+                                    where cardnumber=@cardNumber) ) and priority=1 and phoneType=1";
                 }
+
 
 
                 using (SqlCommand cmd = new SqlCommand(sqltext, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customer_number", SqlDbType.NVarChar, 20).Value = customerNumber;
-                    cmd.Parameters.Add("@mainCustomerNumber", SqlDbType.NVarChar, 20).Value = mainCustomerNumber;
                     cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        dt.Load(dr);
+                        if (dr.HasRows)
+                        {
+                            list = new List<Tuple<string, bool>>();
+                            while (dr.Read())
+                            {
+                                Tuple<string, bool> tuple = new Tuple<string, bool>(dr["phone"].ToString(), Convert.ToBoolean(dr["isArmenia"]));
+
+                                if (!list.Exists(x => x.Item1 == tuple.Item1))
+                                {
+                                    list.Add(tuple);
+
+                                }
+                            }
+                        }
                     }
                 }
             }
-            return dt;
+            return list;
         }
+
 
         private static int GetTypeOfClient(ulong customerNumber)
         {
@@ -393,29 +411,6 @@ namespace ExternalBanking.DBManager
                 }
             }
             return type;
-        }
-
-        private static ulong GetMainCustomerNumber(ulong customerNumber, ulong cardNumber)
-        {
-            ulong mainCardCustomerNumber = 0;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
-
-                string sqltext = @"select b.customer_number
-                                   from Tbl_VISA_applications a left join [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id
-                                   where a.customer_number=@customer_number and CardStatus='NORM'  and cardnumber=@cardNumber 
-                                   and Cardnumber<>Maincardnumber 
-                                   and a.customer_number<> b.customer_number";
-                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.NVarChar, 20).Value = customerNumber;
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
-                    mainCardCustomerNumber = Convert.ToUInt64(cmd.ExecuteScalar());
-                }
-            }
-            return mainCardCustomerNumber;
         }
 
 
@@ -466,22 +461,24 @@ namespace ExternalBanking.DBManager
 
         public static string GetCurrentPhone(ulong cardNumber)
         {
-            string currentPhone = null;
+            //string currentPhone = null;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
 
-                string sqltext = @"select top 1 MOBILE_HOME  from Tbl_VISA_applications
+                string sqltext = @"select top 1 ISNULL(MOBILE_HOME,'')  from Tbl_VISA_applications
 								   where Cardnumber=@cardNumber  
 								   order by GivenDate desc  ";
                 using (SqlCommand cmd = new SqlCommand(sqltext, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
-                    currentPhone = (cmd.ExecuteScalar()) == DBNull.Value ? null : (cmd.ExecuteScalar()).ToString();//  Convert.ToUInt64(cmd.ExecuteScalar());
+                    //currentPhone = (cmd.ExecuteScalar()) == DBNull.Value ? null : (cmd.ExecuteScalar()).ToString();//  Convert.ToUInt64(cmd.ExecuteScalar());
+                    var currentPhone = cmd.ExecuteScalar();
+                    return currentPhone == null ? null : (currentPhone.ToString().Substring(0, 2) == "00" ? currentPhone.ToString().Substring(2, currentPhone.ToString().Length - 2) : currentPhone.ToString());
                 }
             }
-            return currentPhone;
+            //return currentPhone;
         }
         public static void GetResponseCodeAndLastActionFromCardSms(ulong productId, out int responseCode, out int lastAction)
         {
@@ -567,6 +564,7 @@ namespace ExternalBanking.DBManager
             }
 
         }
+
     }
 }
 

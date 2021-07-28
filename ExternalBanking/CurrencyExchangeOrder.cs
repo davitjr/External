@@ -358,6 +358,22 @@ namespace ExternalBanking
             result = base.Validate(user);
             if (result.Errors.Count == 0)
             {
+                if ((this.ReceiverAccount?.AccountType == 118 && this.DebitAccount?.AccountNumber != "220004130948000") ||
+                (this.ReceiverAccount?.AccountType == 119 && this.Type != OrderType.CashDebitConvertation && this.Type != OrderType.InBankConvertation && this.Type != OrderType.Convertation))
+                {
+                    //Նշված հաշվին մուտքերն արգելված են
+                    result.Errors.Add(new ActionError(1891));
+                    return result;
+                }
+
+                if (this.DebitAccount?.AccountType == 119 && this.Type != OrderType.CashDebitConvertation && this.Type != OrderType.InBankConvertation && this.Type != OrderType.Convertation)
+                {
+                    //Նշված հաշվից ելքերն արգելված են
+                    result.Errors.Add(new ActionError(1966));
+                    return result;
+                }
+
+
                 if (this.RoundingDirection == ExchangeRoundingDirectionType.ToCurrency)
                 {
                     if (this.Source == SourceType.SSTerminal || this.Source == SourceType.CashInTerminal) 
