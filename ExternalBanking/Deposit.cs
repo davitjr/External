@@ -235,6 +235,13 @@ namespace ExternalBanking
         /// Պրոդուկտի նշում
         /// </summary>
         public ProductNote ProductNote { get; set; }
+        
+        /// <summary>
+        /// Սակագնից շեղում առկա է, թե ոչ
+        /// </summary>
+        public byte? IsVariation { get; set; }
+
+
 
         public Deposit()
         {

@@ -5412,5 +5412,56 @@ namespace ExternalBanking
             return reasonTypes;
         }
 
+
+        /// <summary>
+        /// Վերադարձնում է հօգուտ 3-րդ անձի հաշիվները
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetThirdPersonAccounts(ulong customerNumber)
+        {
+            DataTable dt = InfoDB.GetThirdPersonAccounts(customerNumber);
+            return dt;
+        }
+
+        /// <summary>
+        /// Վերադարձնում է նոր ավանդի հայտի ժամանակ առաջարկվող ավանդատեսակները DIgital-ի համար
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetActiveDepositTypesForNewDepositOrderForDigitalBanking(short allowableCustomerType, short allowableForThirdhPerson, short allowableForCooperative)
+        {
+            DataTable dt = InfoDB.GetActiveDepositTypesForNewDepositOrderForDigitalBanking(allowableCustomerType, allowableForThirdhPerson, allowableForCooperative);
+            return dt;
+        }
+
+        /// <summary>
+        /// Դիջիթալից մուտքագրվող հօգուտ 3-րդ անձի ավանդի համար վերադարձնում է հասանելի արժույթները։
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetJointDepositAvailableCurrency(ulong customerNumber)
+        {
+            DataTable dt = InfoDB.GetJointDepositAvailableCurrency(customerNumber);
+            return dt;
+        }
+
+        /// <summary>
+        /// Վերադարձնում է միջնորդավճարի չգանձման պատճառը
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetCommissionNonCollectionReasons()
+        {
+
+            string cacheKey = "Info_CommissionNonCollectionReasons";
+
+            DataTable dt = CacheHelper.Get(cacheKey);
+
+            if (dt == null)
+            {
+                dt = InfoDB.GetCommissionNonCollectionReasons();
+                CacheHelper.Add(dt, cacheKey);
+            }
+
+            return dt;
+        }
+
     }
 }

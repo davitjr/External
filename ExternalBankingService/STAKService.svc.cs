@@ -175,6 +175,7 @@ namespace ExternalBankingService
 
             customer.User = User;
             customer.Source = Source;
+            customer.Culture = new Culture(Language);
 
             return customer;
         }

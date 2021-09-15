@@ -1158,5 +1158,14 @@ namespace ExternalBanking
         {
             return AccountDB.GetCheckCustomerIsThirdPerson(accountNumber, customerNumber);
         }
+
+        /// <summary>
+        /// Վերադարձնում է հաճախորդի տվյալ առժույթով փակված ընթացիկ հաշիվները
+        /// </summary>
+        /// <param name="customerNumber"></param>
+        /// <param name="currency"></param>
+        /// <returns></returns>
+        internal static string GetClosingCurrentAccountsNumber(ulong customerNumber, string currency) => AccountDB.GetClosingCurrentAccountsNumber(customerNumber, currency);
+
     }
 }

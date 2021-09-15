@@ -372,10 +372,6 @@ namespace ExternalBanking
             {
 
                 result = PaymentOrderDB.Save(this, userName, source);
-                if (this.AdditionalParametrs != null && this.AdditionalParametrs.Exists(m => m.AdditionValue == "LeasingAccount"))
-                {
-                    LeasingDB.SaveLeasingPaymentOrderDetails(this);
-                }
 
                 ActionResult resultOrderFee = SaveOrderFee();
                 ActionResult resultOpPerson = base.SaveOrderOPPerson();
@@ -2297,6 +2293,9 @@ namespace ExternalBanking
                 {
                     result = PaymentOrderDB.Save(this, userName, source);
 
+                    if (result.ResultCode == ResultCode.ValidationError)
+                        return result;
+                   
                     if (this.AdditionalParametrs != null && this.AdditionalParametrs.Exists(m => m.AdditionValue == "LeasingAccount"))
                     {
                         LeasingDB.SaveLeasingPaymentDetails(this);

@@ -45,10 +45,11 @@ namespace ExternalBanking
         /// <summary>
         /// Լրացնում է հայտի ավտոմատ լրացվող դաշտերը
         /// </summary>
-        private void Complete()
+        private OrderType Complete()
         {
             this.RegistrationDate = DateTime.Now.Date;
             this.OperationDate = Utility.GetCurrentOperDay();
+            OrderType removableOrderType = OrderType.NotDefined;
 
             this.SubType = 1;
             if (this.OrderNumber == null || this.OrderNumber == "")
@@ -60,9 +61,9 @@ namespace ExternalBanking
             if (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)
             {
                 OrderQuality removableOrderQuality = Order.GetOrderQualityByDocID(this.RemovingOrderId);
-                OrderType removeOrderType = GetOrderType(this.RemovingOrderId);
+                removableOrderType = GetOrderType(this.RemovingOrderId);
 
-                if (removableOrderQuality == OrderQuality.Sent3 || removeOrderType == OrderType.LinkPaymentOrder)
+                if (removableOrderQuality == OrderQuality.Sent3 || removableOrderType == OrderType.LinkPaymentOrder)
                 {
                     Type = OrderType.CancelTransaction;
                 }
@@ -71,6 +72,8 @@ namespace ExternalBanking
                     Type = OrderType.RemoveTransaction;
                 }
             }
+
+            return removableOrderType;
 
         }
         
@@ -84,7 +87,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
-            this.Complete();
+            OrderType removableOrderType = this.Complete();
             ActionResult result = this.Validate(user.filialCode);
 
             List<ActionError> warnings = new List<ActionError>();
@@ -130,8 +133,14 @@ namespace ExternalBanking
                     scope.Complete();
                 }
             }
-           
-            result = base.Confirm(user);
+
+            ConfirmationSourceType confirmationSourceType = ConfirmationSourceType.None;
+            if (removableOrderType == OrderType.LinkPaymentOrder && (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking))
+            {
+                confirmationSourceType = ConfirmationSourceType.FromACBADigital;
+            }
+
+            result = base.Confirm(user, confirmationSourceType);
             
 
             return result;

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ExternalBanking.Leasing;
 
 namespace ExternalBanking
 {
@@ -60,49 +59,6 @@ namespace ExternalBanking
         {
             return LeasingDB.GetPartlyMatureAmount(contractNumber);
         }
-        public static List<CustomerLeasingLoans> GetHBLeasingLoans(ulong customerNumber)
-        {
-            return LeasingDB.GetHBLeasingLoans(customerNumber);
-        }
 
-        public static LeasingLoanDetails GetHBLeasingLoanDetails(ulong productId)
-        {
-            return LeasingDB.GetHBLeasingLoanDetails(productId);
-        }
-
-        public static List<LeasingLoanRepayments> GetHBLeasingLoanRepayments(ulong productId)
-        {
-            return LeasingDB.GetHBLeasingLoanRepayments(productId);
-        }
-
-        public static List<LeasingLoanStatements> GetHBLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0)
-        {
-            return LeasingDB.GetHBLeasingLoanStatements(productId, dateFrom, dateTo, minAmount, maxAmount, pageNumber, pageRowCount, orderByAscDesc);
-        }
-
-        public static List<AdditionalDetails> GetHBLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0)
-        {
-            return LeasingDB.GetHBLeasingDetailsByAppID(productId, leasingInsuranceId);
-        }
-
-        public static List<LeasingPaymentsType> GetHBLeasingPaymentsType()
-        {
-            return LeasingDB.GetHBLeasingPaymentsType();
-        }
-
-        public static Account SetHBLeasingReceiver()
-        {
-            return LeasingDB.SetHBLeasingReceiver();
-        }
-
-        public static string GetHBLeasingPaymentDescription(short paymentType, short paymentSubType)
-        {
-            return LeasingDB.GetHBLeasingPaymentDescription(paymentType, paymentSubType);
-        }
-
-        public static LeasingLoanRepayments GetHBLeasingPaymentDetails(ulong productId)
-        {
-            return LeasingDB.GetHBLeasingPaymentDetails(productId);
-        }
     }
 }

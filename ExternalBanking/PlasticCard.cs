@@ -216,10 +216,31 @@ namespace ExternalBanking
         {
             return PlasticCardDB.GetPlasticCard(productId,productidType);
         }
+              
 
-        public static List<PlasticCard> GetCustomerMainCards(ulong customerNumber)
+        /// <summary>
+        /// վերադարձնում է պլաստիկ քարտը, որը դեռ գործող չէ, հաշիվներ կցված չեն
+        /// </summary>
+        /// <param name="cardNumber"></param>
+        /// <returns></returns>
+        public static PlasticCard GetPlasticCard(string cardNumber)
         {
-            return PlasticCardDB.GetCustomerMainCards(customerNumber);
+            return PlasticCardDB.GetPlasticCard(cardNumber);
+        }
+
+        /// <summary>
+        /// վերադարձնում է կից/լրացուցիչ քարտերը, որոնք դեռ գործող չեն, հաշիվներ կցված չեն
+        /// </summary>
+        /// <param name="mainCardNumber"></param>
+        /// <returns></returns>
+        public static List<PlasticCard> GetSupplementaryPlasticCards(string mainCardNumber)
+        {
+            return PlasticCardDB.GetSupplementaryPlasticCards(mainCardNumber);
+        }
+
+        public static List<PlasticCard> GetCustomerMainCards(ulong customerNumber, bool getNew = false)
+        {
+            return PlasticCardDB.GetCustomerMainCards(customerNumber, getNew:getNew);
         }
 
         public static List<PlasticCard> GetCustomerPlasticCards(ulong customerNumber)
@@ -227,6 +248,10 @@ namespace ExternalBanking
             return PlasticCardDB.GetCustomerMainCards(customerNumber, true);
         }
 
+        public static List<PlasticCard> GetCustomerCards(ulong customerNumber)
+        {
+            return PlasticCardDB.GetCustomerCards(customerNumber);
+        }
 
         public static ActionResult UpdateCardStatusWithoutOrder(ulong productId)
         {

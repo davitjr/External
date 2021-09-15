@@ -47,7 +47,6 @@ namespace ExternalBanking.DBManager
                         SafekeepingItem item = SetSafekeepingItem(row);
                         items.Add(item);
                     }
-
                 }
 
             }
@@ -122,7 +121,6 @@ namespace ExternalBanking.DBManager
                         SafekeepingItem item = SetSafekeepingItem(row);
                         items.Add(item);
                     }
-
                 }
 
             }

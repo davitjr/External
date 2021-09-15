@@ -3,6 +3,7 @@ using ExternalBankingService.Interfaces;
 using NLog;
 using NLog.Targets;
 using System;
+using System.Collections.Generic;
 using System.ServiceModel;
 using System.Text;
 using System.Web.Configuration;
@@ -182,6 +183,7 @@ namespace ExternalBankingService
 
                 CustomerServiceType = customerServiceType;
                 User = user;
+                User.AdvancedOptions = user.AdvancedOptions;
                 Source = source;
                 Language = language;
                 ClientIp = clientIp;
@@ -196,12 +198,12 @@ namespace ExternalBankingService
         }
 
 
-        public ActionResult SaveAndApproveArcaCardsTransactionOrder(ArcaCardsTransactionOrder order)
+        public ActionResult SaveAndApproveAutomateArcaCardsTransactionOrder(ArcaCardsTransactionOrder order)
         {
             try
             {
                 XBService service = new XBService(ClientIp, Language, AuthorizedCustomer, User, Source);
-                return service.SaveAndApproveArcaCardsTransactionOrder(order);
+                return service.SaveAndApproveAutomateArcaCardsTransactionOrder(order);
             }
             catch (Exception ex)
             {
@@ -209,6 +211,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
+
 
         public ActionResult SaveAndApproveCardRenew(CardRenewOrder order)// ExternalBanking.ACBAServiceReference.User user, string ipAddress, string sessionId
         {
@@ -237,11 +240,114 @@ namespace ExternalBankingService
             }
         }
 
+        public Card GetCardWithCardNumber(string cardNumber, ulong customerNumber)
+        {
+            try
+            {
+                return Card.GetCard(cardNumber, customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public PlasticCard GetPlasticCard(ulong productId)
+        {
+            try
+            {
+                return PlasticCard.GetPlasticCard(productId, true);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<Card> GetCards(ulong customerNumber, ProductQualityFilter filter, bool includingAttachedCards)
+        {
+            try
+            {
+                return Card.GetCards(customerNumber, filter, includingAttachedCards);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public List<PlasticCard> GetCustomerPlasticCards(ulong customerNumber)
+        {
+            try
+            {
+                return PlasticCard.GetCustomerCards(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
         public void SetUser(AuthorizedCustomer authorizedCustomer, byte language, string clientIp, ExternalBanking.ACBAServiceReference.User user, SourceType source)
         {
             XBService = new XBService(ClientIp, Language, authorizedCustomer, User, Source);
             XBService.Init(authorizedCustomer.SessionID, Language, clientIp, user, source);
             XBService.SetUser(authorizedCustomer, language, clientIp, user, source);
+        }
+
+        public List<AccountFreezeDetails> GetAccountFreezeHistory(string accountNumber, ushort freezeStatus, ushort reasonId)
+        {
+            try
+            {
+                return AccountFreezeDetails.GetAccountFreezeHistory(accountNumber, freezeStatus, reasonId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public int[] GetFreezingReasonsForBlocking()
+        {
+            try
+            {
+                return AutomateCardBlockingUnblocking.FreezingReasonsForBlocking;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public long? GetPreviousBlockingOrderId(string cardNumber)
+        {
+            try
+            {
+                return ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(cardNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public long? GetPreviousUnBlockingOrderId(string cardNumber)
+        {
+            try
+            {
+                return ArcaCardsTransactionOrder.GetPreviousUnBlockingOrderId(cardNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
         }
 
     }

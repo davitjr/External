@@ -6351,6 +6351,30 @@ namespace ExternalBanking.DBManager
             return result;
         }
 
+        internal static string GetClosingCurrentAccountsNumber(ulong customerNumber, string currency)
+        {
+            string accountNumber = string.Empty;
+            string query = @"SELECT Arm_number FROM  [tbl_all_accounts;] acc
+                            INNER JOIN(SELECT sint_acc_new, type_of_client, type_of_product FROM  dbo.Tbl_define_sint_acc WHERE(type_of_product = 10) AND(type_of_account = 24) 
+                            GROUP BY sint_acc_new, type_of_client, type_of_product) s ON acc.type_of_account_new = s.sint_acc_new 
+                            WHERE NOT EXISTS (SELECT co.arm_number FROM Tbl_co_accounts_main co where  co.arm_number = acc.arm_number ) AND customer_number = @customerNumber  AND currency = @currency
+                            ORDER BY open_date ASC";
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
+                    DataTable dt = new DataTable();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                        if (dr.Read())
+                            accountNumber = dr["Arm_number"].ToString();
+                }
+            }
+            return accountNumber;
+        }
 
     }
 }

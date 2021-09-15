@@ -4,6 +4,7 @@ using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,6 +84,13 @@ namespace ExternalBanking
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
             this.Card = Card.GetCard(this.CardNumber);
+            if (this.Card == null)
+            {
+                var plasticCard = PlasticCard.GetPlasticCard(this.CardNumber);
+                this.Card = new Card();
+                this.Card.CardNumber = plasticCard.CardNumber;
+                this.Card.ValidationDate = DateTime.ParseExact(plasticCard.ExpiryDate, "MMyyyy", CultureInfo.CurrentCulture).AddMonths(1).AddDays(-1);
+            }
 
             if (this.Source == SourceType.Bank)
             {
@@ -322,6 +330,15 @@ namespace ExternalBanking
         {
             var arcaCardTransactionOrder = ArcaCardsTransactionOrderDB.Get(this);
             arcaCardTransactionOrder.Card = Card.GetCard(this.CardNumber);
+            if (arcaCardTransactionOrder.Card == null)
+            {
+                var plasticCard = PlasticCard.GetPlasticCard(this.CardNumber);
+                arcaCardTransactionOrder.Card = new Card();
+                arcaCardTransactionOrder.Card.CardNumber = plasticCard.CardNumber;
+                arcaCardTransactionOrder.Card.ValidationDate = DateTime.ParseExact(plasticCard.ExpiryDate, "MMyyyy", CultureInfo.CurrentCulture).AddMonths(1).AddDays(-1);
+                arcaCardTransactionOrder.Card.CreditLine = null;
+                arcaCardTransactionOrder.Card.Overdraft = null;
+            }
             arcaCardTransactionOrder.MainCardProductID = Card.GetMainCardProductId(this.CardNumber);
             return arcaCardTransactionOrder;
         }
@@ -379,30 +396,47 @@ namespace ExternalBanking
         {
 
             Card card = Card.GetCard(cardNumber);
+            PlasticCard plasticCard = PlasticCard.GetPlasticCard(cardNumber);
             CardIdentification cardIdentification = new CardIdentification
             {
-                CardNumber = card.CardNumber,
-                ExpiryDate = card.ValidationDate.ToString("yyyyMM")
+                CardNumber = card != null ? card.CardNumber : plasticCard.CardNumber,
+                ExpiryDate = card != null ? card.ValidationDate.ToString("yyyyMM") : plasticCard.ExpiryDate.Substring(2, 4) + plasticCard.ExpiryDate.Substring(0, 2)
             };
 
-            var arcaResult = ArcaDataService.GetCardData(cardIdentification);
-
-            if (arcaResult.cardDataField.hotCardStatusField == 3) //HotCardStatus.DoNotHonor
+            try
             {
-                if (GetBlockingReasonForBlockedCard(cardNumber) != reasonId)
+                var arcaResult = ArcaDataService.GetCardData(cardIdentification);
+
+                if (arcaResult.cardDataField.hotCardStatusField == 3) //HotCardStatus.DoNotHonor
+                {
+                    if (GetBlockingReasonForBlockedCard(cardNumber) != reasonId)
+                    {
+                        return 0;
+                    }
+                    return 2; //ապաբլոկավորել
+                }
+                else if (arcaResult.cardDataField.hotCardStatusField == 0) //HotCardStatus.ValidCard
+                {
+                    return 1; //բլոկավորել
+                }
+                else
                 {
                     return 0;
                 }
-                return 2; //ապաբլոկավորել
             }
-            else if (arcaResult.cardDataField.hotCardStatusField == 0) //HotCardStatus.ValidCard
-            {
-                return 1; //բլոկավորել
-            }
-            else
+            catch
             {
                 return 0;
             }
+        }
+
+        public static long? GetPreviousBlockingOrderId(string cardNumber, DateTime? validationDate = null)
+        {
+            return ArcaCardsTransactionOrderDB.GetPreviousBlockingOrderId(cardNumber, validationDate);
+        }
+        public static long? GetPreviousUnBlockingOrderId(string cardNumber, DateTime? validationDate = null)
+        {
+            return ArcaCardsTransactionOrderDB.GetPreviousUnBlockingOrderId(cardNumber, validationDate);
         }
     }
 }

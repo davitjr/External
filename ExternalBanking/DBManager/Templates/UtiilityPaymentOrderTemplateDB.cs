@@ -20,10 +20,10 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     cmd.CommandText = "pr_submit_utility_payment_order_template";
                     cmd.CommandType = CommandType.StoredProcedure;
-                  
+
                     cmd.Parameters.Add("@tmpl_Name", SqlDbType.NVarChar).Value = template.TemplateName;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = template.TemplateCustomerNumber;
-                 
+
                     cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = template.UtilityPaymentOrder.DebitAccount.AccountNumber;
 
                     cmd.Parameters.Add("@type", SqlDbType.SmallInt).Value = template.TemplateType;
@@ -47,6 +47,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = template.UtilityPaymentOrder.SubType;
                     cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = template.UtilityPaymentOrder.Type;
+                    cmd.Parameters.Add("@use_credit_line", SqlDbType.Bit).Value = template.UtilityPaymentOrder.UseCreditLine;
 
 
                     SqlParameter param = new SqlParameter("@msg", SqlDbType.NVarChar, 4000);
@@ -107,7 +108,7 @@ namespace ExternalBanking.DBManager
                         {
                             //Ձևանմուշ
                             template.ID = Convert.ToInt32(dr["templateId"]);
-                            
+
                             template.TemplateName = dr.FieldOrDefault<string>("TemplateDescription");
                             template.TemplateRegistrationDate = Convert.ToDateTime(dr["registration_date"]);
                             template.TemplateCustomerNumber = Convert.ToUInt64(dr["customer_number"]);
@@ -126,7 +127,7 @@ namespace ExternalBanking.DBManager
 
                             template.TemplateSourceType = (SourceType)Convert.ToByte(dr["source_type"]);
 
-                
+
 
                             if (dr["amount"] != DBNull.Value)
                             {
@@ -135,7 +136,7 @@ namespace ExternalBanking.DBManager
                             }
 
                             if (dr["debet_account"] != DBNull.Value)
-                            {   
+                            {
                                 string debitAccount = dr["debet_account"].ToString();
                                 template.TemplateDebetAccount = new Account();
                                 template.TemplateDebetAccount.AccountNumber = debitAccount;
@@ -187,6 +188,8 @@ namespace ExternalBanking.DBManager
                             {
                                 template.UtilityPaymentOrder.AbonentFilialCode = Convert.ToUInt16(dr["service_provided_filialcode"]);
                             }
+
+                            template.UtilityPaymentOrder.UseCreditLine = dr["use_credit_line"] != DBNull.Value ? Convert.ToBoolean(dr["use_credit_line"]) : false;
 
                         }
                         else

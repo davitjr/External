@@ -2014,7 +2014,7 @@ namespace ExternalBanking.DBManager
 
                         if (msg.Count != 0)
                         {
-                            msg[0].File = GetMessageUploadedFilesList(msg[0].ID);
+                           msg[0].File = GetMessageUploadedFilesList(msg[0].ID);
                         }
                     }
                 }
@@ -2123,6 +2123,7 @@ namespace ExternalBanking.DBManager
 
                         if (msg.Count != 0)
                         {
+                            
                             msg[0].File = GetMessageUploadedFilesList(msg[0].ID);
                         }
                     }
@@ -2445,7 +2446,7 @@ namespace ExternalBanking.DBManager
 
             return file;
         }
-        internal static List<HBMessageFiles> GetMessageUploadedFilesList(long msgId)
+        internal static List<HBMessageFiles> GetMessageUploadedFilesList(long msgId, bool showUploadFilesContent=false)
         {
             List<HBMessageFiles> files = new List<HBMessageFiles>();
             if (msgId != 0)
@@ -2468,7 +2469,9 @@ namespace ExternalBanking.DBManager
                                 HBMessageFiles file = new HBMessageFiles();
                                 file.Id = Convert.ToInt32(reader["Id"]);
                                 file.FileName = Convert.ToString(reader["FileName"]);
-                                file.FileContent = (byte[])reader["FileContent"];
+                                if (showUploadFilesContent == true)
+                                { file.FileContent = reader["FileContent"] != DBNull.Value ? (byte[])reader["FileContent"] : null; }
+                                
                                 file.FileType = Convert.ToString(reader["FileType"]);
                                 file.RegistrationDate = Convert.ToDateTime(reader["RegDate"]).ToString("dd/MM/yyyy");
 
@@ -3089,7 +3092,7 @@ namespace ExternalBanking.DBManager
                 filter = " h.quality<>40 and h.quality<>1 ";
             }
 
-            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247) ";
+            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247, 254) ";
 
             if (obj.OnlyACBA == 1)
             {
@@ -3135,15 +3138,15 @@ namespace ExternalBanking.DBManager
                 DateTime dt = Convert.ToDateTime(obj.StartDate);
                 string startDate = dt.ToString("dd/MMM/yy");
 
-                filter += " and cast(left(q.change_date,11) as date) >='" + startDate + "'";
+                filter += " and q.change_date >='" + startDate + "'";
             }
 
             if (obj.EndDate != "" && obj.EndDate != null)
             {
-                DateTime dt = Convert.ToDateTime(obj.EndDate);
+                DateTime dt = Convert.ToDateTime(obj.EndDate).AddDays(1);
                 string endDate = dt.ToString("dd/MMM/yy");
 
-                filter += " and cast(left(q.change_date,11) as date)<='" + endDate + "'";
+                filter += " and q.change_date <='" + endDate + "'";
             }
 
             if (obj.CustomerNumber != null)

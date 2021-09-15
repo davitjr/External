@@ -50,7 +50,7 @@ namespace ExternalBanking
         /// <summary>
         /// Խմբում ներառված ծառայությունների ցանկ
         /// </summary>
-        public List<Template> GroupTemplates { get; set; }
+        //public List<Template> GroupTemplates { get; set; }
 
 
         /// <summary>

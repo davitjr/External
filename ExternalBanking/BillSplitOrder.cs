@@ -87,7 +87,6 @@ namespace ExternalBanking
                         linkPaymentOrder.OperationDate = OperationDate;
                         linkPaymentOrder.CustomerNumber = this.CustomerNumber;
                         linkPaymentOrder.Source = Source;
-                        //linkPaymentOrder.FeeAmount = 
 
                         linkPaymentOrder.Amount = sender.Amount;
                         resultLinkPaymnet = linkPaymentOrder.Save();
@@ -625,13 +624,15 @@ namespace ExternalBanking
         {
             return BillSplitOrderDB.GetReceivedBillSplitRequest(billSplitSenderId);
         }
-    }
 
-    public class BillSplitLinkResult
-    {
-        public string Link { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Email { get; set; }
+        public class BillSplitLinkResult
+        {
+            public string Link { get; set; }
+            public string PhoneNumber { get; set; }
+            public string Email { get; set; }
+
+        }
+
 
     }
 }

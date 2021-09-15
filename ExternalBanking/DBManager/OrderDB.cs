@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -472,7 +472,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        public static void ConfirmOrder(Order order, ACBAServiceReference.User user)
+        public static void ConfirmOrder(Order order, ACBAServiceReference.User user, ConfirmationSourceType confirmationSourceType = ConfirmationSourceType.None)
         {
             SqlConnection conn;
             using (conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -483,7 +483,8 @@ namespace ExternalBanking.DBManager
                      && order.Type != OrderType.HBApplicationUpdateOrder && order.Type != OrderType.HBApplicationOrder && order.Type != OrderType.HBApplicationRestoreOrder
                      && order.Type != OrderType.HBActivation && order.Type != OrderType.HBApplicationTerminationOrder
                      && order.Type != OrderType.ArcaCardsTransactionOrder && order.Type != OrderType.CardLimitChangeOrder && order.Type != OrderType.CardRegistrationOrder
-                     && order.Type != OrderType.SberBankTransferOrder && order.Type != OrderType.BillSplitReminder && order.Type != OrderType.BillSplitSenderRejection && order.Type != OrderType.VisaAlias)
+                     && order.Type != OrderType.SberBankTransferOrder && order.Type != OrderType.BillSplitReminder && order.Type != OrderType.BillSplitSenderRejection && order.Type != OrderType.LinkTransferPaymentConfirmation
+                     && order.Type != OrderType.VisaAlias && !(confirmationSourceType == ConfirmationSourceType.FromACBADigital && order.Type == OrderType.CancelTransaction))
                 {
 
                     using (SqlCommand cmd = new SqlCommand())
@@ -1052,8 +1053,8 @@ namespace ExternalBanking.DBManager
                     using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                     {
                         conn.Open();
-                        using (SqlCommand cmd = new SqlCommand(@"INSERT INTO dbo.Tbl_Transfer_Fees(doc_ID, FeeAmount, Currency, FeeType,debet_account,credit_account, OrderNumber,Description,description_for_reject_fee_type)
-                                                    VALUES (@id,@fee_amount, @fee_currency,  @fee_type,@debit_acc,@credit_acc, @order_number,@Description,@descriptionForRejectFeeType)", conn))
+                        using (SqlCommand cmd = new SqlCommand(@"INSERT INTO dbo.Tbl_Transfer_Fees(doc_ID, FeeAmount, Currency, FeeType,debet_account,credit_account, OrderNumber,Description,description_for_reject_fee_type,reject_fee_type)
+                                                    VALUES (@id,@fee_amount, @fee_currency,  @fee_type,@debit_acc,@credit_acc, @order_number,@Description,@descriptionForRejectFeeType,@reject_fee_type)", conn))
                         {
                             if (m.Account != null)
                                 cmd.Parameters.Add("@debit_acc", SqlDbType.VarChar, 20).Value = m.Account.AccountNumber;
@@ -1083,6 +1084,12 @@ namespace ExternalBanking.DBManager
                                 cmd.Parameters.Add("@descriptionForRejectFeeType", SqlDbType.NVarChar, 250).Value = m.DescriptionForRejectFeeType;
                             else
                                 cmd.Parameters.Add("@descriptionForRejectFeeType", SqlDbType.NVarChar, 250).Value = DBNull.Value;
+
+                            if (m.RejectFeeType != null)
+                                cmd.Parameters.Add("@reject_fee_type", SqlDbType.Int).Value = m.RejectFeeType;
+                            else
+                                cmd.Parameters.Add("@reject_fee_type", SqlDbType.Int).Value = DBNull.Value;
+
 
                             cmd.ExecuteNonQuery();
                         }
@@ -1125,7 +1132,7 @@ namespace ExternalBanking.DBManager
 
         public static void ChangeBOOrderQuality(long docId, OrderQuality quality, ACBAServiceReference.User user)
         {
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
                 {
@@ -1192,6 +1199,13 @@ namespace ExternalBanking.DBManager
                         if (row["description_for_reject_fee_type"] != DBNull.Value)
                         {
                             fee.DescriptionForRejectFeeType = row["description_for_reject_fee_type"].ToString();
+                        }
+
+                        if (row["reject_fee_type"] != DBNull.Value)
+                        {
+                            fee.RejectFeeType = Convert.ToInt32(row["reject_fee_type"]);
+                            DataTable reasons = InfoDB.GetCommissionNonCollectionReasons();
+                            fee.RejectFeeTypeDescription = reasons.Rows[fee.RejectFeeType.Value - 1].ItemArray[1].ToString();
                         }
 
                         fee.OrderNumber = row["OrderNumber"].ToString();

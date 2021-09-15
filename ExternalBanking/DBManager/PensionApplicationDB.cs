@@ -17,7 +17,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT contract_id FROM Tbl_pension_application WHERE deleted = 0 and quality <> 40 and quality <> 42 and customer_number=@customernumber", conn);
+                SqlCommand cmd = new SqlCommand(@"SELECT contract_id FROM Tbl_pension_application WHERE deleted = 0 and quality not in (40,41,42) and customer_number=@customernumber", conn);
 
                 cmd.Parameters.Add("@customernumber", SqlDbType.Float).Value = customerNumber;
                 SqlDataReader dr = cmd.ExecuteReader();

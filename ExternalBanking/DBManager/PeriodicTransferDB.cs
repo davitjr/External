@@ -297,7 +297,7 @@ namespace ExternalBanking.DBManager
                 periodicTransfer.FeeAccount = row["fee_Account"] != DBNull.Value ? Account.GetSystemAccountWithoutBallance(row["fee_Account"].ToString()) : null;
                 periodicTransfer.SenderCodeOfTax = row["Sender_Code_Of_Tax"] != DBNull.Value ? row["Sender_Code_Of_Tax"].ToString() : "".ToString();
                 periodicTransfer.SenderRegionCode = row["Sender_Reg_Code"] != DBNull.Value & row["Sender_Reg_Code"].ToString() != "" ? ulong.Parse(row["Sender_Reg_Code"].ToString()) : 0;
-                periodicTransfer.ReceiverBankCode = ulong.Parse(row["Credit_Bank_Code"].ToString());
+                periodicTransfer.ReceiverBankCode = String.IsNullOrEmpty(row["Credit_Bank_Code"].ToString()) ? 0 : ulong.Parse(row["Credit_Bank_Code"].ToString());
                 periodicTransfer.ReceiverBankSwiftCode = row["Receiver_bank_swift"] != DBNull.Value ? row["Receiver_bank_swift"].ToString() : "".ToString();
                 periodicTransfer.ReceiverName = row["Receiver_Name"] != DBNull.Value ? row["Receiver_Name"].ToString() : "".ToString();
                 periodicTransfer.ReceiverCodeOfTax = row["receiver_code_of_tax"] != DBNull.Value ? row["receiver_code_of_tax"].ToString() : "".ToString();
@@ -318,7 +318,7 @@ namespace ExternalBanking.DBManager
 
                     if (DebitAccountCustomerNumber == CreditInternalCustomerNumber)
                         periodicTransfer.SubType = 1;
-                    else 
+                    else
                         periodicTransfer.SubType = 2;
 
                     Account account = Account.GetSystemAccountWithoutBallance(periodicTransfer.CreditAccount);
@@ -405,14 +405,14 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@dateOfLastOper", SqlDbType.SmallDateTime).Value = DBNull.Value;
                     cmd.Parameters.Add("@operResult", SqlDbType.TinyInt).Value = operResult;
                     cmd.Parameters.Add("@denyReason", SqlDbType.NVarChar).Value = denyReason;
-                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar).Value = periodicTransfer.Currency;
-                     cmd.Parameters.Add("@amountByDocument", SqlDbType.Float).Value = periodicTransfer.Amount;
+                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar).Value = periodicTransfer.Currency;
+                    cmd.Parameters.Add("@amountByDocument", SqlDbType.Float).Value = periodicTransfer.Amount;
                     cmd.Parameters.Add("@creditAccount", SqlDbType.Float).Value = periodicTransfer.CreditAccount;
                     cmd.Parameters.Add("@filialCode", SqlDbType.Int).Value = periodicTransfer.FilialCode;
                     cmd.Parameters.Add("@partialPayment", SqlDbType.Int).Value = periodicTransfer.PartialPaymentSign;
                     cmd.Parameters.Add("@appId", SqlDbType.Float).Value = periodicTransfer.ProductId;
                     cmd.Parameters.Add("@minimalRest", SqlDbType.Float).Value = periodicTransfer.MinDebetAccountRest;
- 
+
                     cmd.ExecuteNonQuery();
                     result.ResultCode = ResultCode.Normal;
 
@@ -420,7 +420,7 @@ namespace ExternalBanking.DBManager
                 }
             }
         }
-            internal static ActionResult PeriodicTransfersComplete(DateTime dateOfOperation, DateTime dayOfRateCalculation, ulong appID)
+        internal static ActionResult PeriodicTransfersComplete(DateTime dateOfOperation, DateTime dayOfRateCalculation, ulong appID)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -451,7 +451,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@appID", SqlDbType.Float).Value = appID;
-                                      
+
                     conn.Open();
 
                     cmd.ExecuteNonQuery();

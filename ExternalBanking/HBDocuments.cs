@@ -177,9 +177,9 @@ namespace ExternalBanking
             return HBDocumentsDB.PostSentMessageToCustomer(obj);
         }
 
-        public static List<HBMessageFiles> GetMessageUploadedFilesList(long msgId)
+        public static List<HBMessageFiles> GetMessageUploadedFilesList(long msgId, bool showUploadFilesContent)
         {
-            return HBDocumentsDB.GetMessageUploadedFilesList(msgId);
+            return HBDocumentsDB.GetMessageUploadedFilesList(msgId, showUploadFilesContent);
         }
 
         public static int GetCancelTransactionDetails(long docId)

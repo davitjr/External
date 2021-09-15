@@ -250,9 +250,16 @@ namespace ExternalBanking
                 double minAmount = Deposit.GetDepositOrderCondition(order, order.Source).MinAmount;
                 if (order.Amount < minAmount)
                 {
-                    //Ավանդի գումարը չպետք է լինի տվյալ ավանդի տեսակի նվազագույն գումարից փոքր:
-                    result.Add(new ActionError(223));
-
+                    if (order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking)
+                    {
+                        //Ավանդի գումարը չպետք է փոքր լինի նվազագույն գումարից։
+                        result.Add(new ActionError(2002));
+                    }
+                    else
+                    {
+                        //Ավանդի գումարը չպետք է լինի տվյալ ավանդի տեսակի նվազագույն գումարից փոքր:
+                        result.Add(new ActionError(223));
+                    }
                 }
             }
 
@@ -534,11 +541,14 @@ namespace ExternalBanking
         {
             List<ActionError> result = new List<ActionError>();
 
-            if (!Card.CheckCardOwner(order.Card.CardNumber, order.CustomerNumber))
-            {
-                //{Քարտային} հաշիվը չի պատկանում տվյալ հաճախորդին
-                result.Add(new ActionError(901, new string[] { "Քարտային" }));
-            }
+            //if (order.Card.CardAccount.AccountNumber != "0")
+            //{
+            //    if (!Card.CheckCardOwner(order.Card.CardNumber, order.CustomerNumber))
+            //    {
+            //        //{Քարտային} հաշիվը չի պատկանում տվյալ հաճախորդին
+            //        result.Add(new ActionError(901, new string[] { "Քարտային" }));
+            //    }
+            //}
 
             result.AddRange(ValidateDraftOrderQuality(order, order.CustomerNumber));
 
@@ -555,17 +565,28 @@ namespace ExternalBanking
                 order.user.AdvancedOptions.TryGetValue("accessToUnblockCardForSpecificReasons", out accessToUnblockCardForSpecificReasons);
                 order.user.AdvancedOptions.TryGetValue("accessToMakeArcaCardTransactionForBankInitiative", out accessToMakeArcaCardTransactionForBankInitiative);
                 order.user.AdvancedOptions.TryGetValue("accessToBlockUnblockCardForCourtProceedingsReason", out accessToBlockUnblockCardForCourtProceedingsReason);
+
+                if (order.ActionReasonId == 10 && accessToUnblockCardForSpecificReasons != "1" && accessToBlockUnblockCardForCourtProceedingsReason != "1")
+                {
+                    //Դատական վարույթի հիման վրա պատճառով քարտերը բլոկավորելու և ապաբլոկավորելու հնարավորություն ունի միայն Քարտային գործառնությունների բաժինը
+                    result.Add(new ActionError(1549));
+                }
+
+                //Սխալ փոխանցում և հաշվից ելք պատճառով բլոկավորված քարտերն ապաբլոկավորելու հնարավորություն ունի միայն քարտը բլոկավորած մասնաճյուղը
+                if (order.ActionType == 2 && (order.ActionReasonId == 5 || order.ActionReasonId == 6))
+                {
+                    if (!order.CheckTransactionAvailabilityDependsOnActionReason())
+                    {
+                        result.Add(new ActionError(1541));
+                    }
+                }
             }
             if ((order.ActionReasonId == 1 || order.ActionReasonId == 2) && order.ActionType == 2 && accessToUnblockCardForSpecificReasons != "1")
             {
                 //Քարտի փակում և քարտի փոխարինում  պատճառներով բլոկավորված քարտերն ապաբլոկավորելու համար անհրաժեշտ է զանգահարել Քարտային գործառնություների բաժին:
                 result.Add(new ActionError(1539));
             }
-            if (order.ActionReasonId == 10 && accessToUnblockCardForSpecificReasons != "1" && accessToBlockUnblockCardForCourtProceedingsReason != "1")
-            {
-                //Դատական վարույթի հիման վրա պատճառով քարտերը բլոկավորելու և ապաբլոկավորելու հնարավորություն ունի միայն Քարտային գործառնությունների բաժինը
-                result.Add(new ActionError(1549));
-            }
+           
 
             int[] cardTransactionActionReasons = { 15, 16, 17, 18, 19, 20, 21, 22 };
 
@@ -594,14 +615,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(1540));
             }
 
-            //Սխալ փոխանցում և հաշվից ելք պատճառով բլոկավորված քարտերն ապաբլոկավորելու հնարավորություն ունի միայն քարտը բլոկավորած մասնաճյուղը
-            if (order.ActionType == 2 && (order.ActionReasonId == 5 || order.ActionReasonId == 6))
-            {
-                if (!order.CheckTransactionAvailabilityDependsOnActionReason())
-                {
-                    result.Add(new ActionError(1541));
-                }
-            }
+            
 
 
             if ((order.GroupId != 0) ? !OrderGroup.CheckGroupId(order.GroupId) : false)
@@ -610,7 +624,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(1628));
             }
 
-            if(order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking && order.ActionType == 2)//ապաբլոկավորում 
+            if((order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking) && order.ActionType == 2)//ապաբլոկավորում 
             {
                 Card card = Card.GetCardMainData((ulong)order.Card.ProductId, order.CustomerNumber);
                 CardIdentification cardIdentification = new CardIdentification
@@ -620,10 +634,12 @@ namespace ExternalBanking
                 };
                 var arcaResult = ArcaDataService.GetCardData(cardIdentification);
 
+                short blockingReason = ArcaCardsTransactionOrder.GetBlockingReasonForBlockedCard(order.CardNumber);
+
                 if (!(arcaResult.cardDataField.hotCardStatusField == (int)HotCardStatus.LostCard_Capture ||
                     arcaResult.cardDataField.hotCardStatusField == (int)HotCardStatus.StonelCard_Capture ||
                     (arcaResult.cardDataField.hotCardStatusField == (int)HotCardStatus.DoNotHonor
-                    && ArcaCardsTransactionOrder.GetBlockingReasonForBlockedCard(order.CardNumber) == 13)))//այլ
+                    && (blockingReason == 13 || blockingReason == 8))))//այլ
                 {
                     //Ապաբլոկավորումը հնարավոր չէ կատարել։ Քարտը ապաբլոկավորելու համար կարող եք զանգահարել 010 31 88 88 հեռախոսահամարով կամ մոտենալ մոտակա մասնաճյուղ:
                     result.Add(new ActionError(1906));
@@ -1086,8 +1102,17 @@ namespace ExternalBanking
 
                             if (BirthDate.Value.AddYears(15) <= DateTime.Now)
                             {
-                                //Ավանդի ձևակերպումը հնարավոր չէ իրականացնել: Երեխայի տարիքը գերազանցում է թույլատրելի տարիքը:
-                                result.Add(new ActionError(556));
+                                if (order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking)
+                                {
+                                    //Երեխայի տարիքը գերազանցում է 15 տարեկանը։
+                                    result.Add(new ActionError(2001));
+                                }
+                                else
+                                {
+                                    //Ավանդի ձևակերպումը հնարավոր չէ իրականացնել: Երեխայի տարիքը գերազանցում է թույլատրելի տարիքը:
+                                    result.Add(new ActionError(556));
+                                }
+
                             }
                             else
                             {
@@ -2933,7 +2958,7 @@ namespace ExternalBanking
                 else if (m.ClosingDate == null)
                 {
                     //Հաշիվը արդեն բաց է:
-                    result.Add(new ActionError(559, new string[] { m.AccountNumber }));
+                    result.Add(new ActionError(241, new string[] { m.AccountNumber }));
                 }
                 else if (m.HaveTaxInspectorateApproval())
                 {
@@ -5400,7 +5425,7 @@ namespace ExternalBanking
 
                 if (vipType == 7 || vipType == 8 || vipType == 9)
                 {
-                    if (order.ServiceType == 202 || order.ServiceType == 204 || order.ServiceType == 205 || order.ServiceType == 209 || order.ServiceType == 210 || order.ServiceType == 211 || order.ServiceType == 213 || order.ServiceType == 214 || order.ServiceType == 215)
+                    if (order.ServiceType == 202 || order.ServiceType == 204 || order.ServiceType == 205 || order.ServiceType == 209 || order.ServiceType == 210 || order.ServiceType == 211 || order.ServiceType == 213 || order.ServiceType == 214 || order.ServiceType == 215 || order.ServiceType == 221 || order.ServiceType == 222)
                     {
                         //Տվյալ հաճախորդի համար այս սակագինը 0-է:
                         result.Add(new ActionError(670));
@@ -5906,7 +5931,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(692));
                 return result;
             }
-            else if (Utility.GetNextOperDay() != removableOrder.ConfirmationDate && order.Type == OrderType.RemoveTransaction)
+            else if (Utility.GetNextOperDay() != removableOrder.ConfirmationDate && order.Type == OrderType.RemoveTransaction && removableOrder.Type != OrderType.LinkPaymentOrder)
             {
                 //Հեռացնել կարելի է միայն տվյալ գործառնական օրվա ձևակերպումները:
                 result.Add(new ActionError(693));
@@ -9121,6 +9146,10 @@ namespace ExternalBanking
                 result.Add(new ActionError(1434, new string[] { "Նշված քարտի համար արդեն մուտքագրված է տվյալ տեսակի հայտ" }));
             }
 
+            //string canChangeCardService = null;
+            //order.user.AdvancedOptions.TryGetValue("canChangeCardService", out canChangeCardService);
+
+
             Card card = Card.GetCardWithOutBallance(order.ProductID);
 
             if (order.user.filialCode == 22059 && card.FilialCode == 22000)
@@ -9128,10 +9157,15 @@ namespace ExternalBanking
                 order.user.filialCode = (ushort)card.FilialCode;
             }
 
-
+            //if (canChangeCardService != "1" && order.user.filialCode != card.FilialCode)
+            //{
+            //    //Քարտը պատկանում է այլ մասնաճյուղի
+            //    result.Add(new ActionError(905));
+            //    return result;
+            //}
             if (order.Source == SourceType.Bank)
             {
-                if (order.IsArmenia && order.OperationType != 2 && (string.IsNullOrEmpty(order.MobilePhone) || order.MobilePhone.Substring(0, 3) != "374" || order.MobilePhone.Length < 11))
+                if (order.OperationType != 2 && (string.IsNullOrEmpty(order.MobilePhone) || order.MobilePhone.Substring(0, 3) != "374" || order.MobilePhone.Length < 11))
                 {
                     //Բջջային հեռախոսի ֆորմատը սխալ է (ճիշտ ֆորմատը՝ 374XXYYYYYY)
                     result.Add(new ActionError(1433, new string[] { "Բջջային հեռախոսի ֆորմատը սխալ է(ճիշտ ֆորմատը՝ 374XXYYYYYY) " }));

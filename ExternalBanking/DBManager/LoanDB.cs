@@ -2364,5 +2364,70 @@ FROM [Tbl_Paid_factoring]  WHERE (Loan_type = 38
             return result;
         }
 
+        internal static LoanRepaymentFromCardDataChange GetLoanRepaymentFromCardDataChangeHistory(ulong appId)
+        {
+            LoanRepaymentFromCardDataChange loanRepaymentFromCardDataChange = new LoanRepaymentFromCardDataChange();
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "select TOP 1 AppId , StartDate , EndDate , dbo.fnc_convertAnsiToUnicode(ChangeDescription) ChangeDescription, SetNumber " +
+                                      " from Tbl_Loan_Repayment_From_Card_Data_Change WHERE AppId = @App_ID ORDER BY Id DESC";
+                    cmd.CommandType = CommandType.Text;
+
+                    cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = appId;
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.Read())
+                    {
+                        loanRepaymentFromCardDataChange.AppId = ulong.Parse(dr["appid"].ToString());
+                        loanRepaymentFromCardDataChange.EndDate = !string.IsNullOrEmpty(dr["EndDate"].ToString()) ? Convert.ToDateTime(dr["EndDate"].ToString()) : (DateTime?)null;
+                        loanRepaymentFromCardDataChange.StartDate = Convert.ToDateTime(dr["StartDate"].ToString());
+                        loanRepaymentFromCardDataChange.SetNumber = Convert.ToInt32(dr["SetNumber"].ToString());
+                        loanRepaymentFromCardDataChange.Description = dr["ChangeDescription"].ToString();
+                    }
+                }
+            }
+            return loanRepaymentFromCardDataChange;
+        }
+
+        internal static LoanRepaymentFromCardDataChange SaveLoanRepaymentFromCardDataChange(LoanRepaymentFromCardDataChange loanRepaymentFromCardDataChange)
+        {
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = "pr_Loan_Repayment_From_Card_Data_Change ";
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@AppId", SqlDbType.BigInt).Value = loanRepaymentFromCardDataChange.AppId;
+                    cmd.Parameters.Add("@StartDate", SqlDbType.SmallDateTime).Value = loanRepaymentFromCardDataChange.StartDate;
+                    cmd.Parameters.Add("@EndDate", SqlDbType.SmallDateTime).Value = loanRepaymentFromCardDataChange.EndDate;
+                    cmd.Parameters.Add("@ChangeDescription", SqlDbType.NVarChar).Value = loanRepaymentFromCardDataChange.Description;
+                    cmd.Parameters.Add("@SetNumber", SqlDbType.Int).Value = loanRepaymentFromCardDataChange.SetNumber;
+                    cmd.Parameters.Add("@ChangeAction", SqlDbType.SmallInt).Value = loanRepaymentFromCardDataChange.Action;
+
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.Read())
+                    {
+                        loanRepaymentFromCardDataChange.AppId = ulong.Parse(dr["appid"].ToString());
+                        loanRepaymentFromCardDataChange.EndDate = !string.IsNullOrEmpty(dr["EndDate"].ToString()) ? Convert.ToDateTime(dr["EndDate"].ToString()) : (DateTime?)null;
+                        loanRepaymentFromCardDataChange.StartDate = Convert.ToDateTime(dr["StartDate"].ToString());
+                        loanRepaymentFromCardDataChange.SetNumber = Convert.ToInt32(dr["SetNumber"].ToString());
+                        loanRepaymentFromCardDataChange.Description = dr["ChangeDescription"].ToString();
+                    }
+                }
+            }
+            return loanRepaymentFromCardDataChange;
+        }
+
     }
 }

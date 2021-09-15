@@ -300,5 +300,71 @@ namespace ExternalBanking.DBManager
 
             return orderComment;
         }
+
+        internal static long? GetPreviousBlockingOrderId(string cardNumber, DateTime? validationDate)
+        {
+            DataTable dt = new DataTable();
+            long? docId = null;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                string txt = @"SELECT TOP 1 IIF(HB.document_subtype = 1,DT.doc_id, NULL) as doc_id
+                                FROM tbl_hb_documents AS HB 
+                                INNER JOIN tbl_arca_cards_transaction_order_details as DT
+                                ON HB.doc_ID = DT.doc_id
+                                WHERE HB.quality in (30, 50) 
+                                        AND DT.action_reason in (15,16,17,18,19,20,21,22,23)
+		                                AND HB.document_type = 206
+		                                AND DT.card_number = @card_number" + (validationDate != null ? " AND DT.validation_date = '" + Convert.ToDateTime(validationDate).ToString("dd/MMM/yyyy") + "'" : "") + " ORDER BY HB.doc_ID DESC";
+
+                using (SqlCommand cmd = new SqlCommand(txt, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@card_number", SqlDbType.NVarChar, 20).Value = cardNumber;
+
+                    conn.Open();
+                    dt.Load(cmd.ExecuteReader());
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        docId = dt.Rows[0]["doc_id"]!=DBNull.Value ?Convert.ToInt64(dt.Rows[0]["doc_id"]) : (long?)null;
+                    }
+                }
+            }
+
+            return docId;
+        }
+
+        internal static long? GetPreviousUnBlockingOrderId(string cardNumber, DateTime? validationDate)
+        {
+            DataTable dt = new DataTable();
+            long? docId = null;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                string txt = @"SELECT TOP 1 IIF(HB.document_subtype = 2,DT.doc_id, NULL) as doc_id
+                                FROM tbl_hb_documents AS HB 
+                                INNER JOIN tbl_arca_cards_transaction_order_details as DT
+                                ON HB.doc_ID = DT.doc_id
+                                WHERE HB.quality in (30, 50) 
+                                        AND DT.action_reason in (15,16,17,18,19,20,21,22,23)
+		                                AND HB.document_type = 206
+		                                AND DT.card_number = @card_number" + (validationDate != null ? " AND DT.validation_date = '" + Convert.ToDateTime(validationDate).ToString("dd/MMM/yyyy") + "'" : "") + " ORDER BY HB.doc_ID DESC";
+
+                using (SqlCommand cmd = new SqlCommand(txt, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@card_number", SqlDbType.NVarChar, 20).Value = cardNumber;
+
+                    conn.Open();
+                    dt.Load(cmd.ExecuteReader());
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        docId = dt.Rows[0]["doc_id"] != DBNull.Value ? Convert.ToInt64(dt.Rows[0]["doc_id"]) : (long?)null;
+                    }
+                }
+            }
+
+            return docId;
+        }
     }
 }

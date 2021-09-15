@@ -1018,7 +1018,7 @@ namespace ExternalBanking
 
 
         /// <summary>
-        /// Քարտի վերաթողարկման հայտ
+        /// Հղումով փոխանցման հայտ
         /// </summary>
         LinkPaymentOrder = 242,
 
@@ -1047,7 +1047,6 @@ namespace ExternalBanking
         /// Bill Split Հիշեցման ուղարկում
         /// </summary>
         BillSplitReminder = 247,
-
         /// <summary>
         /// Ավանդի գրավով սպառողական վարկի հեռացում
         /// </summary>
@@ -1063,17 +1062,16 @@ namespace ExternalBanking
         /// <summary>
         /// Երրորդ անձի իրավունքի փոխանցման
         /// </summary>
-        ThirdPersonAccountRightsTransfer = 251,        
-
-        /// <summary>
-        /// Լիզինգի մարում
-        /// </summary>
-        LeasingPaymentOrder = 252,       
-
+        ThirdPersonAccountRightsTransfer = 251,
         /// <summary>
         /// MR ծառայության տվյալների խմբագրման հայտ
         /// </summary>
-        MRDataChangeOrder = 253
+        MRDataChangeOrder = 253,
+
+        /// <summary>
+        /// Հղումով փոխանցման վճարման կատարման հայտ
+        /// </summary>
+        LinkTransferPaymentConfirmation = 254
     }
 
     /// <summary>
@@ -1412,7 +1410,11 @@ namespace ExternalBanking
         /// <summary>
         /// Սբերբանկ փոխանցում
         /// </summary>
-        SberBankTransfer = 14
+        SberBankTransfer = 14,
+        /// <summary>
+        /// Հղումով փոխանցման վճարման web տիրույթ
+        /// </summary>
+        LinkPayment = 15
     }
 
     /// <summary>
@@ -2825,39 +2827,31 @@ namespace ExternalBanking
         /// Չվերագրված
         /// </summary>
         NotFound = 0,
-
         /// <summary>
         /// Նոր գրանցված
         /// </summary>
         NORM,
-
         /// <summary>
         /// Սպ. վարձը գանձված
         /// </summary>
         ACTIVE,
-
         /// <summary>
         /// Ավարտված
         /// </summary>
         CLSB,
-
         /// <summary>
         /// Փակված
         /// </summary>
         EXP,
-
         /// <summary>
         /// Վերաթողարկված
         /// </summary>
         RNEW,
-
         /// <summary>
         /// Հեռացված
         /// </summary>
         DELETED
-
     }
-
 
 }
 
@@ -3354,6 +3348,45 @@ public enum LinkPaymentSourceType : byte
     /// BillSplit-ից եկած հղումով փոխանցում
     /// </summary>
     FromBillSplit
+}
+
+public enum ArcaCardsTransationActionReason : byte
+{
+    /// <summary>
+    /// Սնանկ ճանաչված
+    /// </summary>
+    Bankrupt = 15
+}
+public enum ArcaCardsTransationActionType : short
+{
+    /// <summary>
+    /// Բլոկավորում
+    /// </summary>
+    Block = 1,
+
+    /// <summary>
+    /// Ապաբլոկավորում
+    /// </summary>
+    Unblock = 2
+}
+
+
+public enum ConfirmationSourceType : short
+{
+    /// <summary>
+    /// Նշված չէ
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// ACBA Digital համակարգից
+    /// </summary>
+    FromACBADigital = 1,
+
+    /// <summary>
+    /// Front Office ծրագրից
+    /// </summary>
+    FromBank = 2
 }
 
 

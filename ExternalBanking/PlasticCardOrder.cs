@@ -553,7 +553,7 @@ namespace ExternalBanking
             }
 
             List<PlasticCard> maincards = new List<PlasticCard>();
-            maincards = PlasticCard.GetCustomerMainCards(customerNumber);
+            maincards = PlasticCard.GetCustomerMainCards(customerNumber, true);
 
             if (this.PlasticCard.CardType == 51)//Միայն վիրտուալ քարտերի դեպքում
             {

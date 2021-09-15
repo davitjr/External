@@ -88,8 +88,9 @@ namespace ExternalBanking
             SubType = 1;
 
             if ((OrderNumber == null || OrderNumber == "") && Id == 0)
-                OrderNumber = GenerateNextOrderNumber(CustomerNumber
-                    );
+            {
+                OrderNumber = GenerateNextOrderNumber(CustomerNumber);
+            }              
 
             Type = OrderType.CardRenewOrder;
             OPPerson = SetOrderOPPerson(CustomerNumber);
@@ -363,8 +364,11 @@ namespace ExternalBanking
                 DateTime operDay = (DateTime)OperationDate;
                 if (Math.Abs(expDate.Month - operDay.Month + 12 * (expDate.Year - operDay.Year)) > 3)
                 {
-                    //Տվյալ քարտը չի կարող վերաթողարկվել:
-                    result.Errors.Add(new ActionError(1929));
+                    if (user.userID != 98 && user.userID != 1781)
+                    {
+                        //Տվյալ քարտը չի կարող վերաթողարկվել:
+                        result.Errors.Add(new ActionError(1929));
+                    }                   
                 }
             }
 
@@ -493,11 +497,19 @@ namespace ExternalBanking
                     result.Errors.Add(new ActionError(1932));
                 }
             }
+
             if (CardPINCodeReceivingType == 2 && (CardSMSPhone == "" || CardSMSPhone is null))
             {
-                //Բջջային հեռախոսահամարը մուտքագրված չէ
+                //Բջջային հեռախոսահամարը մուտքագրված չէ:
                 result.Errors.Add(new ActionError(464));
             }
+
+            if (CardRenewOrderDB.IsAlreadyRenewedOrReplaced(Card.ProductId))
+            {
+                //Նշված քարտի համար արդեն կատարվել է վերաթողարկման/փոխարինման գործողություն:
+                result.Errors.Add(new ActionError(1811, new string[] { "վերաթողարկման/փոխարինման" }));
+            }
+
             return result;
         }
 

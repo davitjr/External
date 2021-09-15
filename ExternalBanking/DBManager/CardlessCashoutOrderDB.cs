@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Configuration;
@@ -293,7 +294,7 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.Read())
                         {
-                            order.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
+                            order.CustomerNumber =ulong.Parse( dr["customer_number"].ToString());
                             order.MobilePhoneNumber = (dr["mobile_phone_number"].ToString());
                             order.AmountInAmd = double.Parse(dr["amount_amd"].ToString());
                         }
@@ -333,7 +334,6 @@ namespace ExternalBanking.DBManager
                 }
             }
         }
-
 
         public static void UpdateTransactionDetails(string atmid, string transactionid, string otp)
         {
@@ -381,18 +381,19 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@bankingSource", SqlDbType.SmallInt).Value = source;
                     cmd.Parameters.Add("@operDay", SqlDbType.SmallDateTime).Value = Utility.GetNextOperDay();
                     cmd.Parameters.Add("@setNumber", SqlDbType.Int).Value = 88;
-                    cmd.Parameters.Add("@TransactionId", SqlDbType.NVarChar).Value = TransactionId;
-                    cmd.Parameters.Add("@AtmId", SqlDbType.NVarChar).Value = AtmId;
+                    //cmd.Parameters.Add("@TransactionId", SqlDbType.NVarChar).Value = TransactionId;
+                    cmd.Parameters.Add("@Atm_Id", SqlDbType.NVarChar).Value = AtmId;
                     cmd.Parameters.Add(new SqlParameter("@itemNumber", SqlDbType.Int) { Direction = ParameterDirection.Output });
-                    try
-                    {
+                    //try
+                    //{
                         cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        //return new ActionResult { ResultCode = ResultCode.Failed }; քոմենթ քանի դեռ կատարման կտորը վերջնական պատրաստ չէ
-                    }
-                    return new ActionResult { ResultCode = ResultCode.Normal };
+                        return new ActionResult { ResultCode = ResultCode.Normal };
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    return new ActionResult { ResultCode = ResultCode.Failed }; 
+                    //}
+                    
                 }
             }
         }
@@ -400,7 +401,6 @@ namespace ExternalBanking.DBManager
         internal static CardlessCashoutOrder GetCardlessCashoutOrder(string cardlessCashOutCode)
         {
             CardlessCashoutOrder order = new CardlessCashoutOrder();
-
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -408,9 +408,9 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     cmd.Connection = conn;
                     cmd.CommandText = @"SELECT   HB.customer_number, COD.mobile_phone_number, COD.amount_amd, HB.doc_id, HB.quality, order_OTP_generation_date
-                                                                            FROM tbL_hb_documents HB 
-										                                    INNER JOIN 
-										                                    TBl_cardless_cashout_order_details COD 
+                                                                            FROM tbL_hb_documents HB
+										                                    INNER JOIN
+										                                    TBl_cardless_cashout_order_details COD
 										                                    ON hb.doc_id = cod.doc_id
 									                                    	WHERE  cod.order_OTP = @cardlessCashOutCode";
                     cmd.Parameters.Add("@cardlessCashOutCode", SqlDbType.NVarChar).Value = cardlessCashOutCode;
@@ -431,6 +431,9 @@ namespace ExternalBanking.DBManager
             }
             return order;
         }
+
+
+
         public static void WriteCardlessCashoutLog(ulong docID, bool isOk, string msgArm, string msgEng, string AtmId, byte step)
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -459,6 +462,24 @@ namespace ExternalBanking.DBManager
                         //return new ActionResult { ResultCode = ResultCode.Failed }; քոմենթ քանի դեռ կատարման կտորը վերջնական պատրաստ չէ
                     }
 
+                }
+            }
+        }
+        public static void SaveCancelNotificationMessage(string request)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = "sp_cardless_cashout_notification_message";
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@request", SqlDbType.NVarChar).Value = request;
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }

@@ -43,6 +43,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = order.user.userName;
                 cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = order.UserId;
+                cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 250).Value = order.Receiver;
 
                 cmd.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Direction = ParameterDirection.Output });
                 cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
@@ -120,10 +121,7 @@ namespace ExternalBanking.DBManager
             string query = @"UPDATE Tbl_link_payment_order_details 
                                     SET link_url = @linkUrl,
                                         short_id = @short_id
-                                    WHERE doc_id = @doc_id
-
-                                     INSERT INTO Tbl_link_payment(short_id, status)
-                                     VALUES(@short_id, 0) ";
+                                    WHERE doc_id = @doc_id";
 
             if (Order.PaymentSourceType == LinkPaymentSourceType.FromLinkPayment)
                 query += Environment.NewLine + @" UPDATE Tbl_BILl_split_senders
@@ -140,41 +138,13 @@ namespace ExternalBanking.DBManager
                 cmd.CommandType = CommandType.Text;
 
                 cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = Order.Id;
-                cmd.Parameters.Add("@linkUrl", SqlDbType.NVarChar, 20).Value = Order.LinkURL;
+                cmd.Parameters.Add("@linkUrl", SqlDbType.NVarChar, 100).Value = Order.LinkURL;
                 cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 20).Value = Order.ShortId;
 
                 cmd.ExecuteNonQuery();
             }
         }
 
-        internal static ActionResult SaveLinkPaymentPayer(LinkPaymentPayer linkPayment, short userId)
-        {
-            ActionResult result = new ActionResult();
-
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand("pr_save_link_payment_payer", conn))
-                {
-                    conn.Open();
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 20).Value = linkPayment.ShortId;
-                    cmd.Parameters.Add("@payer_name", SqlDbType.NVarChar, 20).Value = linkPayment.PayerName;
-                    cmd.Parameters.Add("@payer_card", SqlDbType.NVarChar, 20).Value = linkPayment.PayerCard;
-                    cmd.Parameters.Add("@check_box", SqlDbType.Bit).Value = linkPayment.CheckBox;
-                    cmd.Parameters.Add("@set_Date", SqlDbType.Int).Value = Utility.GetCurrentOperDay();
-                    cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = userId;
-
-
-                    cmd.ExecuteNonQuery();
-
-                    result.ResultCode = ResultCode.Normal;
-
-                }
-            }
-
-            return result;
-        }
 
         public static LinkPaymentOrder GetLinkPaymentOrderWithShortId(string shortId)
         {
@@ -185,10 +155,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                //doc_id, registration_date, amount, credit_account, currency, description, link_url, link_payment_description, payment_source_type, payment_source_type
                 cmd.CommandText = @"SELECT * FROM Tbl_HB_documents hb
                                     INNER JOIN Tbl_link_payment_order_details lp on hb.doc_id = lp.doc_id 
-                                    WHERE hb.quality = 30 AND short_id = @short_id ";
+                                    WHERE lp.isActive = 1 AND hb.quality = 30 AND short_id = @short_id ";
                 cmd.CommandType = CommandType.Text;
 
                 cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 20).Value = shortId;
@@ -220,6 +189,7 @@ namespace ExternalBanking.DBManager
             paymentOrder.UserId = Convert.ToDouble(dr["user_id"]);
             paymentOrder.Activ = Convert.ToBoolean(dr["isActive"]);
             paymentOrder.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+            paymentOrder.Receiver = dr["receiver_name"] != DBNull.Value ? dr["receiver_name"].ToString() : "";
 
             return paymentOrder;
         }

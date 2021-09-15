@@ -840,7 +840,7 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        virtual public ActionResult Confirm(ACBAServiceReference.User user)
+        virtual public ActionResult Confirm(ACBAServiceReference.User user, ConfirmationSourceType confirmationSourceType = ConfirmationSourceType.None)
         {
             ActionResult result = new ActionResult();
 
@@ -879,7 +879,7 @@ namespace ExternalBanking
                                 }
                                 else
                                 {
-                                    OrderDB.ConfirmOrder(this, user);
+                                    OrderDB.ConfirmOrder(this, user, confirmationSourceType);
                                     result = ConfirmOrderStep2(user);
                                     result.ResultCode = ResultCode.Normal;
                                     result.Id = this.Id;

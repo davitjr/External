@@ -472,7 +472,7 @@ namespace ExternalBanking.DBManager
                     cmd.ExecuteNonQuery();
 
                     order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                    int actionResult = Convert.ToInt32(cmd.Parameters["@result"].Value);
+                    short actionResult = Convert.ToInt16(cmd.Parameters["@result"].Value);
 
                     if (actionResult == 1)
                     {
@@ -487,6 +487,13 @@ namespace ExternalBanking.DBManager
                     {
                         result.ResultCode = ResultCode.Failed;
                         result.Id = -1;
+                        result.Errors.Add(new ActionError(actionResult));
+                    }
+                    else
+                    {
+                        result.ResultCode = ResultCode.ValidationError;
+                        result.Id = -1;
+                        result.Errors.Add(new ActionError(actionResult));
                     }
 
                     return result;
@@ -1362,7 +1369,7 @@ namespace ExternalBanking.DBManager
                         result.ResultCode = ResultCode.Failed;
                         result.Id = -1;
                     }
-
+                  
                 }
             }
 

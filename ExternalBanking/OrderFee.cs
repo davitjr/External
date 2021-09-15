@@ -51,5 +51,14 @@ namespace ExternalBanking
         /// </summary>
         public string DescriptionForRejectFeeType { get; set; }
 
+        /// <summary>
+        /// Չգանձման պատճառի տեսակ
+        /// </summary>
+        public int? RejectFeeType { get; set; }
+
+        /// <summary>
+        /// Չգանձման պատճառի տեսակի նկարագրություն
+        /// </summary>
+        public string RejectFeeTypeDescription { get; set; }
     }
 }

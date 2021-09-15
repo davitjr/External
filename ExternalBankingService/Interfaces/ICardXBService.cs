@@ -1,4 +1,5 @@
 ﻿using ExternalBanking;
+using System.Collections.Generic;
 using System.ServiceModel;
 
 namespace ExternalBankingService.Interfaces
@@ -17,12 +18,36 @@ namespace ExternalBankingService.Interfaces
         AuthorizedCustomer AuthorizeCustomer(ulong customerNumber);
 
         [OperationContract]
-        ActionResult SaveAndApproveArcaCardsTransactionOrder(ArcaCardsTransactionOrder order);
+        ActionResult SaveAndApproveAutomateArcaCardsTransactionOrder(ArcaCardsTransactionOrder order);
 
         [OperationContract]
         ActionResult SaveAndApproveCardRenew(CardRenewOrder order);
 
         [OperationContract]
         Card GetCard(ulong productId, ulong customerNumber);
+
+        [OperationContract]
+        PlasticCard GetPlasticCard(ulong productId);
+
+        [OperationContract]
+        Card GetCardWithCardNumber(string cardNumber, ulong customerNumber);
+
+        [OperationContract]
+        List<Card> GetCards(ulong customerNumber, ProductQualityFilter filter, bool includingAttachedCards);
+
+        [OperationContract]
+        List<PlasticCard> GetCustomerPlasticCards(ulong customerNumber);
+
+        [OperationContract]
+        List<AccountFreezeDetails> GetAccountFreezeHistory(string accountNumber, ushort freezeStatus, ushort reasonId);
+
+        [OperationContract]
+        int[] GetFreezingReasonsForBlocking();
+
+        [OperationContract]
+        long? GetPreviousBlockingOrderId(string cardNumber);
+
+        [OperationContract]
+        long? GetPreviousUnBlockingOrderId(string cardNumber);
     }
 }

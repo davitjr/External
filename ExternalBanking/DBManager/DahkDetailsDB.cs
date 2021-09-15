@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Globalization;
 
 namespace ExternalBanking.DBManager
 {
@@ -96,7 +97,7 @@ namespace ExternalBanking.DBManager
                         dt.Load(dr);
                     }
 
-                    for (int i = 0; i<dt.Rows.Count; i++)
+                    for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         DataRow row = dt.Rows[i];
 
@@ -710,7 +711,8 @@ namespace ExternalBanking.DBManager
                             dahk.BlockedAmount = Convert.ToDouble(row["blocked_amount"]);
                             dahk.BlockedAmountInAMD = Convert.ToDouble(row["blocked_amount_in_amd"]);
                             dahk.BlockedCurency = row["blocked_currency"] != DBNull.Value ? row["blocked_currency"].ToString() : "AMD";
-                            dahk.BlockedAmountWithCurrency = Convert.ToDouble(row["blocked_amount"]).ToString() + " " + row["blocked_currency"].ToString();
+                            dahk.BlockedAmountWithCurrency = Convert.ToDouble(row["blocked_amount"]).ToString("C", CultureInfo.CurrentCulture) + " " + row["blocked_currency"].ToString();
+                            dahk.BlockedAmountWithCurrency = dahk.BlockedAmountWithCurrency.Replace("$", "");
                             if (dahk.BlockedCurency == "AMD")
                                 dahk.BlockedAmountInAMD = dahk.BlockedAmount;
                             dahklist.Add(dahk);
@@ -750,8 +752,8 @@ namespace ExternalBanking.DBManager
                                     blockedAmountWithCurrency += (" " + dahklist[j].BlockedAmountWithCurrency);
                                 }
                             }
-                            keyValuePairs.Add(dahklist[i].InquestCode, blockedAmountWithCurrency + "," + blockedAmountINAMD
-                                + "," + dahklist[i].SetDate + "," + dahklist[i].Amount);
+                            keyValuePairs.Add(dahklist[i].InquestCode, blockedAmountWithCurrency + ";" + blockedAmountINAMD
+                                + ";" + dahklist[i].SetDate + ";" + dahklist[i].Amount);
                         }
                     }
 
@@ -759,7 +761,7 @@ namespace ExternalBanking.DBManager
 
                     for (int i = 0; i < newlist.Count; i++)
                     {
-                        List<string> items = newlist[i].BlockedAmountWithCurrency.Split(',').ToList<string>();
+                        List<string> items = newlist[i].BlockedAmountWithCurrency.Split(';').ToList<string>();
 
                         newlist[i].BlockedAmountWithCurrency = items[0];
 

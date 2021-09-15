@@ -95,6 +95,7 @@ namespace ExternalBanking
         /// Մասնաճյուղ
         /// </summary>
         public int FilialCode { get; set; }
+
         /// <summary>
         /// Նկարագրություն
         /// </summary>

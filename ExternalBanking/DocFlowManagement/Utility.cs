@@ -20,9 +20,9 @@ namespace ExternalBanking.DocFlowManagement
         {
             List<MemoField> memoFields = MemoDocument.GetMemoTemplate(memoType);
             HBApplication hbApplication = HBApplication.GetHBApplication(order.CustomerNumber);
-             
+
             List<string> hbApplicationStates = order.GetHBApplicationStateBeforeAndAfterConfirm();
-           
+
             foreach (var field in memoFields)
             {
                 if (field.InputType == 2)
@@ -208,7 +208,7 @@ namespace ExternalBanking.DocFlowManagement
                                     GroupId = order.GroupId,
                                     IPAddress = clientIp
                                 };
-                                
+
                                 var saveResult = arcaCards.Save(order.user.userName, order.Source, order.user,schemaType);
                                 var approveResult = arcaCards.Approve(order.user.userName, schemaType);
                                 if (approveResult.ResultCode == ResultCode.Normal)
@@ -271,7 +271,7 @@ namespace ExternalBanking.DocFlowManagement
 
                         if (field.ControlName == "txt_password")
                         {
-                                field.ItemDescription = order.MotherName;
+                            field.ItemDescription = order.MotherName;
                         }
                         if (field.ControlName == "txt_report_type")
                         {
@@ -283,7 +283,7 @@ namespace ExternalBanking.DocFlowManagement
                                 string description = dt.Rows[i]["description"].ToString();
                                 types.Add(Convert.ToInt32(dt.Rows[i]["type_id"].ToString()), description);
                             }
-                                field.ItemDescription = types[order.CardReportReceivingType.Value];
+                            field.ItemDescription = String.IsNullOrEmpty(order.CardReportReceivingType.ToString()) ? "" : types[order.CardReportReceivingType.Value];
 
                         }
                         if (field.ControlName == "txt_customer_number")
@@ -454,5 +454,5 @@ namespace ExternalBanking.DocFlowManagement
         }
 
     }
-        
+
 }

@@ -1092,13 +1092,10 @@ namespace ExternalBanking
             return CardDB.GetCardExpireDateActivatedInArCa(cardNumber);
         }
 
+
         public static List<CardRetainHistory> GetCardRetainHistory(string cardNumber)
         {
             return CardDB.GetCardRetainHistory(cardNumber);
-        }
-        public static string GetCustomerEmailByCardNumber(string cardNumber)
-        {
-            return CardDB.GetCustomerEmailByCardNumber(cardNumber);
         }
     }
 }

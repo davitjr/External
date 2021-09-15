@@ -196,7 +196,16 @@ namespace ExternalBanking
                 {
                     this.AllDebt = true;
                 }
-                this.PayIfNoDebt = 1;
+
+                if(this.Amount != 0)
+                {
+                    this.PayIfNoDebt = 1;
+                }
+                else
+                {
+                    this.PayIfNoDebt = 0;
+                }
+               
 
                 SearchCommunal searchCommunal = new SearchCommunal()
                 {

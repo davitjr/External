@@ -1484,6 +1484,27 @@ namespace ExternalBanking.DBManager
             }
 
         }
+
+        public static ulong GetAmexGoldProductId(string account)
+        {
+            ulong productID = 0;
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(@"SELECT C.App_Id 
+                                                        FROM Tbl_Visa_Numbers_Accounts V 
+	                                                        INNER JOIN Tbl_credit_lines C ON V.loan_account = C.loan_full_number 
+                                                        WHERE C.loan_full_number = @account AND V.closing_date IS NULL AND V.card_type IN (20,41)", conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@account", SqlDbType.Float).Value = account;
+
+                    productID = Convert.ToUInt64(cmd.ExecuteScalar());
+                }
+            }
+            return productID;
+        }
     }
 }
 

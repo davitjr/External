@@ -420,5 +420,34 @@ namespace ExternalBanking.DBManager
             }
             return quality;
         }
+
+        /// <summary>
+        /// Նշված քարտի համար արդեն կատարվել է փոխարինման/վերաթողարկման գործողություն:
+        /// </summary>
+        internal static bool IsAlreadyRenewedOrReplaced(long productId)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                string sql = @"SELECT 1 FROM Tbl_CardChanges C
+                                             INNER JOIN tbl_visa_applications V
+                                             ON C.old_app_id = V.app_id
+                                              WHERE V.app_id = @app_id 
+                                             AND typeID IN (1, 3)
+                                             AND ReNew_Date IS NOT NULL";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+
+                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
+
+                    conn.Open();
+
+                    var temp = cmd.ExecuteScalar();
+
+                    return temp != null;
+                }
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 using ExternalBanking.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,6 +58,11 @@ namespace ExternalBanking
         public string Photo { get; set; }
 
         /// <summary>
+        /// Ստացող
+        /// </summary>
+        public string Receiver { get; set; }
+
+        /// <summary>
         /// Լրացնում է հայտի ավտոմատ լրացվող դաշտերը
         /// </summary>
         private void Complete(ACBAServiceReference.User user)
@@ -65,6 +71,8 @@ namespace ExternalBanking
             this.Type = OrderType.LinkPaymentOrder;
             this.SubType = 1;
             this.Description = "Հղումով փոխանցում";
+            this.Receiver = Account.GetAccountDescription(CreditAccount.AccountNumber);
+            this.Currency = "AMD";
 
             //Հայտի համար   
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
@@ -73,9 +81,23 @@ namespace ExternalBanking
 
         }
 
-        private ActionResult Validate(ushort filialCode)
+        private ActionResult Validate()
         {
-            throw new NotImplementedException();
+            ActionResult result = new ActionResult();
+            if (!Utility.IsCorrectAmount(this.Amount, this.Currency))
+            {
+                result.Errors.Add(new ActionError(25));
+            }
+
+            if (result.Errors.Count == 0)
+            {
+                result.ResultCode = ResultCode.Normal;
+            }
+            else
+            {
+                result.ResultCode = ResultCode.ValidationError;
+            }
+            return result;
         }
 
         public ActionResult ValidateForSend()
@@ -90,8 +112,7 @@ namespace ExternalBanking
         public ActionResult Save()
         {
             this.Complete(user);
-            ActionResult result = new ActionResult();
-            //ActionResult result = this.Validate(user.filialCode);
+            ActionResult result = this.Validate();
 
             if (result.Errors.Count > 0)
             {
@@ -146,7 +167,9 @@ namespace ExternalBanking
                     }
 
                     this.ShortId = ShortIdHelper.Generate(true, false);
-                    this.LinkURL = "acba_" + this.ShortId;
+                    //this.LinkURL = "acba_" + this.ShortId;
+                    string url = ConfigurationManager.AppSettings["LinkPaymentURL"];
+                    this.LinkURL = url + this.ShortId;
 
                     while (LinkPaymentOrderDB.CheckShortId(this.ShortId))
                         ShortIdHelper.Generate(true, false);
@@ -180,32 +203,8 @@ namespace ExternalBanking
 
         public static LinkPaymentOrder GetLinkPaymentOrderWithShortId(string ShortId) => LinkPaymentOrderDB.GetLinkPaymentOrderWithShortId(ShortId);
 
-        public static ActionResult SaveLinkPaymentPayer(LinkPaymentPayer linkPayment, short userId) => LinkPaymentOrderDB.SaveLinkPaymentPayer(linkPayment, userId);
 
     }
 
-
-    public class LinkPaymentPayer
-    {
-        /// <summary>
-        /// Հղման url-ի 16ն նիշ
-        /// </summary>
-        public string ShortId { get; set; }
-
-        /// <summary>
-        /// CheckBox 
-        /// </summary>
-        public bool CheckBox { get; set; }
-
-        /// <summary>
-        /// Վճարողի Անուն ազգանուն
-        /// </summary>
-        public string PayerName { get; set; }
-
-        /// <summary>
-        /// վճարողի քարտի համար
-        /// </summary>
-        public string PayerCard { get; set; }
-    }
 
 }

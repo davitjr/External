@@ -5,6 +5,8 @@ using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 using System.Transactions;
 using System.Web.Configuration;
 
@@ -233,7 +235,6 @@ namespace ExternalBanking
         {
             CardlessCashoutOrder cardlessCashoutOrder = CardlessCashoutOrderDB.GetCardlessCashoutOrder(cardlessCashOutCode);
             cardlessCashoutOrder.SvipError = Validation.ValidateGetCardlessCashoutOrderWithVerification(cardlessCashoutOrder);
-
             if (string.IsNullOrEmpty(cardlessCashoutOrder.SvipError.ErrorCode))
             {
                 SendAtmOtpWithSms(cardlessCashoutOrder);
@@ -415,5 +416,9 @@ namespace ExternalBanking
             CardlessCashoutOrderDB.WriteCardlessCashoutLog(docID, isOk, msgArm, msgEng, AtmId, step);
         }
 
+        public static void SaveCancelNotificationMessage(string request)
+        {
+             CardlessCashoutOrderDB.SaveCancelNotificationMessage(request);
+        }
     }
 }

@@ -69,6 +69,97 @@ namespace ExternalBanking.DBManager
             return cardList;
         }
 
+        internal static PlasticCard GetPlasticCard(string cardNumber)
+        {
+            PlasticCard card = null;
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql =
+                    @"SELECT Cardnumber as card_number,BillingCurrency,ExpiryDate, ValidFrom,  V.CardType, V.customer_number, MainCardnumber,  Filial,V.app_id ,RelatedOfficeNumber,ss.CardSystemType + ' ' + Upper(tp.CardType)  as Card_Type_description,tp.CardSystemId,C.name,C.lastname,
+                        CASE WHEN ISNULL(S.customer_number,0)=0 THEN 1 ELSE CASE WHEN  S.customer_number <> v.customer_number THEN 2 ELSE 3 END END AS supplementary_type, typeID, add_inf
+                        FROM Tbl_VISA_applications V 
+                        INNER JOIN tbl_type_of_card  tp
+                        ON V.cardType=tp.id 
+                        INNER JOIN tbl_type_of_CardSystem ss
+                        ON tp.CardSystemId=ss.Id 
+                        LEFT JOIN Tbl_SupplementaryCards S on V.app_id  = S.app_id and S.app_id<>S.main_app_id 
+                        LEFT JOIN (SELECT name , lastname ,customer_number FROM V_CustomerDesription ) C ON C.customer_number = CASE WHEN ISNULL(S.customer_number,0)=0 THEN V.customer_number ELSE S.customer_number END 
+                        LEFT JOIN tbl_cardChanges CC ON CC.app_id = V.app_id                        
+                        LEFT JOIN Tbl_Visa_Numbers_Accounts  vn ON vn.App_Id = CC.old_app_id 
+                        WHERE V.Cardnumber = @cardNumber";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar).Value = cardNumber;
+
+                    conn.Open();
+
+                    DataTable dt = new DataTable();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        DataRow row = dt.Rows[0];
+                        card = SetPlasticCard(row);
+                    }
+                }
+            }
+
+            return card;
+        }
+
+        internal static List<PlasticCard> GetSupplementaryPlasticCards(string mainCardNumber)
+        {
+            List<PlasticCard> cards = new List<PlasticCard>();
+            
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql =
+                    @"SELECT Cardnumber as card_number,BillingCurrency,ExpiryDate, ValidFrom,  V.CardType, V.customer_number, MainCardnumber,  Filial,V.app_id ,RelatedOfficeNumber,ss.CardSystemType + ' ' + Upper(tp.CardType)  as Card_Type_description,tp.CardSystemId,C.name,C.lastname,
+                        CASE WHEN ISNULL(S.customer_number,0)=0 THEN 1 ELSE CASE WHEN  S.customer_number <> v.customer_number THEN 2 ELSE 3 END END AS supplementary_type, typeID, add_inf
+                        FROM Tbl_VISA_applications V 
+                        INNER JOIN tbl_type_of_card  tp
+                        ON V.cardType=tp.id 
+                        INNER JOIN tbl_type_of_CardSystem ss
+                        ON tp.CardSystemId=ss.Id 
+                        LEFT JOIN Tbl_SupplementaryCards S on V.app_id  = S.app_id and S.app_id<>S.main_app_id 
+                        LEFT JOIN (SELECT name , lastname ,customer_number FROM V_CustomerDesription ) C ON C.customer_number = CASE WHEN ISNULL(S.customer_number,0)=0 THEN V.customer_number ELSE S.customer_number END 
+                        LEFT JOIN tbl_cardChanges CC ON CC.app_id = V.app_id                        
+                        LEFT JOIN Tbl_Visa_Numbers_Accounts vn ON vn.App_Id = V.app_id  
+                        WHERE V.MainCardnumber = @mainCardNumber AND Cardnumber<>MainCardnumber AND V.cardStatus='NORM' AND ISNULL(GivenDate, 0) = 0 AND ISNULL(vn.App_id,0)=0";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
+
+                    conn.Open();
+
+                    DataTable dt = new DataTable();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+
+                    foreach(DataRow row in dt.Rows)
+                    {
+                        PlasticCard card = SetPlasticCard(row);
+                        cards.Add(card);
+                    }
+                }
+            }
+
+            return cards;
+        }
+
         internal static PlasticCard GetPlasticCard(ulong productId ,bool productidType)
         {
             PlasticCard card = null;
@@ -224,7 +315,7 @@ namespace ExternalBanking.DBManager
         /// </summary>
         /// <param name="CustomerNumber"></param>
         /// <returns></returns>
-        internal static List<PlasticCard> GetCustomerMainCards(ulong CustomerNumber, bool getAll = false)
+        internal static List<PlasticCard> GetCustomerMainCards(ulong CustomerNumber, bool getAll = false, bool getNew = false)
         {
             List<PlasticCard> cardList = new List<PlasticCard>();
 
@@ -238,10 +329,73 @@ namespace ExternalBanking.DBManager
                                 LEFT JOIN Tbl_Visa_Numbers_Accounts vn on VA.app_id = vn.App_Id
                                 INNER JOIN tbl_type_of_card t on VA.cardType=t.id
                                 INNER JOIN tbl_type_of_CardSystem ts on t.CardSystemID = ts.ID
-                                WHERE  CardStatus = 'NORM' AND VA.customer_number=@customerNumber";
+                                WHERE (CardStatus = 'NORM' OR CardStatus = @getNew) AND VA.customer_number=@customerNumber";
 
                 if (!getAll)
-                    sql +=" AND cardnumber = MaincardNumber";
+                    sql += " AND ISNULL(cardnumber,0) = ISNULL(MaincardNumber,0)";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = CustomerNumber;
+                    cmd.Parameters.Add("@getNew", SqlDbType.NVarChar, 15).Value = getNew ? "NEW" : "";
+                    conn.Open();
+
+                    DataTable dt = new DataTable();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+
+                        dt.Load(dr);
+                    }
+
+                    if (dt.Rows.Count > 0)
+                        cardList = new List<PlasticCard>();
+
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+
+                        DataRow row = dt.Rows[i];
+
+                        PlasticCard card = new PlasticCard();
+
+                        card.ProductId = ulong.Parse(row["app_id"].ToString());
+                        card.CardNumber = row["card_number"] == DBNull.Value ? "" : row["card_number"].ToString();
+                        card.Currency = row["currency"].ToString();
+                        card.CardType = uint.Parse(row["card_type"].ToString());
+                        card.SupplementaryType = SupplementaryType.Main;
+                        card.CardTypeDescription = row["Card_Type_description"].ToString();
+                        card.RelatedOfficeNumber = int.Parse(row["RelatedOfficeNumber"].ToString());
+                        card.OpenDate = DateTime.Parse(row["open_date"].ToString());
+                        card.FilialCode = int.Parse(row["filialcode"].ToString());
+                        cardList.Add(card);
+                    }
+                }
+            }
+
+            return cardList;
+        }
+
+        /// <summary>
+        /// Վերադարձնում է հաճախորդի NORM կամ RNEW ստատուսով քարտերը
+        /// </summary>
+        /// <param name="CustomerNumber"></param>
+        /// <returns></returns>
+        internal static List<PlasticCard> GetCustomerCards(ulong CustomerNumber)
+        {
+            List<PlasticCard> cardList = new List<PlasticCard>();
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT VA.app_id, VA.cardnumber as card_number, VA.BillingCurrency as currency, ts.CardSystemType + ' ' + Upper(t.CardType)  as Card_Type_description, 
+                                VA.cardtype as card_type, VA.RelatedOfficeNumber,
+                                CASE WHEN vn.open_date IS NULL THEN VA.RegDate ELSE vn.open_date END open_date,
+                                CASE WHEN vn.filialcode IS NULL THEN (filial + 22000) ELSE vn.filialcode END filialcode
+                                FROM tbl_visa_applications VA
+                                LEFT JOIN Tbl_Visa_Numbers_Accounts vn on VA.app_id = vn.App_Id
+                                INNER JOIN tbl_type_of_card t on VA.cardType=t.id
+                                INNER JOIN tbl_type_of_CardSystem ts on t.CardSystemID = ts.ID
+                                WHERE VA.customer_number=@customerNumber 
+                                        AND (CardStatus = 'NORM' OR (CardStatus = 'RNEW' AND vn.validation_date>=CAST( GETDATE() AS Date) AND vn.closing_date IS NULL))";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {

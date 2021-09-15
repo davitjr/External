@@ -3821,7 +3821,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("select code,description,Description_Engl  from Tbl_type_of_credit_lines WHERE CODE  IN (30,50,51)", conn))
+                using (SqlCommand cmd = new SqlCommand("select code,description,Description_Engl  from Tbl_type_of_credit_lines WHERE CODE  IN (30,51)", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -4526,6 +4526,102 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand("SELECT ID, Description FROM tbl_types_of_loan_delete ORDER BY ID", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+
+                return dt;
+            }
+        }
+
+
+        internal static DataTable GetThirdPersonAccounts(ulong customerNumber)
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(@"SELECT  acc.* , c.*, C_main.type_of_client as main_customer_type_of_client
+                                                                                                FROM [tbl_all_accounts;] a INNER JOIN Tbl_Co_Accounts_Main acc on a.arm_number = acc.arm_number INNER JOIN [Tbl_Co_Accounts] c on c.co_main_id = acc.id 
+		                                                                                                INNER JOIN (select sint_acc_new from tbl_define_sint_acc where  type_of_product = 10 and type_of_account = 24 group by sint_acc_new ) sint on sint.sint_acc_new = a.type_of_account_new 
+		                                                                                                INNER JOIN (select C.customer_number, P.birth[birth], C.type_of_client from Tbl_Customers C WITH (nolock) LEFT JOIN Tbl_Persons P on C.identityId = P.identityId) third_person_cust 
+				                                                                                                on acc.third_person_Customer_number = third_person_cust.customer_number 
+		                                                                                                INNER JOIN Tbl_Customers C_main on c.customer_number = C_main.customer_number
+                                                                                                WHERE acc.Type = 2 And acc.closing_date Is null and a.closing_date is null 
+                                                                                                and c.customer_number = @customer_number", conn))
+                {
+                    cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = customerNumber;
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+            }
+            return dt;
+        }
+
+        public static DataTable GetActiveDepositTypesForNewDepositOrderForDigitalBanking(short allowableCustomerType, short allowableForThirdhPerson, short allowableForCooperative)
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(@"SELECT code, description, description_Engl,allowable_customer_type,allowable_for_thirdh_person 
+                                                  FROM [Tbl_type_of_deposits;] WHERE closing_date is null AND (((allowable_customer_type=@allowableCustomerType OR allowable_customer_type=0)
+                                                  AND allowable_for_cooperative=@allowableForCooperative) OR allowable_for_thirdh_person = @allowableForThirdhPerson)", conn);
+
+                cmd.Parameters.Add("@allowableCustomerType", SqlDbType.SmallInt).Value = allowableCustomerType;
+                cmd.Parameters.Add("@allowableForThirdhPerson", SqlDbType.Bit).Value = allowableForThirdhPerson;
+                cmd.Parameters.Add("@allowableForCooperative", SqlDbType.Bit).Value = allowableForCooperative;
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    dt.Load(dr);
+                }
+
+            }
+            return dt;
+        }
+
+        /// <summary>
+        /// Դիջիթալից մուտքագրվող հօգուտ 3-րդ անձի ավանդի համար վերադարձնում է հասանելի արժույթները։
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetJointDepositAvailableCurrency(ulong customerNumber)
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(@"SELECT acc.account_currency
+                                                                                    FROM [Tbl_Co_Accounts_Main] acc INNER JOIN Tbl_co_accounts c ON acc.ID = c.co_main_ID 
+                                                                                    WHERE type = 2 and acc.closing_date is null
+						                                                                                    and acc.account_currency IN ('AMD', 'USD')
+                                                                                                            and c.customer_number =  @customer_number
+                                                                                    GROUP BY acc.account_currency
+                                                                                    ORDER BY acc.account_currency", conn);
+
+                cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = customerNumber;
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    dt.Load(dr);
+                }
+
+            }
+            return dt;
+        }
+        internal static DataTable GetCommissionNonCollectionReasons()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT [Id],[description] FROM [dbo].[tbl_types_of_commission_nonCollection_reasons]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {

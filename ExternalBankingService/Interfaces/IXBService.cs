@@ -15,7 +15,6 @@ using ExternalBanking.PreferredAccounts;
 using ExternalBanking.QrTransfers;
 using static ExternalBanking.ReceivedBillSplitRequest;
 
-using ExternalBanking.Leasing;
 namespace ExternalBankingService.Interfaces
 {
     [ServiceContract]
@@ -2742,7 +2741,7 @@ namespace ExternalBankingService.Interfaces
         string PostSentMessageToCustomer(HBMessages obj);
 
         [OperationContract]
-        List<HBMessageFiles> GetMessageUploadedFilesList(long msgId);
+        List<HBMessageFiles> GetMessageUploadedFilesList(long msgId, bool showUploadFilesContent);
 
         [OperationContract]
         int GetCancelTransactionDetails(long docId);
@@ -3143,10 +3142,10 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         ActionResult ApproveAttachedCardToCardOrderQuality(CardToCardOrder cardToCardOrder);
-    
+
         [OperationContract]
         bool IsCustomerConnectedToOurBank(ulong customerNumber);
-        
+
 
         [OperationContract]
         ActionResult SaveAndApproveLoanInterestRateConcessionOrder(LoanInterestRateConcessionOrder order);
@@ -3178,6 +3177,9 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         string GetNotFreezedCurrentAccount(ulong customerNumber);
+
+        [OperationContract]
+        CardlessCashoutOrder GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode);
 
         [OperationContract]
         List<PlasticCard> GetCustomerMainCardsForAttachedCardOrder();
@@ -3223,7 +3225,8 @@ namespace ExternalBankingService.Interfaces
         [OperationContract]
         List<long> GetAttachedCardOrdersByDocId(List<int> docIds);
         [OperationContract]
-        List<Template> GetGroupTemplates(int groupId, TemplateStatus status);
+        [DataContractFormat]
+        List<GroupTemplateResponse> GetGroupTemplates(int groupId, TemplateStatus status);
         [OperationContract]
         byte CardBlockingActionAvailability(string cardNumber);
 
@@ -3235,7 +3238,7 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         ActionResult ResponseConfirmForSTAK(STAKResponseConfirm responseConfirm, string authorizedUserSessionToken);
-        
+
         [OperationContract]
         DateTime GetLeasingOperDay();
 
@@ -3255,7 +3258,7 @@ namespace ExternalBankingService.Interfaces
         LinkPaymentOrder GetLinkPaymentOrderWithShortId(string ShortId);
 
         [OperationContract]
-        ActionResult SaveLinkPaymentPayer(LinkPaymentPayer linkPayment);
+        ActionResult ConfirmPayerLinkPayment(PayerLinkPaymentOrder order);
 
         [OperationContract]
         BillSplitOrder GetBillSplitOrder(long id);
@@ -3333,7 +3336,42 @@ namespace ExternalBankingService.Interfaces
         CardReOpenOrder GetCardReOpenOrder(long ID);
 
         [OperationContract]
-        CardlessCashoutOrder GetCardlessCashoutOrderWithVerification(string cardlessCashOutCode);
+        ulong CheckCustomerFreeFunds(string accountNumber);
+
+        [OperationContract]
+        ActionResult SaveAndApproveThirdPersonAccountRightsTransfer(ThirdPersonAccountRightsTransferOrder order);
+
+        [OperationContract]
+        bool GetRightsTransferAvailability(string accountNumber);
+
+        [OperationContract]
+        bool GetRightsTransferVisibility(string accountNumber);
+        [OperationContract]
+        bool GetCheckCustomerIsThirdPerson(string accountNumber, ulong customerNumber);
+
+        [OperationContract]
+        List<string> GetRenewedCardAccountRegWarnings(Card oldCard);
+
+        [OperationContract]
+        bool IsCardlessCashCodeCorrect(string cardlessCashoutCode);
+
+        [OperationContract]
+        void SaveCancelNotificationMessage(string request);
+
+        [OperationContract]
+        bool GetMRDataChangeAvailability(int mrID);
+
+        [OperationContract]
+        ActionResult SaveAndApproveMRDataChangeOrder(MRDataChangeOrder order);
+
+        [OperationContract]
+        ulong GetAmexGoldProductId(string account);
+
+        [OperationContract]
+        LoanRepaymentFromCardDataChange GetLoanRepaymentFromCardDataChangeHistory(ulong appId);
+
+        [OperationContract]
+        LoanRepaymentFromCardDataChange SaveLoanRepaymentFromCardDataChange(LoanRepaymentFromCardDataChange loanRepaymentFromCardDataChange);
 
         [OperationContract]
         ActionResult SavePreferredAccountOrder(PreferredAccountOrder order);
@@ -3363,9 +3401,6 @@ namespace ExternalBankingService.Interfaces
         List<Account> GetQrAccounts();
 
         [OperationContract]
-        bool IsCardlessCashCodeCorrect(string cardlessCashoutCode);
-
-        [OperationContract]
         ActionResult SaveAndApproveVisaAliasOrder(VisaAliasOrder order);
 
         [OperationContract]
@@ -3385,55 +3420,5 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         CardHolderAndCardType GetCardTypeAndCardHolder(string cardNumber);
-        [OperationContract]
-        ulong CheckCustomerFreeFunds(string accountNumber);
-
-        [OperationContract]
-        ActionResult SaveAndApproveThirdPersonAccountRightsTransfer(ThirdPersonAccountRightsTransferOrder order);
-
-        [OperationContract]
-        bool GetRightsTransferAvailability(string accountNumber);
-
-        [OperationContract]
-        bool GetRightsTransferVisibility(string accountNumber);
-        [OperationContract]
-        bool GetCheckCustomerIsThirdPerson(string accountNumber, ulong customerNumber);
-
-        [OperationContract]
-        List<string> GetRenewedCardAccountRegWarnings(Card oldCard);
-
-        [OperationContract]
-        bool GetMRDataChangeAvailability(int mrID);
-
-        [OperationContract]
-        ActionResult SaveAndApproveMRDataChangeOrder(MRDataChangeOrder order);
-        
-        [OperationContract]
-        List<CustomerLeasingLoans> GetHBLeasingLoans(ulong customerNumber);
-
-        [OperationContract]
-        LeasingLoanDetails GetHBLeasingLoanDetails(ulong productId);
-
-        [OperationContract]
-        List<LeasingLoanRepayments> GetHBLeasingLoanRepayments(ulong productId);
-
-        [OperationContract]
-        List<LeasingLoanStatements> GetHBLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0);
-
-        [OperationContract]
-        List<AdditionalDetails> GetHBLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0);
-
-        [OperationContract]
-        List<LeasingPaymentsType> GetHBLeasingPaymentsType();
-
-        [OperationContract]
-        Account SetHBLeasingReceiver();
-
-        [OperationContract]
-        string GetHBLeasingPaymentDescription(short paymentType, short paymentSubType);
-
-        [OperationContract]
-        LeasingLoanRepayments GetHBLeasingPaymentDetails(ulong productId);
-
     }
 }

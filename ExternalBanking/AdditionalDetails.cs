@@ -6,7 +6,6 @@ namespace ExternalBanking
     /// </summary>
     public class AdditionalDetails
     {
-        
         /// <summary>
         /// Ունիկալ համար (Id)
         /// </summary>
@@ -31,6 +30,5 @@ namespace ExternalBanking
         /// Արժեքի տեսակ
         /// </summary>
         public AdditionalValueType AdditionalValueType { get; set; }
-        
     }
 }

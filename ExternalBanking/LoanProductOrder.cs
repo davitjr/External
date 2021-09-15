@@ -1004,5 +1004,7 @@ namespace ExternalBanking
         {
             LoanProductOrderDB.UpdateCreditLineProductOrderContractDate(orderId);
         }
+
+        public static ulong GetAmexGoldProductId(string account) => LoanProductOrderDB.GetAmexGoldProductId(account);
     }
 }

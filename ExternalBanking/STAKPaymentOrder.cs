@@ -519,7 +519,7 @@ namespace ExternalBanking
 
             if (string.IsNullOrEmpty(R2ADetails.AccountNo) || R2ADetails.AccountNo == "0")
             {
-                /// ՍՏԱԿ համակարգով փոխանցված գումարը ստացողի հաշիվը մուտքագրված չէ:
+                /// Ստացված փոխանցման մեջ բացակայում է ստացողի հաշիվը։
                 result.Add(new ActionError(1746));
             }
 
@@ -531,25 +531,25 @@ namespace ExternalBanking
 
             if (string.IsNullOrEmpty(R2ADetails.SenderCountryCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի երկրի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի երկրի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1761));
             }
 
             if (string.IsNullOrEmpty(this.Country))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի երկրի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի երկրի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1761));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryFee))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի միջնորդավճարը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի միջնորդավճարը մուտքագրված չէ։
                 result.Add(new ActionError(1757));
             }
 
             if (string.IsNullOrEmpty(this.SendCurrencyCode))
             {
-                //ՍՏԱԿ համակարգի R2A փոխանցման արժույթը մուտքագրված չէ:
+                //R2A փոխանցման արժույթը մուտքագրված չէ:
                 result.Add(new ActionError(1878));
             }
 
@@ -640,7 +640,7 @@ namespace ExternalBanking
 
                 if (R2ADetails.BeneficiaryFirstName != nameENG || R2ADetails.BeneficiaryLastName != lastNameENG)
                 {
-                    //ՍՏԱԿ-ի փոխանցման տվյալներում ստացողի անգլերեն անունը կամ ազգանունը չի համապատասխանում հաճախորդի՝ բանկում գրանցած անվան կամ ազգանվան հետ:
+                    //Փոխանցման տվյալներում ստացողի անգլերեն անունը կամ ազգանունը չի համապատասխանում հաճախորդի՝ բանկում գրանցած անվան կամ ազգանվան հետ:
                     result.Add(new ActionError(1831));
                 }
             }
@@ -657,7 +657,7 @@ namespace ExternalBanking
 
             if (ReceiverCustomerType != 6)
             {
-                //ՍՏԱԿ համակարգով փոխանցված գումարը ստացողը ֆիզիկական անձ չէ։
+                //Փոխանցման ստացողը ֆիզիկական անձ չէ։
                 result.Add(new ActionError(1877));
             }
 
@@ -769,7 +769,7 @@ namespace ExternalBanking
                 }
             }
 
-            
+
             if (this.SubType == 0)
             {
                 //Փոխանցման համակարգը ընտրված չէ
@@ -779,13 +779,13 @@ namespace ExternalBanking
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryFirstName))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի անունը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի անունը մուտքագրված չէ։
                 result.Add(new ActionError(1758));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryLastName))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի ազգանունը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի ազգանունը մուտքագրված չէ։
                 result.Add(new ActionError(1760));
             }
 
@@ -807,116 +807,116 @@ namespace ExternalBanking
 
             if (string.IsNullOrEmpty(R2ADetails.SendAgentCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի Agent-ի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի Agent-ի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1749));
             }
 
             if (string.IsNullOrEmpty(this.Code))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման վճարման ունիկալ համարը մուտքագրված չէ։
+                /// R2A փոխանցման վճարման ունիկալ համարը մուտքագրված չէ։
                 result.Add(new ActionError(1750));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BankCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի Agent-ի կոդը(բանկը) մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի Agent-ի կոդը(բանկը) մուտքագրված չէ։
                 result.Add(new ActionError(1751));
             }
 
             // Ստացողի Agent-ի կոդ (պահանջվում է, երբ փոխանցման ստացման տեսակը` PayoutDeliveryCode - ը, կանխիկ (Cash) չէ)
             if (R2ADetails.PayoutDeliveryCode != PayoutDeliveryCodeForR2A.Cash.ToString() && string.IsNullOrEmpty(R2ADetails.BeneficiaryAgentCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի Agent-ի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի Agent-ի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1754));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryCountryCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի երկրի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի երկրի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1752));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryFeeCurrencyCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի միջնորդավճարի արժույթի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման միջնորդավճարի արժույթի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1753));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderLastName))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի անգլերեն ազգանունը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի անգլերեն ազգանունը մուտքագրված չէ։
                 result.Add(new ActionError(1756));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderFirstName))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի անգլերեն անունը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի անգլերեն անունը մուտքագրված չէ։
                 result.Add(new ActionError(1759));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderDocumentTypeCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի փաստաթղթի տեսակի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի փաստաթղթի տեսակի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1762));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderIssueDate))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի ID համարի տրման ամսաթիվը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի ID համարի տրման ամսաթիվը մուտքագրված չէ։
                 result.Add(new ActionError(1763));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderExpirationDate))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի ID համարի՝ ուժի մեջ լինելու ամսաթիվը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի ID համարի վավերականության ժամկետը մուտքագրված չէ։
                 result.Add(new ActionError(1764));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderIssueCountryCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի փաստաթղթի թողարկման երկրի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի փաստաթղթի թողարկման երկրի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1765));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderIssueIDNo))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի ID-ի համարը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի ID-ի համարը մուտքագրված չէ։
                 result.Add(new ActionError(1766));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderBirthDate))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի ծննդյան ամսաթիվը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի ծննդյան ամսաթիվը մուտքագրված չէ։
                 result.Add(new ActionError(1767));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderSexCode))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի սեռի կոդը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի սեռի կոդը մուտքագրված չէ։
                 result.Add(new ActionError(1768));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.SenderMobileNo))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ուղարկողի բջջային հեռախոսահամարը մուտքագրված չէ։
+                /// R2A փոխանցման ուղարկողի բջջային հեռախոսահամարը մուտքագրված չէ։
                 result.Add(new ActionError(1769));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryLastName))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի անգլերեն ազգանունը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի անգլերեն ազգանունը մուտքագրված չէ։
                 result.Add(new ActionError(1772));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryFirstName))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի անգլերեն անունը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի անգլերեն անունը մուտքագրված չէ։
                 result.Add(new ActionError(1773));
             }
 
             if (string.IsNullOrEmpty(R2ADetails.BeneficiaryMobileNo))
             {
-                /// ՍՏԱԿ համակարգի R2A փոխանցման ստացողի բջջային հեռախոսահամարը մուտքագրված չէ։
+                /// R2A փոխանցման ստացողի բջջային հեռախոսահամարը մուտքագրված չէ։
                 result.Add(new ActionError(1748));
             }
 
@@ -948,7 +948,7 @@ namespace ExternalBanking
             }
             else if (ushort.Parse(R2ADetails.PayoutDeliveryCode) == (ushort)PayoutDeliveryCodeForR2A.Account && (ReceiverAccount == null || ReceiverAccount.ClosingDate != null))
             {
-                // 1836 = "ԱԿԲԱ բանկում նման հաշվեհամարով բանկային հաշիվ չկա:"
+                // 1836 = "ԱԿԲԱ բանկում նման բանկային հաշիվ առկա չէ։"
                 result.Add(new ActionError(1836));
             }
 
@@ -1162,7 +1162,7 @@ namespace ExternalBanking
 
             if (ReceiverCustomerType != 6)
             {
-                //ՍՏԱԿ համակարգով փոխանցված գումարը ստացողը ֆիզիկական անձ չէ։
+                //Փոխանցման ստացողը ֆիզիկական անձ չէ։
                 result.Add(new ActionError(1877));
             }
 

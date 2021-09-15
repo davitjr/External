@@ -502,5 +502,16 @@ namespace ExternalBanking
 
         public static double GetLoanOrderAcknowledgement(long docId) => LoanDB.GetLoanOrderAcknowledgement(docId);
 
+        public static LoanRepaymentFromCardDataChange GetLoanRepaymentFromCardDataChangeHistory(ulong appId)
+        {
+            return LoanDB.GetLoanRepaymentFromCardDataChangeHistory(appId);
+        }
+
+        public static LoanRepaymentFromCardDataChange SaveLoanRepaymentFromCardDataChange(LoanRepaymentFromCardDataChange loanRepaymentFromCardDataChange)
+        {
+            return LoanDB.SaveLoanRepaymentFromCardDataChange(loanRepaymentFromCardDataChange);
+        }
+
+
     }
 }

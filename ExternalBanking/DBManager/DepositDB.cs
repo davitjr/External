@@ -48,6 +48,7 @@ namespace ExternalBanking.DBManager
                                                     ,t.Description_Engl
                                                     ,case when d.date_of_beginning > = '01/Jan/2008' then d.tax else 0 end as tax
                                                     ,taxed_profit
+                                                    ,isvariation
                                                     from [tbl_deposits;] d 
 													inner join [tbl_type_of_deposits;] t 
                                                     on d.type=t.code 
@@ -313,6 +314,8 @@ namespace ExternalBanking.DBManager
                     deposit.SourceType = Order.GetOrderSourceType(deposit.DocID);
                 }
                 deposit.TaxedProfit = Convert.ToDecimal(row["taxed_profit"]);
+
+                deposit.IsVariation = row["isvariation"] != DBNull.Value ? byte.Parse(row["isvariation"].ToString()) : (byte)0;
 
             }
             return deposit;

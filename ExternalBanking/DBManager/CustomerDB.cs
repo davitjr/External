@@ -37,22 +37,41 @@ namespace ExternalBanking.DBManager
 
             return canUseCardAccount;
         }
-        internal static List<ulong> GetThirdPersonsCustomerNumbers(ulong customerNumber)
+
+        internal static List<ulong> GetThirdPersonsCustomerNumbers(ulong customerNumber, SourceType Source)
         {
             DataTable dt = new DataTable();
             List<ulong> list = new List<ulong>();
+            string str;
+            string condition = "";
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"select third_person_customer_number 
+
+                if (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)
+                {
+                    condition = " and acc.account_currency IN ('AMD', 'USD') ";
+                }
+                else
+                {
+                    condition = "";
+                }
+
+                str = @"select third_person_customer_number 
                                                  from   [Tbl_Co_Accounts_Main] acc 
                                                  INNER JOIN Tbl_co_accounts c 
                                                  on acc.ID = c.co_main_ID where type = 2 and acc.closing_date is null
-                                                 and c.customer_number = @customer_number
-                                                 GROUP BY third_person_Customer_number
-                                                 ", conn))
+                                                 and c.customer_number = @customer_number"
+                                                + condition +
+                                                " GROUP BY third_person_Customer_number ";
+
+
+
+                using (SqlCommand cmd = new SqlCommand(str, conn))
                 {
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+
                     dt.Load(cmd.ExecuteReader());
 
                     if (dt.Rows.Count == 0)
@@ -77,6 +96,7 @@ namespace ExternalBanking.DBManager
             }
 
         }
+
         /// <summary>
         ///  Ունի AcbaOnline թե ոչ
         /// </summary>
@@ -497,6 +517,25 @@ namespace ExternalBanking.DBManager
                 HVHH = cmd.ExecuteScalar().ToString();
             }
             return HVHH;
+        }
+
+        public static bool HasBankrupt(ulong customerNumber)
+        {
+            bool hasBankrupt = false;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                SqlCommand cmd = new SqlCommand(@"SELECT *
+                                                FROM v_customers_DAHK_amounts V 
+                                                where v.customer_number=@customer_number AND v.blockage_type=1", conn);
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
+                {
+                    hasBankrupt = true;
+                }
+            }
+            return hasBankrupt;
         }
     }
 }

@@ -98,6 +98,7 @@
     <Compile Include="ARUSInfo.cs" />
     <Compile Include="AssigneeIdentificationOrder.cs" />
     <Compile Include="AttachedCardTransactionReceipt.cs" />
+    <Compile Include="AutomateCardBlockingUnblocking.cs" />
     <Compile Include="BillSplitOrder.cs" />
     <Compile Include="BillSplitReminderOrder.cs" />
     <Compile Include="BillSplitSenderRejectionOrder.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="CheckCustomerArrests.cs" />
     <Compile Include="ClassifiedLoan.cs" />
     <Compile Include="ClassifiedLoanActionOrders.cs" />
+    <Compile Include="ConsumeLoanApplicationOrder.cs" />
     <Compile Include="Contracts.cs" />
     <Compile Include="CouponRepaymentDateCollection.cs" />
     <Compile Include="CreditCommitmentForgivenessOrder.cs" />
@@ -190,6 +192,7 @@
     <Compile Include="DBManager\CashierCashLimitDB.CS" />
     <Compile Include="DBManager\ChangeBranchOrderDB.cs" />
     <Compile Include="DBManager\ClassifiedLoanDB.cs" />
+    <Compile Include="DBManager\ConsumeLoanApplicationOrderDB.cs" />
     <Compile Include="DBManager\CreditCommitmentForgivenessOrderDB.cs" />
     <Compile Include="DBManager\CreditHereAndNowDB.cs" />
     <Compile Include="DBManager\CreditLineCardReplaceOrderDB.cs" />
@@ -317,16 +320,12 @@
     <Compile Include="InternationalOrderPrefilledData․cs.cs" />
     <Compile Include="LeasingAccountsDetails.cs" />
     <Compile Include="LeasingCustomerClassification.cs" />
-    <Compile Include="Leasing\CustomerLeasingLoans.cs" />
-    <Compile Include="Leasing\LeasingLoanDetails.cs" />
-    <Compile Include="Leasing\LeasingLoanRepayments.cs" />
-    <Compile Include="Leasing\LeasingLoanStatements.cs" />
-    <Compile Include="Leasing\LeasingPaymentsType.cs" />
     <Compile Include="LinkPaymentOrder.cs" />
     <Compile Include="LoanDelayOrder.cs" />
     <Compile Include="LoanInterestRateChangeHistory.cs" />
     <Compile Include="LoanInterestRateConcessionOrder.cs" />
     <Compile Include="LoanRepaymentDelayDetails.cs" />
+    <Compile Include="LoanRepaymentFromCardDataChange.cs" />
     <Compile Include="LoanStatement.cs" />
     <Compile Include="LoanStatementDetail.cs" />
     <Compile Include="MRDataChangeOrder.cs" />
@@ -587,6 +586,8 @@
     <Compile Include="OrderGroup.cs" />
     <Compile Include="OrderListFilter.cs" />
     <Compile Include="OrderRejection.cs" />
+    <Compile Include="PayerLinkPaymentOrder.cs" />
+    <Compile Include="PayerLinkPaymentOrderDB.cs" />
     <Compile Include="PaymentToARCAOrder.cs" />
     <Compile Include="PensionPaymentOrder.cs" />
     <Compile Include="PensionSystem.cs" />
@@ -1314,6 +1315,79 @@
     <None Include="Service References\ACBAServiceReference\InformationSecurityLibrary.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\ACBAServiceReference\OperationService.wsdl" />
+    <None Include="Service References\ACBAServiceReference\OperationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService18.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService19.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService20.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService21.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService22.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService23.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService24.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService25.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService26.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService27.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ACBAServiceReference\OperationService9.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\ACBAServiceReference\SAPCRM.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1834,22 +1908,16 @@
     <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas1.disco" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\OperationService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService.disco" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\OperationService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Service References\UtilityPaymentsServiceReference\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\ACBAServiceReference\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\ACBAServiceReference\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\ACBAServiceReference\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

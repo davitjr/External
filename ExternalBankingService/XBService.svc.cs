@@ -26,7 +26,6 @@ using xbs = ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
 using static ExternalBanking.ReceivedBillSplitRequest;
 //using ExternalBankingService.Filters;
-using ExternalBanking.Leasing;
 
 
 
@@ -1777,6 +1776,7 @@ namespace ExternalBankingService
             {
                 Dictionary<ulong, string> AllThirdPerson = new Dictionary<ulong, string>();
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                customer.Source = Source;
                 AllThirdPerson = customer.GetThirdPersons();
                 return AllThirdPerson;
             }
@@ -3193,22 +3193,31 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = CreateCustomer();
-                InitOrder(order);
-                ActionResult result = customer.ApproveAccountOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
-                if ((order.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
+                ActionResult result = new ActionResult();
+                if (order.Type == OrderType.CurrentAccountReOpen)
                 {
-                    try
+                    AccountReOpenOrder reOpenOrder = GetAccountReOpenOrder(order.Id);
+                    result = ApproveAccountReOpenOrder(reOpenOrder);
+                }
+                else
+                {
+                    InitOrder(order);
+                    result = customer.ApproveAccountOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+                    if ((order.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
                     {
-                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
-                        if (quality != OrderQuality.Approved)
+                        try
                         {
-                            ConfirmOrderOnline(order.Id);
+                            OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                            if (quality != OrderQuality.Approved)
+                            {
+                                ConfirmOrderOnline(order.Id);
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteLog(ex);
-                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                        catch (Exception ex)
+                        {
+                            WriteLog(ex);
+                            //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                        }
                     }
                 }
                 return result;
@@ -12924,11 +12933,11 @@ namespace ExternalBankingService
             }
         }
 
-        public List<HBMessageFiles> GetMessageUploadedFilesList(long msgId)
+        public List<HBMessageFiles> GetMessageUploadedFilesList(long msgId, bool showUploadFilesContent)
         {
             try
             {
-                return HBDocuments.GetMessageUploadedFilesList(msgId);
+                return HBDocuments.GetMessageUploadedFilesList(msgId, showUploadFilesContent);
             }
             catch (Exception ex)
             {
@@ -17563,7 +17572,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        public List<Template> GetGroupTemplates(int groupId, TemplateStatus status)
+        public List<GroupTemplateResponse> GetGroupTemplates(int groupId, TemplateStatus status)
         {
             try
             {
@@ -17712,11 +17721,13 @@ namespace ExternalBankingService
             }
         }
 
-        public ActionResult SaveLinkPaymentPayer(LinkPaymentPayer linkPayment)
+        public ActionResult ConfirmPayerLinkPayment(PayerLinkPaymentOrder order)
         {
             try
             {
-                return LinkPaymentOrder.SaveLinkPaymentPayer(linkPayment, User.userID);
+                Customer customer = new Customer();
+                ActionResult result = customer.SaveAndApprovePayerLinkPaymentOrder(order);
+                return result;
             }
             catch (Exception ex)
             {
@@ -17759,7 +17770,6 @@ namespace ExternalBankingService
             try
             {
                 ContentResult<List<BillSplitLinkResult>> result = new ContentResult<List<BillSplitLinkResult>>();
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 result = customer.ApproveBillSplitOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
@@ -18122,6 +18132,23 @@ namespace ExternalBankingService
             }
         }
 
+        public ActionResult SaveAndApproveAutomateArcaCardsTransactionOrder(ArcaCardsTransactionOrder arcaCardsTransactionOrder)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                arcaCardsTransactionOrder.IPAddress = ClientIp;
+                InitOrder(arcaCardsTransactionOrder);
+                return customer.SaveAndApproveAutomateArcaCardsTransactionOrder(arcaCardsTransactionOrder, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
         public ActionResult RemoveAccountOrder(AccountRemovingOrder order)
         {
             try
@@ -18230,6 +18257,87 @@ namespace ExternalBankingService
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
             }
+        }
+
+        public void SaveCancelNotificationMessage(string request)
+        {
+            try
+            {
+                CardlessCashoutOrder.SaveCancelNotificationMessage(request);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public bool GetMRDataChangeAvailability(int mrID)
+        {
+            try
+            {
+                return MRDataChangeOrder.GetMRDataChangeAvailability(mrID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAndApproveMRDataChangeOrder(MRDataChangeOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveAndApproveMRDataChangeOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ulong GetAmexGoldProductId(string account)
+        {
+            try
+            {
+                return LoanProductOrder.GetAmexGoldProductId(account);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public LoanRepaymentFromCardDataChange GetLoanRepaymentFromCardDataChangeHistory(ulong appId)
+        {
+            try
+            {
+                return Loan.GetLoanRepaymentFromCardDataChangeHistory(appId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public LoanRepaymentFromCardDataChange SaveLoanRepaymentFromCardDataChange(LoanRepaymentFromCardDataChange loanRepaymentFromCardDataChange)
+        {
+            try
+            {
+                return Loan.SaveLoanRepaymentFromCardDataChange(loanRepaymentFromCardDataChange);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
         }
 
         public ActionResult SavePreferredAccountOrder(PreferredAccountOrder order)
@@ -18455,152 +18563,6 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 return customer.GetCardTypeAndCardHolder(cardNumber);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public bool GetMRDataChangeAvailability(int mrID)
-        {
-            try
-            {
-                return MRDataChangeOrder.GetMRDataChangeAvailability(mrID);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public ActionResult SaveAndApproveMRDataChangeOrder(MRDataChangeOrder order)
-        {
-            try
-            {
-                Customer customer = CreateCustomer();
-                InitOrder(order);
-                return customer.SaveAndApproveMRDataChangeOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public List<CustomerLeasingLoans> GetHBLeasingLoans(ulong customerNumber)
-        {
-            try
-            {
-                return SearchLeasingLoan.GetHBLeasingLoans(customerNumber);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public LeasingLoanDetails GetHBLeasingLoanDetails(ulong productId)
-        {
-            try
-            {
-                return SearchLeasingLoan.GetHBLeasingLoanDetails(productId);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public List<LeasingLoanRepayments> GetHBLeasingLoanRepayments(ulong productId)
-        {
-            try
-            {
-                return SearchLeasingLoan.GetHBLeasingLoanRepayments(productId);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public List<LeasingLoanStatements> GetHBLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0)
-        {
-            try
-            {
-                return SearchLeasingLoan.GetHBLeasingLoanStatements(productId, dateFrom, dateTo, minAmount, maxAmount, pageNumber, pageRowCount, orderByAscDesc);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public List<AdditionalDetails> GetHBLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0)
-        {
-            try
-            {
-
-                return SearchLeasingLoan.GetHBLeasingDetailsByAppID(productId, leasingInsuranceId);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public List<LeasingPaymentsType> GetHBLeasingPaymentsType()
-        {
-            try
-            {
-                return SearchLeasingLoan.GetHBLeasingPaymentsType();
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public Account SetHBLeasingReceiver()
-        {
-            try
-            {
-                return SearchLeasingLoan.SetHBLeasingReceiver();
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public string GetHBLeasingPaymentDescription(short paymentType, short paymentSubType)
-        {
-            try
-            {
-                return SearchLeasingLoan.GetHBLeasingPaymentDescription(paymentType, paymentSubType);
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        public LeasingLoanRepayments GetHBLeasingPaymentDetails(ulong productId)
-        {
-            try
-            {
-                return SearchLeasingLoan.GetHBLeasingPaymentDetails(productId);
             }
             catch (Exception ex)
             {

@@ -14,8 +14,8 @@ using ExternalBanking.TokenOperationsCasServiceReference;
 using ExternalBanking.ServiceClient;
 using ExternalBanking.ARUSDataService;
 using ExternalBanking.SberTransfers.Order;
-using ExternalBanking.PreferredAccounts;
 using static ExternalBanking.ReceivedBillSplitRequest;
+using ExternalBanking.PreferredAccounts;
 
 namespace ExternalBanking
 {
@@ -1324,7 +1324,7 @@ namespace ExternalBanking
 
                 currentAccounts.RemoveAll(m => m.TypeOfAccount == 283 || m.TypeOfAccount == 282);  //Սահմանափակ հասանելիությամ հաշվիներ
                 accounts.AddRange(currentAccounts);
-            }           
+            }
             else
             {
                 if (orderType != OrderType.CommunalPayment && (accountType == OrderAccountType.DebitAccount || accountType == OrderAccountType.CreditAccount))
@@ -1574,14 +1574,9 @@ namespace ExternalBanking
 
             accounts.RemoveAll(m => m.Status == 1);
 
-            if (orderType == OrderType.BillSplit || orderType == OrderType.LeasingPaymentOrder)
+            if(orderType == OrderType.BillSplit || orderType == OrderType.LinkPaymentOrder)
             {
                 accounts.RemoveAll(m => m.Currency != "AMD");
-            }
-
-            if (orderType == OrderType.LeasingPaymentOrder)
-            {
-                accounts.RemoveAll(m => m.AccountType != 10 && m.AccountType != 11);
             }
 
             return accounts;
@@ -2254,7 +2249,7 @@ namespace ExternalBanking
         public Dictionary<ulong, string> GetThirdPersons()
         {
             Dictionary<ulong, string> allThirdPerson = new Dictionary<ulong, string>();
-            List<ulong> thirdPersonCustomerNumbers = CustomerDB.GetThirdPersonsCustomerNumbers(CustomerNumber);
+            List<ulong> thirdPersonCustomerNumbers = CustomerDB.GetThirdPersonsCustomerNumbers(CustomerNumber, Source);
             if (thirdPersonCustomerNumbers != null)
             {
                 for (int i = 0; i < thirdPersonCustomerNumbers.Count; i++)
@@ -2899,7 +2894,25 @@ namespace ExternalBanking
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            string accountNumber = Account.GetClosingCurrentAccountsNumber(order.CustomerNumber, order.Currency);
+
+            if (!string.IsNullOrEmpty(accountNumber) && (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking))
+            {
+                AccountReOpenOrder reOpenOrder = new AccountReOpenOrder();
+
+                reOpenOrder.Type = OrderType.CurrentAccountReOpen;
+                reOpenOrder.ReopenReasonDescription = "Հաշվի վերաբացում";
+                reOpenOrder.StatementDeliveryType = order.StatementDeliveryType;
+                reOpenOrder.AccountType = 1;
+                reOpenOrder.OrderNumber = order.OrderNumber;
+                reOpenOrder.CustomerNumber = order.CustomerNumber;
+                reOpenOrder.ReOpeningAccounts = new List<Account>();
+                reOpenOrder.ReOpeningAccounts.Add(Account.GetAccount(accountNumber));
+
+                result = reOpenOrder.Save(userName, Source, User);
+            }
+            else
+                result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -4079,12 +4092,14 @@ namespace ExternalBanking
         public ActionResult ConfirmOrder(long orderID)
         {
             Order order = Order.GetOrder(orderID, CustomerNumber);
-
+            string isCardDepartment = null;
+            User.AdvancedOptions.TryGetValue("isCardDepartment", out isCardDepartment);
+            if (isCardDepartment == "1")
+            {
+                order = Order.GetOrder(orderID);
+            }
 
             ActionResult result = new ActionResult();
-
-
-
 
             result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
@@ -4511,49 +4526,17 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                int[] blockingReasons = { 4, 5, 6, 25, 26, 27, 28 };
-                if (blockingReasons.Contains(order.FreezeReason))
+                if (AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(order.FreezeReason))
                 {
                     Card freezingCard = Card.GetCard(order.FreezeAccount);
                     if (freezingCard != null)
                     {
-                        List<Card> cards = Card.GetAttachedCards((ulong)freezingCard.ProductId, CustomerNumber);
-                        cards.Add(freezingCard);
                         try
                         {
-                            foreach (Card card in cards)
-                            {
-                                ArcaCardsTransactionOrder blockOrder = new ArcaCardsTransactionOrder();
-                                blockOrder.Source = SourceType.Bank;
-                                blockOrder.CardNumber = card.CardNumber;
-                                blockOrder.CustomerNumber = order.CustomerNumber;
-                                blockOrder.OperationDate = order.OperationDate;
-                                blockOrder.RegistrationDate = order.RegistrationDate;
-                                blockOrder.ActionReasonId = Info.GetCardTransactionReasonByFreezeReasonId(order.FreezeReason);
-                                blockOrder.ActionReasonDescription = order.FreezeReasonDescription;
-                                ACBAServiceReference.User user = new User { userID = 88 };
-                                user.AdvancedOptions = new System.Collections.Generic.Dictionary<string, string>
-                            {
-                                { "accessToUnblockCardForSpecificReasons", "1" },
-                                { "accessToMakeArcaCardTransactionForBankInitiative", "1" },
-                                { "accessToBlockUnblockCardForCourtProceedingsReason", "1" }
-                            };
-
-                                blockOrder.user = user;
-                                blockOrder.FilialCode = 22000;
-                                blockOrder.ActionType = 1;
-
-                                byte cardBlockingActionAvailability = ArcaCardsTransactionOrder.GetCardBlockingActionAvailabilityForFreezing(card.CardNumber, blockOrder.ActionReasonId);
-                                if (cardBlockingActionAvailability == 1)
-                                {
-                                    blockOrder.SaveAndApprove(userName, blockOrder.Source, blockOrder.user, schemaType);
-                                }
-                                else
-                                {
-                                    blockOrder.Save(userName, blockOrder.Source, blockOrder.user, schemaType);
-                                    blockOrder.UpdateQuality(OrderQuality.TransactionLimitApprovement);
-                                    blockOrder.SetQualityHistoryUserId(OrderQuality.TransactionLimitApprovement, blockOrder.user.userID);
-                                }
+                            foreach (var cardNumber in AutomateCardBlockingUnblocking.GetAllCardNumbers(freezingCard, CustomerNumber))
+                            {                                
+                                ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(order.FreezeReason), order.OperationDate, order.RegistrationDate);
+                                SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
                             }
                         }
                         catch (Exception ex)
@@ -4608,50 +4591,17 @@ namespace ExternalBanking
             if (result.ResultCode == ResultCode.Normal)
             {
                 List<AccountFreezeDetails> freezeDetails = AccountFreezeDetails.GetAccountFreezeHistory(order.FreezedAccount.AccountNumber, 1, 0);
-                if (freezeDetails.Count == 0)
+                if (freezeDetails.Count == 0 && !CustomerDB.HasBankrupt(CustomerNumber))
                 {
-                    int[] blockingReasons = { 4, 5, 6, 25, 26, 27, 28 };
-                    if (blockingReasons.Contains(order.UnfreezeReason))
+                    if (AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(order.UnfreezeReason))
                     {
                         Card unFreezingCard = Card.GetCard(order.FreezedAccount);
                         if (unFreezingCard != null)
                         {
-                            List<Card> cards = Card.GetAttachedCards((ulong)unFreezingCard.ProductId, CustomerNumber);
-                            cards.Add(unFreezingCard);
-
-                            foreach (Card card in cards)
+                            foreach (var cardNumber in AutomateCardBlockingUnblocking.GetAllCardNumbers(unFreezingCard, CustomerNumber))
                             {
-                                ArcaCardsTransactionOrder unblockOrder = new ArcaCardsTransactionOrder();
-                                unblockOrder.Source = SourceType.Bank;
-                                unblockOrder.CardNumber = card.CardNumber;
-                                unblockOrder.CustomerNumber = order.CustomerNumber;
-                                unblockOrder.OperationDate = order.OperationDate;
-                                unblockOrder.RegistrationDate = order.RegistrationDate;
-                                unblockOrder.ActionReasonId = Info.GetCardTransactionReasonByFreezeReasonId(order.UnfreezeReason);
-                                unblockOrder.ActionReasonDescription = order.UnfreezeReasonDescription;
-                                ACBAServiceReference.User user = new User { userID = 88 };
-                                user.AdvancedOptions = new System.Collections.Generic.Dictionary<string, string>
-                            {
-                                { "accessToUnblockCardForSpecificReasons", "1" },
-                                { "accessToMakeArcaCardTransactionForBankInitiative", "1" },
-                                { "accessToBlockUnblockCardForCourtProceedingsReason", "1" }
-                            };
-                                unblockOrder.user = user;
-                                unblockOrder.FilialCode = 22000;
-                                unblockOrder.ActionType = 2;
-
-                                byte cardBlockingActionAvailability = ArcaCardsTransactionOrder.GetCardBlockingActionAvailabilityForFreezing(card.CardNumber, unblockOrder.ActionReasonId);
-
-                                if (cardBlockingActionAvailability == 2)
-                                {
-                                    unblockOrder.SaveAndApprove(userName, unblockOrder.Source, unblockOrder.user, schemaType);
-                                }
-                                else
-                                {
-                                    unblockOrder.Save(userName, unblockOrder.Source, unblockOrder.user, schemaType);
-                                    unblockOrder.UpdateQuality(OrderQuality.TransactionLimitApprovement);
-                                    unblockOrder.SetQualityHistoryUserId(OrderQuality.TransactionLimitApprovement, unblockOrder.user.userID);
-                                }
+                                ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Unblock, AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(order.UnfreezeReason), order.OperationDate, order.RegistrationDate);
+                                SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
                             }
                         }
                     }
@@ -6050,6 +6000,26 @@ namespace ExternalBanking
             }
 
             result = order.SaveAndApprove(userName, Source, User, schemaType);
+
+            if (order.Source == SourceType.Bank && result.ResultCode == ResultCode.Normal)
+            {
+                List<AccountFreezeDetails> freezeDetails = new List<AccountFreezeDetails>();
+                ushort freezeReason = 0;
+                if (order.Card.SupplementaryType == SupplementaryType.Linked || order.Card.SupplementaryType == SupplementaryType.Attached)
+                {
+                    freezeDetails = AccountFreezeDetails.GetAccountFreezeHistory(order.CardAccount.AccountNumber, 1, 0).Where(m => AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(m.ReasonId)).OrderBy(m=>m.RegistrationDate).ToList();
+                    freezeReason = (ushort)(freezeDetails.Count() > 0 ? freezeDetails.FirstOrDefault().ReasonId : 0);
+                }
+                bool hasBankrupt = CustomerDB.HasBankrupt(CustomerNumber);
+                if (hasBankrupt || freezeDetails.Count() > 0)
+                {
+                    if (ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(order.Card.CardNumber) == null)
+                    {
+                        ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(order.Card.CardNumber, ArcaCardsTransationActionType.Block, hasBankrupt ? ArcaCardsTransationActionReason.Bankrupt : AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(freezeReason), order.OperationDate, order.RegistrationDate);
+                        SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, userName, schemaType);
+                    }
+                }
+            }
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -6480,17 +6450,6 @@ namespace ExternalBanking
         }
 
         /// <summary>
-        /// վերադարձնում է վերաթողարկվող քարտի նոր app_id-ն
-        /// </summary>
-        /// <param name="productId"></param>
-        /// <param name="filialCode"></param>
-        /// <returns></returns>
-        public ulong GetReNewCardProductId(ulong productId, int filialCode)
-        {
-            return Card.GetReNewCardProductId(productId, filialCode);
-        }
-
-        /// <summary>
         /// Վերադարձնում է մեկ պլաստիկ քարտի տվյալները
         /// </summary>
         /// <param name="productId"></param>
@@ -6510,7 +6469,7 @@ namespace ExternalBanking
                 card = null;
             return card;
         }
-
+                
 
         public List<LoanProductClassification> GetLoanProductClassifications(ulong productId, DateTime dateFrom)
         {
@@ -8874,6 +8833,29 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             result = cardOrder.SaveAndApprove(User, Source, CustomerNumber, schemaType);
+
+            if (cardOrder.Source == SourceType.Bank && result.ResultCode == ResultCode.DoneAndReturnedValues)
+            {
+                List<AccountFreezeDetails> freezeDetails = new List<AccountFreezeDetails>();
+                ushort freezeReason = 0;
+                if (cardOrder.Type == OrderType.AttachedPlasticCardOrder || cardOrder.Type == OrderType.LinkedPlasticCardOrder)
+                {
+                    Card mainCard = Card.GetCard(cardOrder.PlasticCard.MainCardNumber);
+                    if (mainCard != null)
+                    {
+                        freezeDetails = AccountFreezeDetails.GetAccountFreezeHistory(mainCard.CardAccount.AccountNumber, 1, 0).Where(m => AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(m.ReasonId)).OrderBy(m => m.RegistrationDate).ToList();
+                        freezeReason = (ushort)(freezeDetails.Count() > 0 ? freezeDetails.FirstOrDefault().ReasonId : 0);
+                    }
+                }
+                bool hasBankrupt = CustomerDB.HasBankrupt(CustomerNumber);
+                if (hasBankrupt || freezeDetails.Count() > 0)
+                {
+                    var cardNumber = result.Errors[0].Description;
+                    
+                    ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, hasBankrupt ? ArcaCardsTransationActionReason.Bankrupt : AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(freezeReason), cardOrder.OperationDate, cardOrder.RegistrationDate);
+                    SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
+                }
+            }
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8908,6 +8890,49 @@ namespace ExternalBanking
                 Localization.SetCulture(result, Culture);
             }
             return result;
+        }
+
+        public ActionResult SaveAndApproveAutomateArcaCardsTransactionOrder(ArcaCardsTransactionOrder arcaCardsTransactionOrder, string userName, short schemaType)
+        {
+            ActionResult result = new ActionResult();
+            byte cardBlockingActionAvailability = ArcaCardsTransactionOrder.GetCardBlockingActionAvailabilityForFreezing(arcaCardsTransactionOrder.CardNumber, arcaCardsTransactionOrder.ActionReasonId);
+            if (cardBlockingActionAvailability == arcaCardsTransactionOrder.ActionType)
+            {
+                result = arcaCardsTransactionOrder.SaveAndApprove(userName, arcaCardsTransactionOrder.Source, arcaCardsTransactionOrder.user, schemaType);
+            }
+            else
+            {
+                result = arcaCardsTransactionOrder.Save(userName, arcaCardsTransactionOrder.Source, arcaCardsTransactionOrder.user, schemaType);
+                arcaCardsTransactionOrder.UpdateQuality(OrderQuality.TransactionLimitApprovement);
+                arcaCardsTransactionOrder.SetQualityHistoryUserId(OrderQuality.TransactionLimitApprovement, arcaCardsTransactionOrder.user.userID);
+            }
+            if (result.ResultCode == ResultCode.ValidationError)
+            {
+                Localization.SetCulture(result, Culture);
+            }
+            return result;
+        }
+
+        public ArcaCardsTransactionOrder CreateArcaCardTransactionOrder(string cardNumber, ArcaCardsTransationActionType actionType, ArcaCardsTransationActionReason reason, DateTime? operDate, DateTime regDate)
+        {
+            ArcaCardsTransactionOrder arcaCardsTransactionOrder = new ArcaCardsTransactionOrder();
+            arcaCardsTransactionOrder.Source = SourceType.Bank;
+            arcaCardsTransactionOrder.CardNumber = cardNumber;
+            arcaCardsTransactionOrder.CustomerNumber = CustomerNumber;
+            arcaCardsTransactionOrder.OperationDate = operDate;
+            arcaCardsTransactionOrder.RegistrationDate = regDate;
+            arcaCardsTransactionOrder.ActionReasonId = (byte)reason;
+            ACBAServiceReference.User user = new User { userID = 88 };
+            user.AdvancedOptions = new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "accessToUnblockCardForSpecificReasons", "1" },
+                { "accessToMakeArcaCardTransactionForBankInitiative", "1" },
+                { "accessToBlockUnblockCardForCourtProceedingsReason", "1" }
+            };
+            arcaCardsTransactionOrder.user = user;
+            arcaCardsTransactionOrder.FilialCode = 22000;
+            arcaCardsTransactionOrder.ActionType = (short)actionType;
+            return arcaCardsTransactionOrder;
         }
 
         /// <summary>
@@ -10114,6 +10139,17 @@ namespace ExternalBanking
             }
 
             result = order.SaveAndApprove(Source, User, schemaType, CustomerNumber);
+
+            if (CustomerDB.HasBankrupt(CustomerNumber) && order.Source == SourceType.Bank && result.ResultCode == ResultCode.DoneAndReturnedValues)
+            {
+                var cardNumber = result.Errors[0].Description;
+                if (ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(cardNumber) == null)
+                {
+                    ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, ArcaCardsTransationActionReason.Bankrupt, order.OperationDate, order.RegistrationDate);
+                    SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
+                }
+            }
+
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10196,6 +10232,16 @@ namespace ExternalBanking
             }
 
             result = order.SaveAndApprove(Source, User, schemaType, CustomerNumber);
+
+            if (CustomerDB.HasBankrupt(CustomerNumber) && order.Source == SourceType.Bank && result.ResultCode == ResultCode.DoneAndReturnedValues)
+            {
+                var cardNumber = result.Errors[0].Description;
+                if (ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(cardNumber) == null)
+                {
+                    ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, ArcaCardsTransationActionReason.Bankrupt, order.OperationDate, order.RegistrationDate);
+                    SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
+                }
+            }
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10235,6 +10281,16 @@ namespace ExternalBanking
             }
 
             result = order.SaveAndApprove(Source, User, schemaType, CustomerNumber);
+
+            if (CustomerDB.HasBankrupt(CustomerNumber) && order.Source == SourceType.Bank && result.ResultCode == ResultCode.DoneAndReturnedValues)
+            {
+                var cardNumber = result.Errors[0].Description;
+                if (ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(cardNumber) == null)
+                {
+                    ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, ArcaCardsTransationActionReason.Bankrupt, order.OperationDate, order.RegistrationDate);
+                    SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
+                }
+            }
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10381,12 +10437,12 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAndApproveCardNotRenewOrder(CardNotRenewOrder order, short schemaType)
         {
-
             ActionResult result = new ActionResult();
 
-            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
-            if (result.Errors.Count > 0)
+            if (Validation.BankOpDayIsClosed())
             {
+                // Հնարավոր չէ կատարել գործողություն:Գործառնական օրվա կարգավիճակը փակ է:
+                result.Errors.Add(new ActionError(766));
                 Localization.SetCulture(result, Culture);
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
@@ -10700,7 +10756,7 @@ namespace ExternalBanking
 
             return accounts;
         }
-
+  
         /// <summary>
         /// Քարտի վերաբացման մուտքագրման հայտի պահպանում և հաստատում
         /// Վերադարձնում է հաշվի հեռացման հայտի տվյալները
@@ -10750,103 +10806,6 @@ namespace ExternalBanking
             ActionResult result = preferredAccountOrder.ApprovePreferredAccountOrder(id);
             return result;
         }
-        ///// <summary>
-        ///// "Վերաթողարկել քարտը" հայտի պահպանում և հաստատում
-        ///// </summary>
-        ///// <param name="order"></param>
-        ///// <param name="userName"></param>
-        ///// <param name="schemaType"></param>
-        ///// <returns></returns>
-        //public ActionResult SaveAndApproveCardRenewOrder(CardRenewOrder order, short schemaType)
-        //{
-        //    ActionResult result = new ActionResult();
-        //    if (Validation.BankOpDayIsClosed())
-        //    {
-        //        // Հնարավոր չէ կատարել գործողություն:Գործառնական օրվա կարգավիճակը փակ է:
-        //        result.Errors.Add(new ActionError(766));
-        //        Localization.SetCulture(result, Culture);
-        //        result.ResultCode = ResultCode.ValidationError;
-        //        return result;
-        //    }
-        //    result = order.SaveAndApprove(Source, User, schemaType, CustomerNumber);
-        //    Localization.SetCulture(result, Culture);
-        //    return result;
-        //}
-
-        ///// <summary>
-        ///// Վերադարձնում է «Վերաթողարկել քարտը» հայտի տվյալները
-        ///// </summary>
-        ///// <param name="ID"></param>
-        ///// <returns></returns>
-        //public CardRenewOrder GetCardRenewOrder(long ID)
-        //{
-        //    CardRenewOrder order = new CardRenewOrder();
-        //    order.Id = ID;
-        //    order.CustomerNumber = this.CustomerNumber;
-        //    order = CardRenewOrder.GetCardRenewOrder(ID);
-        //    Localization.SetCulture(order, Culture);
-        //    return order;
-        //}
-
-        ///// <summary>
-        ///// Ստուգում է «Վերաթողարկել քարտը» հայտի համար անհրաժեշտ որոշ տվյալներ
-        ///// </summary>
-        //public List<string> CheckCardRenewOrder(CardRenewOrder order)
-        //{
-        //    return CardRenewOrder.CheckRenew(order);
-        //}
-
-        ///// <summary>
-        ///// Քարտի վերաթողարկման հայտի պահպանում և հաստատում
-        ///// </summary>
-        ///// <param name="order"></param>
-        ///// <param name="userName"></param>
-        ///// <param name="schemaType"></param>
-        ///// <returns></returns>
-        //public ActionResult SaveAndApproveRenewedCardAccountRegOrder(RenewedCardAccountRegOrder order, string userName, short schemaType)
-        //{
-        //    ActionResult result = new ActionResult();
-
-        //    result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
-        //    if (result.Errors.Count > 0)
-        //    {
-        //        Localization.SetCulture(result, Culture);
-        //        result.ResultCode = ResultCode.ValidationError;
-        //        return result;
-        //    }
-
-        //    result = order.SaveAndApprove(userName, Source, User, schemaType);
-        //    Localization.SetCulture(result, Culture);
-        //    return result;
-        //}
-
-
-        ///// <summary>
-        ///// Քարտի վերաթողարկման հետ կապված զգուշացումները
-        ///// </summary>
-        ///// <param name="oldCard"></param>
-        ///// <returns></returns>
-        //public List<string> GetRenewedCardAccountRegWarnings(Card oldCard)
-        //{
-        //    return RenewedCardAccountRegOrder.GetRenewedCardAccountRegWarnings(oldCard, Culture);
-        //}
-
-
-        ///// <summary>
-        ///// Վերադարձնում է քարտի վերաթողարկման հայտի տվյալները
-        ///// </summary>
-        ///// <param name="ID"></param>
-        ///// <returns></returns>
-        //public RenewedCardAccountRegOrder GetRenewedCardAccountRegOrder(long ID)
-        //{
-        //    RenewedCardAccountRegOrder order = new RenewedCardAccountRegOrder();
-        //    order.Id = ID;
-        //    order.CustomerNumber = this.CustomerNumber;
-        //    order.GetRenewedCardAccountRegOrder();
-        //    Localization.SetCulture(order, Culture);
-        //    return order;
-        //}
-
 
         /// <summary>
         /// BillSplit հայտի ստացում
@@ -10944,7 +10903,7 @@ namespace ExternalBanking
         /// <param name="schemaType"></param>
         /// <returns></returns>
         public ActionResult SaveAndApproveCardRenewOrder(CardRenewOrder order, short schemaType)
-        {
+        {            
             ActionResult result = new ActionResult();
             if (Validation.BankOpDayIsClosed())
             {
@@ -10955,6 +10914,16 @@ namespace ExternalBanking
                 return result;
             }
             result = order.SaveAndApprove(Source, User, schemaType, CustomerNumber);
+
+            if (order.Source == SourceType.Bank && result.ResultCode == ResultCode.DoneAndReturnedValues && CustomerDB.HasBankrupt(CustomerNumber))
+            {
+                var cardNumber = PlasticCard.GetPlasticCard(order.GetCardNewAppID(), true).CardNumber;
+                if (ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(cardNumber) == null)
+                {
+                    ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, ArcaCardsTransationActionReason.Bankrupt, order.OperationDate, order.RegistrationDate);
+                    SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
+                }
+            }
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -11028,6 +10997,17 @@ namespace ExternalBanking
             }
 
             result = order.SaveAndApprove(userName, Source, User, schemaType);
+
+            if (order.Source == SourceType.Bank && result.ResultCode == ResultCode.DoneAndReturnedValues && CustomerDB.HasBankrupt(CustomerNumber))
+            {
+                var cardNumber = order.Card.CardNumber;
+                var validationDate = Card.GetCard((ulong)order.Card.ProductId, order.CustomerNumber).ValidationDate;
+                if (ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(cardNumber, validationDate) == null)
+                {
+                    ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, ArcaCardsTransationActionReason.Bankrupt, order.OperationDate, order.RegistrationDate);
+                    SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
+                }
+            }
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -11102,36 +11082,6 @@ namespace ExternalBanking
             return result;
         }
 
-        public ActionResult SaveAndApproveVisaAliasOrder(VisaAliasOrder order, string userName, short schemaType)
-        {
-            ActionResult result = new ActionResult();
-
-            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
-            if (result.Errors.Count > 0)
-            {
-                Localization.SetCulture(result, Culture);
-                result.ResultCode = ResultCode.ValidationError;
-                return result;
-            }
-            order.user = User;
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
-
-            Localization.SetCulture(result, Culture);
-
-            return result;
-        }
-
-        public VisaAliasOrder VisaAliasOrderDetails(long orderId)
-        {
-            VisaAliasOrder visaAliasOrder = new VisaAliasOrder();
-            visaAliasOrder = visaAliasOrder.GetVisaAliasOrder(orderId);
-            return visaAliasOrder;
-        }
-        public CardHolderAndCardType GetCardTypeAndCardHolder(string CardNumber)
-        {
-            VisaAliasOrder visaAliasOrder = new VisaAliasOrder();
-            return visaAliasOrder.GetCardTypeAndCardHolder(CardNumber);
-        }
         public ActionResult SaveAndApproveThirdPersonAccountRightsTransfer(ThirdPersonAccountRightsTransferOrder order, string userName, short schemaType)
         {
             ActionResult result = new ActionResult();
@@ -11163,6 +11113,50 @@ namespace ExternalBanking
             Localization.SetCulture(result, Culture);
             return result;
         }
+
+        /// </summary>
+        /// <param name="order">Հղումով փոխանցման</param>
+        /// <returns></returns>
+        public ActionResult SaveAndApprovePayerLinkPaymentOrder(PayerLinkPaymentOrder order)
+        {
+            User user = new User() { userID = 88 };
+            order.user = user;
+            ActionResult result = new ActionResult();
+            result = order.SaveAndApprove(user.userName, SourceType.AcbaOnline, user, 3);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public ActionResult SaveAndApproveVisaAliasOrder(VisaAliasOrder order, string userName, short schemaType)
+        {
+            ActionResult result = new ActionResult();
+
+            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
+            if (result.Errors.Count > 0)
+            {
+                Localization.SetCulture(result, Culture);
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+            order.user = User;
+            result = order.SaveAndApprove(userName, Source, User, schemaType);
+
+            Localization.SetCulture(result, Culture);
+
+            return result;
+        }
+
+        public VisaAliasOrder VisaAliasOrderDetails(long orderId)
+        {
+            VisaAliasOrder visaAliasOrder = new VisaAliasOrder();
+            visaAliasOrder = visaAliasOrder.GetVisaAliasOrder(orderId);
+            return visaAliasOrder;
+        }
+
+        public CardHolderAndCardType GetCardTypeAndCardHolder(string CardNumber)
+        {
+            VisaAliasOrder visaAliasOrder = new VisaAliasOrder();
+            return visaAliasOrder.GetCardTypeAndCardHolder(CardNumber);
+        }
     }
 }
-

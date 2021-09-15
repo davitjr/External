@@ -241,7 +241,7 @@ namespace ExternalBanking.XBManagement
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        override public ActionResult Confirm(User user)
+        override public ActionResult Confirm(User user, ConfirmationSourceType confirmationSourceType = ConfirmationSourceType.None)
         {
             ActionResult result = new ActionResult();
 
