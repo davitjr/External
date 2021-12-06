@@ -1017,15 +1017,14 @@ namespace ExternalBanking.DBManager
                     if (dt.Rows.Count > 0)
                     {
                         cardServiceFeeGrafiklist = new List<CardServiceFeeGrafik>();
-                    }
 
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        DataRow row = dt.Rows[i];
-                        CardServiceFeeGrafik cardServiceFeeGrafik = SetCardServiceFeeGrafik(row);
-                        cardServiceFeeGrafiklist.Add(cardServiceFeeGrafik);
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            DataRow row = dt.Rows[i];
+                            CardServiceFeeGrafik cardServiceFeeGrafik = SetCardServiceFeeGrafik(row);
+                            cardServiceFeeGrafiklist.Add(cardServiceFeeGrafik);
+                        }
                     }
-
 
                 }
             }
@@ -1969,9 +1968,9 @@ namespace ExternalBanking.DBManager
                                 result = CardServiceQualities.RegistrateNotConfirmedInArca; //Քարտի համար կա SMS Գրանցել հայտ , որը ARCA-ում դեռ հաստատված չէ
                             else if (action == 1 && arcaResponse == 0)
                                 result = CardServiceQualities.RegistrateConfirmedInArca; //Քարտի համար կա SMS-ի գրանցման հայտ , որը ARCA-ում հաստատված է
-                            else if (action == 2  && arcaResponse != 0)
+                            else if (action == 2 && arcaResponse != 0)
                                 result = CardServiceQualities.TerminateNotConfirmedInArca; //Քարտի համար կա SMS Դադարեցնել հայտ , որը ARCA-ում դեռ հաստատված չէ
-                            else if (action == 2  && arcaResponse == 0)
+                            else if (action == 2 && arcaResponse == 0)
                                 result = CardServiceQualities.TerminateConfirmedInArca; //Քարտի համար SMS "դադարեցնել" հայտ, որը ARCA -ում հաստատված է
                             else if (action == 3 && arcaResponse != 0)
                                 result = CardServiceQualities.ChangeNotConfirmedInArca; //Քարտի համար SMS "Փոփոխել" հայտ, որը ARCA -ում հաստատված չէ
@@ -2738,7 +2737,7 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        while (dr.Read())
+                        if (dr.Read())
                         {
                             return Convert.ToInt64(dr["app_id"].ToString());
                         }
@@ -2855,7 +2854,7 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        while (dr.Read())
+                        if (dr.Read())
                         {
                             return Convert.ToUInt64(dr["app_id"].ToString());
                         }
@@ -3195,19 +3194,16 @@ namespace ExternalBanking.DBManager
             {
                 string sql = @"SELECT FORMAT(DATEADD(MONTH,-1,end_date),'yyyyMM') expiry_date FROM tbl_visa_numbers_accounts WHERE visa_number=@cardNumber";
 
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 16).Value = cardNumber;
+
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 16).Value = cardNumber;
-
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        expiryDate = dr["expiry_date"].ToString();
-                    }
-
+                    expiryDate = dr["expiry_date"].ToString();
                 }
             }
 
@@ -3292,7 +3288,7 @@ namespace ExternalBanking.DBManager
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
-                SqlDataReader dr = await cmd.ExecuteReaderAsync();
+               using SqlDataReader dr = await cmd.ExecuteReaderAsync();
                 while (dr.Read())
                 {
                     cardList.Add(new Card
@@ -3398,32 +3394,28 @@ namespace ExternalBanking.DBManager
 
         public static ulong GetMainCardProductId(string notMainCardNumber)
         {
-            ulong mainProductId = 0;
-
             using (SqlConnection cnn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 cnn.Open();
 
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = cnn;
-                    cmd.CommandText = @"select app_id  from tbl_visa_numbers_accounts
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = cnn;
+                cmd.CommandText = @"select app_id  from tbl_visa_numbers_accounts
 								where visa_number = (
 										select top 1 main_card_number 
 										from tbl_visa_numbers_accounts
 										where visa_number = @cardNumber and  visa_number <> main_card_number  and closing_date is null
 								)  and closing_date is null";
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar).Value = notMainCardNumber;
+                cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar).Value = notMainCardNumber;
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        mainProductId = Convert.ToUInt64(dr["app_id"].ToString());
-                    }
+                if (dr.Read())
+                {
+                    return Convert.ToUInt64(dr["app_id"].ToString());
                 }
             }
-            return mainProductId;
+            return 0;
         }
 
         internal static Card GetCardMainData(string cardNumber)
@@ -3487,15 +3479,13 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT card_Range FROM Tbl_armenian_banks_card_ranges WHERE bank_code <> 16000";
-                using (SqlCommand cmd = new SqlCommand(sql,conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    while(dr.Read())
-                    {
-                        BINs.Add(dr["card_range"].ToString());
-                    }
+                    BINs.Add(dr["card_range"].ToString());
                 }
             }
             return BINs;
@@ -3640,6 +3630,30 @@ namespace ExternalBanking.DBManager
                 }
             }
             return historyList;
+        }
+        public static string GetCustomerEmailByCardNumber(string cardNumber)
+        {
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+
+                string sqltext = @"	select ISNULL(emailAddress,'') from tbl_emails e
+	                                join Tbl_Customer_Emails ce on e.id=ce.emailId
+	                                join Tbl_Customers c on ce.identityId=c.identityId
+	                                where customer_number=(	SELECT  distinct case when   b.customer_number is null then a.Customer_Number else b.customer_number end
+	                                FROM      Tbl_VISA_applications a
+	                                LEFT JOIN [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id	
+	                                where cardnumber=@cardNumber ) and priority=1";
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 16).Value = cardNumber;
+                    var email = cmd.ExecuteScalar();
+                    return email == null ? null : email.ToString();
+                }
+            }
+
         }
     }
 }

@@ -40,9 +40,9 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@document_subtype", SqlDbType.Int).Value = order.SubType;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
                     cmd.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = order.StartDate;
-                    cmd.Parameters.Add("@transfer_type", SqlDbType.SmallInt).Value =(short)order.UtilityPaymentOrder.CommunalType;
-                    cmd.Parameters.Add("@currency", SqlDbType.VarChar,3).Value = order.Currency;
-                    if ((order.ServicePaymentType != 0 && order.UtilityPaymentOrder.CommunalType!=CommunalTypes.Gas) || (order.ServicePaymentType != -1 && order.UtilityPaymentOrder.CommunalType==CommunalTypes.Gas))
+                    cmd.Parameters.Add("@transfer_type", SqlDbType.SmallInt).Value = (short)order.UtilityPaymentOrder.CommunalType;
+                    cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
+                    if ((order.ServicePaymentType != 0 && order.UtilityPaymentOrder.CommunalType != CommunalTypes.Gas) || (order.ServicePaymentType != -1 && order.UtilityPaymentOrder.CommunalType == CommunalTypes.Gas))
                     {
                         cmd.Parameters.Add("@amount_type", SqlDbType.TinyInt).Value = order.ServicePaymentType;
                     }
@@ -66,10 +66,7 @@ namespace ExternalBanking.DBManager
                     {
                         order.UtilityPaymentOrder.Description = Regex.Replace(order.UtilityPaymentOrder.Description, @"\d", "");
                     }
-                    else
-                    {
-                        order.UtilityPaymentOrder.Description = order.UtilityPaymentOrder.Description;
-                    }
+
                     cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.UtilityPaymentOrder.Description;
                     cmd.Parameters.Add("@FindField1", SqlDbType.VarChar, 50).Value = order.UtilityPaymentOrder.Code.Trim();
                     cmd.Parameters.Add("@PayIfNoDebt", SqlDbType.Int).Value = order.PayIfNoDebt;
@@ -392,7 +389,7 @@ namespace ExternalBanking.DBManager
                     {
                         result.ResultCode = ResultCode.Failed;
                         result.Id = -1;
-                         result.Errors.Add(new ActionError((short)actionResult));
+                        result.Errors.Add(new ActionError((short)actionResult));
                     }
 
                     return result;
@@ -415,7 +412,7 @@ namespace ExternalBanking.DBManager
         {
             bool check = false;
             string gasCond = "";
-            
+
             if (transferType == 7 || transferType == 8 || transferType == 10)
             {
                 transferType = 12;
@@ -436,12 +433,12 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"Select FilialCode, NN, FindField1, FindField2 From Tbl_operations_by_period
+                using SqlCommand cmd = new SqlCommand(@"Select FilialCode, NN, FindField1, FindField2 From Tbl_operations_by_period
                                                              Where Quality = 1 AND isnull(FindField1,' ' ) =@code
                                                              AND Transfer_Type =@transferType" + gasCond, conn);
                 cmd.Parameters.Add("@code", SqlDbType.VarChar, 50).Value = code;
                 cmd.Parameters.Add("@transferType", SqlDbType.Int).Value = transferType;
-                if (cmd.ExecuteScalar()!=null)
+                if (cmd.ExecuteScalar() != null)
                 {
                     check = true;
                 }
@@ -458,14 +455,14 @@ namespace ExternalBanking.DBManager
         /// <param name="code"></param>
         /// <param name="branch"></param>
         /// <returns></returns>
-        public static bool IsAlreadyExistsCommunalTransfersHBDocument(ulong customerNumber,int transferType, int amountType, string code, string branch)
+        public static bool IsAlreadyExistsCommunalTransfersHBDocument(ulong customerNumber, int transferType, int amountType, string code, string branch)
         {
             bool check = false;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT count(*) FROM Tbl_HB_documents HB left join Tbl_HB_Operations_by_period OD on OD.docID = HB.doc_ID
+               using SqlCommand cmd = new SqlCommand(@"SELECT count(*) FROM Tbl_HB_documents HB left join Tbl_HB_Operations_by_period OD on OD.docID = HB.doc_ID
                                                    where customer_number = @customer_number  and document_type = 10 and document_subtype = 2 and
                                                    isnull(FindField1,' ' ) = @code 
                                                    and ISNULL(OD.FindField2,'') = case when Transfer_Type < 6 then @branch else ISNULL(OD.FindField2,'') end 
@@ -503,7 +500,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT
+                using SqlCommand cmd = new SqlCommand(@"SELECT
                                                         date_of_beginning,
                                                         d.document_number,
                                                         d.document_type,
@@ -570,8 +567,8 @@ namespace ExternalBanking.DBManager
                 order.PaymentOrder.Receiver = dt.Rows[0]["receiver_name"].ToString();
                 order.Periodicity = Convert.ToInt32(dt.Rows[0]["period"]);
                 order.CheckDaysCount = Convert.ToUInt16(dt.Rows[0]["check_days_count"]);
-                order.PeriodicDescription =  dt.Rows[0]["description"].ToString();
-                order.PayIfNoDebt = dt.Rows[0]["PayIfNoDebt"].ToString() == ""? (ushort)0: Convert.ToUInt16(dt.Rows[0]["PayIfNoDebt"].ToString());
+                order.PeriodicDescription = dt.Rows[0]["description"].ToString();
+                order.PayIfNoDebt = dt.Rows[0]["PayIfNoDebt"].ToString() == "" ? (ushort)0 : Convert.ToUInt16(dt.Rows[0]["PayIfNoDebt"].ToString());
                 if (dt.Rows[0]["Partial_Payments"].ToString() != "")
                 {
                     order.PartialPaymentSign = Convert.ToByte(dt.Rows[0]["Partial_Payments"]);
@@ -582,7 +579,7 @@ namespace ExternalBanking.DBManager
                 }
                 else
                 {
-                    order.ChargeType=1;
+                    order.ChargeType = 1;
                 }
                 if (dt.Rows[0]["amount_for_payment"].ToString() != "")
                 {
@@ -613,11 +610,11 @@ namespace ExternalBanking.DBManager
         internal static PeriodicBudgetPaymentOrder GetPeriodicBudgetPaymentOrder(PeriodicBudgetPaymentOrder order)
         {
             order.BudgetPaymentOrder = new BudgetPaymentOrder();
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                         d.document_number,
                                                         d.document_type,
                                                         d.document_subtype,
@@ -664,7 +661,7 @@ namespace ExternalBanking.DBManager
                 order.FirstTransferDate = Convert.ToDateTime(dt.Rows[0]["first_repayment_date"]);
                 order.PeriodicType = Convert.ToInt32(dt.Rows[0]["transfer_type"]);
                 order.Currency = dt.Rows[0]["currency"].ToString();
-                if (dt.Rows[0]["date_of_normal_end"].ToString()!="")
+                if (dt.Rows[0]["date_of_normal_end"].ToString() != "")
                 {
                     order.LastOperationDate = Convert.ToDateTime(dt.Rows[0]["date_of_normal_end"]);
                 }
@@ -726,11 +723,11 @@ namespace ExternalBanking.DBManager
         internal static PeriodicUtilityPaymentOrder GetPeriodicUtilityPaymentOrder(PeriodicUtilityPaymentOrder order)
         {
             order.UtilityPaymentOrder = new UtilityPaymentOrder();
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                         d.document_number,
                                                         d.document_type,
                                                         d.document_subtype,
@@ -812,7 +809,7 @@ namespace ExternalBanking.DBManager
                 {
                     order.UtilityPaymentOrder.Branch = dt.Rows[0]["FindField2"].ToString();
                 }
-                
+
                 if (dt.Rows[0]["abonent_type"].ToString() != "")
                 {
                     order.UtilityPaymentOrder.AbonentType = Convert.ToInt32(dt.Rows[0]["abonent_type"]);
@@ -855,7 +852,7 @@ namespace ExternalBanking.DBManager
                                             periodic_description, charge_type, periodicity, check_days_count, last_operation_date, min_debit_account_rest, pay_if_no_debt, partial_payment_sign, 
                                             fee_account, fee, debit_account) 
                                         VALUES(@orderId, @servicePaymentType, @allDebt, @minAmountLevel, @maxAmountLevel, @periodicType, @firstTransferDate, @periodicDescription, @chargeType,
-                                            @periodicity, @checkDaysCount, @lastOperationDate, @minDebitAccountRest, @payIfNoDebt, @partialPaymentSign, @feeAccount, @fee, @debitAccount)";                    
+                                            @periodicity, @checkDaysCount, @lastOperationDate, @minDebitAccountRest, @payIfNoDebt, @partialPaymentSign, @feeAccount, @fee, @debitAccount)";
 
                     cmd.Parameters.Add("@orderId", SqlDbType.Int).Value = orderId;
                     cmd.Parameters.Add("@servicePaymentType", SqlDbType.TinyInt).Value = order.ServicePaymentType;
@@ -875,7 +872,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@feeAccount", SqlDbType.BigInt).Value = order.FeeAccount == null ? DBNull.Value : (object)order.FeeAccount.AccountNumber;
                     cmd.Parameters.Add("@fee", SqlDbType.BigInt).Value = order.Fee;
                     cmd.Parameters.Add("@debitAccount", SqlDbType.BigInt).Value = (object)order.DebitAccount.AccountNumber ?? DBNull.Value;
-                    
+
                     cmd.ExecuteNonQuery();
 
                     result.ResultCode = ResultCode.Normal;
@@ -939,7 +936,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@orderId", SqlDbType.Int).Value = orderId;
                     cmd.Parameters.Add("@LTACode", SqlDbType.SmallInt).Value = budgetOrder.BudgetPaymentOrder.LTACode;
-                    cmd.Parameters.Add("@policeCode", SqlDbType.Int).Value = budgetOrder.BudgetPaymentOrder.PoliceCode;                    
+                    cmd.Parameters.Add("@policeCode", SqlDbType.Int).Value = budgetOrder.BudgetPaymentOrder.PoliceCode;
                     cmd.Parameters.Add("@creditAccount", SqlDbType.NVarChar, 50).Value = (object)budgetOrder.BudgetPaymentOrder.ReceiverAccount.AccountNumber ?? DBNull.Value;
 
                     cmd.ExecuteNonQuery();
@@ -970,7 +967,7 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     cmd.CommandText = "INSERT INTO Tbl_BO_periodic_payment_order_details(order_id, credit_account) VALUES(@orderId, @creditAccount)";
 
-                    cmd.Parameters.Add("@orderId", SqlDbType.Int).Value = orderId;                    
+                    cmd.Parameters.Add("@orderId", SqlDbType.Int).Value = orderId;
                     cmd.Parameters.Add("@creditAccount", SqlDbType.NVarChar, 50).Value = (object)periodicPaymentOrder.PaymentOrder.ReceiverAccount.AccountNumber ?? DBNull.Value;
 
                     cmd.ExecuteNonQuery();
@@ -1032,8 +1029,8 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@max_amount", SqlDbType.Float).Value = order.MaxAmountLevel;
                     cmd.Parameters.Add("@minimal_rest", SqlDbType.Float).Value = order.MinDebetAccountRest;
                     cmd.Parameters.Add("@debet_account", SqlDbType.VarChar, 50).Value = order.StatementAccount.AccountNumber;
-                    
-                    
+
+
                     cmd.Parameters.Add("@period", SqlDbType.VarChar, 50).Value = order.Periodicity;
                     cmd.Parameters.Add("@check_days_count", SqlDbType.Int).Value = order.CheckDaysCount;
                     cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.PeriodicDescription;
@@ -1115,7 +1112,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                         d.document_number,
                                                         d.document_type,
                                                         d.document_subtype,
@@ -1210,7 +1207,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"DECLARE @operDay as smalldatetime = (SELECT oper_day from tbl_current_oper_Day) 
+                using SqlCommand cmd = new SqlCommand(@"DECLARE @operDay as smalldatetime = (SELECT oper_day from tbl_current_oper_Day) 
                                                   SELECT ISNULL(SUM(amount * dbo.fnc_kurs_for_date (OP.currency,@operDay)),0) FROM Tbl_operations_by_period   OP
                                                   INNER JOIN [Tbl_all_accounts;] ACC ON OP.debet_account = ACC.arm_number
                                                   INNER JOIN (SELECT sint_acc_new FROM TbL_define_sint_acc WHERE type_of_product = 11 and type_of_account = 24 GROUP BY sint_acc_new) DEF ON ACC.type_of_account_new = DEF.sint_acc_new
@@ -1218,13 +1215,13 @@ namespace ExternalBanking.DBManager
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.VarChar).Value = order.CustomerNumber;
 
-                amount = Double.Parse(cmd.ExecuteScalar().ToString());                
-            } 
+                amount = Double.Parse(cmd.ExecuteScalar().ToString());
+            }
 
             if (amount + order.Amount * Utility.GetCBKursForDate(order.RegistrationDate, order.Currency) > 1000000)
                 return false;
             else
-                return true;             
+                return true;
         }
     }
 }

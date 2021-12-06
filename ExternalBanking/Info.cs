@@ -3534,7 +3534,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetLoanApplicationQualityTypeDescription(short id, Languages language)
+        public static string GetLoanApplicationQualityTypeDescription(short id)
         {
             string result = null;
             DataTable dt = GetLoanApplicationQualityTypes();
@@ -3543,14 +3543,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("number=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["status"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["status"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["status"].ToString());
                 }
             }
             return result;
@@ -3575,7 +3568,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetLoanApplicationProductTypeDescription(short id, Languages language)
+        public static string GetLoanApplicationProductTypeDescription(short id)
         {
             string result = null;
             DataTable dt = GetLoanApplicationProductTypes();
@@ -3584,14 +3577,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("code=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
                 }
             }
             return result;
@@ -3612,7 +3598,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetLoanMonitoringTypeDescription(short id, Languages language)
+        public static string GetLoanMonitoringTypeDescription(short id)
         {
             string result = null;
             DataTable dt = GetLoanMonitoringTypes();
@@ -3621,14 +3607,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("code=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
                 }
             }
             return result;
@@ -3649,27 +3628,6 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetLoanMonitoringFactorGroupeDescription(short id, Languages language)
-        {
-            string result = null;
-            DataTable dt = GetLoanMonitoringFactorGroupes();
-            if (dt != null)
-            {
-                DataRow[] dr = dt.Select("code=" + id.ToString());
-                if (dr.Length > 0)
-                {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                }
-            }
-            return result;
-        }
 
         public static Dictionary<string, string> GetTransferMethod()
         {
@@ -3692,7 +3650,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetLoanMonitoringFactorDescription(short id, Languages language)
+        public static string GetLoanMonitoringFactorDescription(short id)
         {
             string result = null;
             DataTable dt = GetLoanMonitoringFactors(0);
@@ -3701,14 +3659,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("id=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
                 }
             }
             return result;
@@ -3729,7 +3680,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetProfitReductionTypeDescription(short id, Languages language)
+        public static string GetProfitReductionTypeDescription(short id)
         {
             string result = null;
             DataTable dt = GetProfitReductionTypes();
@@ -3738,14 +3689,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("code=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
                 }
             }
             return result;
@@ -3766,7 +3710,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetProvisionCostConclusionTypeDescription(short id, Languages language)
+        public static string GetProvisionCostConclusionTypeDescription(short id)
         {
             string result = null;
             DataTable dt = GetProvisionCostConclusionTypes();
@@ -3775,14 +3719,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("code=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
                 }
             }
             return result;
@@ -3803,7 +3740,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetProvisionQualityConclusionTypeDescription(short id, Languages language)
+        public static string GetProvisionQualityConclusionTypeDescription(short id)
         {
             string result = null;
             DataTable dt = GetProvisionQualityConclusionTypes();
@@ -3812,14 +3749,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("code=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
                 }
             }
             return result;
@@ -3840,7 +3770,7 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetLoanMonitoringConclusionDescription(short id, Languages language)
+        public static string GetLoanMonitoringConclusionDescription(short id)
         {
             string result = null;
             DataTable dt = GetLoanMonitoringConclusions();
@@ -3849,14 +3779,7 @@ namespace ExternalBanking
                 DataRow[] dr = dt.Select("code=" + id.ToString());
                 if (dr.Length > 0)
                 {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
+                    result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
                 }
             }
             return result;
@@ -3877,27 +3800,6 @@ namespace ExternalBanking
             return dt;
         }
 
-        public static string GetLoanMonitoringSubTypeDescription(short id, Languages language)
-        {
-            string result = null;
-            DataTable dt = GetLoanMonitoringSubTypes();
-            if (dt != null)
-            {
-                DataRow[] dr = dt.Select("code=" + id.ToString());
-                if (dr.Length > 0)
-                {
-                    if (language == Languages.hy)
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                    else
-                    {
-                        result = Utility.ConvertAnsiToUnicode(dr[0]["description"].ToString());
-                    }
-                }
-            }
-            return result;
-        }
 
         /// <summary>
         /// Հաշվի սակագների խումբ
@@ -5462,6 +5364,22 @@ namespace ExternalBanking
 
             return dt;
         }
+
+        public static DataTable GetDepositoryAccountOperators()
+        {
+            string cacheKey = "Info_DepositoryAccountOperators";
+
+            DataTable dt = CacheHelper.Get(cacheKey);
+
+            if (dt == null)
+            {
+                dt = InfoDB.GetDepositoryAccountOperators();
+                CacheHelper.Add(dt, cacheKey);
+            }
+
+            return dt;
+        }
+
 
     }
 }

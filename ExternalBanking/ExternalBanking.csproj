@@ -10,6 +10,7 @@
     <RootNamespace>ExternalBanking</RootNamespace>
     <AssemblyName>ExternalBanking</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -170,6 +171,7 @@
     <Compile Include="DBManager\BillSplitReminderOrderDB.cs" />
     <Compile Include="DBManager\AccountRemovingOrderDB.cs" />
     <Compile Include="DBManager\BondAmountChargeOrderDB.cs" />
+    <Compile Include="BondCertificateDetails.cs" />
     <Compile Include="DBManager\BondDB.cs" />
     <Compile Include="DBManager\BondIssueDB.cs" />
     <Compile Include="DBManager\BondIssueFilterDB.cs" />
@@ -373,9 +375,6 @@
     <Compile Include="CardReReleaseOrder.cs" />
     <Compile Include="CardServiceFee.cs" />
     <Compile Include="AdditionalDetails.cs" />
-    <Compile Include="BOOrderPaymentAddition.cs" />
-    <Compile Include="BOOrderPaymentDetails.cs" />
-    <Compile Include="BOOrderProduct.cs" />
     <Compile Include="BudgetPaymentOrder.cs" />
     <Compile Include="CardClosingOrder.cs" />
     <Compile Include="CardServiceFeeGrafik.cs" />
@@ -420,8 +419,6 @@
     <Compile Include="DBManager\ApprovementSchemaDB.cs" />
     <Compile Include="DBManager\ApprovementSchemaDetailsDB.cs" />
     <Compile Include="DBManager\ApprovementSchemaStepDB.cs" />
-    <Compile Include="DBManager\BOOrderPaymentAdditionDB.cs" />
-    <Compile Include="DBManager\BOOrderProductDB.cs" />
     <Compile Include="DBManager\BudgetPaymentOrderDB.cs" />
     <Compile Include="DBManager\CardActivationInArCaDB.cs" />
     <Compile Include="DBManager\CardClosingOrderDB.cs" />
@@ -479,7 +476,6 @@
     <Compile Include="DBManager\MatureOrderDB.cs" />
     <Compile Include="DBManager\MembershipRewardsDB.cs" />
     <Compile Include="DBManager\MessageDB.cs" />
-    <Compile Include="DBManager\BOOrderCustomerDB.cs" />
     <Compile Include="DBManager\OperationAccountHelperDB.cs" />
     <Compile Include="DBManager\OrderDB.cs" />
     <Compile Include="DBManager\OverdueDetailDB.cs" />
@@ -487,7 +483,6 @@
     <Compile Include="DBManager\PaidFactoringDB.cs" />
     <Compile Include="DBManager\PaidGuaranteeDB.cs" />
     <Compile Include="DBManager\PaymentOrderDB.cs" />
-    <Compile Include="DBManager\BOOrderPaymentDB.cs" />
     <Compile Include="DBManager\PensionApplicationDB.cs" />
     <Compile Include="DBManager\PensionApplicationOrderDB.cs" />
     <Compile Include="DBManager\PeriodicTerminationOrderDB.cs" />
@@ -735,7 +730,6 @@
     <Compile Include="MembershipRewardsStatusHistory.cs" />
     <Compile Include="OperationAccountHelper.cs" />
     <Compile Include="OPPerson.cs" />
-    <Compile Include="BOOrderCustomer.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="OrderAttachment.cs" />
     <Compile Include="OrderFee.cs" />
@@ -748,7 +742,6 @@
     <Compile Include="PaidAccreditive.cs" />
     <Compile Include="PaidFactoring.cs" />
     <Compile Include="PaidGuarantee.cs" />
-    <Compile Include="BOOrderPayment.cs" />
     <Compile Include="PeriodicBudgetPaymentOrder.cs" />
     <Compile Include="PeriodicOrder.cs" />
     <Compile Include="PeriodicPaymentOrder.cs" />
@@ -1334,7 +1327,7 @@
     <None Include="Service References\ACBAServiceReference\OperationService13.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\ACBAServiceReference\OperationService2.xsd">
+    <None Include="Service References\ACBAServiceReference\OperationService14.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\ACBAServiceReference\OperationService15.xsd">
@@ -1379,7 +1372,7 @@
     <None Include="Service References\ACBAServiceReference\OperationService27.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\ACBAServiceReference\OperationService7.xsd">
+    <None Include="Service References\ACBAServiceReference\OperationService3.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\ACBAServiceReference\OperationService8.xsd">
@@ -1908,9 +1901,6 @@
     <None Include="Service References\TokenOperationsCasServiceReference\TokenOperationsCas1.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\ACBAServiceReference\OperationService1.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\UtilityPaymentsServiceReference\UtilityOperationService.disco" />
   </ItemGroup>
   <ItemGroup>
@@ -1918,6 +1908,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\UtilityPaymentsServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\OperationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ACBAServiceReference\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

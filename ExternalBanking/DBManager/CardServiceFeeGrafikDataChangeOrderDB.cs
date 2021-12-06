@@ -12,11 +12,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveCardServiceFeeGrafikDataChangeOrder(CardServiceFeeGrafikDataChangeOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-                {
-                    conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                    SqlCommand cmd = new SqlCommand(@"
+            using SqlCommand cmd = new SqlCommand(@"
                                                     declare @filial as int
                                                     SELECT @filial=filialcode FROM Tbl_customers WHERE customer_number=@customer_number   
                                                     INSERT INTO Tbl_HB_documents
@@ -28,23 +27,22 @@ namespace ExternalBanking.DBManager
                                                     1,@source_type,@operation_filial_code,@oper_day)
                                                     Select Scope_identity() as ID
                                                      ", conn);
-                    cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
 
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                    cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
-                    cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
-                    cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                    cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
-                    cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
-                    cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
-                    cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
-                    cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
+            cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
+            cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
+            cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
 
-                    order.Id = Convert.ToInt64(cmd.ExecuteScalar());
-                    result.ResultCode = ResultCode.Normal;
-                    return result;
-                }
+            order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+            result.ResultCode = ResultCode.Normal;
+            return result;
 
         }
 
@@ -62,7 +60,7 @@ namespace ExternalBanking.DBManager
                     {
                         cmd.Parameters.Add("@Doc_ID", SqlDbType.Float).Value = order.Id;
                         cmd.Parameters.Add("@product_app_Id", SqlDbType.Float).Value = order.ProductAppId;
-                        cmd.Parameters.Add("@card_number", SqlDbType.NVarChar,16).Value = order.CardNumber;
+                        cmd.Parameters.Add("@card_number", SqlDbType.NVarChar, 16).Value = order.CardNumber;
                         cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = m.Currency;
                         cmd.Parameters.Add("@Service_Fee", SqlDbType.Float).Value = m.ServiceFee;
                         cmd.Parameters.Add("@start_date", SqlDbType.SmallDateTime).Value = m.PeriodStart;
@@ -91,11 +89,11 @@ namespace ExternalBanking.DBManager
                                             from Tbl_HB_documents hb 
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                 SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

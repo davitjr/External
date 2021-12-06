@@ -16,104 +16,98 @@ namespace ExternalBanking.DBManager
         {
             ActionResult result = new ActionResult();
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = "pr_save_link_payment_order";
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
+            cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = order.Amount;
+            cmd.Parameters.Add("@fee_amount", SqlDbType.Float).Value = order.FeeAmount;
+            cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 5).Value = order.Currency;
+
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            cmd.Parameters.Add("@registration_date", SqlDbType.DateTime).Value = order.RegistrationDate;
+            cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar, 50).Value = order.CreditAccount.AccountNumber;
+            cmd.Parameters.Add("@document_type", SqlDbType.TinyInt).Value = order.Type;
+            cmd.Parameters.Add("@ducument_sub_type", SqlDbType.TinyInt).Value = order.SubType;
+            cmd.Parameters.Add("@description", SqlDbType.NVarChar, 100).Value = order.Description;
+            cmd.Parameters.Add("@link_payment_description", SqlDbType.NVarChar, 200).Value = order.LinkPaymentDescription;
+            cmd.Parameters.Add("@document_number", SqlDbType.Int).Value = order.OrderNumber;
+            cmd.Parameters.Add("@payment_source_type", SqlDbType.Int).Value = order.PaymentSourceType;
+            cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = order.Source;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = order.user.userName;
+            cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = order.Id;
+            cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = order.UserId;
+            cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 250).Value = order.Receiver;
+
+            cmd.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Direction = ParameterDirection.Output });
+            cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
+
+
+            cmd.ExecuteNonQuery();
+
+            byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
+            int id = Convert.ToInt32(cmd.Parameters["@id"].Value);
+
+            order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+            order.Quality = OrderQuality.Draft;
+
+            if (actionResult == 1)
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = "pr_save_link_payment_order";
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
-                cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = order.Amount;
-                cmd.Parameters.Add("@fee_amount", SqlDbType.Float).Value = order.FeeAmount;
-                cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 5).Value = order.Currency;
-
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                cmd.Parameters.Add("@registration_date", SqlDbType.DateTime).Value = order.RegistrationDate;
-                cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar, 50).Value = order.CreditAccount.AccountNumber;
-                cmd.Parameters.Add("@document_type", SqlDbType.TinyInt).Value = order.Type;
-                cmd.Parameters.Add("@ducument_sub_type", SqlDbType.TinyInt).Value = order.SubType;
-                cmd.Parameters.Add("@description", SqlDbType.NVarChar, 100).Value = order.Description;
-                cmd.Parameters.Add("@link_payment_description", SqlDbType.NVarChar, 200).Value = order.LinkPaymentDescription;
-                cmd.Parameters.Add("@document_number", SqlDbType.Int).Value = order.OrderNumber;
-                cmd.Parameters.Add("@payment_source_type", SqlDbType.Int).Value = order.PaymentSourceType;
-                cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = order.Source;
-                cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = order.user.userName;
-                cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = order.Id;
-                cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = order.UserId;
-                cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 250).Value = order.Receiver;
-
-                cmd.Parameters.Add(new SqlParameter("@id", SqlDbType.Int) { Direction = ParameterDirection.Output });
-                cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
-
-
-                cmd.ExecuteNonQuery();
-
-                byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
-                int id = Convert.ToInt32(cmd.Parameters["@id"].Value);
-
-                order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                order.Quality = OrderQuality.Draft;
-
-                if (actionResult == 1)
-                {
-                    result.ResultCode = ResultCode.Normal;
-                    result.Id = id;
-                }
-                else if (actionResult == 0)
-                {
-                    result.ResultCode = ResultCode.Failed;
-                    result.Id = -1;
-                }
-                return result;
+                result.ResultCode = ResultCode.Normal;
+                result.Id = id;
             }
+            else if (actionResult == 0)
+            {
+                result.ResultCode = ResultCode.Failed;
+                result.Id = -1;
+            }
+            return result;
         }
 
         public static LinkPaymentOrder GetDetails(long docId)
         {
             LinkPaymentOrder paymentOrder = new LinkPaymentOrder();
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = @"SELECT * FROM Tbl_HB_documents hb
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = @"SELECT * FROM Tbl_HB_documents hb
                                     INNER JOIN Tbl_link_payment_order_details lp on hb.doc_id = lp.doc_id WHERE hb.doc_id = @doc_id ";
-                cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
-                cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = docId;
+            cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = docId;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                    if (dr.Read())
-                        paymentOrder = SetOrderProprty(dr);
+            using (SqlDataReader dr = cmd.ExecuteReader())
+                if (dr.Read())
+                    paymentOrder = SetOrderProprty(dr);
 
-                return paymentOrder;
-            }
+            return paymentOrder;
         }
 
         internal static bool CheckShortId(string shortId)
         {
             bool HasRow = false;
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = @"SELECT 1 FROM Tbl_link_payment_order_details where short_id = @short_id  ";
-                cmd.CommandType = CommandType.Text;
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = @"SELECT 1 FROM Tbl_link_payment_order_details where short_id = @short_id  ";
+            cmd.CommandType = CommandType.Text;
 
-                cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 200).Value = shortId;
+            cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 200).Value = shortId;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                    if (dr.Read())
-                        HasRow = true;
+            using (SqlDataReader dr = cmd.ExecuteReader())
+                if (dr.Read())
+                    HasRow = true;
 
-                return HasRow;
-            }
+            return HasRow;
         }
 
         internal static void SaveLink(LinkPaymentOrder Order)
@@ -129,20 +123,18 @@ namespace ExternalBanking.DBManager
                            WHERE link_payment_doc_id = @doc_id";
 
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = query;
-                cmd.CommandType = CommandType.Text;
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = query;
+            cmd.CommandType = CommandType.Text;
 
-                cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = Order.Id;
-                cmd.Parameters.Add("@linkUrl", SqlDbType.NVarChar, 100).Value = Order.LinkURL;
-                cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 20).Value = Order.ShortId;
+            cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = Order.Id;
+            cmd.Parameters.Add("@linkUrl", SqlDbType.NVarChar, 100).Value = Order.LinkURL;
+            cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 20).Value = Order.ShortId;
 
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
         }
 
 
@@ -150,24 +142,22 @@ namespace ExternalBanking.DBManager
         {
             LinkPaymentOrder paymentOrder = new LinkPaymentOrder();
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = @"SELECT * FROM Tbl_HB_documents hb
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = @"SELECT * FROM Tbl_HB_documents hb
                                     INNER JOIN Tbl_link_payment_order_details lp on hb.doc_id = lp.doc_id 
                                     WHERE lp.isActive = 1 AND hb.quality = 30 AND short_id = @short_id ";
-                cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
-                cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 20).Value = shortId;
+            cmd.Parameters.Add("@short_id", SqlDbType.NVarChar, 20).Value = shortId;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                    if (dr.Read())
-                        paymentOrder = SetOrderProprty(dr);
+            using (SqlDataReader dr = cmd.ExecuteReader())
+                if (dr.Read())
+                    paymentOrder = SetOrderProprty(dr);
 
-                return paymentOrder;
-            }
+            return paymentOrder;
         }
 
         private static LinkPaymentOrder SetOrderProprty(SqlDataReader dr)
@@ -193,6 +183,6 @@ namespace ExternalBanking.DBManager
 
             return paymentOrder;
         }
-    
+
     }
 }

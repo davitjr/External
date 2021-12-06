@@ -40,7 +40,8 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@sender_card_number", SqlDbType.NVarChar, 20).Value = order.SenderCardNumber;
                     cmd.Parameters.Add("@receiver_card_number", SqlDbType.NVarChar, 20).Value = order.ReceiverCardNumber;
                     cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 30).Value = order.ReceiverName;
-                    cmd.Parameters.Add("@visa_alias", SqlDbType.NVarChar, 250).Value = order.VisaAlias;                 
+                    cmd.Parameters.Add("@visa_alias", SqlDbType.NVarChar, 250).Value = order.VisaAlias;
+                    cmd.Parameters.Add("@country_code", SqlDbType.NVarChar, 20).Value = order.CountryCode;
                     if (order.GroupId != 0)
                     {
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
@@ -85,7 +86,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT QH.change_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT QH.change_date,
                                                          HB.document_number,
                                                          HB.document_type,
                                                          HB.document_subtype,
@@ -122,6 +123,7 @@ namespace ExternalBanking.DBManager
                     order.ReceiverCardNumber = dt.Rows[0]["receiver_card_number"].ToString();
                     order.ReceiverName = dt.Rows[0]["receiver_name"].ToString();
                     order.VisaAlias = dt.Rows[0]["visa_alias"].ToString();
+                    order.CountryCode = dt.Rows[0]["country_code"].ToString();
                     order.GroupId = dt.Rows[0]["order_group_id"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["order_group_id"]) : 0;
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
                     order.ArcaExtensionID = dt.Rows[0]["arca_ext_id"]!=DBNull.Value? Convert.ToUInt64(dt.Rows[0]["arca_ext_id"].ToString()):0;
@@ -302,14 +304,12 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT reject_id from [tbl_arca_response_code_to_reject_id] WHERE response_code=@responseCode", conn))
+                using SqlCommand cmd = new SqlCommand(@"SELECT reject_id from [tbl_arca_response_code_to_reject_id] WHERE response_code=@responseCode", conn);
+                cmd.Parameters.Add("@responseCode", SqlDbType.NVarChar, 50).Value = responseCode;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.Parameters.Add("@responseCode", SqlDbType.NVarChar, 50).Value = responseCode;
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        result = Convert.ToInt16(dr["reject_id"].ToString());
-                    }
+                    result = Convert.ToInt16(dr["reject_id"].ToString());
                 }
 
             }
@@ -373,7 +373,7 @@ namespace ExternalBanking.DBManager
                                                         then price_for_group_1 when @currency='EUR' then price_for_group_2 end min_fee from tbl_prices  where idx_price=926 ", conn))
                 {
                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     if (dr.Read())
                     {
                         fee = Convert.ToDouble(dr["price"].ToString());

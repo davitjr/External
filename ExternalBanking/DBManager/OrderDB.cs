@@ -327,7 +327,7 @@ namespace ExternalBanking.DBManager
 
         private static Order SetOrder(DataRow row, bool withDebetAccount = false)
         {
-            Order order = new Order() { DebitAccount = new Account()};
+            Order order = new Order() { DebitAccount = new Account() };
 
             if (row != null)
             {
@@ -378,16 +378,14 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"SELECT dbo.[fnc_Get_Sent_transactions_amount](@accountNumber) as future_amount", conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(@"SELECT dbo.[fnc_Get_Sent_transactions_amount](@accountNumber) as future_amount", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        amount = double.Parse(dr["future_amount"].ToString());
-                    }
+                if (dr.Read())
+                {
+                    amount = double.Parse(dr["future_amount"].ToString());
                 }
             }
 
@@ -484,7 +482,9 @@ namespace ExternalBanking.DBManager
                      && order.Type != OrderType.HBActivation && order.Type != OrderType.HBApplicationTerminationOrder
                      && order.Type != OrderType.ArcaCardsTransactionOrder && order.Type != OrderType.CardLimitChangeOrder && order.Type != OrderType.CardRegistrationOrder
                      && order.Type != OrderType.SberBankTransferOrder && order.Type != OrderType.BillSplitReminder && order.Type != OrderType.BillSplitSenderRejection && order.Type != OrderType.LinkTransferPaymentConfirmation
-                     && order.Type != OrderType.VisaAlias && !(confirmationSourceType == ConfirmationSourceType.FromACBADigital && order.Type == OrderType.CancelTransaction))
+                     && order.Type != OrderType.DepositaryAccountOrder && order.Type != OrderType.CurrentAccountOpen && order.Type != OrderType.BondRegistrationOrder
+                     && order.Type != OrderType.VisaAlias && !(confirmationSourceType == ConfirmationSourceType.FromACBADigital && order.Type == OrderType.CancelTransaction)
+                     && order.Type != OrderType.DepositaryAccountOpeningOrder)
                 {
 
                     using (SqlCommand cmd = new SqlCommand())
@@ -633,13 +633,13 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT h.Doc_ID
+                using SqlCommand cmd = new SqlCommand(@"SELECT h.Doc_ID
                                                       ,h.quality
                                                       ,h.change_date
                                                       ,h.change_set_number
                                                       ,h.change_user_name,d.reject_ID FROM Tbl_HB_quality_history AS h INNER JOIN Tbl_HB_documents AS d ON h.Doc_ID=d.doc_ID WHERE h.Doc_ID=@DocID order by h.uniq_number ", conn);
                 cmd.Parameters.Add("@DocID", SqlDbType.Float).Value = orderId;
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
@@ -690,93 +690,93 @@ namespace ExternalBanking.DBManager
             return history;
         }
 
-        internal static ulong Save(Order order, short userId, SourceType source)
-        {
-            ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
+        //internal static ulong Save(Order order, short userId, SourceType source)
+        //{
+        //    ActionResult result = new ActionResult();
+        //    using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+        //    {
+        //        using (SqlCommand cmd = new SqlCommand())
+        //        {
 
 
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "pr_Save_BO_Order";
-                    cmd.CommandType = CommandType.StoredProcedure;
+        //            conn.Open();
+        //            cmd.Connection = conn;
+        //            cmd.CommandText = "pr_Save_BO_Order";
+        //            cmd.CommandType = CommandType.StoredProcedure;
 
-                    int communalType = 0;
+        //            int communalType = 0;
 
-                    if (order.Type == OrderType.CommunalPayment || order.Type == OrderType.CashCommunalPayment ||
-                        order.Type == OrderType.ReestrCommunalPayment || order.Type == OrderType.ReestrCashCommunalPayment)
-                    {
-                        UtilityPaymentOrder uOrder = (UtilityPaymentOrder)order;
-                        communalType = (int)uOrder.CommunalType;
-                    }
+        //            if (order.Type == OrderType.CommunalPayment || order.Type == OrderType.CashCommunalPayment ||
+        //                order.Type == OrderType.ReestrCommunalPayment || order.Type == OrderType.ReestrCashCommunalPayment)
+        //            {
+        //                UtilityPaymentOrder uOrder = (UtilityPaymentOrder)order;
+        //                communalType = (int)uOrder.CommunalType;
+        //            }
 
-                    cmd.Parameters.Add("@type", SqlDbType.SmallInt).Value = GetBOOrderType(order.Type, order.SubType, communalType);
-
-
-                    cmd.Parameters.Add("@orderDate", SqlDbType.DateTime).Value = (object)order.OperationDate ?? DBNull.Value;
-                    cmd.Parameters.Add("@orderNumber", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
-                    cmd.Parameters.Add("@source", SqlDbType.TinyInt).Value = (short)source;
-                    cmd.Parameters.Add("@mainOrderId", SqlDbType.Int).Value = DBNull.Value;
-                    cmd.Parameters.Add("@orderFilialCode", SqlDbType.Int).Value = order.FilialCode;
-                    cmd.Parameters.Add("@action", SqlDbType.Int).Value = 1;
-                    cmd.Parameters.Add("@actionSetNumber", SqlDbType.SmallInt).Value = userId;
+        //            cmd.Parameters.Add("@type", SqlDbType.SmallInt).Value = GetBOOrderType(order.Type, order.SubType, communalType);
 
 
-                    SqlParameter param = new SqlParameter("@Id", SqlDbType.Int);
-                    param.Direction = ParameterDirection.Output;
-                    cmd.Parameters.Add(param);
+        //            cmd.Parameters.Add("@orderDate", SqlDbType.DateTime).Value = (object)order.OperationDate ?? DBNull.Value;
+        //            cmd.Parameters.Add("@orderNumber", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+        //            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
+        //            cmd.Parameters.Add("@source", SqlDbType.TinyInt).Value = (short)source;
+        //            cmd.Parameters.Add("@mainOrderId", SqlDbType.Int).Value = DBNull.Value;
+        //            cmd.Parameters.Add("@orderFilialCode", SqlDbType.Int).Value = order.FilialCode;
+        //            cmd.Parameters.Add("@action", SqlDbType.Int).Value = 1;
+        //            cmd.Parameters.Add("@actionSetNumber", SqlDbType.SmallInt).Value = userId;
 
-                    cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.TinyInt) { Direction = ParameterDirection.Output });
+
+        //            SqlParameter param = new SqlParameter("@Id", SqlDbType.Int);
+        //            param.Direction = ParameterDirection.Output;
+        //            cmd.Parameters.Add(param);
+
+        //            cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.TinyInt) { Direction = ParameterDirection.Output });
 
 
-                    cmd.ExecuteNonQuery();
+        //            cmd.ExecuteNonQuery();
 
-                    byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
+        //            byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
 
-                    if (actionResult == 1)
-                    {
-                        result.ResultCode = ResultCode.Normal;
-                        result.Id = uint.Parse(param.Value.ToString());
-                    }
-                    else if (actionResult == 0)
-                    {
-                        result.ResultCode = ResultCode.Failed;
-                        result.Id = -1;
-                    }
+        //            if (actionResult == 1)
+        //            {
+        //                result.ResultCode = ResultCode.Normal;
+        //                result.Id = uint.Parse(param.Value.ToString());
+        //            }
+        //            else if (actionResult == 0)
+        //            {
+        //                result.ResultCode = ResultCode.Failed;
+        //                result.Id = -1;
+        //            }
 
-                    return ulong.Parse(param.Value.ToString());
-                }
-            }
-        }
+        //            return ulong.Parse(param.Value.ToString());
+        //        }
+        //    }
+        //}
 
-        internal static ActionResult SaveLinkHBDocumentOrder(long documentId, ulong orderId)
-        {
-            ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
+        //internal static ActionResult SaveLinkHBDocumentOrder(long documentId, ulong orderId)
+        //{
+        //    ActionResult result = new ActionResult();
+        //    using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+        //    {
+        //        using (SqlCommand cmd = new SqlCommand())
+        //        {
 
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO Tbl_link_HB_document_order(document_id, order_id) VALUES(@documentid, @orderId)";
-                    //cmd.CommandType = CommandType.StoredProcedure;
+        //            conn.Open();
+        //            cmd.Connection = conn;
+        //            cmd.CommandText = "INSERT INTO Tbl_link_HB_document_order(document_id, order_id) VALUES(@documentid, @orderId)";
+        //            //cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.Add("@documentId", SqlDbType.Float).Value = documentId;
-                    cmd.Parameters.Add("@orderId", SqlDbType.Float).Value = orderId;
+        //            cmd.Parameters.Add("@documentId", SqlDbType.Float).Value = documentId;
+        //            cmd.Parameters.Add("@orderId", SqlDbType.Float).Value = orderId;
 
-                    cmd.ExecuteNonQuery();
+        //            cmd.ExecuteNonQuery();
 
-                    result.ResultCode = ResultCode.Normal;
+        //            result.ResultCode = ResultCode.Normal;
 
-                    return result;
-                }
-            }
-        }
+        //            return result;
+        //        }
+        //    }
+        //}
 
 
         public static void SaveOrderAttachments(Order order)
@@ -1827,7 +1827,7 @@ namespace ExternalBanking.DBManager
                         " and H.source_type NOT IN ( 2,6)  " +
                         "and group_id in " + groups +
                         qualityStr +
-                        " ) and document_type NOT IN (132, 137, 69, 135, 116, 138, 18) and quality in (1,5) order by doc_id desc";
+                        " ) and document_type NOT IN (132, 137, 69, 135, 116, 138, 18, 191) and quality in (1,5) order by doc_id desc";
 
                         cmd.CommandText = sqlString;
 
@@ -1973,7 +1973,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"	
+                using SqlCommand cmd = new SqlCommand(@"	
                                                     INSERT INTO tbl_payment_registration_request_details
                                                     (Doc_ID,order_id,payment_date,terminal_id,phone_number,payment_session_id)
                                                     values
@@ -2000,7 +2000,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"IF @source_type <> 10 AND @source_type <> 8
+                using SqlCommand cmd = new SqlCommand(@"IF @source_type <> 10 AND @source_type <> 8
 	                                                        SELECT  hb.doc_ID  from Tbl_HB_documents hb
 	                                                        INNER JOIN tbl_payment_registration_request_details req
 	                                                        ON hb.doc_ID=req.Doc_ID
@@ -2009,26 +2009,24 @@ namespace ExternalBanking.DBManager
 	                                                        SELECT  hb.doc_ID  from Tbl_HB_documents hb
 	                                                        INNER JOIN tbl_payment_registration_request_details req
 	                                                        ON hb.doc_ID=req.Doc_ID
-	                                                        WHERE req.order_id=@paymentId and document_type = @document_type and hb.debet_account=@accountNumber", conn))
+	                                                        WHERE req.order_id=@paymentId and document_type = @document_type and hb.debet_account=@accountNumber", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
+                cmd.Parameters.Add("@paymentId", SqlDbType.Int).Value = order.OrderId;
+                cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = order.Source;
+                if (order.Source == SourceType.SSTerminal)
+                    cmd.Parameters.Add("@terminalID", SqlDbType.VarChar, 30).Value = order.TerminalID;
+                else
+                    cmd.Parameters.Add("@terminalID", SqlDbType.VarChar, 30).Value = DBNull.Value;
+
+
+                cmd.Parameters.Add("@document_type", SqlDbType.VarChar, 30).Value = (short)order.Type;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
-                    cmd.Parameters.Add("@paymentId", SqlDbType.Int).Value = order.OrderId;
-                    cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = order.Source;
-                    if (order.Source == SourceType.SSTerminal)
-                        cmd.Parameters.Add("@terminalID", SqlDbType.VarChar, 30).Value = order.TerminalID;
-                    else
-                        cmd.Parameters.Add("@terminalID", SqlDbType.VarChar, 30).Value = DBNull.Value;
-
-
-                    cmd.Parameters.Add("@document_type", SqlDbType.VarChar, 30).Value = (short)order.Type;
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        isUnique = true;
-                    }
+                    isUnique = true;
                 }
 
             }
@@ -2378,7 +2376,7 @@ namespace ExternalBanking.DBManager
                                                        debet_account
 								                       FROM TBl_HB_documents 
                                                       WHERE doc_ID IN
-                        (select  H.doc_ID from Tbl_HB_documents H " + abonentNumberJoin + abonentNumberStr + receiverCardNumberJoin + receiverCardNumberStr + " WHERE H.quality <> 40 AND H.document_type NOT IN (132, 137, 69, 135, 116, 138) AND H.customer_number=@customer_number " + groupIdFilter + receiverNameStr + dateStr + accountStr + sourceStr + qualityStr + orderTypeStr + receiverCardNumberStr + " ) order by doc_id desc";
+                        (select  H.doc_ID from Tbl_HB_documents H " + abonentNumberJoin + abonentNumberStr + receiverCardNumberJoin + receiverCardNumberStr + " WHERE H.quality <> 40 AND H.document_type NOT IN (132, 137, 69, 135, 116, 138, 191) AND H.customer_number=@customer_number " + groupIdFilter + receiverNameStr + dateStr + accountStr + sourceStr + qualityStr + orderTypeStr + receiverCardNumberStr + " ) order by doc_id desc";
                     cmd.CommandText = sqlString;
 
 
@@ -2399,9 +2397,9 @@ namespace ExternalBanking.DBManager
                         orders.Add(SetOrder(dt.Rows[i], true));
                     }
                     //Կցված քարտով գործարքների ժամանակ ցույց ենք տալիս կցված քարտի համարը POS Terminal-ի համարի փոխարեն
-                    if (IPayAccounts != null && orders != null && orders.Any(order => IPayAccounts.Contains(order?.DebitAccount?.AccountNumber) || order.Type == OrderType.AttachedCardToCardOrder))
+                    if (IPayAccounts != null && orders != null && orders.Any(order => IPayAccounts.Contains(order?.DebitAccount?.AccountNumber) || order?.Type == OrderType.AttachedCardToCardOrder))
                     {
-                        List<Order> IPayOrders = orders.Where(order => IPayAccounts.Contains(order?.DebitAccount?.AccountNumber) || order.Type == OrderType.AttachedCardToCardOrder).ToList();
+                        List<Order> IPayOrders = orders.Where(order => IPayAccounts.Contains(order?.DebitAccount?.AccountNumber) || order?.Type == OrderType.AttachedCardToCardOrder).ToList();
                         Dictionary<long, string> AttachedCards = GetAttachedCardsByDocId(IPayOrders.Select(order => order.Id).ToList());
                         foreach (Order order in IPayOrders)
                         {
@@ -2409,6 +2407,18 @@ namespace ExternalBanking.DBManager
                             order.DebitAccount.AccountNumber = AttachedCards.ContainsKey(order.Id) ? AttachedCards[order.Id] : "-";
                         }
                     }
+
+                    if (orders.Any(a => a.Type == OrderType.CardToOtherCardsOrder))
+                    {
+                        List<Order> cardToOtherCard = orders.Where(order => order.Type == OrderType.CardToOtherCardsOrder).ToList();
+                        Dictionary<long, string> cards = GetCardToCardSenderCardNumber(cardToOtherCard.Select(a => a.Id));
+                        foreach (Order order in orders)
+                        {
+                            order.DebitAccount.IsAttachedCard = true;
+                            order.DebitAccount.AccountNumber = cards.ContainsKey(order.Id) ? cards[order.Id] : "-";
+                        }
+                    }
+
                 }
 
             }
@@ -2423,16 +2433,14 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"SELECT Account_number FROM [tbl_IPay_account_numbers]", conn))
+                using SqlCommand cmd = new SqlCommand(@"SELECT Account_number FROM [tbl_IPay_account_numbers]", conn);
+                cmd.CommandType = CommandType.Text;
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    cmd.CommandType = CommandType.Text;
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            IPayAccounts.Add(reader["Account_number"].ToString());
-                        }
+                        IPayAccounts.Add(reader["Account_number"].ToString());
                     }
                 }
             }
@@ -2537,22 +2545,20 @@ namespace ExternalBanking.DBManager
                 SqlConnection conn;
                 using (conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
                 {
-                    using (SqlCommand cmd = new SqlCommand())
-                    {
-                        conn.Open();
-                        cmd.Connection = conn;
-                        cmd.CommandText = "Select dbo.fn_get_HB_document_operation_filialcode(" + orderID.ToString() + ")";
-                        cmd.CommandType = CommandType.Text;
+                    using SqlCommand cmd = new SqlCommand();
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = "Select dbo.fn_get_HB_document_operation_filialcode(" + orderID.ToString() + ")";
+                    cmd.CommandType = CommandType.Text;
 
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        if (reader.HasRows)
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            if (Convert.ToString(reader[0]) != "")
                             {
-                                if (Convert.ToString(reader[0]) != "")
-                                {
-                                    filialCode = Convert.ToUInt16(reader[0]);
-                                }
+                                filialCode = Convert.ToUInt16(reader[0]);
                             }
                         }
                     }
@@ -2599,7 +2605,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = "SELECT unique_number  FROM [dbo].[Tbl_journal_of_confirmations] where HB_doc_ID = " + docID.ToString();
                     cmd.CommandType = CommandType.Text;
 
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    using SqlDataReader reader = cmd.ExecuteReader();
                     if (reader.HasRows)
                     {
                         while (reader.Read())
@@ -2788,55 +2794,51 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        public static int GetOrderDailyCount(short orderType,short subType, DateTime date, ulong customerNumber)
+        public static int GetOrderDailyCount(short orderType, short subType, DateTime date, ulong customerNumber)
         {
             int orderCount = 0;
             using (var conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT COUNT(doc_id) order_count  FROM [dbo].[tbl_hb_documents] where document_type = @orderType and document_subtype=@subType and registration_date=@regDate and quality in(2,3,4,30) and customer_number=@customerNumber";
-                    cmd.Parameters.Add("@orderType", SqlDbType.TinyInt).Value = orderType;
-                    cmd.Parameters.Add("@subType", SqlDbType.TinyInt).Value = subType;
-                    cmd.Parameters.Add("@regDate", SqlDbType.SmallDateTime).Value = date;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    cmd.CommandType = CommandType.Text;
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT COUNT(doc_id) order_count  FROM [dbo].[tbl_hb_documents] where document_type = @orderType and document_subtype=@subType and registration_date=@regDate and quality in(2,3,4,30) and customer_number=@customerNumber";
+                cmd.Parameters.Add("@orderType", SqlDbType.TinyInt).Value = orderType;
+                cmd.Parameters.Add("@subType", SqlDbType.TinyInt).Value = subType;
+                cmd.Parameters.Add("@regDate", SqlDbType.SmallDateTime).Value = date;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                cmd.CommandType = CommandType.Text;
 
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        orderCount = Convert.ToInt32(reader["order_count"].ToString());
-                    }
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    orderCount = Convert.ToInt32(reader["order_count"].ToString());
                 }
             }
             return orderCount;
         }
-        public static double GetOrderDailyAmount(short orderType,short orderSubType, DateTime date, ulong customerNumber)
+        public static double GetOrderDailyAmount(short orderType, short orderSubType, DateTime date, ulong customerNumber)
         {
             double orderAmount = 0;
             using (var conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT ISNULL(sum(case currency when 'AMD' then amount 
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT ISNULL(sum(case currency when 'AMD' then amount 
                                             else amount* dbo.fnc_kurs_for_date([currency],@regDate) end),0) total_amount  FROM [dbo].[tbl_hb_documents] where document_type = @orderType and registration_date=@regDate and quality in(2,3,4,30) and customer_number=@customerNumber and document_subtype=@subType";
-                    cmd.Parameters.Add("@orderType", SqlDbType.TinyInt).Value = orderType;
-                    cmd.Parameters.Add("@subType", SqlDbType.TinyInt).Value = orderSubType;
-                    cmd.Parameters.Add("@regDate", SqlDbType.SmallDateTime).Value = date;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@orderType", SqlDbType.TinyInt).Value = orderType;
+                cmd.Parameters.Add("@subType", SqlDbType.TinyInt).Value = orderSubType;
+                cmd.Parameters.Add("@regDate", SqlDbType.SmallDateTime).Value = date;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                cmd.CommandType = CommandType.Text;
 
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        orderAmount = Convert.ToDouble(reader["total_amount"].ToString());
-                    }
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    orderAmount = Convert.ToDouble(reader["total_amount"].ToString());
                 }
             }
 
@@ -2918,42 +2920,36 @@ namespace ExternalBanking.DBManager
             int ordersCount = 0;
             if (!String.IsNullOrEmpty(groups))
             {
-                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-                {
-                    conn.Open();
+                using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+                conn.Open();
 
-                    using (SqlCommand cmd = new SqlCommand(@"", conn))
-                    {
+                using SqlCommand cmd = new SqlCommand(@"", conn);
 
-                        string sqlString = @"
+                string sqlString = @"
                                                        SELECT	                                               
                                                        count(1) as ordersCount
 								                       FROM TBl_HB_documents 
                                                       WHERE doc_ID IN
                         (
                         SELECT distinct H.doc_id as doc_id FROM Tbl_approvement_process AP inner join TBl_HB_documents  H on AP.doc_id = H.doc_id" +
-                        " WHERE AP.step_status = 1 and H.customer_number=@customer_number" +
-                        " and @username not in (select isnull([user_name], '') from Tbl_approvement_process where doc_id = H.doc_ID) and H.quality not in (40, 6, 31) " +
-                        " and H.source_type IN ( 1,3,4,5 )  " +
-                        "and group_id in " + groups +
-                        " ) and document_type NOT IN (132, 137, 69, 135, 116, 138, 18) and quality in (1,5) ";
+                " WHERE AP.step_status = 1 and H.customer_number=@customer_number" +
+                " and @username not in (select isnull([user_name], '') from Tbl_approvement_process where doc_id = H.doc_ID) and H.quality not in (40, 6, 31) " +
+                " and H.source_type IN ( 1,3,4,5 )  " +
+                "and group_id in " + groups +
+                " ) and document_type NOT IN (132, 137, 69, 135, 116, 138, 18, 191) and quality in (1,5) ";
 
-                        cmd.CommandText = sqlString;
-
-
-                        cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-
-                        cmd.Parameters.Add("@userName", SqlDbType.NVarChar).Value = userName;
+                cmd.CommandText = sqlString;
 
 
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        if (reader.Read())
-                        {
-                            ordersCount = Convert.ToInt32(reader["ordersCount"].ToString());
-                        }
-                    }
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+
+                cmd.Parameters.Add("@userName", SqlDbType.NVarChar).Value = userName;
 
 
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    ordersCount = Convert.ToInt32(reader["ordersCount"].ToString());
                 }
             }
 
@@ -2984,30 +2980,26 @@ namespace ExternalBanking.DBManager
 
         public static void SetDefaultRestConfigs(string userName)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbLoginsConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand(@"SELECT U.id, A.customer_number 
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbLoginsConn"].ToString());
+            using SqlCommand cmd = new SqlCommand(@"SELECT U.id, A.customer_number 
                                                             FROM Tbl_Users U
                                                             INNER JOIN Tbl_Applications a
                                                             on u.global_id = a.ID
                                                             Where user_Name = @userName and u.id not in (
 																SELECT digital_user_id
 																FROM [dbo].[tbl_digital_account_rest_configuration]
-															)", conn))
-                {
-                    conn.Open();
-                    cmd.CommandType = CommandType.Text;
+															)", conn);
+            conn.Open();
+            cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@userName", SqlDbType.NVarChar, 50).Value = userName;
+            cmd.Parameters.Add("@userName", SqlDbType.NVarChar, 50).Value = userName;
 
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        int digitalUserID = Convert.ToInt32(reader["id"].ToString());
-                        ulong customerNumber = Convert.ToUInt64(reader["customer_number"].ToString());
-                        DigitalAccountRestConfigurationsDB.SaveDefaultAccountRestConfigurations(digitalUserID, customerNumber);
-                    }
-                }
+            using SqlDataReader reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                int digitalUserID = Convert.ToInt32(reader["id"].ToString());
+                ulong customerNumber = Convert.ToUInt64(reader["customer_number"].ToString());
+                DigitalAccountRestConfigurationsDB.SaveDefaultAccountRestConfigurations(digitalUserID, customerNumber);
             }
         }
 
@@ -3055,6 +3047,27 @@ namespace ExternalBanking.DBManager
             }
 
             return type;
+        }
+
+        private static Dictionary<long, string> GetCardToCardSenderCardNumber(IEnumerable<long> DocIds)
+        {
+
+            Dictionary<long, string> AttachedCards = new Dictionary<long, string>();
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = $"SELECT doc_ID, sender_card_number FROM tbl_cardToOtherCards_order_details WHERE doc_id IN ({string.Join(", ", DocIds)})";
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                            AttachedCards.Add(Convert.ToInt64(dr["doc_ID"]), dr["sender_card_number"].ToString());
+                    }
+                }
+            }
+            return AttachedCards;
         }
 
     }

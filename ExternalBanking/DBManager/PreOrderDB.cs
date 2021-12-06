@@ -80,20 +80,17 @@ namespace ExternalBanking.DBManager
         /// <param name="quality"></param>
         public static void UpdatePreOrderDetailQuality(ulong customerNumber, ulong appID, PreOrderQuality quality)
         {
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"UPDATE  U SET U.quality = @quality FROM
+            using SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"UPDATE  U SET U.quality = @quality FROM
                                                 (SELECT top 1 quality  FROM Tbl_Automatic_HB_Documents_Generation_PreOrder_Details WHERE customer_number = @customerNumber AND app_Id = @appID 
                                                 AND quality = 10 ORDER BY id DESC) U", conn);
 
-                cmd.Parameters.Add("@quality", SqlDbType.SmallInt).Value = quality;
-                cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
-                cmd.Parameters.Add("@appID", SqlDbType.BigInt).Value = appID;
+            cmd.Parameters.Add("@quality", SqlDbType.SmallInt).Value = quality;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
+            cmd.Parameters.Add("@appID", SqlDbType.BigInt).Value = appID;
 
-                cmd.ExecuteNonQuery();
-
-            }
+            cmd.ExecuteNonQuery();
         }
 
         internal static bool IsExistIncompletePreOrders(PreOrderType preOrderType)

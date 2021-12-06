@@ -26,8 +26,8 @@ namespace ExternalBanking.DBManager
                                        WHERE is_active = 1 and closing_date is null ";
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     UtilityOptions utilityOption = new UtilityOptions();
@@ -51,7 +51,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("pr_save_utility_config_and_history", conn);
+                using SqlCommand cmd = new SqlCommand("pr_save_utility_config_and_history", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@Is_enabled", SqlDbType.Bit).Value = utilityOption.IsEnabled;
@@ -115,7 +115,7 @@ namespace ExternalBanking.DBManager
 
 
 
-        internal static List<string> GetExistsNotSentAndSettledRows(Dictionary<int,bool> keyValues)
+        internal static List<string> GetExistsNotSentAndSettledRows(Dictionary<int, bool> keyValues)
         {
             List<string> list = new List<string>();
 
@@ -128,13 +128,13 @@ namespace ExternalBanking.DBManager
                                     WHERE s.is_active = 1 and Transaction_group_number  is not null and Deleted<> 1 and Status = 0  and c.is_enabled <> 0";
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
-                    if(keyValues.ContainsKey(Convert.ToInt32(dr["Utility_type_id"]))) 
+                    if (keyValues.ContainsKey(Convert.ToInt32(dr["Utility_type_id"])))
                     {
-                       if(keyValues[Convert.ToInt32(dr["Utility_type_id"])] == false)
+                        if (keyValues[Convert.ToInt32(dr["Utility_type_id"])] == false)
                         {
                             serviceName = (dr["ServiceName"]).ToString();
                             list.Add(serviceName);

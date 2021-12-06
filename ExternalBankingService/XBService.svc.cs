@@ -11090,6 +11090,10 @@ namespace ExternalBankingService
         {
             try
             {
+                if (order.Bond.ShareType == SharesTypes.Bonds)
+                    order.SubType = 1;
+                else
+                    order.SubType = 2;
 
                 Customer customer = CreateCustomer();
                 InitOrder(order);
@@ -11262,6 +11266,19 @@ namespace ExternalBankingService
             }
         }
 
+        public List<DepositaryAccount> GetCustomerDepositaryAccounts(ulong customerNumber)
+        {
+            try
+            {
+                return DepositaryAccount.GetCustomerDepositaryAccounts(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
         public List<Bond> GetBondsForDealing(BondFilter searchParams, string bondFilterType)
         {
             try
@@ -11355,7 +11372,7 @@ namespace ExternalBankingService
             }
         }
 
-        public DepositaryAccountOrder GetDepositaryAccountOrder(int id)
+        public DepositaryAccountOrder GetDepositaryAccountOrder(long id)
         {
             DepositaryAccountOrder order;
             try
@@ -18563,6 +18580,228 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 return customer.GetCardTypeAndCardHolder(cardNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public int GetBondOrderIssueSeria(int bondIssueId)
+        {
+            try
+            {
+                return BondOrder.GetBondOrderIssueSeria(bondIssueId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public double GetUnitPrice(int bondIssueId)
+        {
+            try
+            {
+                return BondIssue.GetUnitPrice(bondIssueId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public  void DeleteDepoAccounts(ulong customerNumber)
+        {
+            try
+            {
+                DepositaryAccount.DeleteDepoAccounts(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public  double GetDepositaryAccount(ulong customerNumber)
+        {
+            try
+            {
+              return   DepositaryAccount.GetDepositaryAccount(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveDepositaryAccountOrder(DepositaryAccountOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveDepositaryAccountOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ApproveDepositaryAccountOrder(DepositaryAccountOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.ApproveDepositaryAccountOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveBondOrder(BondOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveBondOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ApproveBondOrder(BondOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.ApproveBondOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<Account> GetAccountsForStock()
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetAccountsForStock();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ConfirmStockOrder(int bondId)
+        {
+            try
+            {
+                return BondOrder.ConfirmStockOrder(bondId, User.userID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public double GetBuyKursForDate(string currency)
+        {
+            try
+            {
+                return Utility.GetBuyKursForDate(currency, User.filialCode);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public ActionResult SaveConsumeLoanApplicationOrder(ConsumeLoanApplicationOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveConsumeLoanApplicationOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+        public ActionResult UpdateDepositoryAccountOrder(DepositaryAccountOrder order)
+        {
+            try
+            {
+                return DepositaryAccountOrder.UpdateDepositoryAccountOrder(order);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ConsumeLoanApplicationOrder GetConsumeLoanApplicationOrder(long ID)
+        {
+            ConsumeLoanApplicationOrder order;
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                order = customer.GetConsumeLoanApplicationOrder(ID);
+                return order;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public BondCertificateDetails  GetBondCertificateDetailsByDocId(ulong docId)
+        {
+            try
+            {
+                return Bond.GetBondCertificateDetailsByDocId(docId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public (long, DateTime) ExistsConsumeLoanApplicationOrder(List<OrderQuality> qualities)
+        {
+            try
+            {
+                return ConsumeLoanApplicationOrder.ExistsConsumeLoanApplicationOrder(AuthorizedCustomer.CustomerNumber,  qualities);
             }
             catch (Exception ex)
             {

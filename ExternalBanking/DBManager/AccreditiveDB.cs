@@ -214,18 +214,16 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT pr.idpro FROM Tbl_provision_of_clients pr INNER JOIN  Tbl_Link_application_Provision link on pr.IdPro =  link.IdPro 
-                                                 WHERE Type in(5,6) AND matured_date is null AND pr.idpro not in (SELECT idpro FROM Tbl_Link_application_Provision WHERE activated_date is not null AND app_id <>@productId) AND app_id = @productId",conn))
+                using SqlCommand cmd = new SqlCommand(@"SELECT pr.idpro FROM Tbl_provision_of_clients pr INNER JOIN  Tbl_Link_application_Provision link on pr.IdPro =  link.IdPro 
+                                                 WHERE Type in(5,6) AND matured_date is null AND pr.idpro not in (SELECT idpro FROM Tbl_Link_application_Provision WHERE activated_date is not null AND app_id <>@productId) AND app_id = @productId", conn);
+                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
                 {
-                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.HasRows)
-                    {
-                        check = true;
-                    }
-                    return check;
+                    check = true;
                 }
-                   
+                return check;
+
             }
         }
 

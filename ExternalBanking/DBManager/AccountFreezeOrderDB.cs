@@ -21,7 +21,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select doc_ID from Tbl_HB_documents where quality in (1,2,3,5) and document_type=66 and document_subtype=1 and
+                using SqlCommand cmd = new SqlCommand(@"Select doc_ID from Tbl_HB_documents where quality in (1,2,3,5) and document_type=66 and document_subtype=1 and
                                                 debet_account=@accountNumber and customer_number=@customerNumber", conn);
                 cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
@@ -99,11 +99,11 @@ namespace ExternalBanking.DBManager
                                         LEFT JOIN Tbl_type_of_freeze_reason T on TD.freeze_reason = T.Id   
                                         WHERE customer_number=case when @customer_number = 0 then customer_number else @customer_number end AND HB.doc_ID=@docID ";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+               using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

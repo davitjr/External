@@ -12,37 +12,37 @@ namespace ExternalBanking
     {
         #region Properties
         /// <summary>
-        /// Պարտատոմսի ունիկալ համար
+        /// Արժեթղթի ունիկալ համար
         /// </summary>
         public int ID { get; set; }
 
         /// <summary>
-        /// Պարտատոմս թողարկող կազմակերպություններ
+        /// Արժեթուղթ թողարկող կազմակերպություններ
         /// </summary>
         public BondIssuerType IssuerType { get; set; }
 
         /// <summary>
-        /// Պարտատոմս թողարկող կազմակերպությունների նկարագրություններ
+        /// Արժեթուղթ թողարկող կազմակերպությունների նկարագրություններ
         /// </summary>
         public string IssuerTypeDescription { get; set; }
 
         /// <summary>
-        /// Տվյալ թողարկման պարտատոմսի ԱՄՏԾ
+        /// Տվյալ թողարկման արժեթղթի ԱՄՏԾ
         /// </summary>
         public string ISIN { get; set; }
 
         /// <summary>
-        /// Պարտատոմսի արժույթ
+        /// Արժեթղթի արժույթ
         /// </summary>
         public string Currency { get; set; }
 
         /// <summary>
-        /// Թողարկման ընդհանուր ծավալ
+        /// Թողարկման ընդհանուր ծավալ(Թողարկման ընդհանուր անվանական արժեք)
         /// </summary>
         public double TotalVolume { get; set; }
 
         /// <summary>
-        /// Մեկ պարտատոմսի անվանական արժեք
+        /// Մեկ արժեթղթի անվանական արժեք
         /// </summary>
         public double NominalPrice { get; set; }
 
@@ -64,15 +64,15 @@ namespace ExternalBanking
         /// <summary>
         /// Պարտատոմսերի մարման օր
         /// </summary>
-        public DateTime RepaymentDate { get; set; }
+        public DateTime? RepaymentDate { get; set; }
 
         /// <summary>
-        /// Պարտատոմսերի տեղաբաշխման սկիզբ 
+        /// Արժեթղթերի տեղաբաշխման սկիզբ 
         /// </summary>
         public DateTime ReplacementDate { get; set; }
 
         /// <summary>
-        /// Պարտատոմսերի տեղաբաշխման ավարտ 
+        /// Արժեթղթերի տեղաբաշխման ավարտ (նախատեսվող)
         /// </summary>
         public DateTime ReplacementEndDate { get; set; }
 
@@ -112,14 +112,14 @@ namespace ExternalBanking
         public TimeSpan PurchaseDeadlineTime { get; set; }
 
         /// <summary>
-        /// Պարտատոմսերի թողարկման ամսաթիվ 
+        /// Արժեթղթերի թողարկման ամսաթիվ 
         /// </summary>
         public DateTime IssueDate { get; set; }
 
         /// <summary>
-        /// Արժեկտրոնների վճարման քանակ պարտատոմսի ողջ գործողության ընթացքում
+        /// Պարտատոմսերի վճարման քանակ պարտատոմսի ողջ գործողության ընթացքում
         /// </summary>
-        public int CouponPaymentCount { get; set; }
+        public int? CouponPaymentCount { get; set; }
 
         /// <summary>
         /// Պարտատոմսի ժամկետի տեսակի կոդ (1՝ Երկարաժամկետ, 2՝ կարճաժամկետ)
@@ -132,10 +132,69 @@ namespace ExternalBanking
         public string PeriodTypeDescription { get; set; }
 
         /// <summary>
-        /// Բանկի՝ պարտատոմսերի թողարկմանը համապատասխան պասիվային հաշիվ
+        /// Բանկի՝ արժեթղթերի թողարկմանը համապատասխան պասիվային հաշիվ(Ռեսիդենտների համար)
         /// </summary>
         public Account BankAccount { get; set; }
 
+        /// <summary>
+        /// Արժեթղթի տեսակ
+        /// </summary>
+        public SharesTypes ShareType { get; set; }
+
+        /// <summary>
+        /// Թողարկման սերիա
+        /// </summary>
+        public int? IssueSeria { get; set; }
+
+        /// <summary>
+        /// Բաժնետոմսերի Տեղաբաշխման փաստացի ավարտ
+        /// </summary>
+        public DateTime? ReplacementFactualEndDate { get; set; }
+
+        /// <summary>
+        /// Մեկ բաժնետոմսի տեղաբաշխման գին 
+        /// </summary>
+        public double? PlacementPrice { get; set; }
+
+        ///// <summary>
+        ///// Տեղաբաշխման ենթակա քանակ 
+        ///// </summary>
+        //public int? PlacementCount { get; set; }
+
+        /// <summary>
+        /// Տեղաբաշխման փաստացի քանակ 
+        /// </summary>
+        public int? PlacementFactualCount { get; set; }
+
+        /// <summary>
+        /// Գործողության նկարագրություն 
+        /// </summary>
+        public string OperationDescription { get; set; }
+
+        /// <summary>
+        /// Գործողության նկարագրություն 
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Որոշման ամսաթիվ 
+        /// </summary>
+        public DateTime? DecisionDate { get; set; }
+
+        /// <summary>
+        /// Բանկի՝ արժեթղթերի թողարկմանը համապատասխան պասիվային հաշիվ Ոչ Ռեզիդենտների համար
+        /// </summary>
+        public Account BankAccountForNonResident { get; set; }
+
+        /// <summary>
+        /// ՊԿ
+        /// </summary>
+        public int SetNumber { get; set; }
+
+        /// <summary>
+        /// չտեղաբաշխված պարտատոմսերի քանակը՝ ըստ ԱՄՏԾ-ի
+        /// </summary>
+        public int NonDistributedBondsCount { get; set; }
         #endregion
 
 
@@ -200,6 +259,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveBondIssue(ACBAServiceReference.User user)
         {
+            this.SetNumber = user.userID;
+
             this.Complete();
             ActionResult result = Validate();
             if (result.Errors.Count > 0)
@@ -240,7 +301,12 @@ namespace ExternalBanking
         public ActionResult Validate()
         {
             ActionResult result = new ActionResult();
-            result.Errors = Validation.ValidateBondIssue(this);
+
+            if (this.ShareType == SharesTypes.Bonds)
+                result.Errors = Validation.ValidateBondIssue(this);
+            else
+                result.Errors = Validation.ValidateStockIssue(this);
+
             return result;
         }
 
@@ -282,11 +348,21 @@ namespace ExternalBanking
             //Կորպորատիվ պարտատոմսեր
             if(this.IssuerType == BondIssuerType.ACBA)
             {
-                this.TotalCount = Convert.ToInt32(this.TotalVolume / this.NominalPrice);
-                this.RepaymentDate = this.ReplacementDate.AddMonths(this.EditionCirculation);
-                this.CouponPaymentCount = this.EditionCirculation / 12 * this.CouponPaymentPeriodicity;
-                this.IssueDate = this.ReplacementDate;
-                this.PeriodType = BondIssuePeriod.LongTerm;
+                if (this.ShareType == SharesTypes.Bonds)
+                {
+                    this.TotalCount = Convert.ToInt32(this.TotalVolume / this.NominalPrice);
+                    this.RepaymentDate = this.ReplacementDate.AddMonths(this.EditionCirculation);
+                    this.CouponPaymentCount = this.EditionCirculation / 12 * this.CouponPaymentPeriodicity;
+                    this.IssueDate = this.ReplacementDate;
+                    this.PeriodType = BondIssuePeriod.LongTerm;
+                }
+                else
+                {
+                    this.TotalCount = Convert.ToInt32(this.TotalVolume / this.NominalPrice);
+                    //this.RepaymentDate = this.ReplacementDate.AddMonths(this.EditionCirculation);
+                    //this.CouponPaymentCount = this.EditionCirculation / 12 * this.CouponPaymentPeriodicity;
+                    //this.PeriodType = BondIssuePeriod.LongTerm;
+                }
             }                
                
         }
@@ -348,17 +424,32 @@ namespace ExternalBanking
             {
                 bonds.RemoveAll(m => m.Quality == BondQuality.Deleted);
                 bonds.RemoveAll(m => m.Quality == BondQuality.Rejected);
+
+                if (bondIssue.ShareType == SharesTypes.Stocks)
+                {
+                    bonds.RemoveAll(b => b.Quality == BondQuality.AvailableForApproveDiling || b.Quality == BondQuality.AvailableForApproveDilingBackOffice);
+                }
+
                 if (bonds != null)
                 {
                     distributedBondsCount = bonds.Sum(m => m.BondCount);
                 }
                
             }
-           
 
-            nonDistributedBondsCount = bondIssue.TotalCount - distributedBondsCount;
+
+            nonDistributedBondsCount = (bondIssue.TotalCount - distributedBondsCount) < 0 ? 0 : bondIssue.TotalCount - distributedBondsCount;
 
             return nonDistributedBondsCount;
+        }
+
+        public static double GetUnitPrice(int bondIssueId)
+        {
+            BondIssueFilter bondIssueFilter = new BondIssueFilter();
+            bondIssueFilter.BondIssueId = bondIssueId;
+            BondIssue bondIssue = BondIssueFilter.SearchBondIssues(bondIssueFilter).First();
+
+            return bondIssue.PlacementPrice.Value;
         }
 
     }

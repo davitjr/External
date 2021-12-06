@@ -89,7 +89,7 @@ namespace ExternalBanking.DBManager
                     }
                     cmd.Parameters.Add("@ProvidingFilialCode", SqlDbType.Int).Value = order.ProvidingFilialCode;
 
-                     
+
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
@@ -124,7 +124,7 @@ namespace ExternalBanking.DBManager
         }
         internal static string GetSocSecurityNumber(ulong customerNumber)
         {
-            string socSecurityNumber= "";
+            string socSecurityNumber = "";
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -137,9 +137,8 @@ namespace ExternalBanking.DBManager
                                         FROM V_CustomerDesriptionDocs c LEFT JOIN V_LegalCustomerManagers m ON m.customer_number = c.customer_number WHERE c.customer_number = @customerNumber";
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
 
-                    rd = cmd.ExecuteReader();
+                    using SqlDataReader rd = cmd.ExecuteReader();
 
                     if (rd.Read())
                     {
@@ -157,11 +156,10 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT pass_inf,default_id_card,ID_card,customer_number 
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT pass_inf,default_id_card,ID_card,customer_number 
                                         FROM
                                             (SELECT CUS.customer_number, isnull(L.document_number  ,CUS.passport_number )+' '+ convert(nvarchar,isnull(L.document_given_date ,CUS.passport_date),3) +' ' + isnull(L.document_given_by ,CUS.passport_inf) pass_inf,
                                                     isnull(L.social_number, CUS.social_number) social_number,D.ID_card,D.default_id_card
@@ -170,16 +168,15 @@ namespace ExternalBanking.DBManager
                                              LEFT JOIN (SELECT identityId,document_number ID_card, is_default AS default_id_card FROM Tbl_customer_documents_current WHERE document_type=11) D ON D.identityId=CUS.identityId
                                              ) A
                                             WHERE a.customer_number = @customerNumber and ((isnull(pass_inf,'')<>'' and isnull(default_id_card,0)=0) or  (isnull(ID_card,'')<>'' and isnull(default_id_card,0)<>0))";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                    rd = cmd.ExecuteReader();
 
-                    if (rd.Read())
-                    {
-                        hasDefaultDocument = true;
-                    }
+                using SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    hasDefaultDocument = true;
                 }
             }
 
@@ -190,11 +187,11 @@ namespace ExternalBanking.DBManager
         internal static PlasticCardOrder GetPlasticCardOrder(PlasticCardOrder order, SourceType source = SourceType.NotSpecified)
         {
             order.PlasticCard = new PlasticCard();
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT HB.document_number document_number, HB.document_type document_type, HB.document_subtype document_subtype, HB.doc_ID, 
+                using SqlCommand cmd = new SqlCommand(@"SELECT HB.document_number document_number, HB.document_type document_type, HB.document_subtype document_subtype, HB.doc_ID, 
                                                   HB.operationFilialCode operationFilialCode, HB.quality quality, registration_date, operation_date, HB.description , CT.ApplicationsCardType ApplicationsCardType,
                                                   VA.Cardnumber, OD.currency, OD.card_PIN_code_receiving_type,HB.source_type,OD.related_office_number,OD.mother_name, isnull(OD.card_report_receiving_type,-1) as card_report_receiving_type , ISNULL(RT.[description],'') AS report_type_description,
                                                   OD.ProvidingFilialCode, Od.card_type , Od.service_Fee_Periodicity_Type, OD.cardSMSPhone, OD.cardPINCodeReceivingPhone, OD.serving_set_number,OD.card_supplementary_type,
@@ -230,7 +227,7 @@ namespace ExternalBanking.DBManager
                     order.CardTechnology = Utility.ConvertAnsiToUnicode(dt.Rows[0]["card_technology"].ToString());
                     order.CardSMSPhone = dt.Rows[0]["cardSMSPhone"].ToString();
                     order.CardPINCodeReceivingTypeDescription = Utility.ConvertAnsiToUnicode(dt.Rows[0]["pin_description"].ToString());
-                    order.CardPINCodeReceivingType = dt.Rows[0]["card_PIN_code_receiving_type"] != DBNull.Value? Convert.ToUInt16(dt.Rows[0]["card_PIN_code_receiving_type"].ToString()):0;
+                    order.CardPINCodeReceivingType = dt.Rows[0]["card_PIN_code_receiving_type"] != DBNull.Value ? Convert.ToUInt16(dt.Rows[0]["card_PIN_code_receiving_type"].ToString()) : 0;
                     order.PlasticCard.SupplementaryType = (SupplementaryType)Convert.ToInt32(dt.Rows[0]["card_supplementary_type"].ToString());
                     order.PlasticCard.CardTypeDescription = dt.Rows[0]["ApplicationsCardType"].ToString();
                     order.PlasticCard.CardNumber = dt.Rows[0]["Cardnumber"].ToString();
@@ -247,7 +244,7 @@ namespace ExternalBanking.DBManager
 
                     order.CardReportReceivingTypeDescription = Utility.ConvertAnsiToUnicode(dt.Rows[0]["report_type_description"].ToString());
                     order.PlasticCard.CardType = Convert.ToUInt32(dt.Rows[0]["card_type"].ToString());
-                    order.ProvidingFilialCode = dt.Rows[0]["ProvidingFilialCode"] != DBNull.Value? Convert.ToUInt16(dt.Rows[0]["ProvidingFilialCode"].ToString()): (ushort)0;
+                    order.ProvidingFilialCode = dt.Rows[0]["ProvidingFilialCode"] != DBNull.Value ? Convert.ToUInt16(dt.Rows[0]["ProvidingFilialCode"].ToString()) : (ushort)0;
                     if (dt.Rows[0]["service_Fee_Periodicity_Type"].ToString() == "")
                         order.ServiceFeePeriodicityType = 0;
                     else
@@ -258,7 +255,7 @@ namespace ExternalBanking.DBManager
                     order.PlasticCard.MainCardNumber = dt.Rows[0]["main_card_number"].ToString();
                     if (order.PlasticCard.SupplementaryType == SupplementaryType.Linked)
                     {
-                        order.LinkedCardLimit = dt.Rows[0]["linked_card_limit"]!= DBNull.Value ? Convert.ToDouble(dt.Rows[0]["linked_card_limit"].ToString()) : 0;
+                        order.LinkedCardLimit = dt.Rows[0]["linked_card_limit"] != DBNull.Value ? Convert.ToDouble(dt.Rows[0]["linked_card_limit"].ToString()) : 0;
                     }
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
                     order.ProvidingFilialCodeDescription = dt.Rows[0]["fill_description"].ToString();
@@ -270,28 +267,25 @@ namespace ExternalBanking.DBManager
 
         internal static string GetCustomerLastMotherName(ulong customerNumber)
         {
-            string lastMotherName="";
+            string lastMotherName = "";
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT TOP 1  MotherName
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT TOP 1  MotherName
                                         FROM Tbl_VISA_applications
                                         WHERE customer_number = @customerNumber
                                         ORDER BY RegDate DESC";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                    rd = cmd.ExecuteReader();
+                using SqlDataReader rd = cmd.ExecuteReader();
 
-                    if (rd.Read())
-                    {
-                        lastMotherName = rd["MotherName"].ToString();
-                    }
+                if (rd.Read())
+                {
+                    lastMotherName = rd["MotherName"].ToString();
                 }
             }
 
@@ -299,18 +293,16 @@ namespace ExternalBanking.DBManager
         }
         internal static int GetPlasticCardOrderCount(ulong customerNumber)
         {
-            DataTable dt = new DataTable();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT doc_id
+            using DataTable dt = new DataTable();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT doc_id
                                                   FROM Tbl_HB_documents
                                                   WHERE document_type = 210 and quality = 3 and customer_number = @customer_number", conn);
 
-    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                dt.Load(cmd.ExecuteReader());
-                return dt.Rows.Count;
-            }
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+            dt.Load(cmd.ExecuteReader());
+            return dt.Rows.Count;
         }
 
         internal static ulong GetCustomerPensionContractID(ulong customerNumber)
@@ -319,21 +311,17 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT contract_id FROM Tbl_pension_application WHERE quality=10 AND closing_date IS NULL AND deleted = 0 AND quality=10 AND service_type IN (1,2) and customer_number = @customerNumber";
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                using SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT contract_id FROM Tbl_pension_application WHERE quality=10 AND closing_date IS NULL AND deleted = 0 AND quality=10 AND service_type IN (1,2) and customer_number = @customerNumber";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
-
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        contractID = ulong.Parse(rd["contract_id"].ToString());
-                    }
+                    contractID = ulong.Parse(rd["contract_id"].ToString());
                 }
             }
 
@@ -346,26 +334,23 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT AC.* 
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT AC.* 
                                         FROM Tbl_additional_card_conditions_checking AC 
                                         INNER JOIN Tbl_VISA_applications VA ON VA.cardType=AC.main_card_type
                                         WHERE sub_type=@subType AND VA.Cardnumber = @mainCardNumber  AND AC.additional_card_type = @cardType";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
-                    cmd.Parameters.Add("@cardType", SqlDbType.SmallInt).Value = cardType;
-                    cmd.Parameters.Add("@subType", SqlDbType.SmallInt).Value = subType;
-                    SqlDataReader rd;
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
+                cmd.Parameters.Add("@cardType", SqlDbType.SmallInt).Value = cardType;
+                cmd.Parameters.Add("@subType", SqlDbType.SmallInt).Value = subType;
 
-                    rd = cmd.ExecuteReader();
+                using SqlDataReader rd = cmd.ExecuteReader();
 
-                    if (rd.Read())
-                    {
-                        available = true;
-                    }
+                if (rd.Read())
+                {
+                    available = true;
                 }
             }
 
@@ -379,24 +364,22 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT Top 1 cardType, BillingCurrency, filial, RelatedOfficeNumber  FROM Tbl_VISA_applications WHERE Cardnumber = @mainCardNumber AND  CardStatus = 'NORM'";
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
+
+
+                using SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT Top 1 cardType, BillingCurrency, filial, RelatedOfficeNumber  FROM Tbl_VISA_applications WHERE Cardnumber = @mainCardNumber AND  CardStatus = 'NORM'";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
-                    SqlDataReader rd;
-
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        plasticCard.CardType = uint.Parse(rd["cardType"].ToString());
-                        plasticCard.Currency = rd["BillingCurrency"].ToString();
-                        plasticCard.RelatedOfficeNumber = int.Parse(rd["RelatedOfficeNumber"].ToString());
-                        plasticCard.FilialCode = int.Parse(rd["filial"].ToString()) + 22000;
-                    }
+                    plasticCard.CardType = uint.Parse(rd["cardType"].ToString());
+                    plasticCard.Currency = rd["BillingCurrency"].ToString();
+                    plasticCard.RelatedOfficeNumber = int.Parse(rd["RelatedOfficeNumber"].ToString());
+                    plasticCard.FilialCode = int.Parse(rd["filial"].ToString()) + 22000;
                 }
             }
 
@@ -410,23 +393,19 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT Office_ID
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT Office_ID
                                         FROM Tbl_Contract_salary_by_cards
                                         WHERE Office_name like '%Éñ³óáõóÇã%' OR Office_name like '%Èñ³óáõóÇã%'";
-                    cmd.CommandType = CommandType.Text;
+                cmd.CommandType = CommandType.Text;
 
-                    SqlDataReader rd;
+                using SqlDataReader rd = cmd.ExecuteReader();
 
-                    rd = cmd.ExecuteReader();
-
-                    while (rd.Read())
-                    {
-                        relOfficeNumbers.Add(int.Parse(rd["Office_ID"].ToString()));
-                    }
+                while (rd.Read())
+                {
+                    relOfficeNumbers.Add(int.Parse(rd["Office_ID"].ToString()));
                 }
             }
 
@@ -439,41 +418,36 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT contractStatus FROM tbl_contract_salary_by_cards WHERE  office_id = @relatedOfficeID";
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@relatedOfficeID", SqlDbType.Int).Value = relatedOfficeID;
+
+
+                using SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT contractStatus FROM tbl_contract_salary_by_cards WHERE  office_id = @relatedOfficeID";
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@relatedOfficeID", SqlDbType.Int).Value = relatedOfficeID;
-
-                    SqlDataReader rd;
-
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        contractID = rd["contractStatus"] == null ? -1: int.Parse(rd["contractStatus"].ToString());
-                    }
+                    contractID = rd["contractStatus"] == null ? -1 : int.Parse(rd["contractStatus"].ToString());
                 }
             }
             return contractID;
         }
         internal static int GetNotGivenCardsCount(ulong customerNumber)
         {
-            DataTable dt = new DataTable();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT customer_number
+            using DataTable dt = new DataTable();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT customer_number
                                                   FROM Tbl_VISA_applications 
                                                   WHERE givendate is null and customer_number = @customer_number", conn);
 
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                dt.Load(cmd.ExecuteReader());
-                return dt.Rows.Count;
-            }
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+            dt.Load(cmd.ExecuteReader());
+            return dt.Rows.Count;
         }
 
 
@@ -482,26 +456,22 @@ namespace ExternalBanking.DBManager
             bool suitable = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"Select *  from Tbl_cards_rates where office_id= @relOfficeID  and cardid=@cardSystem and cardtype=@cardType and currency=@cardCurrency and isnull(Quality,1)= 1";
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@cardSystem", SqlDbType.Int).Value = order.PlasticCard.CardSystem;
+                cmd.Parameters.Add("@cardType", SqlDbType.BigInt).Value = order.PlasticCard.CardType;
+                cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.PlasticCard.Currency;
+                cmd.Parameters.Add("@relOfficeID", SqlDbType.Int).Value = order.PlasticCard.RelatedOfficeNumber;
+
+                using SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"Select *  from Tbl_cards_rates where office_id= @relOfficeID  and cardid=@cardSystem and cardtype=@cardType and currency=@cardCurrency and isnull(Quality,1)= 1";
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@cardSystem", SqlDbType.Int).Value = order.PlasticCard.CardSystem;
-                    cmd.Parameters.Add("@cardType", SqlDbType.BigInt).Value = order.PlasticCard.CardType;
-                    cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.PlasticCard.Currency;
-                    cmd.Parameters.Add("@relOfficeID", SqlDbType.Int).Value = order.PlasticCard.RelatedOfficeNumber;
-
-                    SqlDataReader rd;
-
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        suitable = true;
-                    }
+                    suitable = true;
                 }
             }
 
@@ -514,26 +484,22 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "pr_GetCustomerAddressEng";
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+
+                using SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "pr_GetCustomerAddressEng";
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-
-                    SqlDataReader rd;
-
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        addressEng = rd["adressENG"].ToString();
-                    }
+                    addressEng = rd["adressENG"].ToString();
                 }
             }
-         return addressEng;
+            return addressEng;
         }
 
         internal static int PlasticCardQuantityRestriction(PlasticCardOrder order)
@@ -542,11 +508,10 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"IF EXISTS ( SELECT Office_ID, Office_Name, Contract_beginning, ReasonId 
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"IF EXISTS ( SELECT Office_ID, Office_Name, Contract_beginning, ReasonId 
                                                     FROM Tbl_Contract_salary_by_cards 
                                                     WHERE Office_ID = @RelatedOfficeNumber AND ReasonId in (1,2) and Contract_beginning > '05/March/2015' and Contract_end is null)
 	                                    BEGIN
@@ -557,22 +522,18 @@ namespace ExternalBanking.DBManager
 		                                         and BillingCurrency ='AMD' and BillingCurrency = @cardCurrency
 	                                    END";
 
-                    cmd.CommandType = CommandType.Text;
+                cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@RelatedOfficeNumber", SqlDbType.Int).Value = order.PlasticCard.RelatedOfficeNumber;
-                    cmd.Parameters.Add("@cardType", SqlDbType.BigInt).Value = order.PlasticCard.CardType;
-                    cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.PlasticCard.Currency;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = order.CustomerNumber;                
-                    
+                cmd.Parameters.Add("@RelatedOfficeNumber", SqlDbType.Int).Value = order.PlasticCard.RelatedOfficeNumber;
+                cmd.Parameters.Add("@cardType", SqlDbType.BigInt).Value = order.PlasticCard.CardType;
+                cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.PlasticCard.Currency;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = order.CustomerNumber;
 
-                    SqlDataReader rd;
+                using SqlDataReader rd = cmd.ExecuteReader();
 
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        quantity = int.Parse(rd["quantity"].ToString());
-                    }
+                if (rd.Read())
+                {
+                    quantity = int.Parse(rd["quantity"].ToString());
                 }
             }
 
@@ -581,58 +542,49 @@ namespace ExternalBanking.DBManager
 
         internal static GPMMemberStatus CheckCustomerGPMStatus(ulong customerNumber)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            conn.Open();
+            cmd.Connection = conn;
+            cmd.CommandText = @"select TOP 1 date_of_member from Tbl_Customer_GPM WHERE customer_number= @customerNumber ";
+
+            cmd.CommandType = CommandType.Text;
+
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+
+
+            using SqlDataReader rd = cmd.ExecuteReader();
+
+            if (rd.Read())
             {
-                using (SqlCommand cmd = new SqlCommand())
+                if (rd["date_of_member"] == DBNull.Value)
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"select TOP 1 date_of_member from Tbl_Customer_GPM WHERE customer_number= @customerNumber ";
-
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    
-
-                    SqlDataReader rd;
-
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        if (rd["date_of_member"] == DBNull.Value)
-                        {
-                            return GPMMemberStatus.NoMemberDate;
-                        }
-                        else return GPMMemberStatus.IsMember;
-                    }
-                    else return GPMMemberStatus.NotMember;
+                    return GPMMemberStatus.NoMemberDate;
                 }
+                else return GPMMemberStatus.IsMember;
             }
-        } 
+            else return GPMMemberStatus.NotMember;
+        }
 
         internal static bool CheckAdditionalCardConditions(string mainCardNumber)
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT AC.* 
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT AC.* 
                                         FROM Tbl_additional_card_conditions_checking AC 
                                         INNER JOIN Tbl_VISA_applications VA ON VA.cardType=AC.main_card_type
                                         WHERE sub_type=1 AND VA.Cardnumber= @mainCardNumber";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
-                    SqlDataReader rd;
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
 
-                    rd = cmd.ExecuteReader();
+                using SqlDataReader rd = cmd.ExecuteReader();
 
-                    if (rd.Read())
-                    {
-                        return false;
-                    }
+                if (rd.Read())
+                {
+                    return false;
                 }
             }
 
@@ -665,11 +617,10 @@ namespace ExternalBanking.DBManager
 
         internal static int GetLinkedCardsCount(string mainCardNumber)
         {
-            DataTable dt = new DataTable();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT SUM(a) as summary FROM(
+            using DataTable dt = new DataTable();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT SUM(a) as summary FROM(
                                                 SELECT COUNT(*)  AS a
                                                 FROM tbl_visa_applications A
                                                 INNER JOIN tbl_supplementarycards S
@@ -684,12 +635,10 @@ namespace ExternalBanking.DBManager
                                                 ) al
                                                 ", conn);
 
-                cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar, 50).Value = mainCardNumber;
-                dt.Load(cmd.ExecuteReader());
-                return Convert.ToInt32(dt.Rows[0]["summary"].ToString());
-            }
+            cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar, 50).Value = mainCardNumber;
+            dt.Load(cmd.ExecuteReader());
+            return Convert.ToInt32(dt.Rows[0]["summary"].ToString());
         }
     }
 }
 
-   

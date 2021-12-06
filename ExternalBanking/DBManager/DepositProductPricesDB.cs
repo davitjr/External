@@ -11,36 +11,33 @@ namespace ExternalBanking.DBManager
 {
     class DepositProductPricesDB
     {
-        internal static ActionResult ConfirmOrRejectDepositProductPrices(string listOfId, int confirmationSetNumber,byte status,string rejectionDescription)
+        internal static ActionResult ConfirmOrRejectDepositProductPrices(string listOfId, int confirmationSetNumber, byte status, string rejectionDescription)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                cmd.CommandText = "pr_confirm_or_reject_deposit_prices";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Connection = conn;
+
+                cmd.Parameters.Add("@list_of_id", SqlDbType.VarChar, 100).Value = listOfId;
+                cmd.Parameters.Add("@confirmation_set_number", SqlDbType.Int).Value = confirmationSetNumber;
+                cmd.Parameters.Add("@status", SqlDbType.Int).Value = status;
+                cmd.Parameters.Add("@rejection_description", SqlDbType.Int).Value = rejectionDescription;
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    cmd.CommandText = "pr_confirm_or_reject_deposit_prices";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Connection = conn;
-
-                    cmd.Parameters.Add("@list_of_id", SqlDbType.VarChar,100).Value = listOfId;
-                    cmd.Parameters.Add("@confirmation_set_number", SqlDbType.Int).Value = confirmationSetNumber;
-                    cmd.Parameters.Add("@status", SqlDbType.Int).Value = status;
-                    cmd.Parameters.Add("@rejection_description", SqlDbType.Int).Value = rejectionDescription;
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if(reader.HasRows)
-                    {
-                        result.ResultCode = ResultCode.Failed;
-                    }
-                    else
-                    {
-                        result.ResultCode = ResultCode.Normal;
-                    }
-                    reader.Close();
-
+                    result.ResultCode = ResultCode.Failed;
                 }
+                else
+                {
+                    result.ResultCode = ResultCode.Normal;
+                }
+                reader.Close();
             }
             return result;
         }
@@ -51,27 +48,24 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                cmd.CommandText = "pr_delete_from_intermediate_deposit_product_history";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Connection = conn;
+
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                cmd.Parameters.Add("@registration_set_number", SqlDbType.Int).Value = registrationSetNumber;
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    cmd.CommandText = "pr_delete_from_intermediate_deposit_product_history";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Connection = conn;
-
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.Parameters.Add("@registration_set_number", SqlDbType.Int).Value = registrationSetNumber;
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        result.ResultCode = ResultCode.Failed;
-                    }
-                    else
-                    {
-                        result.ResultCode = ResultCode.Normal;
-                    }
-                    reader.Close();
-
+                    result.ResultCode = ResultCode.Failed;
                 }
+                else
+                {
+                    result.ResultCode = ResultCode.Normal;
+                }
+                reader.Close();
             }
             return result;
         }
@@ -87,48 +81,46 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                cmd.CommandText = "pr_insert_into_intermediate_deposit_product_history";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Connection = conn;
+
+                cmd.Parameters.Add("@product_code", SqlDbType.TinyInt).Value = product.ProductCode;
+                cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = product.Currency;
+                cmd.Parameters.Add("@interest_rate", SqlDbType.Float).Value = product.InterestRate;
+                cmd.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = product.DateOfBeginning;
+                cmd.Parameters.Add("@period_in_months_min", SqlDbType.Int).Value = product.PeriodInMonthsMin;
+                cmd.Parameters.Add("@period_in_months_max", SqlDbType.Int).Value = product.PeriodInMonthsMax;
+                cmd.Parameters.Add("@min_amount", SqlDbType.Float).Value = product.MinAmount;
+                cmd.Parameters.Add("@bonus_interest_rate", SqlDbType.Float).Value = product.BonusInterestRate;
+                cmd.Parameters.Add("@bonus_interest_rate_for_HB", SqlDbType.Float).Value = product.BonusInterestRateForHB;
+                cmd.Parameters.Add("@bonus_interest_rate_for_employee", SqlDbType.Float).Value = product.BonusInterestRateForEmployee;
+                cmd.Parameters.Add("@min_amount_jur", SqlDbType.Float).Value = product.MinAmountJur;
+                cmd.Parameters.Add("@type_of_client", SqlDbType.SmallInt).Value = product.TypeOfClient;
+                cmd.Parameters.Add("@bonus_interest_rate_for_repayment_type", SqlDbType.Float).Value = product.BonusInterestRateForRepaymentType;
+                cmd.Parameters.Add("@interest_rate_for_allow_addition", SqlDbType.Float).Value = product.InterestRateForAllowAddition;
+                cmd.Parameters.Add("@interest_rate_for_allow_decreasing", SqlDbType.Float).Value = product.InterestRateForAllowDecreasing;
+                cmd.Parameters.Add("@interest_rate_for_allow_addition_and_decreasing", SqlDbType.Float).Value = product.InterestRateForAllowAdditionAndDecreasing;
+                cmd.Parameters.Add("@bonus_interest_rate_for_classic", SqlDbType.Float).Value = product.BonusInterestRateForClassic;
+                cmd.Parameters.Add("@bonus_interest_rate_for_avangard", SqlDbType.Float).Value = product.BonusInterestRateForAvangard;
+                cmd.Parameters.Add("@bonus_interest_rate_for_premium", SqlDbType.Float).Value = product.BonusInterestRateForPremium;
+                cmd.Parameters.Add("@max_addition_percent", SqlDbType.Float).Value = product.MaxAdditionPercent;
+                cmd.Parameters.Add("@max_decreasing_percent", SqlDbType.Float).Value = product.MaxDecreasingPercent;
+                cmd.Parameters.Add("@registration_set_number", SqlDbType.Float).Value = product.RegistrationSetNumber;
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    cmd.CommandText = "pr_insert_into_intermediate_deposit_product_history";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Connection = conn;
-
-                    cmd.Parameters.Add("@product_code", SqlDbType.TinyInt).Value = product.ProductCode;
-                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar,3).Value = product.Currency;
-                    cmd.Parameters.Add("@interest_rate", SqlDbType.Float).Value = product.InterestRate;
-                    cmd.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = product.DateOfBeginning;
-                    cmd.Parameters.Add("@period_in_months_min", SqlDbType.Int).Value = product.PeriodInMonthsMin;
-                    cmd.Parameters.Add("@period_in_months_max", SqlDbType.Int).Value = product.PeriodInMonthsMax;
-                    cmd.Parameters.Add("@min_amount", SqlDbType.Float).Value = product.MinAmount;
-                    cmd.Parameters.Add("@bonus_interest_rate", SqlDbType.Float).Value = product.BonusInterestRate;
-                    cmd.Parameters.Add("@bonus_interest_rate_for_HB", SqlDbType.Float).Value = product.BonusInterestRateForHB;
-                    cmd.Parameters.Add("@bonus_interest_rate_for_employee", SqlDbType.Float).Value = product.BonusInterestRateForEmployee;
-                    cmd.Parameters.Add("@min_amount_jur", SqlDbType.Float).Value = product.MinAmountJur;
-                    cmd.Parameters.Add("@type_of_client", SqlDbType.SmallInt).Value = product.TypeOfClient;
-                    cmd.Parameters.Add("@bonus_interest_rate_for_repayment_type", SqlDbType.Float).Value = product.BonusInterestRateForRepaymentType;
-                    cmd.Parameters.Add("@interest_rate_for_allow_addition", SqlDbType.Float).Value = product.InterestRateForAllowAddition;
-                    cmd.Parameters.Add("@interest_rate_for_allow_decreasing", SqlDbType.Float).Value = product.InterestRateForAllowDecreasing;
-                    cmd.Parameters.Add("@interest_rate_for_allow_addition_and_decreasing", SqlDbType.Float).Value = product.InterestRateForAllowAdditionAndDecreasing;
-                    cmd.Parameters.Add("@bonus_interest_rate_for_classic", SqlDbType.Float).Value = product.BonusInterestRateForClassic;
-                    cmd.Parameters.Add("@bonus_interest_rate_for_avangard", SqlDbType.Float).Value = product.BonusInterestRateForAvangard;
-                    cmd.Parameters.Add("@bonus_interest_rate_for_premium", SqlDbType.Float).Value = product.BonusInterestRateForPremium;
-                    cmd.Parameters.Add("@max_addition_percent", SqlDbType.Float).Value = product.MaxAdditionPercent;
-                    cmd.Parameters.Add("@max_decreasing_percent", SqlDbType.Float).Value = product.MaxDecreasingPercent;
-                    cmd.Parameters.Add("@registration_set_number", SqlDbType.Float).Value = product.RegistrationSetNumber;
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        result.ResultCode = ResultCode.Failed;
-                    }
-                    else
-                    {
-                        result.ResultCode = ResultCode.Normal;
-                    }
-                    reader.Close();
-
-                    //cmd.ExecuteNonQuery();
+                    result.ResultCode = ResultCode.Failed;
                 }
+                else
+                {
+                    result.ResultCode = ResultCode.Normal;
+                }
+                reader.Close();
+
+                //cmd.ExecuteNonQuery();
             }
             return result;
         }
@@ -149,14 +141,14 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@status", SqlDbType.TinyInt).Value = searchProduct.Status;
                     cmd.Parameters.Add("@product_code", SqlDbType.TinyInt).Value = searchProduct.ProductCode;
                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = searchProduct.Currency;
-                    cmd.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = searchProduct.DateOfBeginning ;
+                    cmd.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = searchProduct.DateOfBeginning;
                     cmd.Parameters.Add("@period_in_months_min", SqlDbType.Int).Value = searchProduct.PeriodInMonthsMin;
                     cmd.Parameters.Add("@period_in_months_max", SqlDbType.Int).Value = searchProduct.PeriodInMonthsMax;
                     cmd.Parameters.Add("@type_of_client", SqlDbType.SmallInt).Value = searchProduct.TypeOfClient;
-                   
+
                     //cmd.ExecuteNonQuery();
 
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    using SqlDataReader reader = cmd.ExecuteReader();
 
                     if (reader.HasRows)
                     {
@@ -220,7 +212,7 @@ namespace ExternalBanking.DBManager
                                 dp.Status = Convert.ToByte(reader["status"]);
                             if (reader["rejection_description"] != DBNull.Value)
                                 dp.RejectionDescription = Convert.ToString(reader["rejection_description"]);
-                            
+
                             products.Add(dp);
                         }
                     }
@@ -273,7 +265,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@max_decreasing_percent", SqlDbType.Float).Value = product.MaxDecreasingPercent;
                     cmd.Parameters.Add("@registration_set_number", SqlDbType.Float).Value = product.RegistrationSetNumber;
 
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    using SqlDataReader reader = cmd.ExecuteReader();
                     if (reader.HasRows)
                     {
                         result.ResultCode = ResultCode.Failed;

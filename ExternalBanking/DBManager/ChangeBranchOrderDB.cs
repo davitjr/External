@@ -67,26 +67,24 @@ namespace ExternalBanking.DBManager
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand("pr_get_change_branch_order", conn);
+                using SqlCommand cmd = new SqlCommand("pr_get_change_branch_order", conn);
                 cmd.Parameters.AddWithValue("@ID", order.Id);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 conn.Open();
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                    while (dr.Read())
-                    {
-                        // order.Id= Convert.ToInt64(dr["HB_Doc_ID"]);
-                        order.CustomerNumber = Convert.ToUInt64(dr["customer_number"]);
-                        order.CardNumber = Convert.ToInt64(dr["CardNumber"]);
-                        order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
-                        order.Type = (OrderType)Convert.ToInt16(dr["document_type"]);
-                        order.FilialCode = Convert.ToUInt16(dr["Filial"]);
-                        order.MovedFilial = Convert.ToUInt16(dr["MovedFilial"]);
-                        order.Quality = (OrderQuality)dr["quality"];
-                        order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+                    // order.Id= Convert.ToInt64(dr["HB_Doc_ID"]);
+                    order.CustomerNumber = Convert.ToUInt64(dr["customer_number"]);
+                    order.CardNumber = Convert.ToInt64(dr["CardNumber"]);
+                    order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
+                    order.Type = (OrderType)Convert.ToInt16(dr["document_type"]);
+                    order.FilialCode = Convert.ToUInt16(dr["Filial"]);
+                    order.MovedFilial = Convert.ToUInt16(dr["MovedFilial"]);
+                    order.Quality = (OrderQuality)dr["quality"];
+                    order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
 
-                    }
                 }
             }
             return order;
@@ -102,24 +100,22 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar).Value = order.CardNumber;
                 conn.Open();
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
                 {
-                    if (dr.HasRows)
+                    while (dr.Read())
                     {
-                        while (dr.Read())
-                        {
-                            order.Filial = Convert.ToInt32(dr["filial"]);
-                            order.ProductId = Convert.ToDouble(dr["app_id"]);
-                        }
+                        order.Filial = Convert.ToInt32(dr["filial"]);
+                        order.ProductId = Convert.ToDouble(dr["app_id"]);
                     }
-
-                    dr.Close();
-                    conn.Close();
                 }
+
+                dr.Close();
+                conn.Close();
             }
             return order;
         }

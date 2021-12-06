@@ -17,7 +17,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select  d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,                                                
+                using SqlCommand cmd = new SqlCommand(@"select  d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,                                                
 		                                        d.operation_date,V.visa_number,d.order_group_id
                                                   from Tbl_HB_documents d left join Tbl_Visa_Numbers_Accounts V on d.document_number = V.app_id
 

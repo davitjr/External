@@ -76,18 +76,16 @@ namespace ExternalBanking.DBManager
                 string script = @"SELECT TS.id AS statusId FROM Tbl_MR_Applications A
                                 INNER JOIN Tbl_type_of_MR_status TS ON A.status = TS.id
                                 WHERE A.mr_id = @mr_Id";
-                using (SqlCommand cmd = new SqlCommand(script, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@mr_Id", SqlDbType.Int).Value = mrId;
-                    SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@mr_Id", SqlDbType.Int).Value = mrId;
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.HasRows)
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            status = (MRStatus)Convert.ToInt32(reader["statusId"]);
-                        }
+                        status = (MRStatus)Convert.ToInt32(reader["statusId"]);
                     }
                 }
             }

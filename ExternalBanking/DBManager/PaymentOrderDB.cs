@@ -568,16 +568,14 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"select letter from  [tbl_currency;] where code=@code", conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@code", SqlDbType.Int).Value = code;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(@"select letter from  [tbl_currency;] where code=@code", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@code", SqlDbType.Int).Value = code;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        currencyLetter = dr["letter"].ToString();
-                    }
+                if (dr.Read())
+                {
+                    currencyLetter = dr["letter"].ToString();
                 }
             }
             return currencyLetter;
@@ -1192,11 +1190,9 @@ namespace ExternalBanking.DBManager
 
             string rowsN = "";
             string rowsN_unicode = "";
-            string rowsN_reason_unicode = "";
             string rowsN_cent = "";
             string rowsN_sameAcc = "";
             string rowsN_invalidCred = "";
-            string rowsN_invalidBank_code = "";
             string rowsN_Buge_Transfer = "";
             string rowsN_Bank_Closed = "";
 
@@ -1257,10 +1253,7 @@ namespace ExternalBanking.DBManager
                             {
                                 result.Errors.Add(new ActionError(170, new string[] { rowsN_unicode }));
                             }
-                            if (!string.IsNullOrEmpty(rowsN_reason_unicode))
-                            {
-                                result.Errors.Add(new ActionError(358, new string[] { rowsN_reason_unicode }));
-                            }
+
                             if (!string.IsNullOrEmpty(rowsN_cent))
                             {
                                 result.Errors.Add(new ActionError(175, new string[] { rowsN_cent }));
@@ -1274,11 +1267,6 @@ namespace ExternalBanking.DBManager
                             if (!string.IsNullOrEmpty(rowsN_invalidCred))
                             {
                                 result.Errors.Add(new ActionError(176, new string[] { rowsN_invalidCred }));
-                            }
-
-                            if (!string.IsNullOrEmpty(rowsN_invalidBank_code))
-                            {
-                                result.Errors.Add(new ActionError(177, new string[] { rowsN_invalidBank_code }));
                             }
 
                             if (!string.IsNullOrEmpty(rowsN_Buge_Transfer))

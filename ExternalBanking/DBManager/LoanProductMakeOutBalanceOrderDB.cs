@@ -90,14 +90,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
+                using SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
                                                 WHERE quality in (1,2,3,5)  and customer_number = @customerNumber and I.App_ID=@productId
                                                 AND document_type = 197", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = order.ProductId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -117,7 +117,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"IF exists(SELECT 1 FROM V_ShortLoans_small WHERE app_id = @productApp_ID AND (quality <> 11 OR loan_type = 49))
+                using SqlCommand cmd = new SqlCommand(@"IF exists(SELECT 1 FROM V_ShortLoans_small WHERE app_id = @productApp_ID AND (quality <> 11 OR loan_type = 49))
 												  BEGIN
 													SELECT 1
 												  END
@@ -128,7 +128,7 @@ namespace ExternalBanking.DBManager
                 //ապահովագրություն
                 cmd.Parameters.Add("@productApp_ID", SqlDbType.BigInt).Value = order.ProductId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.HasRows)
                 {

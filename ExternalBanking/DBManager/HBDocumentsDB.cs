@@ -71,7 +71,7 @@ namespace ExternalBanking.DBManager
 
                         if (ds.Tables[0].Rows.Count != 0)
                         {
-                            System.Data.DataTable dt = ds.Tables[0];
+                            DataTable dt = ds.Tables[0];
 
                             if (dt != null)
                             {
@@ -151,20 +151,18 @@ namespace ExternalBanking.DBManager
 
                                             if (doc.DocumentType == 3)
                                             {
-                                                using (SqlCommand _cmd = _con.CreateCommand())
+                                                using SqlCommand _cmd = _con.CreateCommand();
+                                                _cmd.CommandText = "select descr_for_payment from Tbl_HB_documents where doc_ID = @docId";
+                                                _cmd.CommandType = CommandType.Text;
+                                                _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = doc.TransactionCode;
+
+                                                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                                                if (reader.HasRows)
                                                 {
-                                                    _cmd.CommandText = "select descr_for_payment from Tbl_HB_documents where doc_ID = @docId";
-                                                    _cmd.CommandType = CommandType.Text;
-                                                    _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = doc.TransactionCode;
-
-                                                    SqlDataReader reader = _cmd.ExecuteReader();
-
-                                                    if (reader.HasRows)
+                                                    while (reader.Read())
                                                     {
-                                                        while (reader.Read())
-                                                        {
-                                                            doc.TransactionDescription = Convert.ToString(reader["descr_for_payment"]);
-                                                        }
+                                                        doc.TransactionDescription = Convert.ToString(reader["descr_for_payment"]);
                                                     }
                                                 }
                                             }
@@ -176,7 +174,7 @@ namespace ExternalBanking.DBManager
                                                 _cmd.CommandType = CommandType.Text;
                                                 _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = doc.TransactionCode;
 
-                                                SqlDataReader reader = _cmd.ExecuteReader();
+                                                using SqlDataReader reader = _cmd.ExecuteReader();
 
                                                 if (reader.HasRows)
                                                 {
@@ -196,7 +194,7 @@ namespace ExternalBanking.DBManager
                                                 _cmd.CommandType = CommandType.Text;
                                                 _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = doc.TransactionCode;
 
-                                                SqlDataReader reader = _cmd.ExecuteReader();
+                                                 SqlDataReader reader = _cmd.ExecuteReader();
 
                                                 if (reader.HasRows)
                                                 {
@@ -262,28 +260,24 @@ namespace ExternalBanking.DBManager
                                             }
                                             if (doc.DocumentType == 5)
                                             {
-                                                using (SqlConnection _conCredit = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+                                                using SqlConnection _conCredit = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+                                                string queryCredit = "Select d.customer_number,d.Currency,d.Credit_account,r.Reject_description  " +
+                                                    "from tbl_hb_documents d LEFT JOIN Tbl_types_of_HB_rejects  r " +
+                                                    "ON d.reject_ID = r.Reject_ID  where doc_id = @docId";
+                                                using SqlCommand _cmd = new SqlCommand(queryCredit, _conCredit);
+                                                _conCredit.Open();
+                                                _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = doc.TransactionCode;
+                                                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                                                if (reader.HasRows)
                                                 {
-                                                    string queryCredit = "Select d.customer_number,d.Currency,d.Credit_account,r.Reject_description  " +
-                                                        "from tbl_hb_documents d LEFT JOIN Tbl_types_of_HB_rejects  r " +
-                                                        "ON d.reject_ID = r.Reject_ID  where doc_id = @docId";
-                                                    using (SqlCommand _cmd = new SqlCommand(queryCredit, _conCredit))
+                                                    if (reader.Read())
                                                     {
-                                                        _conCredit.Open();
-                                                        _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = doc.TransactionCode;
-                                                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                                                        if (reader.HasRows)
-                                                        {
-                                                            if (reader.Read())
-                                                            {
-                                                                doc.CreditAccount = Convert.ToString(reader["Credit_account"]);
-                                                            }
-                                                        }
-
-                                                        _conCredit.Close();
+                                                        doc.CreditAccount = Convert.ToString(reader["Credit_account"]);
                                                     }
                                                 }
+
+                                                _conCredit.Close();
 
                                             }
 
@@ -354,404 +348,402 @@ namespace ExternalBanking.DBManager
                 {
                     long customerNum = 0;
 
-                    using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                    using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                    _con.Open();
+
+                    string current_sp = "sp_get_acc_details";
+                    try
                     {
-                        _con.Open();
-
-                        string current_sp = "sp_get_acc_details";
-                        try
+                        using (SqlDataAdapter da = new SqlDataAdapter())
                         {
-                            using (SqlDataAdapter da = new SqlDataAdapter())
+                            da.SelectCommand = new SqlCommand(current_sp, _con);
+                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+
+                            da.SelectCommand.Parameters.Add("@analitic_acc", SqlDbType.BigInt).Value = obj.DebitAccount;
+                            if (operDay != null)
                             {
-                                da.SelectCommand = new SqlCommand(current_sp, _con);
-                                da.SelectCommand.CommandType = CommandType.StoredProcedure;
-
-                                da.SelectCommand.Parameters.Add("@analitic_acc", SqlDbType.BigInt).Value = obj.DebitAccount;
-                                if (operDay != null)
-                                {
-                                    da.SelectCommand.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = operDay;
-                                }
-                                else
-                                {
-                                    da.SelectCommand.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = DBNull.Value;
-                                }
-                                if (operDay != null)
-                                {
-                                    da.SelectCommand.Parameters.Add("@set_date1", SqlDbType.SmallDateTime).Value = operDay;
-                                }
-                                else
-                                {
-                                    da.SelectCommand.Parameters.Add("@set_date1", SqlDbType.SmallDateTime).Value = DBNull.Value;
-                                }
-
-                                DataSet ds = new DataSet();
-                                da.Fill(ds);
-
-                                if (ds != null)
-                                {
-                                    System.Data.DataTable dt0 = ds.Tables[0];
-
-                                    if (dt0.Rows.Count != 0)
-                                    {
-                                        foreach (DataRow row in dt0.Rows)
-                                        {
-                                            customerDetails.CustomerDescription = Convert.ToString(row["description"]);
-                                            customerDetails.PosOnlineDescription = Convert.ToString(row["PosOnlineDescription"]); //21
-                                            if (Convert.ToString(row["account_type"]) != "")
-                                            {
-                                                customerDetails.AccountType = Convert.ToInt32(row["account_type"]);
-                                            }
-                                            else
-                                            {
-                                                customerDetails.AccountType = 0;
-                                            }
-                                            customerDetails.AparikDescription = Convert.ToString(row["AparikDescription"]);
-                                            if (Convert.ToString(row["closing_date"]) != "")
-                                            {
-                                                customerDetails.ClosingDate = Convert.ToDateTime(row["closing_date"]).ToString("dd/MM/yyyy");
-                                            }
-                                            else
-                                            {
-                                                customerDetails.ClosingDate = string.Empty;
-                                            }
-                                            if (Convert.ToString(row["freeze_date"]) != "")
-                                            {
-                                                customerDetails.FreezeDate = Convert.ToDateTime(row["freeze_date"]).ToString("dd/MM/yyyy");
-                                            }
-                                            else
-                                            {
-                                                customerDetails.FreezeDate = string.Empty;
-                                            }
-                                            if (Convert.ToString(row["debt"]) != "")
-                                            {
-                                                customerDetails.Debt = Convert.ToDouble(row["debt"]);
-                                            }
-                                            else
-                                            {
-                                                customerDetails.Debt = 0;
-                                            }
-                                            if (Convert.ToString(row["debt_acc"]) != "")
-                                            {
-                                                customerDetails.DebtAcc = Convert.ToDouble(row["debt_acc"]);
-                                            }
-                                            else
-                                            {
-                                                customerDetails.DebtAcc = 0;
-                                            }
-                                            if (Convert.ToString(row["debt_hb"]) != "")
-                                            {
-                                                customerDetails.DebtHb = Convert.ToDouble(row["debt_hb"]);
-                                            }
-                                            else
-                                            {
-                                                customerDetails.DebtHb = 0;
-                                            }
-                                            if (Convert.ToString(row["UnUsed_amount"]) != "")
-                                            {
-                                                customerDetails.UnUsedAmount = Convert.ToDouble(row["UnUsed_amount"]);
-                                            }
-                                            else
-                                            {
-                                                customerDetails.UnUsedAmount = 0;
-                                            }
-                                            if (Convert.ToString(row["UnUsed_amount_date"]) != "")
-                                            {
-                                                customerDetails.UnUsedAmountDate = Convert.ToDateTime(row["UnUsed_amount_date"]).ToString("dd/MM/yyyy");
-                                            }
-                                            else
-                                            {
-                                                customerDetails.UnUsedAmountDate = string.Empty;
-                                            }
-
-
-                                            account.Description = Convert.ToString(row["description"]);
-                                            if (Convert.ToString(row["arm_number"]) != "")
-                                            {
-                                                account.Account = Convert.ToInt64(row["arm_number"]);
-                                            }
-                                            else
-                                            {
-                                                account.Account = 0;
-                                            }
-                                            account.AccountCurrency = Convert.ToString(row["currency"]);
-
-                                            account.BalanceAMD = Convert.ToDouble(row["balance_amd"]);
-                                            account.BalanceCurrency = Convert.ToDouble(row["balance_cur"]);
-
-                                            account.DebitAMD = Convert.ToDouble(row["debet_amd"]);
-                                            account.DebitCurrency = Convert.ToDouble(row["debet_cur"]);
-
-                                            account.CreditAMD = Convert.ToDouble(row["credit_amd"]);
-                                            account.CreditCurrency = Convert.ToDouble(row["credit_cur"]);
-
-                                            account.EntryAMD = Convert.ToDouble(row["entry_amd"]);
-                                            account.EntryCurrency = Convert.ToDouble(row["entry_cur"]);
-
-
-                                            if (Convert.ToString(row["card_number"]) != "")
-                                            {
-                                                account.CardNumber = Convert.ToString(row["card_number"]);
-
-                                                using (SqlCommand _cmd = new SqlCommand())
-                                                {
-                                                    _cmd.Connection = _con;
-                                                    _cmd.CommandText = "Select dbo.Fnc_CardTypeFull ( @cardNumber ) AS cardType";
-                                                    _cmd.CommandType = CommandType.Text;
-                                                    _cmd.Parameters.Add("@cardNumber", SqlDbType.BigInt).Value = account.CardNumber;
-
-                                                    SqlDataReader reader = _cmd.ExecuteReader();
-                                                    if (reader.HasRows)
-                                                    {
-                                                        while (reader.Read())
-                                                        {
-                                                            account.CardType = Convert.ToString(reader["cardType"]);
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            if (Convert.ToString(row["customer_number"]) != "")
-                                            {
-                                                customerNum = Convert.ToInt64(row["customer_number"]);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        rowCounts++;
-                                    }
-
-                                    System.Data.DataTable dt1 = ds.Tables[1];
-                                    if (dt1.Rows.Count != 0)
-                                    {
-                                        customerDetails.ExtractsReceivingTypeDescription = new Dictionary<string, string>();
-
-                                        foreach (DataRow row in dt1.Rows)
-                                        {
-                                            if (Convert.ToString(row["Description"]) != "")
-                                            {
-                                                customerDetails.ExtractsReceivingTypeDescription.Add(Convert.ToString(row["AdditionDescription"]), Convert.ToString(row["Description"]));
-                                            }
-                                            else
-                                            {
-                                                customerDetails.ExtractsReceivingTypeDescription.Add(Convert.ToString(row["AdditionDescription"]), Convert.ToString(row["AdditionValue"]));
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        rowCounts++;
-                                    }
-
-                                    System.Data.DataTable dt2 = ds.Tables[2];
-                                    foreach (DataRow row in dt2.Rows)
-                                    {
-                                        switch (Convert.ToString(row["Currency"]))
-                                        {
-                                            case "AMD":
-                                                customerDetails.ProvisionAMDDescription = Convert.ToString(row["Currency"]); //0
-                                                if (Convert.ToString(row["Currency"]) != "")
-                                                {
-                                                    customerDetails.ProvisionAMDAmount = Convert.ToDouble(row["provision_amount"]); //1
-                                                }
-                                                break;
-                                            case "USD":
-                                                customerDetails.ProvisionUSDDescription = Convert.ToString(row["Currency"]); //0
-                                                if (Convert.ToString(row["provision_amount"]) != "")
-                                                {
-                                                    customerDetails.ProvisionUSDAmount = Convert.ToDouble(row["provision_amount"]); //1
-                                                }
-                                                break;
-                                            case "EUR":
-                                                customerDetails.ProvisionEURDescription = Convert.ToString(row["Currency"]); //0
-                                                if (Convert.ToString(row["Currency"]) != "")
-                                                {
-                                                    customerDetails.ProvisionEURAmount = Convert.ToDouble(row["provision_amount"]); //1
-                                                }
-                                                break;
-                                            case "RUR":
-                                                customerDetails.ProvisionRURDescription = Convert.ToString(row["Currency"]); //0
-                                                if (Convert.ToString(row["Currency"]) != "")
-                                                {
-                                                    customerDetails.ProvisionRURAmount = Convert.ToDouble(row["provision_amount"]); //1
-                                                }
-                                                break;
-                                        }
-
-                                    }
-                                    System.Data.DataTable dt3 = ds.Tables[3];
-                                    foreach (DataRow row in dt3.Rows)
-                                    {
-                                        customerDetails.DAHKDescription = Convert.ToString(row["descr"]);
-                                        customerDetails.DAHKAmount = Convert.ToString(row["amount_descr"]);
-                                    }
-
-                                    System.Data.DataTable dt4 = ds.Tables[4];
-                                    foreach (DataRow row in dt4.Rows)
-                                    {
-                                        customerDetails.MovedAmountDescription = Convert.ToString(row["descr"]);
-                                        customerDetails.MovedAmount = Convert.ToString(row["amount_descr"]);
-                                    }
-
-                                    System.Data.DataTable dt5 = ds.Tables[5];
-                                    if (dt5.Rows.Count != 0)
-                                    {
-                                        foreach (DataRow row in dt5.Rows)
-                                        {
-                                            customerDetails.LastUpdatedInfoDescription = Convert.ToString(row["descr"]);
-                                            customerDetails.LastUpdatedDate = Convert.ToString(row["value"]);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        rowCounts++;
-                                    }
-
-                                    System.Data.DataTable dt6 = ds.Tables[6];
-
-                                    if (dt6.Rows.Count != 0)
-                                    {
-                                        foreach (DataRow row in dt6.Rows)
-                                        {
-                                            customerDetails.AMLDescription = Convert.ToString(row["descr"]);
-                                            customerDetails.AML = Convert.ToString(row["value"]);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        rowCounts++;
-                                    }
-                                    System.Data.DataTable dt7 = ds.Tables[7];
-                                    foreach (DataRow row in dt7.Rows)
-                                    {
-                                        customerDetails.DocDeficientReasonDescription = Convert.ToString(row["descr"]);
-                                        customerDetails.DocDeficientReason = Convert.ToString(row["value"]);
-                                        customerDetails.DocDeficientReasonDate = Convert.ToString(row["gvdate"]);
-                                    }
-                                }
-
-                            }
-
-                            if (rowCounts >= 3)
-                            {
-                                customerDetails.ObjectEmpty = true;
+                                da.SelectCommand.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = operDay;
                             }
                             else
                             {
-                                customerDetails.ObjectEmpty = false;
+                                da.SelectCommand.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = DBNull.Value;
                             }
-
-                            if (customerNum == 0)
+                            if (operDay != null)
                             {
-                                customerNum = obj.CustomerNumber;
+                                da.SelectCommand.Parameters.Add("@set_date1", SqlDbType.SmallDateTime).Value = operDay;
                             }
-
-                            int mark = 0;
-                            string query = "Select dbo.fn_getCustomerVipType(@customerNum)";
-                            using (SqlCommand _cmd = _con.CreateCommand())
+                            else
                             {
-                                _cmd.CommandText = query;
-                                _cmd.CommandType = CommandType.Text;
-                                _cmd.Parameters.Add("@customerNum", SqlDbType.Float).Value = customerNum;
-
-                                SqlDataReader reader = _cmd.ExecuteReader();
-
-                                if (reader.HasRows)
-                                {
-                                    while (reader.Read())
-                                    {
-                                        if (Convert.ToString(reader[0]) != "")
-                                        {
-                                            mark = Convert.ToInt32(reader[0]);
-                                        }
-                                    }
-                                }
-
-
-                                reader.Close();
-
-                                query = "Select mark FROM Tbl_Type_Of_Vip_Customers WHERE id = @mark";
-                                _cmd.CommandText = query;
-                                _cmd.CommandType = CommandType.Text;
-                                _cmd.Parameters.Add("@mark", SqlDbType.Int).Value = mark;
-
-                                reader = _cmd.ExecuteReader();
-
-                                if (reader.HasRows)
-                                {
-                                    while (reader.Read())
-                                    {
-                                        if (Convert.ToString(reader[0]) != "")
-                                        {
-                                            customerDetails.CustomerVIPTypes = Convert.ToString(reader["mark"]);
-                                        }
-                                    }
-                                }
-
-                                reader.Close();
-
-
-                                query = "Select dbo.Fnc_IsBirthDayOfCustomer(0, @customerNum)";
-                                _cmd.CommandText = query;
-                                _cmd.CommandType = CommandType.Text;
-                                _cmd.Parameters.Add("@customerNum", SqlDbType.Float).Value = customerNum;
-
-                                reader = _cmd.ExecuteReader();
-
-                                if (reader.HasRows)
-                                {
-                                    while (reader.Read())
-                                    {
-                                        if (Convert.ToString(reader[0]) != "")
-                                        {
-                                            customerDetails.IsCustomerBirthday = Convert.ToBoolean(reader[0]);
-                                        }
-                                    }
-                                }
-
-                                reader.Close();
-
-                                query = "Select 1 from tbl_arca_points_list  where account_number in (select arm_number from [tbl_all_accounts;] where customer_number= @customerNum) " +
-                                    "and type_of_point in (2, 3) and point_place<>1 and closing_date is null";
-                                _cmd.CommandText = query;
-                                _cmd.CommandType = CommandType.Text;
-                                _cmd.Parameters.Add("@customerNum", SqlDbType.Float).Value = customerNum;
-
-                                reader = _cmd.ExecuteReader();
-
-                                if (reader.HasRows)
-                                {
-                                    customerDetails.CustomerPOS = 1;
-                                }
-
-                                reader.Close();
-
-                                query = "SELECT c.member FROM [tbl_all_accounts;] a inner join tbl_customers c on a.customer_number=c.customer_number WHERE a.arm_number = @DebitAccount";
-                                _cmd.CommandText = query;
-                                _cmd.CommandType = CommandType.Text;
-                                _cmd.Parameters.Add("@DebitAccount", SqlDbType.BigInt).Value = obj.DebitAccount;
-
-                                reader = _cmd.ExecuteReader();
-
-                                if (reader.HasRows)
-                                {
-                                    while (reader.Read())
-                                    {
-                                        if (Convert.ToString(reader[0]) != "")
-                                        {
-                                            customerDetails.CustomerIsMember = Convert.ToInt32(reader["member"]);
-                                        }
-                                    }
-                                }
-
+                                da.SelectCommand.Parameters.Add("@set_date1", SqlDbType.SmallDateTime).Value = DBNull.Value;
                             }
 
-                            _con.Close();
+                            DataSet ds = new DataSet();
+                            da.Fill(ds);
+
+                            if (ds != null)
+                            {
+                                System.Data.DataTable dt0 = ds.Tables[0];
+
+                                if (dt0.Rows.Count != 0)
+                                {
+                                    foreach (DataRow row in dt0.Rows)
+                                    {
+                                        customerDetails.CustomerDescription = Convert.ToString(row["description"]);
+                                        customerDetails.PosOnlineDescription = Convert.ToString(row["PosOnlineDescription"]); //21
+                                        if (Convert.ToString(row["account_type"]) != "")
+                                        {
+                                            customerDetails.AccountType = Convert.ToInt32(row["account_type"]);
+                                        }
+                                        else
+                                        {
+                                            customerDetails.AccountType = 0;
+                                        }
+                                        customerDetails.AparikDescription = Convert.ToString(row["AparikDescription"]);
+                                        if (Convert.ToString(row["closing_date"]) != "")
+                                        {
+                                            customerDetails.ClosingDate = Convert.ToDateTime(row["closing_date"]).ToString("dd/MM/yyyy");
+                                        }
+                                        else
+                                        {
+                                            customerDetails.ClosingDate = string.Empty;
+                                        }
+                                        if (Convert.ToString(row["freeze_date"]) != "")
+                                        {
+                                            customerDetails.FreezeDate = Convert.ToDateTime(row["freeze_date"]).ToString("dd/MM/yyyy");
+                                        }
+                                        else
+                                        {
+                                            customerDetails.FreezeDate = string.Empty;
+                                        }
+                                        if (Convert.ToString(row["debt"]) != "")
+                                        {
+                                            customerDetails.Debt = Convert.ToDouble(row["debt"]);
+                                        }
+                                        else
+                                        {
+                                            customerDetails.Debt = 0;
+                                        }
+                                        if (Convert.ToString(row["debt_acc"]) != "")
+                                        {
+                                            customerDetails.DebtAcc = Convert.ToDouble(row["debt_acc"]);
+                                        }
+                                        else
+                                        {
+                                            customerDetails.DebtAcc = 0;
+                                        }
+                                        if (Convert.ToString(row["debt_hb"]) != "")
+                                        {
+                                            customerDetails.DebtHb = Convert.ToDouble(row["debt_hb"]);
+                                        }
+                                        else
+                                        {
+                                            customerDetails.DebtHb = 0;
+                                        }
+                                        if (Convert.ToString(row["UnUsed_amount"]) != "")
+                                        {
+                                            customerDetails.UnUsedAmount = Convert.ToDouble(row["UnUsed_amount"]);
+                                        }
+                                        else
+                                        {
+                                            customerDetails.UnUsedAmount = 0;
+                                        }
+                                        if (Convert.ToString(row["UnUsed_amount_date"]) != "")
+                                        {
+                                            customerDetails.UnUsedAmountDate = Convert.ToDateTime(row["UnUsed_amount_date"]).ToString("dd/MM/yyyy");
+                                        }
+                                        else
+                                        {
+                                            customerDetails.UnUsedAmountDate = string.Empty;
+                                        }
+
+
+                                        account.Description = Convert.ToString(row["description"]);
+                                        if (Convert.ToString(row["arm_number"]) != "")
+                                        {
+                                            account.Account = Convert.ToInt64(row["arm_number"]);
+                                        }
+                                        else
+                                        {
+                                            account.Account = 0;
+                                        }
+                                        account.AccountCurrency = Convert.ToString(row["currency"]);
+
+                                        account.BalanceAMD = Convert.ToDouble(row["balance_amd"]);
+                                        account.BalanceCurrency = Convert.ToDouble(row["balance_cur"]);
+
+                                        account.DebitAMD = Convert.ToDouble(row["debet_amd"]);
+                                        account.DebitCurrency = Convert.ToDouble(row["debet_cur"]);
+
+                                        account.CreditAMD = Convert.ToDouble(row["credit_amd"]);
+                                        account.CreditCurrency = Convert.ToDouble(row["credit_cur"]);
+
+                                        account.EntryAMD = Convert.ToDouble(row["entry_amd"]);
+                                        account.EntryCurrency = Convert.ToDouble(row["entry_cur"]);
+
+
+                                        if (Convert.ToString(row["card_number"]) != "")
+                                        {
+                                            account.CardNumber = Convert.ToString(row["card_number"]);
+
+                                            using (SqlCommand _cmd = new SqlCommand())
+                                            {
+                                                _cmd.Connection = _con;
+                                                _cmd.CommandText = "Select dbo.Fnc_CardTypeFull ( @cardNumber ) AS cardType";
+                                                _cmd.CommandType = CommandType.Text;
+                                                _cmd.Parameters.Add("@cardNumber", SqlDbType.BigInt).Value = account.CardNumber;
+
+                                                using SqlDataReader reader = _cmd.ExecuteReader();
+                                                if (reader.HasRows)
+                                                {
+                                                    while (reader.Read())
+                                                    {
+                                                        account.CardType = Convert.ToString(reader["cardType"]);
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        if (Convert.ToString(row["customer_number"]) != "")
+                                        {
+                                            customerNum = Convert.ToInt64(row["customer_number"]);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    rowCounts++;
+                                }
+
+                                System.Data.DataTable dt1 = ds.Tables[1];
+                                if (dt1.Rows.Count != 0)
+                                {
+                                    customerDetails.ExtractsReceivingTypeDescription = new Dictionary<string, string>();
+
+                                    foreach (DataRow row in dt1.Rows)
+                                    {
+                                        if (Convert.ToString(row["Description"]) != "")
+                                        {
+                                            customerDetails.ExtractsReceivingTypeDescription.Add(Convert.ToString(row["AdditionDescription"]), Convert.ToString(row["Description"]));
+                                        }
+                                        else
+                                        {
+                                            customerDetails.ExtractsReceivingTypeDescription.Add(Convert.ToString(row["AdditionDescription"]), Convert.ToString(row["AdditionValue"]));
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    rowCounts++;
+                                }
+
+                                System.Data.DataTable dt2 = ds.Tables[2];
+                                foreach (DataRow row in dt2.Rows)
+                                {
+                                    switch (Convert.ToString(row["Currency"]))
+                                    {
+                                        case "AMD":
+                                            customerDetails.ProvisionAMDDescription = Convert.ToString(row["Currency"]); //0
+                                            if (Convert.ToString(row["Currency"]) != "")
+                                            {
+                                                customerDetails.ProvisionAMDAmount = Convert.ToDouble(row["provision_amount"]); //1
+                                            }
+                                            break;
+                                        case "USD":
+                                            customerDetails.ProvisionUSDDescription = Convert.ToString(row["Currency"]); //0
+                                            if (Convert.ToString(row["provision_amount"]) != "")
+                                            {
+                                                customerDetails.ProvisionUSDAmount = Convert.ToDouble(row["provision_amount"]); //1
+                                            }
+                                            break;
+                                        case "EUR":
+                                            customerDetails.ProvisionEURDescription = Convert.ToString(row["Currency"]); //0
+                                            if (Convert.ToString(row["Currency"]) != "")
+                                            {
+                                                customerDetails.ProvisionEURAmount = Convert.ToDouble(row["provision_amount"]); //1
+                                            }
+                                            break;
+                                        case "RUR":
+                                            customerDetails.ProvisionRURDescription = Convert.ToString(row["Currency"]); //0
+                                            if (Convert.ToString(row["Currency"]) != "")
+                                            {
+                                                customerDetails.ProvisionRURAmount = Convert.ToDouble(row["provision_amount"]); //1
+                                            }
+                                            break;
+                                    }
+
+                                }
+                                System.Data.DataTable dt3 = ds.Tables[3];
+                                foreach (DataRow row in dt3.Rows)
+                                {
+                                    customerDetails.DAHKDescription = Convert.ToString(row["descr"]);
+                                    customerDetails.DAHKAmount = Convert.ToString(row["amount_descr"]);
+                                }
+
+                                System.Data.DataTable dt4 = ds.Tables[4];
+                                foreach (DataRow row in dt4.Rows)
+                                {
+                                    customerDetails.MovedAmountDescription = Convert.ToString(row["descr"]);
+                                    customerDetails.MovedAmount = Convert.ToString(row["amount_descr"]);
+                                }
+
+                                System.Data.DataTable dt5 = ds.Tables[5];
+                                if (dt5.Rows.Count != 0)
+                                {
+                                    foreach (DataRow row in dt5.Rows)
+                                    {
+                                        customerDetails.LastUpdatedInfoDescription = Convert.ToString(row["descr"]);
+                                        customerDetails.LastUpdatedDate = Convert.ToString(row["value"]);
+                                    }
+                                }
+                                else
+                                {
+                                    rowCounts++;
+                                }
+
+                                System.Data.DataTable dt6 = ds.Tables[6];
+
+                                if (dt6.Rows.Count != 0)
+                                {
+                                    foreach (DataRow row in dt6.Rows)
+                                    {
+                                        customerDetails.AMLDescription = Convert.ToString(row["descr"]);
+                                        customerDetails.AML = Convert.ToString(row["value"]);
+                                    }
+                                }
+                                else
+                                {
+                                    rowCounts++;
+                                }
+                                System.Data.DataTable dt7 = ds.Tables[7];
+                                foreach (DataRow row in dt7.Rows)
+                                {
+                                    customerDetails.DocDeficientReasonDescription = Convert.ToString(row["descr"]);
+                                    customerDetails.DocDeficientReason = Convert.ToString(row["value"]);
+                                    customerDetails.DocDeficientReasonDate = Convert.ToString(row["gvdate"]);
+                                }
+                            }
+
                         }
-                        catch (Exception ex)
+
+                        if (rowCounts >= 3)
                         {
-                            string error = ex.Message;
+                            customerDetails.ObjectEmpty = true;
                         }
+                        else
+                        {
+                            customerDetails.ObjectEmpty = false;
+                        }
+
+                        if (customerNum == 0)
+                        {
+                            customerNum = obj.CustomerNumber;
+                        }
+
+                        int mark = 0;
+                        string query = "Select dbo.fn_getCustomerVipType(@customerNum)";
+                        using (SqlCommand _cmd = _con.CreateCommand())
+                        {
+                            _cmd.CommandText = query;
+                            _cmd.CommandType = CommandType.Text;
+                            _cmd.Parameters.Add("@customerNum", SqlDbType.Float).Value = customerNum;
+
+                            SqlDataReader reader = _cmd.ExecuteReader();
+
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    if (Convert.ToString(reader[0]) != "")
+                                    {
+                                        mark = Convert.ToInt32(reader[0]);
+                                    }
+                                }
+                            }
+
+
+                            reader.Close();
+
+                            query = "Select mark FROM Tbl_Type_Of_Vip_Customers WHERE id = @mark";
+                            _cmd.CommandText = query;
+                            _cmd.CommandType = CommandType.Text;
+                            _cmd.Parameters.Add("@mark", SqlDbType.Int).Value = mark;
+
+                            reader = _cmd.ExecuteReader();
+
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    if (Convert.ToString(reader[0]) != "")
+                                    {
+                                        customerDetails.CustomerVIPTypes = Convert.ToString(reader["mark"]);
+                                    }
+                                }
+                            }
+
+                            reader.Close();
+
+
+                            query = "Select dbo.Fnc_IsBirthDayOfCustomer(0, @customerNum)";
+                            _cmd.CommandText = query;
+                            _cmd.CommandType = CommandType.Text;
+                            _cmd.Parameters.Add("@customerNum", SqlDbType.Float).Value = customerNum;
+
+                            reader = _cmd.ExecuteReader();
+
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    if (Convert.ToString(reader[0]) != "")
+                                    {
+                                        customerDetails.IsCustomerBirthday = Convert.ToBoolean(reader[0]);
+                                    }
+                                }
+                            }
+
+                            reader.Close();
+
+                            query = "Select 1 from tbl_arca_points_list  where account_number in (select arm_number from [tbl_all_accounts;] where customer_number= @customerNum) " +
+                                "and type_of_point in (2, 3) and point_place<>1 and closing_date is null";
+                            _cmd.CommandText = query;
+                            _cmd.CommandType = CommandType.Text;
+                            _cmd.Parameters.Add("@customerNum", SqlDbType.Float).Value = customerNum;
+
+                            reader = _cmd.ExecuteReader();
+
+                            if (reader.HasRows)
+                            {
+                                customerDetails.CustomerPOS = 1;
+                            }
+
+                            reader.Close();
+
+                            query = "SELECT c.member FROM [tbl_all_accounts;] a inner join tbl_customers c on a.customer_number=c.customer_number WHERE a.arm_number = @DebitAccount";
+                            _cmd.CommandText = query;
+                            _cmd.CommandType = CommandType.Text;
+                            _cmd.Parameters.Add("@DebitAccount", SqlDbType.BigInt).Value = obj.DebitAccount;
+
+                            reader = _cmd.ExecuteReader();
+
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    if (Convert.ToString(reader[0]) != "")
+                                    {
+                                        customerDetails.CustomerIsMember = Convert.ToInt32(reader["member"]);
+                                    }
+                                }
+                            }
+
+                        }
+
+                        _con.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        string error = ex.Message;
                     }
 
                 }
@@ -783,7 +775,7 @@ namespace ExternalBanking.DBManager
                             _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
                             _cmd.Parameters.Add("@sourceID", SqlDbType.Int).Value = sourceID;
 
-                            SqlDataReader reader = _cmd.ExecuteReader();
+                            using SqlDataReader reader = _cmd.ExecuteReader();
 
                             if (reader.HasRows)
                             {
@@ -826,34 +818,32 @@ namespace ExternalBanking.DBManager
                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                 {
                     string query = "Select [change_date],b.description_arm,[change_set_number], isnull(change_user_name,'') as change_user_name FROM [dbo].[Tbl_HB_quality_history] a left join  [HBBase].[dbo].[Tbl_types_of_HB_quality] b on a.quality = b.quality where Doc_ID = @transctionCode order by change_date";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    using SqlCommand _cmd = new SqlCommand(query, _con);
+                    _con.Open();
+                    _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
+
+                    using SqlDataReader reader = _cmd.ExecuteReader();
+
+                    if (reader.HasRows)
                     {
-                        _con.Open();
-                        _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
-
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            HBDocumentConfirmationHistory history = new HBDocumentConfirmationHistory();
+                            history.TransactionCode = transctionCode;
+                            history.TransactionDate = Convert.ToDateTime(reader["change_date"]).ToString("dd/MM/yyyy HH:mm");
+                            history.Description = Convert.ToString(reader["description_arm"]);
+                            if (Convert.ToString(reader["change_set_number"]) != "")
                             {
-                                HBDocumentConfirmationHistory history = new HBDocumentConfirmationHistory();
-                                history.TransactionCode = transctionCode;
-                                history.TransactionDate = Convert.ToDateTime(reader["change_date"]).ToString("dd/MM/yyyy HH:mm");
-                                history.Description = Convert.ToString(reader["description_arm"]);
-                                if (Convert.ToString(reader["change_set_number"]) != "")
-                                {
-                                    history.SetNumber = Convert.ToString(reader["change_set_number"]);
-                                }
-                                history.CustomerUsername = Convert.ToString(reader["change_user_name"]);
-
-
-                                histories.Add(history);
+                                history.SetNumber = Convert.ToString(reader["change_set_number"]);
                             }
-                        }
+                            history.CustomerUsername = Convert.ToString(reader["change_user_name"]);
 
-                        _con.Close();
+
+                            histories.Add(history);
+                        }
                     }
+
+                    _con.Close();
                 }
 
             }
@@ -867,30 +857,26 @@ namespace ExternalBanking.DBManager
 
             if (transctionCode != 0)
             {
-                using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                string query = "Select * FROM Tbl_HB_documents WHERE Doc_Id = @transctionCode";
+                using SqlCommand _cmd = new SqlCommand(query, _con);
+                _con.Open();
+                _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
+
+                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    string query = "Select * FROM Tbl_HB_documents WHERE Doc_Id = @transctionCode";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    while (reader.Read())
                     {
-                        _con.Open();
-                        _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
-
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        if (Convert.ToInt32(reader["quality"]) != 30)
                         {
-                            while (reader.Read())
-                            {
-                                if (Convert.ToInt32(reader["quality"]) != 30)
-                                {
-                                    str = "Կատարված չէ։";
-                                }
-                            }
+                            str = "Կատարված չէ։";
                         }
-
-                        _con.Close();
                     }
                 }
+
+                _con.Close();
 
             }
 
@@ -903,35 +889,31 @@ namespace ExternalBanking.DBManager
 
             if (transctionCode != 0)
             {
-                using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+                using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+                string query = "Select TOP 1 * FROM Tbl_HB_products_accordance WHERE Doc_Id = @transctionCode ORDER BY uniq_number";
+                using SqlCommand _cmd = new SqlCommand(query, _con);
+                _con.Open();
+                _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
+
+                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    string query = "Select TOP 1 * FROM Tbl_HB_products_accordance WHERE Doc_Id = @transctionCode ORDER BY uniq_number";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    while (reader.Read())
                     {
-                        _con.Open();
-                        _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
-
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        details.TransactionCode = Convert.ToInt32(reader["Doc_ID"]);
+                        details.TransactionDate = Convert.ToDateTime(reader["accounting_date"]).ToString("dd/MM/yyyy");
+                        details.SetNumber = Convert.ToString(reader["set_number"]);
+                        details.UniqNumber = Convert.ToInt32(reader["accounting_uniq_number"]);
+                        if (Convert.ToString(reader["transactions_group_number"]) != "")
                         {
-                            while (reader.Read())
-                            {
-                                details.TransactionCode = Convert.ToInt32(reader["Doc_ID"]);
-                                details.TransactionDate = Convert.ToDateTime(reader["accounting_date"]).ToString("dd/MM/yyyy");
-                                details.SetNumber = Convert.ToString(reader["set_number"]);
-                                details.UniqNumber = Convert.ToInt32(reader["accounting_uniq_number"]);
-                                if (Convert.ToString(reader["transactions_group_number"]) != "")
-                                {
-                                    details.InternalTransactionCode = Convert.ToInt64(reader["transactions_group_number"]);
-                                }
-
-                            }
+                            details.InternalTransactionCode = Convert.ToInt64(reader["transactions_group_number"]);
                         }
 
-                        _con.Close();
                     }
                 }
+
+                _con.Close();
 
             }
 
@@ -948,23 +930,21 @@ namespace ExternalBanking.DBManager
                 if (obj != null)
                 {
 
-                    using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+                    using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+                    string current_sp = "pr_set_hb_document_automat_confirmation_sign";
+                    _con.Open();
+                    using (SqlDataAdapter da = new SqlDataAdapter())
                     {
-                        string current_sp = "pr_set_hb_document_automat_confirmation_sign";
-                        _con.Open();
-                        using (SqlDataAdapter da = new SqlDataAdapter())
-                        {
-                            da.SelectCommand = new SqlCommand(current_sp, _con);
-                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                        da.SelectCommand = new SqlCommand(current_sp, _con);
+                        da.SelectCommand.CommandType = CommandType.StoredProcedure;
 
-                            da.SelectCommand.Parameters.Add("@condition", SqlDbType.VarChar).Value = filter;
+                        da.SelectCommand.Parameters.Add("@condition", SqlDbType.VarChar).Value = filter;
 
-                            da.SelectCommand.ExecuteNonQuery();
+                        da.SelectCommand.ExecuteNonQuery();
 
-                            done = true;
-                        }
-                        _con.Close();
+                        done = true;
                     }
+                    _con.Close();
                 }
             }
             catch (Exception ex)
@@ -1027,26 +1007,24 @@ namespace ExternalBanking.DBManager
                 {
                     filter = GetFilter(obj);
 
-                    using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+                    using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+                    string current_sp = "pr_set_hb_document_automat_confirmation_sign";
+                    _con.Open();
+                    using (SqlDataAdapter da = new SqlDataAdapter())
                     {
-                        string current_sp = "pr_set_hb_document_automat_confirmation_sign";
-                        _con.Open();
-                        using (SqlDataAdapter da = new SqlDataAdapter())
-                        {
-                            da.SelectCommand = new SqlCommand(current_sp, _con);
-                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                        da.SelectCommand = new SqlCommand(current_sp, _con);
+                        da.SelectCommand.CommandType = CommandType.StoredProcedure;
 
-                            da.SelectCommand.Parameters.Add("@condition", SqlDbType.VarChar).Value = filter;
-                            da.SelectCommand.Parameters.Add("@exceptCardAccount", SqlDbType.Bit).Value = 0;
-                            da.SelectCommand.Parameters.Add("@checkFlag", SqlDbType.Bit).Value = obj.TransactionChecked;
-                            da.SelectCommand.Parameters.Add("@docID", SqlDbType.Int).Value = obj.DocumentTransactionCode;
+                        da.SelectCommand.Parameters.Add("@condition", SqlDbType.VarChar).Value = filter;
+                        da.SelectCommand.Parameters.Add("@exceptCardAccount", SqlDbType.Bit).Value = 0;
+                        da.SelectCommand.Parameters.Add("@checkFlag", SqlDbType.Bit).Value = obj.TransactionChecked;
+                        da.SelectCommand.Parameters.Add("@docID", SqlDbType.Int).Value = obj.DocumentTransactionCode;
 
-                            da.SelectCommand.ExecuteNonQuery();
+                        da.SelectCommand.ExecuteNonQuery();
 
-                            done = true;
-                        }
-                        _con.Close();
+                        done = true;
                     }
+                    _con.Close();
                 }
             }
             catch (Exception ex)
@@ -1150,23 +1128,21 @@ namespace ExternalBanking.DBManager
             using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 string query = "Select dbo.fnc_User_account_access (@UserGroupID_For_Accounts, @accountNumber)";
-                using (SqlCommand _cmd = new SqlCommand(query, _con))
+                using SqlCommand _cmd = new SqlCommand(query, _con);
+                _con.Open();
+                _cmd.Parameters.Add("@UserGroupID_For_Accounts", SqlDbType.NVarChar).Value = UserGroupID_For_Accounts;
+                _cmd.Parameters.Add("@accountNumber", SqlDbType.NVarChar).Value = accountNumber;
+                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    _con.Open();
-                    _cmd.Parameters.Add("@UserGroupID_For_Accounts", SqlDbType.NVarChar).Value = UserGroupID_For_Accounts;
-                    _cmd.Parameters.Add("@accountNumber", SqlDbType.NVarChar).Value = accountNumber;
-                    SqlDataReader reader = _cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            access = Convert.ToBoolean(reader[0]);
-                        }
+                        access = Convert.ToBoolean(reader[0]);
                     }
-
-                    _con.Close();
                 }
+
+                _con.Close();
             }
             return access;
         }
@@ -1176,26 +1152,22 @@ namespace ExternalBanking.DBManager
             string accountNumber = string.Empty;
             if (cardNumber != "")
             {
-                using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                string query = "Select card_account from Tbl_visa_numbers_accounts where visa_number= @cardNumber";
+                using SqlCommand _cmd = new SqlCommand(query, _con);
+                _con.Open();
+                _cmd.Parameters.Add("@cardNumber", SqlDbType.BigInt).Value = cardNumber;
+                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    string query = "Select card_account from Tbl_visa_numbers_accounts where visa_number= @cardNumber";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    while (reader.Read())
                     {
-                        _con.Open();
-                        _cmd.Parameters.Add("@cardNumber", SqlDbType.BigInt).Value = cardNumber;
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                accountNumber = Convert.ToString(reader["card_account"]);
-                            }
-                        }
-
-                        _con.Close();
+                        accountNumber = Convert.ToString(reader["card_account"]);
                     }
                 }
+
+                _con.Close();
             }
 
             return accountNumber;
@@ -1206,22 +1178,21 @@ namespace ExternalBanking.DBManager
             using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 string query = "Select dbo.fn_get_HB_document_source(@transctionCode)";
-                using (SqlCommand _cmd = new SqlCommand(query, _con))
+
+                using SqlCommand _cmd = new SqlCommand(query, _con);
+                _con.Open();
+                _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
+                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    _con.Open();
-                    _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
-                    SqlDataReader reader = _cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            sourceID = Convert.ToInt32(reader[0]);
-                        }
+                        sourceID = Convert.ToInt32(reader[0]);
                     }
-
-                    _con.Close();
                 }
+
+                _con.Close();
             }
 
             return sourceID;
@@ -1232,23 +1203,21 @@ namespace ExternalBanking.DBManager
             using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 string query = "Select customer_number,debet_account FROM Tbl_HB_documents WHERE doc_ID = @transactionCode";
-                using (SqlCommand _cmd = new SqlCommand(query, _con))
+                using SqlCommand _cmd = new SqlCommand(query, _con);
+                _con.Open();
+                _cmd.Parameters.Add("@transactionCode", SqlDbType.Int).Value = transactionCode;
+                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    _con.Open();
-                    _cmd.Parameters.Add("@transactionCode", SqlDbType.Int).Value = transactionCode;
-                    SqlDataReader reader = _cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            details[0] = Convert.ToInt64(reader[0]);
-                            details[1] = Convert.ToInt64(reader[1]);
-                        }
+                        details[0] = Convert.ToInt64(reader[0]);
+                        details[1] = Convert.ToInt64(reader[1]);
                     }
-
-                    _con.Close();
                 }
+
+                _con.Close();
             }
 
             return details;
@@ -1270,77 +1239,74 @@ namespace ExternalBanking.DBManager
             {
                 try
                 {
-                    using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+                    using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+                    _con.Open();
+                    using (SqlCommand _cmd = _con.CreateCommand())
                     {
-                        _con.Open();
-                        using (SqlCommand _cmd = _con.CreateCommand())
+                        string query = "Select Reject_description,Reject_description_eng,reject_id from Tbl_types_of_HB_rejects where for_orderby = @id";
+                        _cmd.CommandText = query;
+                        _cmd.CommandType = CommandType.Text;
+                        _cmd.Parameters.Add("@id", SqlDbType.Int).Value = document.SelectedRejectReason;
+
+                        using SqlDataReader reader = _cmd.ExecuteReader();
+
+                        if (reader.HasRows)
                         {
-                            string query = "Select Reject_description,Reject_description_eng,reject_id from Tbl_types_of_HB_rejects where for_orderby = @id";
-                            _cmd.CommandText = query;
-                            _cmd.CommandType = CommandType.Text;
-                            _cmd.Parameters.Add("@id", SqlDbType.Int).Value = document.SelectedRejectReason;
-
-                            SqlDataReader reader = _cmd.ExecuteReader();
-
-                            if (reader.HasRows)
+                            while (reader.Read())
                             {
-                                while (reader.Read())
+                                if (Convert.ToString(reader[0]) != "")
                                 {
-                                    if (Convert.ToString(reader[0]) != "")
-                                    {
-                                        rejectArm = Convert.ToString(reader["Reject_description"]);
-                                        rejectEng = Convert.ToString(reader["Reject_description_eng"]);
-                                        document.SelectedRejectReason = Convert.ToInt32(reader["reject_id"]);
-                                    }
+                                    rejectArm = Convert.ToString(reader["Reject_description"]);
+                                    rejectEng = Convert.ToString(reader["Reject_description_eng"]);
+                                    document.SelectedRejectReason = Convert.ToInt32(reader["reject_id"]);
                                 }
                             }
-
-                            reader.Close();
-
-                            msgText = "Հարգելի հաճախորդ, \n Ձեր N " + hbDocID.ToString() + " գործարքը մերժվել է:\n Մերժման պատճառ` §" + rejectArm + "¦\n  Dear Client,\n  Your N " + hbDocID.ToString() + " transaction have been rejected for the following reason: " + rejectEng + "' ";
-
-                            if (document.TransactionSource == 1 || document.TransactionSource == 5)
-                            {
-
-                                string current_sp = "sp_insertMsg";
-                                _cmd.CommandText = current_sp;
-                                _cmd.CommandType = CommandType.StoredProcedure;
-                                _cmd.Parameters.Clear();
-
-                                _cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = document.CustomerNumber;
-                                _cmd.Parameters.Add("@reply_id", SqlDbType.Float).Value = hbDocID;
-                                _cmd.Parameters.Add("@insert_msg", SqlDbType.NVarChar).Value = msgText;
-                                _cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = document.SetNumber;
-                                _cmd.Parameters.Add("@sentrecieve", SqlDbType.Int).Value = 3;
-                                _cmd.Parameters.Add("@subject", SqlDbType.NVarChar).Value = msgSubject;
-
-                                _cmd.ExecuteNonQuery();
-                            }
-
-
                         }
 
-                        using (SqlCommand _cmd = _con.CreateCommand())
+                        reader.Close();
+
+                        msgText = "Հարգելի հաճախորդ, \n Ձեր N " + hbDocID.ToString() + " գործարքը մերժվել է:\n Մերժման պատճառ` §" + rejectArm + "¦\n  Dear Client,\n  Your N " + hbDocID.ToString() + " transaction have been rejected for the following reason: " + rejectEng + "' ";
+
+                        if (document.TransactionSource == 1 || document.TransactionSource == 5)
                         {
 
-                            string current_sp1 = "pr_HB_Rejection_confirm";
-                            _cmd.CommandText = current_sp1;
+                            string current_sp = "sp_insertMsg";
+                            _cmd.CommandText = current_sp;
                             _cmd.CommandType = CommandType.StoredProcedure;
+                            _cmd.Parameters.Clear();
 
-                            _cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = hbDocID;
-                            _cmd.Parameters.Add("@set_Date", SqlDbType.SmallDateTime).Value = operDay;
-                            _cmd.Parameters.Add("@set_number", SqlDbType.SmallInt).Value = Convert.ToInt16(document.SetNumber);
-                            _cmd.Parameters.Add("@RejectionReasonID", SqlDbType.Int).Value = document.SelectedRejectReason;
-                            _cmd.Parameters.Add("@RejectionQuality", SqlDbType.SmallInt).Value = 31;
+                            _cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = document.CustomerNumber;
+                            _cmd.Parameters.Add("@reply_id", SqlDbType.Float).Value = hbDocID;
+                            _cmd.Parameters.Add("@insert_msg", SqlDbType.NVarChar).Value = msgText;
+                            _cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = document.SetNumber;
+                            _cmd.Parameters.Add("@sentrecieve", SqlDbType.Int).Value = 3;
+                            _cmd.Parameters.Add("@subject", SqlDbType.NVarChar).Value = msgSubject;
 
                             _cmd.ExecuteNonQuery();
-
-
                         }
 
-                        _con.Close();
 
                     }
+
+                    using (SqlCommand _cmd = _con.CreateCommand())
+                    {
+
+                        string current_sp1 = "pr_HB_Rejection_confirm";
+                        _cmd.CommandText = current_sp1;
+                        _cmd.CommandType = CommandType.StoredProcedure;
+
+                        _cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = hbDocID;
+                        _cmd.Parameters.Add("@set_Date", SqlDbType.SmallDateTime).Value = operDay;
+                        _cmd.Parameters.Add("@set_number", SqlDbType.SmallInt).Value = Convert.ToInt16(document.SetNumber);
+                        _cmd.Parameters.Add("@RejectionReasonID", SqlDbType.Int).Value = document.SelectedRejectReason;
+                        _cmd.Parameters.Add("@RejectionQuality", SqlDbType.SmallInt).Value = 31;
+
+                        _cmd.ExecuteNonQuery();
+
+
+                    }
+
+                    _con.Close();
                 }
                 catch (Exception ex)
                 {
@@ -1374,7 +1340,7 @@ namespace ExternalBanking.DBManager
                         _cmd.CommandType = CommandType.Text;
                         _cmd.Parameters.Add("@transctionCode", SqlDbType.Int).Value = transctionCode;
 
-                        SqlDataReader reader = _cmd.ExecuteReader();
+                        using SqlDataReader reader = _cmd.ExecuteReader();
 
                         if (reader.HasRows)
                         {
@@ -1428,39 +1394,37 @@ namespace ExternalBanking.DBManager
 
             try
             {
-                using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                _con.Open();
+
+                using (SqlCommand _cmd = _con.CreateCommand())
                 {
-                    _con.Open();
+                    string query = "Update Tbl_oper_days SET set_transaction_confirm_time = @time  , time_set_number = @time_set_number where  oper_day  = (SELECT oper_day FROM  Tbl_current_oper_day)";
 
-                    using (SqlCommand _cmd = _con.CreateCommand())
+                    _cmd.CommandText = query;
+                    _cmd.Parameters.Add("@time", SqlDbType.NVarChar).Value = time;
+                    _cmd.Parameters.Add("@time_set_number", SqlDbType.Int).Value = setNumber;
+
+                    _cmd.ExecuteNonQuery();
+
+
+                    query = "select (convert(nvarchar(20),format(oper_day,'yyyy-MM-dd')) + ' ' + convert (nvarchar(20) , format([set_transaction_confirm_time], 'hh\\:mm' ))) as oper_day from Tbl_oper_days WHERE oper_day  = (SELECT oper_day FROM  Tbl_current_oper_day) ";
+                    _cmd.CommandText = query;
+                    _cmd.Parameters.Clear();
+
+                    using SqlDataReader reader = _cmd.ExecuteReader();
+
+                    if (reader.HasRows)
                     {
-                        string query = "Update Tbl_oper_days SET set_transaction_confirm_time = @time  , time_set_number = @time_set_number where  oper_day  = (SELECT oper_day FROM  Tbl_current_oper_day)";
-
-                        _cmd.CommandText = query;
-                        _cmd.Parameters.Add("@time", SqlDbType.NVarChar).Value = time;
-                        _cmd.Parameters.Add("@time_set_number", SqlDbType.Int).Value = setNumber;
-
-                        _cmd.ExecuteNonQuery();
-
-
-                        query = "select (convert(nvarchar(20),format(oper_day,'yyyy-MM-dd')) + ' ' + convert (nvarchar(20) , format([set_transaction_confirm_time], 'hh\\:mm' ))) as oper_day from Tbl_oper_days WHERE oper_day  = (SELECT oper_day FROM  Tbl_current_oper_day) ";
-                        _cmd.CommandText = query;
-                        _cmd.Parameters.Clear();
-
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                date = Convert.ToDateTime(reader["oper_day"]).ToString("dd/MM/yyyy HH:mm");
-                            }
+                            date = Convert.ToDateTime(reader["oper_day"]).ToString("dd/MM/yyyy HH:mm");
                         }
                     }
-
-
-                    _con.Close();
                 }
+
+
+                _con.Close();
             }
             catch (Exception ex)
             {
@@ -1476,29 +1440,25 @@ namespace ExternalBanking.DBManager
 
             try
             {
-                using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                string query = "select  convert (nvarchar(20) , format([set_transaction_confirm_time], 'hh\\:mm' )) as trans_time " +
+                    "from [dbo].[Tbl_oper_days] where oper_day = (SELECT oper_day FROM [Tbl_current_oper_day])";
+                using SqlCommand _cmd = new SqlCommand(query, _con);
+                _con.Open();
+                using SqlDataReader reader = _cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    string query = "select  convert (nvarchar(20) , format([set_transaction_confirm_time], 'hh\\:mm' )) as trans_time " +
-                        "from [dbo].[Tbl_oper_days] where oper_day = (SELECT oper_day FROM [Tbl_current_oper_day])";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    while (reader.Read())
                     {
-                        _con.Open();
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        if (Convert.ToString(reader[0]) != "")
                         {
-                            while (reader.Read())
-                            {
-                                if (Convert.ToString(reader[0]) != "")
-                                {
-                                    date = Convert.ToDateTime(reader["trans_time"]).ToString("dd/MM/yyyy HH:mm");
-                                }
-                            }
-
+                            date = Convert.ToDateTime(reader["trans_time"]).ToString("dd/MM/yyyy HH:mm");
                         }
-                        _con.Close();
                     }
+
                 }
+                _con.Close();
             }
             catch (Exception ex)
             {
@@ -1691,7 +1651,7 @@ namespace ExternalBanking.DBManager
                             _cmd.Parameters.Clear();
                             _cmd.Parameters.Add("@orderId", SqlDbType.Int).Value = orderId;
 
-                            SqlDataReader reader = _cmd.ExecuteReader();
+                            using SqlDataReader reader = _cmd.ExecuteReader();
 
                             if (reader.HasRows)
                             {
@@ -1746,16 +1706,14 @@ namespace ExternalBanking.DBManager
                         {
                             conn.Open();
                             string query = "Update Tbl_transactions_from_excel SET payment_type = @payment_type WHERE HB_doc_ID = @id AND number_in_list = @index AND credit_account = @credit_account";
-                            using (SqlCommand cmd = new SqlCommand(query, conn))
-                            {
-                                cmd.CommandType = CommandType.Text;
-                                cmd.Parameters.Add("@payment_type", SqlDbType.Int).Value = DBNull.Value;
-                                cmd.Parameters.Add("@id", SqlDbType.Int).Value = orderId;
-                                cmd.Parameters.Add("@index", SqlDbType.Int).Value = m.Index;
-                                cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar).Value = m.CreditAccount.AccountNumber;
+                            using SqlCommand cmd = new SqlCommand(query, conn);
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.Add("@payment_type", SqlDbType.Int).Value = DBNull.Value;
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = orderId;
+                            cmd.Parameters.Add("@index", SqlDbType.Int).Value = m.Index;
+                            cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar).Value = m.CreditAccount.AccountNumber;
 
-                                cmd.ExecuteNonQuery();
-                            }
+                            cmd.ExecuteNonQuery();
                         }
                     }
                 });
@@ -1774,45 +1732,41 @@ namespace ExternalBanking.DBManager
                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
                 {
                     string query = "Select date_of_beginning FROM [Tbl_deposits;] where quality=1 and deposit_full_number= @deposit_full_number";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    using SqlCommand _cmd = new SqlCommand(query, _con);
+                    _con.Open();
+                    _cmd.Parameters.Add("@deposit_full_number", SqlDbType.NVarChar).Value = debitAccount;
+                    using SqlDataReader reader = _cmd.ExecuteReader();
+
+                    if (reader.HasRows)
                     {
-                        _con.Open();
-                        _cmd.Parameters.Add("@deposit_full_number", SqlDbType.NVarChar).Value = debitAccount;
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                details.Add(Convert.ToDateTime(reader["date_of_beginning"]).ToString("dd/MM/yyyy"));
-                            }
+                            details.Add(Convert.ToDateTime(reader["date_of_beginning"]).ToString("dd/MM/yyyy"));
                         }
-
-                        _con.Close();
                     }
+
+                    _con.Close();
                 }
 
                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                 {
                     string query = "Select connected_doc_id, doc.quality as quality FROM tbl_hb_documents hb INNER JOIN Tbl_DeclineRequest d on " +
                         "hb.doc_id = d.doc_id left join Tbl_HB_documents doc on doc.doc_ID = d.Connected_doc_id where hb.document_type = 18  and hb.doc_id = @docId";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    using SqlCommand _cmd = new SqlCommand(query, _con);
+                    _con.Open();
+                    _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
+                    using SqlDataReader reader = _cmd.ExecuteReader();
+
+                    if (reader.HasRows)
                     {
-                        _con.Open();
-                        _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                details.Add(Convert.ToString(reader["connected_doc_id"]));
-                                details.Add(Convert.ToString(reader["quality"]));
-                            }
+                            details.Add(Convert.ToString(reader["connected_doc_id"]));
+                            details.Add(Convert.ToString(reader["quality"]));
                         }
-
-                        _con.Close();
                     }
+
+                    _con.Close();
                 }
             }
 
@@ -1829,22 +1783,20 @@ namespace ExternalBanking.DBManager
                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                 {
                     string query = "Select doc.quality AS quality FROM tbl_hb_documents hb INNER JOIN Tbl_DeclineRequest d on hb.doc_id = d.doc_id left join Tbl_HB_documents doc on doc.doc_ID = d.Connected_doc_id where hb.document_type = 18  and hb.doc_id = @docId";
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    using SqlCommand _cmd = new SqlCommand(query, _con);
+                    _con.Open();
+                    _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
+                    using SqlDataReader reader = _cmd.ExecuteReader();
+
+                    if (reader.HasRows)
                     {
-                        _con.Open();
-                        _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                quality = Convert.ToInt32(reader["quality"]);
-                            }
+                            quality = Convert.ToInt32(reader["quality"]);
                         }
-
-                        _con.Close();
                     }
+
+                    _con.Close();
                 }
             }
 
@@ -1857,33 +1809,31 @@ namespace ExternalBanking.DBManager
             DateTime dt = Utility.GetNextOperDay().Date;
             if (docId != 0 && bankCode != 0 && setNumber != 0)
             {
-                using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+                using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+                string current_sp = "pr_HB_order_manual_confirm";
+                try
                 {
-                    string current_sp = "pr_HB_order_manual_confirm";
-                    try
+                    _con.Open();
+                    using (SqlDataAdapter da = new SqlDataAdapter())
                     {
-                        _con.Open();
-                        using (SqlDataAdapter da = new SqlDataAdapter())
-                        {
-                            da.SelectCommand = new SqlCommand(current_sp, _con);
-                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                        da.SelectCommand = new SqlCommand(current_sp, _con);
+                        da.SelectCommand.CommandType = CommandType.StoredProcedure;
 
-                            da.SelectCommand.Parameters.Add("@doc_ID", SqlDbType.Int).Value = docId;
-                            da.SelectCommand.Parameters.Add("@bank_code", SqlDbType.Int).Value = bankCode;
-                            da.SelectCommand.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = dt;
-                            da.SelectCommand.Parameters.Add("@set_number", SqlDbType.Int).Value = setNumber;
+                        da.SelectCommand.Parameters.Add("@doc_ID", SqlDbType.Int).Value = docId;
+                        da.SelectCommand.Parameters.Add("@bank_code", SqlDbType.Int).Value = bankCode;
+                        da.SelectCommand.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = dt;
+                        da.SelectCommand.Parameters.Add("@set_number", SqlDbType.Int).Value = setNumber;
 
-                            da.SelectCommand.ExecuteNonQuery();
+                        da.SelectCommand.ExecuteNonQuery();
 
-                        }
-
-
-                        _con.Close();
                     }
-                    catch (Exception ex)
-                    {
-                        result = ex.Message;
-                    }
+
+
+                    _con.Close();
+                }
+                catch (Exception ex)
+                {
+                    result = ex.Message;
                 }
             }
 
@@ -2014,7 +1964,7 @@ namespace ExternalBanking.DBManager
 
                         if (msg.Count != 0)
                         {
-                           msg[0].File = GetMessageUploadedFilesList(msg[0].ID);
+                            msg[0].File = GetMessageUploadedFilesList(msg[0].ID);
                         }
                     }
                 }
@@ -2049,83 +1999,81 @@ namespace ExternalBanking.DBManager
 
                 try
                 {
-                    using (SqlCommand _cmd = new SqlCommand(query, _con))
+                    using SqlCommand _cmd = new SqlCommand(query, _con);
+                    _con.Open();
+                    _cmd.CommandType = CommandType.Text;
+                    //_cmd.Parameters.Add("@filter", SqlDbType.NVarChar).Value = filter;
+                    _cmd.Parameters.Add("@WatchAllMessages", SqlDbType.Bit).Value = Convert.ToInt16(WatchAllMessages);
+                    _cmd.Parameters.Add("@filalCode", SqlDbType.Int).Value = filalCode;
+
+                    _cmd.CommandTimeout = 120;
+                     SqlDataReader reader = _cmd.ExecuteReader();
+
+                    int rowCount = 0;
+
+                    if (reader.HasRows)
                     {
-                        _con.Open();
-                        _cmd.CommandType = CommandType.Text;
-                        //_cmd.Parameters.Add("@filter", SqlDbType.NVarChar).Value = filter;
-                        _cmd.Parameters.Add("@WatchAllMessages", SqlDbType.Bit).Value = Convert.ToInt16(WatchAllMessages);
-                        _cmd.Parameters.Add("@filalCode", SqlDbType.Int).Value = filalCode;
-
-                        _cmd.CommandTimeout = 120;
-                        SqlDataReader reader = _cmd.ExecuteReader();
-
-                        int rowCount = 0;
-
-                        if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            if (rowCount >= obj.firstRow && rowCount < obj.LastGetRowCount)
                             {
-                                if (rowCount >= obj.firstRow && rowCount < obj.LastGetRowCount)
+                                HBMessages ms = new HBMessages();
+                                ms.ID = Convert.ToInt64(reader["Id"]);
+                                ms.FullName = Convert.ToString(reader["name_lastname"]);
+                                ms.CustomerNumber = Convert.ToUInt64(reader["customer_number"]);
+                                ms.CustomerSubject = Convert.ToString(reader["Subject_Ascii"]);
+                                if (Convert.ToString(reader["sent_date"]) != "")
                                 {
-                                    HBMessages ms = new HBMessages();
-                                    ms.ID = Convert.ToInt64(reader["Id"]);
-                                    ms.FullName = Convert.ToString(reader["name_lastname"]);
-                                    ms.CustomerNumber = Convert.ToUInt64(reader["customer_number"]);
-                                    ms.CustomerSubject = Convert.ToString(reader["Subject_Ascii"]);
-                                    if (Convert.ToString(reader["sent_date"]) != "")
-                                    {
-                                        ms.SendDate = Convert.ToDateTime(reader["sent_date"]).ToString("dd/MM/yyyy HH:mm");
-                                    }
-                                    ms.CustomerMessage = Convert.ToString(reader["description_Ascii"]);
-                                    if (Convert.ToString(reader["set_number"]) != "")
-                                    {
-                                        ms.SetNumber = Convert.ToInt32(reader["set_number"]);
-                                    }
-                                    if (Convert.ToString(reader["SentRecieve"]) != "")
-                                    {
-                                        ms.SentRecieve = Convert.ToInt32(reader["SentRecieve"]);
-                                    }
-                                    ms.MessageStatus = Convert.ToInt32(reader["status"]);
+                                    ms.SendDate = Convert.ToDateTime(reader["sent_date"]).ToString("dd/MM/yyyy HH:mm");
+                                }
+                                ms.CustomerMessage = Convert.ToString(reader["description_Ascii"]);
+                                if (Convert.ToString(reader["set_number"]) != "")
+                                {
+                                    ms.SetNumber = Convert.ToInt32(reader["set_number"]);
+                                }
+                                if (Convert.ToString(reader["SentRecieve"]) != "")
+                                {
+                                    ms.SentRecieve = Convert.ToInt32(reader["SentRecieve"]);
+                                }
+                                ms.MessageStatus = Convert.ToInt32(reader["status"]);
 
-                                    msg.Add(ms);
+                                msg.Add(ms);
 
-                                    rowCount++;
-                                }
-                                else if (rowCount > obj.LastGetRowCount)
-                                {
-                                    break;
-                                }
-                                else
-                                {
-                                    rowCount++;
-                                }
+                                rowCount++;
+                            }
+                            else if (rowCount > obj.LastGetRowCount)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                rowCount++;
                             }
                         }
-                        reader.Close();
+                    }
+                    reader.Close();
 
-                        _cmd.CommandType = CommandType.Text;
-                        _cmd.CommandText = countQuery;
-                        reader = _cmd.ExecuteReader();
-                        if (reader.HasRows)
+                    _cmd.CommandType = CommandType.Text;
+                    _cmd.CommandText = countQuery;
+                    reader = _cmd.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            if (Convert.ToString(reader["count"]) != "")
                             {
-                                if (Convert.ToString(reader["count"]) != "")
-                                {
-                                    msg[0].MessagesCount = Convert.ToInt32(reader["count"]);
-                                }
+                                msg[0].MessagesCount = Convert.ToInt32(reader["count"]);
                             }
                         }
+                    }
 
 
-                        _con.Close();
+                    _con.Close();
 
-                        if (msg.Count != 0)
-                        {
-                            
-                            msg[0].File = GetMessageUploadedFilesList(msg[0].ID);
-                        }
+                    if (msg.Count != 0)
+                    {
+
+                        msg[0].File = GetMessageUploadedFilesList(msg[0].ID);
                     }
                 }
                 catch (Exception ex)
@@ -2156,7 +2104,7 @@ namespace ExternalBanking.DBManager
                         _cmd.CommandType = CommandType.Text;
                         _cmd.Parameters.Add("@msgId", SqlDbType.Int).Value = msgId;
 
-                        SqlDataReader reader = _cmd.ExecuteReader();
+                       using SqlDataReader reader = _cmd.ExecuteReader();
 
                         if (reader.HasRows)
                         {
@@ -2446,7 +2394,7 @@ namespace ExternalBanking.DBManager
 
             return file;
         }
-        internal static List<HBMessageFiles> GetMessageUploadedFilesList(long msgId, bool showUploadFilesContent=false)
+        internal static List<HBMessageFiles> GetMessageUploadedFilesList(long msgId, bool showUploadFilesContent = false)
         {
             List<HBMessageFiles> files = new List<HBMessageFiles>();
             if (msgId != 0)
@@ -2471,8 +2419,17 @@ namespace ExternalBanking.DBManager
                                 file.FileName = Convert.ToString(reader["FileName"]);
                                 if (showUploadFilesContent == true)
                                 { file.FileContent = reader["FileContent"] != DBNull.Value ? (byte[])reader["FileContent"] : null; }
-                                
                                 file.FileType = Convert.ToString(reader["FileType"]);
+                                switch (file.FileType.ToLower())
+                                {
+                                    case "pdf":
+                                    case "doc":
+                                    case "docx":
+                                    case "xls":
+                                    case "xlsx":
+                                        file.FileType = "." + file.FileType;
+                                        break;
+                                }
                                 file.RegistrationDate = Convert.ToDateTime(reader["RegDate"]).ToString("dd/MM/yyyy");
 
                                 files.Add(file);
@@ -2758,31 +2715,29 @@ namespace ExternalBanking.DBManager
             {
                 try
                 {
-                    using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+                    using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+                    _con.Open();
+                    using (SqlTransaction sqlTrans = _con.BeginTransaction())
                     {
-                        _con.Open();
-                        using (SqlTransaction sqlTrans = _con.BeginTransaction())
+                        obj.HBBypass.ForEach(hb =>
                         {
-                            obj.HBBypass.ForEach(hb =>
-                            {
-                                string current_sp = "pr_Insert_Bypass_History";
-                                SqlCommand _cmd = new SqlCommand(current_sp, _con, sqlTrans);
-                                _cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                            string current_sp = "pr_Insert_Bypass_History";
+                            using SqlCommand _cmd = new SqlCommand(current_sp, _con, sqlTrans);
+                            _cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-                                _cmd.Parameters.Add("@doc_ID", SqlDbType.Int).Value = obj.DocID;
-                                _cmd.Parameters.Add("@bypass_Id", SqlDbType.Int).Value = hb.ID;
-                                _cmd.Parameters.Add("@is_checked", SqlDbType.Bit).Value = hb.IsChecked;
-                                _cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = obj.SetNumber;
+                            _cmd.Parameters.Add("@doc_ID", SqlDbType.Int).Value = obj.DocID;
+                            _cmd.Parameters.Add("@bypass_Id", SqlDbType.Int).Value = hb.ID;
+                            _cmd.Parameters.Add("@is_checked", SqlDbType.Bit).Value = hb.IsChecked;
+                            _cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = obj.SetNumber;
 
 
-                                _cmd.ExecuteNonQuery();
-                            });
+                            _cmd.ExecuteNonQuery();
+                        });
 
-                            sqlTrans.Commit();
-                        }
-
-                        _con.Close();
+                        sqlTrans.Commit();
                     }
+
+                    _con.Close();
                 }
                 catch (Exception ex)
                 {
@@ -2893,21 +2848,17 @@ namespace ExternalBanking.DBManager
                 if (ValidationDB.IsDAHKAvailability(customerNumber))
                 {
 
-                    using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-                    {
-                        string query = "SELECT 1 FROM [dbo].[tbl_DAHK_bypass_of_HB_transfers] WHERE Doc_Id = @doc_ID";
-                        using (SqlCommand cmd = new SqlCommand(query, conn))
-                        {
-                            conn.Open();
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.Add("@doc_ID", SqlDbType.BigInt).Value = docId;
+                    using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                    string query = "SELECT 1 FROM [dbo].[tbl_DAHK_bypass_of_HB_transfers] WHERE Doc_Id = @doc_ID";
+                    using SqlCommand cmd = new SqlCommand(query, conn);
+                    conn.Open();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@doc_ID", SqlDbType.BigInt).Value = docId;
 
-                            SqlDataReader reader = cmd.ExecuteReader();
-                            if (!reader.HasRows)
-                            {
-                                flag = "Արգելադրման նպատակը ընտրված չէ";
-                            }
-                        }
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (!reader.HasRows)
+                    {
+                        flag = "Արգելադրման նպատակը ընտրված չէ";
                     }
                 }
             }
@@ -3023,7 +2974,7 @@ namespace ExternalBanking.DBManager
 
                     da.SelectCommand.Parameters.Add("@lockResult", SqlDbType.TinyInt).Value = ParameterDirection.Output;
 
-                    SqlDataReader reader = da.SelectCommand.ExecuteReader();
+                    using SqlDataReader reader = da.SelectCommand.ExecuteReader();
 
                     if (reader.HasRows)
                     {
@@ -3044,35 +2995,33 @@ namespace ExternalBanking.DBManager
         {
             int lockResult = 0;
 
-            using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            string current_sp = "pr_Locking_Unlocking_transactions";
+            _con.Open();
+            using (SqlDataAdapter da = new SqlDataAdapter())
             {
-                string current_sp = "pr_Locking_Unlocking_transactions";
-                _con.Open();
-                using (SqlDataAdapter da = new SqlDataAdapter())
+                da.SelectCommand = new SqlCommand(current_sp, _con);
+                da.SelectCommand.CommandType = CommandType.StoredProcedure;
+
+                da.SelectCommand.Parameters.Add("@rowID", SqlDbType.Int).Value = fileIndex;
+                da.SelectCommand.Parameters.Add("@lockSignNeed", SqlDbType.TinyInt).Value = 0;
+
+                da.SelectCommand.Parameters.Add("@lockResult", SqlDbType.TinyInt).Value = ParameterDirection.Output;
+
+                using SqlDataReader reader = da.SelectCommand.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    da.SelectCommand = new SqlCommand(current_sp, _con);
-                    da.SelectCommand.CommandType = CommandType.StoredProcedure;
-
-                    da.SelectCommand.Parameters.Add("@rowID", SqlDbType.Int).Value = fileIndex;
-                    da.SelectCommand.Parameters.Add("@lockSignNeed", SqlDbType.TinyInt).Value = 0;
-
-                    da.SelectCommand.Parameters.Add("@lockResult", SqlDbType.TinyInt).Value = ParameterDirection.Output;
-
-                    SqlDataReader reader = da.SelectCommand.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        if (Convert.ToString(reader["lockResult"]) != "")
                         {
-                            if (Convert.ToString(reader["lockResult"]) != "")
-                            {
-                                lockResult = Convert.ToInt32(reader["lockResult"]);
-                            }
+                            lockResult = Convert.ToInt32(reader["lockResult"]);
                         }
                     }
                 }
-                _con.Close();
             }
+            _con.Close();
 
         }
 
@@ -3092,7 +3041,7 @@ namespace ExternalBanking.DBManager
                 filter = " h.quality<>40 and h.quality<>1 ";
             }
 
-            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247, 254) ";
+            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247, 254, 191) ";
 
             if (obj.OnlyACBA == 1)
             {

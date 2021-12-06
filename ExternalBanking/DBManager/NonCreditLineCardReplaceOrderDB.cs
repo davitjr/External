@@ -91,7 +91,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
+                using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
                                                           H.customer_number,
                                                           H.document_number,
                                                           H.currency,
@@ -137,25 +137,23 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT 1  FROM  V_CustomerDesriptionDocs 
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT 1  FROM  V_CustomerDesriptionDocs 
                                                         WHERE passport_number IS NOT NULL 
                                                         AND passport_inf IS NOT NULL 
                                                         AND passport_date IS NOT NULL 
                                                         AND customer_number = @customerNumber";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                    rd = cmd.ExecuteReader();
 
-                    if (rd.Read())
-                    {
-                        hasDefaultDocument = true;
-                    }
+                using SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    hasDefaultDocument = true;
                 }
             }
             return hasDefaultDocument;
@@ -188,24 +186,22 @@ namespace ExternalBanking.DBManager
             bool suitable = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"Select *  from Tbl_cards_rates where office_id= @relOfficeID  and cardid=@cardSystem and cardtype=@cardType and currency=@cardCurrency and isnull(Quality,1)= 1";
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@cardSystem", SqlDbType.Int).Value = order.Card.CardSystem;
+                cmd.Parameters.Add("@cardType", SqlDbType.BigInt).Value = order.Card.Type;
+                cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.Card.Currency;
+                cmd.Parameters.Add("@relOfficeID", SqlDbType.Int).Value = order.RelatedOfficeNumber;
+
+
+                using SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"Select *  from Tbl_cards_rates where office_id= @relOfficeID  and cardid=@cardSystem and cardtype=@cardType and currency=@cardCurrency and isnull(Quality,1)= 1";
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@cardSystem", SqlDbType.Int).Value = order.Card.CardSystem;
-                    cmd.Parameters.Add("@cardType", SqlDbType.BigInt).Value = order.Card.Type;
-                    cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.Card.Currency;
-                    cmd.Parameters.Add("@relOfficeID", SqlDbType.Int).Value = order.RelatedOfficeNumber;
-
-                    SqlDataReader rd;
-                    rd = cmd.ExecuteReader();
-                    if (rd.Read())
-                    {
-                        suitable = true;
-                    }
+                    suitable = true;
                 }
             }
             return suitable;
@@ -216,20 +212,17 @@ namespace ExternalBanking.DBManager
             bool exist = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"Select *  from [tbl_all_accounts;] WHERE Arm_number = @cardAccount AND closing_date IS NULL";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@cardAccount", SqlDbType.NVarChar).Value = order.Card.CardAccount.AccountNumber;
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"Select *  from [tbl_all_accounts;] WHERE Arm_number = @cardAccount AND closing_date IS NULL";
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@cardAccount", SqlDbType.NVarChar).Value = order.Card.CardAccount.AccountNumber;
 
-                    SqlDataReader rd;
-                    rd = cmd.ExecuteReader();
-                    if (rd.Read())
-                    {
-                        exist = true;
-                    }
+                using SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.Read())
+                {
+                    exist = true;
                 }
             }
             return exist;

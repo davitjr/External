@@ -169,7 +169,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public static List<GroupTemplateResponse> GetGroupTemplates(int groupId, TemplateStatus status, Languages lang)
         {
-            List<Template> templates = TemplateDB.GetGroupTemplates(groupId);
+            List<Template> templates = TemplateDB.GetGroupTemplates(groupId, status);
 
             List<GroupTemplateResponse> groupTemplates = new List<GroupTemplateResponse>();
 

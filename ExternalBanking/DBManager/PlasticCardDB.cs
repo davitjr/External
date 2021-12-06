@@ -395,7 +395,8 @@ namespace ExternalBanking.DBManager
                                 INNER JOIN tbl_type_of_card t on VA.cardType=t.id
                                 INNER JOIN tbl_type_of_CardSystem ts on t.CardSystemID = ts.ID
                                 WHERE VA.customer_number=@customerNumber 
-                                        AND (CardStatus = 'NORM' OR (CardStatus = 'RNEW' AND vn.validation_date>=CAST( GETDATE() AS Date) AND vn.closing_date IS NULL))";
+                                    AND (CardStatus = 'NORM' OR CardStatus = 'RNEW')  AND vn.closing_date IS NULL
+									AND (vn.validation_date IS NULL OR  vn.validation_date>= GETDATE())";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {

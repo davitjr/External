@@ -54,7 +54,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select HB.doc_id from Tbl_HB_documents HB
+                using SqlCommand cmd = new SqlCommand(@"Select HB.doc_id from Tbl_HB_documents HB
                         INNER JOIN Tbl_HB_Products_Identity HBPI
                         ON HB.doc_ID = HBPI.HB_Doc_ID
                         WHERE (HB.quality=2 or HB.quality = 3 or HB.quality = 5) and HB.document_type = 11 and HB.document_subtype = 1 and HBPI.App_ID =@periodicAppId", conn);
@@ -75,7 +75,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select  d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,                                                
+                using SqlCommand cmd = new SqlCommand(@"select  d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,                                                
 		                                          d.debet_account,d.credit_account,PI.App_ID,d.operation_date,d.confirmation_date
                                                   from Tbl_HB_documents as d left join Tbl_HB_Products_Identity as PI on  d.doc_ID=PI.HB_Doc_ID
 

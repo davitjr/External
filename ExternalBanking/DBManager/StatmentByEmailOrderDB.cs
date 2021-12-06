@@ -92,12 +92,12 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static StatmentByEmailOrder Get(StatmentByEmailOrder order)
         {
-            DataTable dt = new DataTable();
+           using DataTable dt = new DataTable();
             order.Accounts = new List<Account>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT a.MainEmail,
+                using SqlCommand cmd = new SqlCommand(@"SELECT a.MainEmail,
                                                          a.SecondaryEmail,
                                                          a.Frequency,
                                                          a.AccountNumber,

@@ -15,10 +15,9 @@ namespace ExternalBanking.DBManager
         {
             List<Insurance> insurances = new List<Insurance>();
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT    insurance_amount,
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT    insurance_amount,
                                                             company_ID,
                                                             product_app_id,
                                                             main_app_id,
@@ -35,32 +34,31 @@ namespace ExternalBanking.DBManager
                                                             contract_type
                                                             FROM tbl_insurance_contracts
                                                             WHERE customer_number=@customerNumber AND quality<>40", conn);
-                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                DataTable dt = new DataTable();
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
+            DataTable dt = new DataTable();
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
 
-                    dt.Load(dr);
-                }
-
-                if (dt.Rows.Count > 0)
-                    insurances = new List<Insurance>();
-
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-
-                    DataRow row = dt.Rows[i];
-
-                    Insurance insurance = SetInsurance(row);
-
-                    insurances.Add(insurance);
-
-                }
-
-
-                return insurances;
+                dt.Load(dr);
             }
+
+            if (dt.Rows.Count > 0)
+                insurances = new List<Insurance>();
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+
+                DataRow row = dt.Rows[i];
+
+                Insurance insurance = SetInsurance(row);
+
+                insurances.Add(insurance);
+
+            }
+
+
+            return insurances;
 
 
 
@@ -74,10 +72,9 @@ namespace ExternalBanking.DBManager
         {
             List<Insurance> insurances = new List<Insurance>();
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT    insurance_amount,
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT    insurance_amount,
                                                             company_ID,
                                                             product_app_id,
                                                             main_app_id,
@@ -95,32 +92,31 @@ namespace ExternalBanking.DBManager
                                                             CASE WHEN (SELECT GETDATE()) < date_of_normal_end AND quality = 40 THEN 1 ELSE 0 END AS manual_deleted
                                                             FROM tbl_insurance_contracts
                                                             WHERE customer_number=@customerNumber AND quality=40", conn);
-                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                DataTable dt = new DataTable();
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
+            DataTable dt = new DataTable();
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
 
-                    dt.Load(dr);
-                }
-
-                if (dt.Rows.Count > 0)
-                    insurances = new List<Insurance>();
-
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-
-                    DataRow row = dt.Rows[i];
-
-                    Insurance insurance = SetInsurance(row);
-
-                    insurances.Add(insurance);
-
-                }
-
-
-                return insurances;
+                dt.Load(dr);
             }
+
+            if (dt.Rows.Count > 0)
+                insurances = new List<Insurance>();
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+
+                DataRow row = dt.Rows[i];
+
+                Insurance insurance = SetInsurance(row);
+
+                insurances.Add(insurance);
+
+            }
+
+
+            return insurances;
 
 
 
@@ -134,10 +130,9 @@ namespace ExternalBanking.DBManager
         {
             Insurance insurance = null;
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT    insurance_amount,
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT    insurance_amount,
                                                             company_ID,
                                                             product_app_id,
                                                             main_app_id,
@@ -154,25 +149,24 @@ namespace ExternalBanking.DBManager
                                                             contract_type
                                                             FROM tbl_insurance_contracts
                                                             WHERE customer_number=@customerNumber AND app_id=@productId", conn);
-                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+            cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
 
-                DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
-
-                if (dt.Rows.Count > 0)
-                {
-                    DataRow row = dt.Rows[0];
-                    insurance = SetInsurance(row);
-                }
-
-
-                return insurance;
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
+                dt.Load(dr);
             }
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                insurance = SetInsurance(row);
+            }
+
+
+            return insurance;
 
 
 
@@ -187,10 +181,9 @@ namespace ExternalBanking.DBManager
         {
             List<Insurance> insurances = new List<Insurance>();
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"
                                                     SELECT  ct.insurance_amount,
                                                             ct.company_ID,
                                                             ct.product_app_id,
@@ -211,33 +204,32 @@ namespace ExternalBanking.DBManager
                                                             ON ct.app_id=pa.main_app_id
                                                             WHERE ct.customer_number=@customerNumber
                                                             AND ct.quality<>40 AND pa.App_Id=@productId", conn);
-                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = loanProductId;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+            cmd.Parameters.Add("@productId", SqlDbType.Float).Value = loanProductId;
 
-                DataTable dt = new DataTable();
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
+            using DataTable dt = new DataTable();
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
 
-                    dt.Load(dr);
-                }
-
-                if (dt.Rows.Count > 0)
-                    insurances = new List<Insurance>();
-
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-
-                    DataRow row = dt.Rows[i];
-
-                    Insurance insurance = SetInsurance(row);
-
-                    insurances.Add(insurance);
-
-                }
-
-
-                return insurances;
+                dt.Load(dr);
             }
+
+            if (dt.Rows.Count > 0)
+                insurances = new List<Insurance>();
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+
+                DataRow row = dt.Rows[i];
+
+                Insurance insurance = SetInsurance(row);
+
+                insurances.Add(insurance);
+
+            }
+
+
+            return insurances;
 
 
 
@@ -291,20 +283,18 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
 
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT company_system_account_number 
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT company_system_account_number 
                                         FROM Tbl_type_of_insurance_company 
                                         WHERE company_ID=@companyID AND insurance_type=@insuranceType AND company_status=1";
-                    cmd.Parameters.Add("@companyID", SqlDbType.SmallInt).Value = companyID;
-                    cmd.Parameters.Add("@insuranceType", SqlDbType.SmallInt).Value = insuranceType;
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        result = Convert.ToUInt32(dr["company_system_account_number"].ToString());
-                    }
+                cmd.Parameters.Add("@companyID", SqlDbType.SmallInt).Value = companyID;
+                cmd.Parameters.Add("@insuranceType", SqlDbType.SmallInt).Value = insuranceType;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    result = Convert.ToUInt32(dr["company_system_account_number"].ToString());
                 }
             }
 

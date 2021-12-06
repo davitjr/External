@@ -19,15 +19,13 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"SELECT MAX(code) + 1 newID 
-                                                                          FROM [tbl_fonds;]", conn))
+                using SqlCommand cmd = new SqlCommand(@"SELECT MAX(code) + 1 newID 
+                                                                          FROM [tbl_fonds;]", conn);
+                cmd.CommandType = CommandType.Text;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        newID = Convert.ToUInt16(dr["newID"]);
-                    }
+                    newID = Convert.ToUInt16(dr["newID"]);
                 }
 
             }

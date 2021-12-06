@@ -13,11 +13,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveDemandDepositRateChangeOrder(DemandDepositRateChangeOrder order, string userName)
         {
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+            using SqlCommand cmd = new SqlCommand(@"
                                                     DECLARE @filial AS int
                                                     SELECT @filial=filialcode FROM Tbl_customers WHERE customer_number=@customer_number   
                                                     INSERT INTO Tbl_HB_documents
@@ -29,27 +28,26 @@ namespace ExternalBanking.DBManager
                                                     1,@source_type,@operation_filial_code,@oper_day,@debet_account,@amount,@currency)
                                                     SELECT Scope_identity() as ID
                                                      ", conn);
-                cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
 
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
-                cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
-                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
-                cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
-                cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)order.Source;
-                cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                cmd.Parameters.Add("@debet_account", SqlDbType.Float).Value = order.DemandDepositAccount.AccountNumber;
-                cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
-                cmd.Parameters.Add("@currency", SqlDbType.NVarChar,3).Value = order.DemandDepositAccount.Currency;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
+            cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
+            cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)order.Source;
+            cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            cmd.Parameters.Add("@debet_account", SqlDbType.Float).Value = order.DemandDepositAccount.AccountNumber;
+            cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
+            cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.DemandDepositAccount.Currency;
 
-                order.Id = Convert.ToInt64(cmd.ExecuteScalar());
-                SaveDemandDepositRateChangeOrderDetails(order);
-                result.ResultCode = ResultCode.Normal;
-                return result;
-            }
+            order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+            SaveDemandDepositRateChangeOrderDetails(order);
+            result.ResultCode = ResultCode.Normal;
+            return result;
 
         }
 
@@ -59,7 +57,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" INSERT INTO Tbl_demand_deposit_rate_change_order_details
+                using SqlCommand cmd = new SqlCommand(@" INSERT INTO Tbl_demand_deposit_rate_change_order_details
                                                     (
                                                     Doc_id,
                                                     tariff_group,
@@ -104,7 +102,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+               using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                     hb.filial,
                                                     hb.customer_number,
                                                     hb.registration_date,

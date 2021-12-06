@@ -146,8 +146,31 @@ namespace ExternalBanking
         /// </summary>
         public double InterestRate { get; set; }
 
+        /// <summary>
+        /// Արժեթղթի տեսակ
+        /// </summary>
+        public SharesTypes ShareType { get; set; }
 
+        /// <summary>
+        /// Գումարի ապահովում
+        /// true- Գումարի գանձում false-Գումարի ապահովում ապագայում
+        /// </summary>
+        public bool? SecuringMoney { get; set; }
 
+        /// <summary>
+        /// Մասնակի բավարարված բաժնետոմսերի քանակ
+        /// </summary>
+        public int PartiallySatisfiedCount { get; set; }
+
+        /// <summary>
+        /// Թողարկման սերիա
+        /// </summary>
+        public int IssueSeria { get; set; }
+
+        /// <summary>
+        /// Արժեթուղթ թողարկող կազմակերպությունների նկարագրություններ
+        /// </summary>
+        public string IssuerTypeDescription { get; set; }
         #endregion
 
         /// <summary>
@@ -194,7 +217,7 @@ namespace ExternalBanking
 
             double rate = bondIssue.InterestRate ;
 
-            double priceWithoutPercent = Financial.Price(DateTime.Now.Date, bondIssue.RepaymentDate, rate, rate, 100, (Frequency)bondIssue.CouponPaymentPeriodicity, DayCountBasis.ActualActual);
+            double priceWithoutPercent = Financial.Price(DateTime.Now.Date, bondIssue.RepaymentDate.Value, rate, rate, 100, (Frequency)bondIssue.CouponPaymentPeriodicity, DayCountBasis.ActualActual);
             double roundPriceWithoutPercent = Math.Round(priceWithoutPercent, 8);
 
             double roundaccumulativeInterest = 0;
@@ -220,16 +243,20 @@ namespace ExternalBanking
             if (bondFilterType == "1")
             {
                 list = GetBonds(searchParams);
-                list.RemoveAll(b => DepositaryAccount.HasCustomerDepositaryAccount(b.CustomerNumber) && b.Quality != BondQuality.Deleted && b.Quality != BondQuality.Closed && b.Quality != BondQuality.Rejected);
+                list.RemoveAll(b => DepositaryAccount.HasCustomerDepositaryAccount(b.CustomerNumber) && b.Quality != BondQuality.Deleted && b.Quality != BondQuality.Closed && b.Quality != BondQuality.Rejected && b.Quality != BondQuality.AvailableForApproveDilingBackOffice 
+                && b.Quality != BondQuality.Satisfied && b.Quality != BondQuality.PartiallySatisfied);
             }
             else if (bondFilterType == "2")
             {
-                searchParams.Quality = BondQuality.AvailableForApprove;
                 list = GetBonds(searchParams);
-                list.RemoveAll(b => !DepositaryAccount.HasCustomerDepositaryAccount(b.CustomerNumber));
+                list.RemoveAll(b => !DepositaryAccount.HasCustomerDepositaryAccount(b.CustomerNumber) && b.Quality != BondQuality.AvailableForApprove && b.Quality != BondQuality.AvailableForApproveDiling && b.Quality != BondQuality.Satisfied && b.Quality != BondQuality.PartiallySatisfied);
             }
                 return list;
         }
 
+        public static BondCertificateDetails GetBondCertificateDetailsByDocId(ulong docId)
+        {
+            return BondDB.GetBondCertificateDetailsByDocId(docId);
+        }
     }
 }

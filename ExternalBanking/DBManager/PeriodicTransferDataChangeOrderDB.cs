@@ -88,7 +88,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+               using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                         d.document_type,
                                                         o.first_repayment_date,
                                                         d.registration_date,

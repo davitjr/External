@@ -14,7 +14,7 @@ namespace ExternalBanking.DBManager
         public static EmployeePersonalDetails GetEmployeePersonalDetails(ulong customerNumber)
         {
             EmployeePersonalDetails employeePersonalDetails = new EmployeePersonalDetails();
-            
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -30,9 +30,9 @@ namespace ExternalBanking.DBManager
                                         WHERE V.customer_number = @customerNumber";
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
 
-                    rd = cmd.ExecuteReader();
+
+                    using SqlDataReader rd = cmd.ExecuteReader();
 
                     if (rd.Read())
                     {

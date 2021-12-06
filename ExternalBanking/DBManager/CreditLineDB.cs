@@ -1631,17 +1631,15 @@ namespace ExternalBanking.DBManager
             double ballance;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
+                using SqlCommand cmd = new SqlCommand();
 
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT arca_limit FROM Tbl_credit_lines 
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT arca_limit FROM Tbl_credit_lines 
                                         WHERE app_id = @productId";
-                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
 
-                    ballance = Convert.ToDouble(cmd.ExecuteScalar().ToString());
-                }
+                ballance = Convert.ToDouble(cmd.ExecuteScalar().ToString());
             }
             return ballance;
         }
@@ -1654,12 +1652,12 @@ namespace ExternalBanking.DBManager
             {
                 DbConn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+                using SqlCommand cmd = new SqlCommand(@"
                                                   SELECT  contract_date FROM Tbl_New_Credit_Line_Documents 
                                                   WHERE Doc_ID = @docID", DbConn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@docID", SqlDbType.Int).Value = docID;
-                SqlDataReader dr = cmd.ExecuteReader();
+               using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                     date = dr["contract_date"] != DBNull.Value ? Convert.ToDateTime(dr["contract_date"]) : default;

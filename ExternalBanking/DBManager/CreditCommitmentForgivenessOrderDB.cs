@@ -20,16 +20,15 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand();
+                using SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                SqlDataReader dr;
                 cmd.CommandText = "pr_get_credit_commitment_forgiveness";
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = creditCommitmentForgiveness.AppId;
                 cmd.Parameters.Add("@loan_type", SqlDbType.Int).Value = creditCommitmentForgiveness.LoanType;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = CustomerNumber;
 
-                dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -106,16 +105,12 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT top 1  1 FROM Tbl_type_of_credit_lines WHERE code  = @loan_type";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@loan_type", SqlDbType.TinyInt).Value = loanType;
-                    conn.Open();
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        hasCreditLineRow = dr.HasRows;
-                    }
-                }
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@loan_type", SqlDbType.TinyInt).Value = loanType;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                hasCreditLineRow = dr.HasRows;
             }
             return hasCreditLineRow;
         }
@@ -126,93 +121,91 @@ namespace ExternalBanking.DBManager
             Amount = creditCommitmentForgiveness.PenaltyRate + creditCommitmentForgiveness.CurrentCapital + creditCommitmentForgiveness.CurrentFee + creditCommitmentForgiveness.CurrentRateValue + creditCommitmentForgiveness.CurrentRateValueNused + creditCommitmentForgiveness.JudgmentPenaltyRate + creditCommitmentForgiveness.OutCapital;
 
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = "pr_save_credit_commitment_forgiveness";
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = creditCommitmentForgiveness.AppId;
+
+            if (Convert.ToInt32(creditCommitmentForgiveness.RebateType) == 14)
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = "pr_save_credit_commitment_forgiveness";
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = creditCommitmentForgiveness.AppId;
-
-                if (Convert.ToInt32(creditCommitmentForgiveness.RebateType) == 14)
-                {
-                    cmd.Parameters.Add("@document_given_date", SqlDbType.DateTime).Value = creditCommitmentForgiveness.DateOfDeath;
-                    cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 50).Value = creditCommitmentForgiveness.NumberOfDeath;
-                }
-                else
-                {
-                    DateTime dt = (DateTime)creditCommitmentForgiveness.DateOfFoundation;
-                    string formattedDate = dt.ToString("dd/MMM/yyyy");
-                    cmd.Parameters.Add("@document_given_date", SqlDbType.DateTime).Value = formattedDate;
-
-                    if (creditCommitmentForgiveness.NumberOfFoundation != null)
-                    {
-                        cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 50).Value = creditCommitmentForgiveness.NumberOfFoundation;
-                    }
-                    else
-                    {
-                        cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 50).Value = DBNull.Value;
-                    }
-                }
-                cmd.Parameters.Add("@current_fee", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentFee;
-                cmd.Parameters.Add("@judgment_penalty_rate", SqlDbType.Float).Value = creditCommitmentForgiveness.JudgmentPenaltyRate;
-                cmd.Parameters.Add("@penalty_rate", SqlDbType.Float).Value = creditCommitmentForgiveness.PenaltyRate;
-                cmd.Parameters.Add("@current_rate_value", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentRateValue;
-                cmd.Parameters.Add("@current_rate_value_nused", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentRateValueNused;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = creditCommitmentForgiveness.CustomerNumber;
-                cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = creditCommitmentForgiveness.FilialCode;
-                cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = Amount;
-                cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 5).Value = creditCommitmentForgiveness.Currency;
-                cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = UserNname;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = creditCommitmentForgiveness.OperationDate;
-                cmd.Parameters.Add("@complete_date", SqlDbType.DateTime).Value = DateTime.Now.Date;
-                cmd.Parameters.Add("@out_loan_date", SqlDbType.DateTime).Value = creditCommitmentForgiveness.OutLoanDate;
-                cmd.Parameters.Add("@tax", SqlDbType.Float).Value = creditCommitmentForgiveness.Tax;
-                cmd.Parameters.Add("@Loan_type", SqlDbType.TinyInt).Value = creditCommitmentForgiveness.LoanType;
-                cmd.Parameters.Add("@Quality", SqlDbType.TinyInt).Value = creditCommitmentForgiveness.LoanQuality;
-                cmd.Parameters.Add("@Product_Type", SqlDbType.TinyInt).Value = Utility.GetProductTypeByAppId(creditCommitmentForgiveness.AppId);
-
-                if (creditCommitmentForgiveness.OutCapital != 0)
-                {
-                    cmd.Parameters.Add("@capital", SqlDbType.Float).Value = creditCommitmentForgiveness.OutCapital != null ? creditCommitmentForgiveness.OutCapital : default(double);
-                }
-                else
-                {
-                    cmd.Parameters.Add("@capital", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentCapital;
-                }
-
-                cmd.Parameters.Add("@rebate_type", SqlDbType.Int).Value = creditCommitmentForgiveness.RebateType;
-                cmd.Parameters.Add("@loan_filial_code", SqlDbType.Int).Value = creditCommitmentForgiveness.LoanFilialCode;
-
-                SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
-                param.Direction = ParameterDirection.Output;
-                cmd.Parameters.Add(param);
-
-                cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
-
-
-                cmd.ExecuteNonQuery();
-
-                byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
-                int id = Convert.ToInt32(cmd.Parameters["@id"].Value);
-
-                creditCommitmentForgiveness.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                result.Id = creditCommitmentForgiveness.Id;
-                creditCommitmentForgiveness.Quality = OrderQuality.Draft;
-
-                if (actionResult == 1)
-                {
-                    result.ResultCode = ResultCode.Normal;
-                    result.Id = id;
-                }
-                else if (actionResult == 0)
-                {
-                    result.ResultCode = ResultCode.Failed;
-                    result.Id = -1;
-                }
-                return result;
+                cmd.Parameters.Add("@document_given_date", SqlDbType.DateTime).Value = creditCommitmentForgiveness.DateOfDeath;
+                cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 50).Value = creditCommitmentForgiveness.NumberOfDeath;
             }
+            else
+            {
+                DateTime dt = (DateTime)creditCommitmentForgiveness.DateOfFoundation;
+                string formattedDate = dt.ToString("dd/MMM/yyyy");
+                cmd.Parameters.Add("@document_given_date", SqlDbType.DateTime).Value = formattedDate;
+
+                if (creditCommitmentForgiveness.NumberOfFoundation != null)
+                {
+                    cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 50).Value = creditCommitmentForgiveness.NumberOfFoundation;
+                }
+                else
+                {
+                    cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 50).Value = DBNull.Value;
+                }
+            }
+            cmd.Parameters.Add("@current_fee", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentFee;
+            cmd.Parameters.Add("@judgment_penalty_rate", SqlDbType.Float).Value = creditCommitmentForgiveness.JudgmentPenaltyRate;
+            cmd.Parameters.Add("@penalty_rate", SqlDbType.Float).Value = creditCommitmentForgiveness.PenaltyRate;
+            cmd.Parameters.Add("@current_rate_value", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentRateValue;
+            cmd.Parameters.Add("@current_rate_value_nused", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentRateValueNused;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = creditCommitmentForgiveness.CustomerNumber;
+            cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = creditCommitmentForgiveness.FilialCode;
+            cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = Amount;
+            cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 5).Value = creditCommitmentForgiveness.Currency;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = UserNname;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = creditCommitmentForgiveness.OperationDate;
+            cmd.Parameters.Add("@complete_date", SqlDbType.DateTime).Value = DateTime.Now.Date;
+            cmd.Parameters.Add("@out_loan_date", SqlDbType.DateTime).Value = creditCommitmentForgiveness.OutLoanDate;
+            cmd.Parameters.Add("@tax", SqlDbType.Float).Value = creditCommitmentForgiveness.Tax;
+            cmd.Parameters.Add("@Loan_type", SqlDbType.TinyInt).Value = creditCommitmentForgiveness.LoanType;
+            cmd.Parameters.Add("@Quality", SqlDbType.TinyInt).Value = creditCommitmentForgiveness.LoanQuality;
+            cmd.Parameters.Add("@Product_Type", SqlDbType.TinyInt).Value = Utility.GetProductTypeByAppId(creditCommitmentForgiveness.AppId);
+
+            if (creditCommitmentForgiveness.OutCapital != 0)
+            {
+                cmd.Parameters.Add("@capital", SqlDbType.Float).Value = creditCommitmentForgiveness.OutCapital != null ? creditCommitmentForgiveness.OutCapital : default(double);
+            }
+            else
+            {
+                cmd.Parameters.Add("@capital", SqlDbType.Float).Value = creditCommitmentForgiveness.CurrentCapital;
+            }
+
+            cmd.Parameters.Add("@rebate_type", SqlDbType.Int).Value = creditCommitmentForgiveness.RebateType;
+            cmd.Parameters.Add("@loan_filial_code", SqlDbType.Int).Value = creditCommitmentForgiveness.LoanFilialCode;
+
+            SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
+            param.Direction = ParameterDirection.Output;
+            cmd.Parameters.Add(param);
+
+            cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
+
+
+            cmd.ExecuteNonQuery();
+
+            byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
+            int id = Convert.ToInt32(cmd.Parameters["@id"].Value);
+
+            creditCommitmentForgiveness.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+            result.Id = creditCommitmentForgiveness.Id;
+            creditCommitmentForgiveness.Quality = OrderQuality.Draft;
+
+            if (actionResult == 1)
+            {
+                result.ResultCode = ResultCode.Normal;
+                result.Id = id;
+            }
+            else if (actionResult == 0)
+            {
+                result.ResultCode = ResultCode.Failed;
+                result.Id = -1;
+            }
+            return result;
         }
 
         internal static CreditCommitmentForgivenessOrder GetForgivableLoanCommitmentDetails(CreditCommitmentForgivenessOrder creditCommitmentForgiveness)
@@ -338,14 +331,14 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     cmd.Connection = conn;
 
-                    SqlDataReader dr;
+                    
                     cmd.CommandText = "pr_get_credit_commitment_forgiveness";
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@app_id", SqlDbType.BigInt).Value = creditCommitmentForgiveness.AppId;
                     cmd.Parameters.Add("@loan_type", SqlDbType.Int).Value = creditCommitmentForgiveness.LoanType;
                     cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = creditCommitmentForgiveness.CustomerNumber;
 
-                    dr = cmd.ExecuteReader();
+                   using  SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.Read())
                     {
@@ -366,7 +359,7 @@ namespace ExternalBanking.DBManager
                                 SubsidiaCurrentRateValue = Math.Round(Math.Abs(Convert.ToDouble(dr["Subsidia_Current_rate_value"].ToString())), 2);
                             }
 
-                            
+
                         }
 
 
@@ -405,7 +398,7 @@ namespace ExternalBanking.DBManager
 
                     }
 
-                   
+
                     if (!creditCommitmentForgiveness.IsCreditLine)
                     {
                         //9527 առաջարկ
@@ -415,7 +408,7 @@ namespace ExternalBanking.DBManager
                             result.Add(new ActionError(1885));
                         }
                     }
-                        if (creditCommitmentForgiveness.LoanQuality == 11 || creditCommitmentForgiveness.LoanQuality == 12)
+                    if (creditCommitmentForgiveness.LoanQuality == 11 || creditCommitmentForgiveness.LoanQuality == 12)
                     {
                         if (CurrentFee < creditCommitmentForgiveness.CurrentFee)
                         {

@@ -159,9 +159,10 @@ namespace ExternalBanking.XBManagement
             {
                 result = this.Save(userName, source, user, schemaType);
                 //**********
-                ulong docId = base.Save(this, source, user);
-                Order.SaveLinkHBDocumentOrder(this.Id, docId);
-                ActionResult res = BOOrderCustomer.Save(this, docId, user);
+                //ulong docId = base.Save(this, source, user);
+                ulong docId = 0;
+                //Order.SaveLinkHBDocumentOrder(this.Id, docId);
+                //ActionResult res = BOOrderCustomer.Save(this, docId, user);
                 //**********
                 if (result.ResultCode != ResultCode.Normal)
                 {

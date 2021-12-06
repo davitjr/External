@@ -71,7 +71,7 @@ namespace ExternalBanking.DBManager
 
                 messageUniqNumber = UtilityDB.GetLastKeyNumber(36, Constants.HEAD_OFFICE_FILIAL_CODE);
 
-                SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_SWIFT_messages(
+               using SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_SWIFT_messages(
                                                               unic_number,account_number,customer_number,filial,
                                                               registration_date,registration_set_number,
                                                               type,MT,SWIFT_code,fee_amount,
@@ -123,7 +123,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT      
+                using SqlCommand cmd = new SqlCommand(@"SELECT      
                                                                 unic_number,
                                                                 account_number,
                                                                 customer_number,
@@ -159,13 +159,11 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@MessageUniqNumber", SqlDbType.Int).Value = messageUniqNumber;
                 cmd.ExecuteNonQuery();
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    dt.Load(dr);
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        swiftMessage = SetSwiftMessage(dt.Rows[i]);
-                    }
+                    swiftMessage = SetSwiftMessage(dt.Rows[i]);
                 }
             }
             return swiftMessage;
@@ -325,7 +323,7 @@ namespace ExternalBanking.DBManager
             /// ամեն մի կտորը` առանձին տողը 
 
             ActionResult result = new ActionResult();
-            SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_SWIFT_messages_details 
+            using SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_SWIFT_messages_details 
                                                     (
                                                             message_unic_number, 
                                                             file_name, 
@@ -356,11 +354,11 @@ namespace ExternalBanking.DBManager
         {
 
             List<SwiftMessage> swiftMessages = new List<SwiftMessage>();
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                             unic_number,
                                                             account_number,
                                                             customer_number,
@@ -400,15 +398,13 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@dateTo", SqlDbType.SmallDateTime).Value = dateTo;
                 cmd.ExecuteNonQuery();
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    dt.Load(dr);
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        SwiftMessage swiftMessage = null;
-                        swiftMessage = SetSwiftMessage(dt.Rows[i]);
-                        swiftMessages.Add(swiftMessage);
-                    }
+                    SwiftMessage swiftMessage = null;
+                    swiftMessage = SetSwiftMessage(dt.Rows[i]);
+                    swiftMessages.Add(swiftMessage);
                 }
             }
             return swiftMessages;
@@ -502,7 +498,7 @@ namespace ExternalBanking.DBManager
             {
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT  d.document_number,d.currency,d.debet_account,d.quality,d.description,
+                using SqlCommand cmd = new SqlCommand(@"SELECT  d.document_number,d.currency,d.debet_account,d.quality,d.description,
                                                   d.registration_date,d.document_subtype,d.source_type,d.operation_date,L.link_id
                                                   FROM Tbl_HB_documents D
                                                   INNER JOIN Tbl_Hb_Document_link_identity L ON D.doc_id=L.doc_id  
@@ -527,19 +523,16 @@ namespace ExternalBanking.DBManager
         {
             bool result = false;
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"select dbo.fn_check_sent_swift_status(@swiftMessageID) as result", conn);
+            using SqlCommand cmd = new SqlCommand(@"select dbo.fn_check_sent_swift_status(@swiftMessageID) as result", conn);
 
-                cmd.Parameters.Add("@swiftMessageID", SqlDbType.Float).Value = swiftMessageID;
+            cmd.Parameters.Add("@swiftMessageID", SqlDbType.Float).Value = swiftMessageID;
 
-                result = Convert.ToBoolean(cmd.ExecuteScalar());
+            result = Convert.ToBoolean(cmd.ExecuteScalar());
 
-                return result;
-
-            }
+            return result;
         }
 
         public static DataTable GetSWIFTPeriodicTransfers(DateTime setDate)
@@ -571,7 +564,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 sqlConnection.Open();
-                SqlCommand cmd = new SqlCommand("pr_get_bank_mail_transactions", sqlConnection);
+                using SqlCommand cmd = new SqlCommand("pr_get_bank_mail_transactions", sqlConnection);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@table", SqlDbType.Structured).Value = dt;
                 returnTable.Load(cmd.ExecuteReader());
@@ -591,7 +584,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 sqlConnection.Open();
-                SqlCommand cmd = new SqlCommand("pr_get_swift_transactions", sqlConnection);
+                using SqlCommand cmd = new SqlCommand("pr_get_swift_transactions", sqlConnection);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@table", SqlDbType.Structured).Value = dt;
                 returnTable.Load(cmd.ExecuteReader());

@@ -446,62 +446,55 @@ namespace ExternalBanking.DBManager
             
                 using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                 {
-                    using (SqlCommand cmd = new SqlCommand())
-                    {
-                        conn.Open();
-                        cmd.Connection = conn;
-                        cmd.CommandText = "pr_HB_Registration_Code_Resend_Order";
-                        cmd.CommandType = CommandType.StoredProcedure;
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "pr_HB_Registration_Code_Resend_Order";
+                cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                        cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar,20).Value = order.OrderNumber;
-                        cmd.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = order.RegistrationDate.Date;
-                        cmd.Parameters.Add("@username", SqlDbType.NChar, 20).Value = userName;
-                        cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;                        
-                        cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (byte)source;
-                        cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = (Int16)order.Type;
-                        cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                        cmd.Parameters.Add("@token_serial", SqlDbType.VarChar,20).Value = order.Token.TokenNumber;
-                        cmd.Parameters.Add("@token_id", SqlDbType.Int).Value = order.Token.ID;
-                        cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = order.Token.HBUserID;
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+                cmd.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = order.RegistrationDate.Date;
+                cmd.Parameters.Add("@username", SqlDbType.NChar, 20).Value = userName;
+                cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
+                cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (byte)source;
+                cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = (Int16)order.Type;
+                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+                cmd.Parameters.Add("@token_serial", SqlDbType.VarChar, 20).Value = order.Token.TokenNumber;
+                cmd.Parameters.Add("@token_id", SqlDbType.Int).Value = order.Token.ID;
+                cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = order.Token.HBUserID;
 
-                        SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
-                        param.Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add(param);
-                        cmd.ExecuteNonQuery();
-                        result.ResultCode = ResultCode.Normal;
-                        order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                        order.Quality = OrderQuality.Draft;
-
-                    }
-                }
+                SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
+                param.Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(param);
+                cmd.ExecuteNonQuery();
+                result.ResultCode = ResultCode.Normal;
+                order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+                order.Quality = OrderQuality.Draft;
+            }
                  
             return result;
         }
 
         public static bool HasCustomerOnlineBanking(ulong customerNumber)
         {
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_Tokens T INNER JOIN Tbl_USers U ON T.user_id = U.id inner join Tbl_applications A on U.global_id = A.id
+            using SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_Tokens T INNER JOIN Tbl_USers U ON T.user_id = U.id inner join Tbl_applications A on U.global_id = A.id
                                                     WHERE A.customer_number = @customerNumber AND A.type_of_client = 6 and T.quality in (1,5) ", conn);
-                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                return cmd.ExecuteReader().Read();
-            }
+            return cmd.ExecuteReader().Read();
         }
         public static bool HasCustomerOneActiveToken(ulong customerNumber)
         {
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_Tokens T INNER JOIN Tbl_Users U ON T.user_id = U.id INNER JOIN Tbl_applications A on U.global_id = A.id
+            using SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_Tokens T INNER JOIN Tbl_Users U ON T.user_id = U.id INNER JOIN Tbl_applications A on U.global_id = A.id
                                                     WHERE A.customer_number = @customerNumber  AND T.quality = 1", conn);
-                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                return cmd.ExecuteReader().Read();
-            }
+            return cmd.ExecuteReader().Read();
         }
 
          /// <summary>

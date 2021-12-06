@@ -248,9 +248,9 @@ TD.ARUS_success,
 
                             order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
 
-                            order.Type = (OrderType)Convert.ToInt16((dr["document_type"]));
+                            order.Type = (OrderType)Convert.ToInt16(dr["document_type"]);
 
-                            order.SubType = Convert.ToByte((dr["document_subtype"]));
+                            order.SubType = Convert.ToByte(dr["document_subtype"]);
 
                             if (dr["debet_account"] != DBNull.Value)
                             {
@@ -300,7 +300,7 @@ TD.ARUS_success,
                             if (dr["transfer_contract_id"] != DBNull.Value)
                                 order.ContractId = Convert.ToInt64(dr["transfer_contract_id"]);
 
-                            if(((SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.AcbaOnline || (SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.MobileBanking))
+                            if((SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.AcbaOnline || (SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.MobileBanking)
                             {
                                 if(dr["credit_account"] != DBNull.Value)
                                 {
@@ -319,13 +319,13 @@ TD.ARUS_success,
                                     {
                                         if(dr["currency"].ToString() == "AMD")
                                         {
-                                            order.ConvertationRate = Convert.ToDouble((dr["rate_sell_buy"]).ToString());
+                                            order.ConvertationRate = Convert.ToDouble(dr["rate_sell_buy"].ToString());
                                             order.ConvertationRate1 = 0;
                                         }
                                         else
                                         {
                                             order.ConvertationRate = 0;
-                                            order.ConvertationRate1 = Convert.ToDouble((dr["rate_sell_buy"]).ToString());                                           
+                                            order.ConvertationRate1 = Convert.ToDouble(dr["rate_sell_buy"].ToString());                                           
                                         }
                                     }
                                 }                             
@@ -440,6 +440,8 @@ TD.ARUS_success,
 
                             order.GroupId = dr["order_group_id"] != DBNull.Value ? Convert.ToInt32(dr["order_group_id"]) : 0;
                             order.ConfirmationDate = dr["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dr["confirmation_date"]) : default(DateTime?);
+
+                            order.TransferAdditionalData = TransferAdditionalDataDB.GetTransferAdditionalData(order.Id);
                         }
                         else
                         {
@@ -448,7 +450,6 @@ TD.ARUS_success,
                     }
                 }
             }
-            order.TransferAdditionalData = TransferAdditionalDataDB.GetTransferAdditionalData(order.Id);
             return order;
         }
 

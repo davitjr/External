@@ -195,6 +195,14 @@ namespace ExternalBanking
         private ActionResult ValidateForSend(User user)
         {
             ActionResult result = new ActionResult();
+
+            if (this.Quality != OrderQuality.Sent3)
+            {
+                //Տվյալ կարգավիճակով փաստաթուղթը հնարավոր չէ ուղարկել:
+                result.Errors.Add(new ActionError(35));
+                return result;
+            }
+
             result.Errors.AddRange(Validation.SetAmountsForCheckBalance(this));
             result.ResultCode = result.Errors.Count > 0 ? ResultCode.ValidationError : ResultCode.Normal;
             return result;

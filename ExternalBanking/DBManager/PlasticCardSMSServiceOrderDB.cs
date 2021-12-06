@@ -108,7 +108,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT  d.doc_ID                                            
+                using SqlCommand cmd = new SqlCommand(@"SELECT  d.doc_ID                                            
                                                   from Tbl_card_SMS_service_order_details  AS c  INNER join tbl_hb_documents AS d on  d.doc_ID=c.Doc_ID
                                                   where c.app_id=@appID and c.action_type=@actionType  and d.quality in(1,2,3,5)", conn);
 
@@ -161,10 +161,10 @@ namespace ExternalBanking.DBManager
 											INNER JOIN dbo.tbl_type_of_cards_SMS SMS ON SMS.id=dt.sms_Type
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=@customer_number";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     order.SetNumber = Convert.ToInt32(dr["set_number"]);
@@ -305,19 +305,20 @@ namespace ExternalBanking.DBManager
 
 
 
-        public static DataTable GetCardMobilePhones(ulong customerNumber, ulong cardNumber)
+        public static List<Tuple<string, bool>> GetCardMobilePhones(ulong customerNumber, ulong cardNumber)
         {
             int type_of_client = GetTypeOfClient(customerNumber);
-            DataTable dt = new DataTable();
+            List<Tuple<string, bool>> list = null;
             string sqltext = string.Empty;
-            ulong mainCustomerNumber = 0;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
 
                 if (type_of_client == 6)
                 {
-                    sqltext = @"select distinct(substring(countryCode,2,3)+areaCode+phoneNumber) as phone from [Tbl_Customers] C 
+                    sqltext = @"select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                from [Tbl_Customers] C 
                                 join Tbl_Customer_Phones cp on c.identityId=cp.identityId and phoneType=1 and priority=1 join  Tbl_Phones p on cp.phoneid=p.id
                                 where customer_number=@customer_number or customer_number in(select b.customer_number from Tbl_VISA_applications a 
                                 left join [Tbl_SupplementaryCards] b on a.app_id=b.app_id
@@ -326,54 +327,71 @@ namespace ExternalBanking.DBManager
                 }
                 else
                 {
-                    type_of_client = -1;
-                    mainCustomerNumber = GetMainCustomerNumber(customerNumber, cardNumber);
-                    if (mainCustomerNumber != 0)
-                    {
-                        type_of_client = GetTypeOfClient(mainCustomerNumber);
-                    }
-                    if (type_of_client != 6)
-                    {
-                        sqltext = @"select distinct(substring(countryCode,2,3)+areaCode+phoneNumber) as phone from [Tbl_Customers] C 
-                                   join Tbl_Customer_Phones cp on c.identityId = cp.identityId and phoneType=1 and priority=1 
-                                   join Tbl_Phones p on cp.phoneid = p.id
-                                   where customer_number in(
-                                   select distinct clp.lpcustomer_number from Tbl_Customers c
-                                   join Tbl_Customers_Link_Persons clp
-                                   on    c.customer_number = clp.customer_number
-                                   where c.customer_number = @customer_number and quality = 1 and clp.type in(1, 4,8)								   
-								   ) ";
-                    }
-                    else
-                    {
-                        sqltext = @"select distinct(substring(countryCode,2,3)+areaCode+phoneNumber) as phone from [Tbl_Customers] C 
-                                   join Tbl_Customer_Phones cp on c.identityId = cp.identityId and phoneType=1 and priority=1
-                                   join Tbl_Phones p on cp.phoneid = p.id
-                                   where customer_number=@mainCustomerNumber or customer_number in
-                                   (select distinct clp.lpcustomer_number from Tbl_Customers c
-                                   join Tbl_Customers_Link_Persons clp
-                                   on    c.customer_number = clp.customer_number
-                                   where c.customer_number = @customer_number and quality = 1 and clp.type in(1, 4,8))";
-                    }
-
+                    sqltext = @"select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                    as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                    from [Tbl_Customers] C 
+                                    join Tbl_Customer_Phones cp on c.identityId = cp.identityId and phoneType=1 and priority=1 
+                                    join Tbl_Phones p on cp.phoneid = p.id
+                                    where customer_number in( select customer_number from Tbl_Customers
+                                    where customer_number in(
+                                    select distinct clp.lpcustomer_number from Tbl_Customers c
+                                    join Tbl_Customers_Link_Persons clp
+                                    on    c.customer_number = clp.customer_number
+                                    where c.customer_number = @customer_number and quality = 1 and clp.type in(1, 4,8) )
+                                    and type_of_client=6  )
+	                                 UNION 
+                                    select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                                        as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                    from tbl_Phones e
+                                    join Tbl_Customer_Phones ce on e.id=ce.phoneId
+                                    join Tbl_Customers c on ce.identityId=c.identityId
+                                    where customer_number=(	SELECT  distinct case when   b.customer_number is null then a.Customer_Number else b.customer_number end
+                                    FROM      Tbl_VISA_applications a
+                                    LEFT JOIN [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id	
+                                    where cardnumber=@cardNumber ) and priority=1 and phoneType=1
+                                    UNION 
+                                    select distinct case when substring(fullPhoneNumber,1,1)='+' then substring(fullPhoneNumber,2,len(fullPhoneNumber))else fullPhoneNumber end
+                                                        as phone, case when countryCode='+374' then 1 else 0 end as isArmenia 
+                                    from tbl_Phones e
+                                    join Tbl_Customer_Phones ce on e.id=ce.phoneId
+                                    join Tbl_Customers c on ce.identityId=c.identityId
+                                    where customer_number=(	SELECT  distinct case when   b.customer_number is null then a.Customer_Number else b.customer_number end
+                                    FROM      Tbl_VISA_applications a
+                                    LEFT JOIN [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id	
+                                    where cardnumber=(select distinct maincardnumber                          from Tbl_VISA_applications 
+                                    where cardnumber=@cardNumber) ) and priority=1 and phoneType=1";
                 }
+
 
 
                 using (SqlCommand cmd = new SqlCommand(sqltext, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customer_number", SqlDbType.NVarChar, 20).Value = customerNumber;
-                    cmd.Parameters.Add("@mainCustomerNumber", SqlDbType.NVarChar, 20).Value = mainCustomerNumber;
                     cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        dt.Load(dr);
+                        if (dr.HasRows)
+                        {
+                            list = new List<Tuple<string, bool>>();
+                            while (dr.Read())
+                            {
+                                Tuple<string, bool> tuple = new Tuple<string, bool>(dr["phone"].ToString(), Convert.ToBoolean(dr["isArmenia"]));
+
+                                if (!list.Exists(x => x.Item1 == tuple.Item1))
+                                {
+                                    list.Add(tuple);
+
+                                }
+                            }
+                        }
                     }
                 }
             }
-            return dt;
+            return list;
         }
+
 
         private static int GetTypeOfClient(ulong customerNumber)
         {
@@ -395,39 +413,15 @@ namespace ExternalBanking.DBManager
             return type;
         }
 
-        private static ulong GetMainCustomerNumber(ulong customerNumber, ulong cardNumber)
-        {
-            ulong mainCardCustomerNumber = 0;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
-
-                string sqltext = @"select b.customer_number
-                                   from Tbl_VISA_applications a left join [dbo].[Tbl_SupplementaryCards] b on a.app_id=b.app_id
-                                   where a.customer_number=@customer_number and CardStatus='NORM'  and cardnumber=@cardNumber 
-                                   and Cardnumber<>Maincardnumber 
-                                   and a.customer_number<> b.customer_number";
-                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.NVarChar, 20).Value = customerNumber;
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
-                    mainCardCustomerNumber = Convert.ToUInt64(cmd.ExecuteScalar());
-                }
-            }
-            return mainCardCustomerNumber;
-        }
-
 
         public static List<PlasticCardSMSServiceHistory> GetPlasticCardAllSMSServiceHistory(ulong cardNumber)
         {
             List<PlasticCardSMSServiceHistory> list = new List<PlasticCardSMSServiceHistory>();
             //DataTable dt = new DataTable();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                string sqltext = @"select D.description as description, A.Date   as date, A.Value as newval, G.Name as filename, case when E.responseCode=1 then E.errorMessage else convert(nvarchar(2), E.responseCode) end as answer,mobile_Phone,
+            string sqltext = @"select D.description as description, A.Date   as date, A.Value as newval, G.Name as filename, case when E.responseCode=1 then 'ERROR' else convert(nvarchar(2), E.responseCode) end as answer,mobile_Phone,
                                    A.Set_Number as SetNumber 
                                    from Tbl_cards_SMS_history A join V_ArcaRequestHeaders H on H.id =A.headerID 
                                     join Tbl_Type_Of_ArcaCardSmsServiceActions D on A.Action= D.ID 
@@ -435,62 +429,62 @@ namespace ExternalBanking.DBManager
                                     left join  V_ArcaResponse   E  with(nolock) on E.arcaAppID =H.arcaAppID 
                                     where isnull(A.deleted,0)<>1 and A.card_number= @cardNumber 
                                     order by A.Date desc  ";
-                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+            using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
+                    PlasticCardSMSServiceHistory order = new PlasticCardSMSServiceHistory();
 
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    while (dr.Read())
-                    {
-                        PlasticCardSMSServiceHistory order = new PlasticCardSMSServiceHistory();
-
-                        order.RegDate = Convert.ToDateTime(dr["date"]);
-                        order.OperationTypeDescription = Utility.ConvertAnsiToUnicode(dr["description"].ToString());
-                        order.SmsTypeAndSum = dr["newval"].ToString();
-                        order.FileName = Utility.ConvertAnsiToUnicode(dr["filename"].ToString());
-                        order.ArcaAnswer = dr["answer"] != DBNull.Value ? (dr["answer"]).ToString() : null;  //dr["answer"].ToString();
-                        order.SetNumber = dr["SetNumber"] != DBNull.Value ? Convert.ToUInt16(dr["SetNumber"]) : 0;
-                        order.MobilePhone = dr["mobile_Phone"].ToString();
-                        list.Add(order);
-                    }
-
-
+                    order.RegDate = Convert.ToDateTime(dr["date"]);
+                    order.OperationTypeDescription = Utility.ConvertAnsiToUnicode(dr["description"].ToString());
+                    order.SmsTypeAndSum = dr["newval"].ToString();
+                    order.FileName = Utility.ConvertAnsiToUnicode(dr["filename"].ToString());
+                    order.ArcaAnswer = dr["answer"] != DBNull.Value ? (dr["answer"]).ToString() : null;  //dr["answer"].ToString();
+                    order.SetNumber = dr["SetNumber"] != DBNull.Value ? Convert.ToUInt16(dr["SetNumber"]) : 0;
+                    order.MobilePhone = dr["mobile_Phone"].ToString();
+                    list.Add(order);
                 }
-                return list;
+
+
             }
+            return list;
 
 
         }
 
         public static string GetCurrentPhone(ulong cardNumber)
         {
-            string currentPhone = null;
+            //string currentPhone = null;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
 
-                string sqltext = @"select top 1 MOBILE_HOME  from Tbl_VISA_applications
+                string sqltext = @"select top 1 ISNULL(MOBILE_HOME,'')  from Tbl_VISA_applications
 								   where Cardnumber=@cardNumber  
 								   order by GivenDate desc  ";
                 using (SqlCommand cmd = new SqlCommand(sqltext, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
-                    currentPhone = (cmd.ExecuteScalar()) == DBNull.Value ? null : (cmd.ExecuteScalar()).ToString();//  Convert.ToUInt64(cmd.ExecuteScalar());
+                    //currentPhone = (cmd.ExecuteScalar()) == DBNull.Value ? null : (cmd.ExecuteScalar()).ToString();//  Convert.ToUInt64(cmd.ExecuteScalar());
+                    var currentPhone = cmd.ExecuteScalar();
+                    return currentPhone == null ? null : (currentPhone.ToString().Substring(0, 2) == "00" ? currentPhone.ToString().Substring(2, currentPhone.ToString().Length - 2) : currentPhone.ToString());
                 }
             }
-            return currentPhone;
+            //return currentPhone;
         }
         public static void GetResponseCodeAndLastActionFromCardSms(ulong productId, out int responseCode, out int lastAction)
         {
             responseCode = -1; lastAction = -1;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                string sqltext = @"SELECT TOP 1 E.responseCode, D.id  as lastAction
+            string sqltext = @"SELECT TOP 1 E.responseCode, D.id  as lastAction
                                     FROM V_ArcaRequestHeaders A 
 		                            INNER JOIN V_ArcaFieldChanges C ON A.id=C.HeaderID 
                                     INNER JOIN Tbl_Type_Of_ArcaCardSmsServiceActions D ON C.NewValue= D.code 
@@ -501,19 +495,16 @@ namespace ExternalBanking.DBManager
 		                            AND C.HeaderID NOT IN (SELECT HeaderID FROM V_ArcaFieldChanges WHERE HeaderID = C.HeaderID AND FieldID =122 AND NewValue ='SRVT1169' AND deleted <> 1)
                                     ORDER BY A.intputDate DESC  ";
 
-                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@productId", SqlDbType.Float, 20).Value = productId;
+            using SqlCommand cmd = new SqlCommand(sqltext, conn);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@productId", SqlDbType.Float, 20).Value = productId;
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+            using SqlDataReader dr = cmd.ExecuteReader();
 
-                    while (dr.Read())
-                    {
-                        responseCode = dr["responseCode"] != DBNull.Value ? Convert.ToUInt16(dr["responseCode"]) : -1;
-                        lastAction = dr["lastAction"] != DBNull.Value ? Convert.ToUInt16(dr["lastAction"]) : -1;
-                    }
-                }
+            while (dr.Read())
+            {
+                responseCode = dr["responseCode"] != DBNull.Value ? Convert.ToUInt16(dr["responseCode"]) : -1;
+                lastAction = dr["lastAction"] != DBNull.Value ? Convert.ToUInt16(dr["lastAction"]) : -1;
             }
 
         }
@@ -537,11 +528,10 @@ namespace ExternalBanking.DBManager
         public static bool IsBTRTFileCreated(string cardNumber)
         {
             string filename = null; string answer = null;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                string sqltext = @"select top 1 G.Name as filename, E.responseCode as answer
+            string sqltext = @"select top 1 G.Name as filename, E.responseCode as answer
                                    from Tbl_cards_SMS_history A join V_ArcaRequestHeaders H on H.id =A.headerID 
                                     join Tbl_Type_Of_ArcaCardSmsServiceActions D on A.Action= D.ID 
                                     left join  Tbl_ArcaFiles   G on G.ID =H.fileID 
@@ -549,24 +539,22 @@ namespace ExternalBanking.DBManager
                                     where isnull(A.deleted,0)<>1 and A.card_number= @cardNumber
                                     order by A.Date desc";
 
-                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
+            using SqlCommand cmd = new SqlCommand(sqltext, conn);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+            using SqlDataReader dr = cmd.ExecuteReader();
 
-                    while (dr.Read())
-                    {
-                        filename = dr["filename"] == DBNull.Value ? null : dr["filename"].ToString();
-                        answer = dr["answer"] == DBNull.Value ? null : dr["answer"].ToString();
-                    }
-
-                    return (filename != null && answer == null) ? true : false;
-                }
+            while (dr.Read())
+            {
+                filename = dr["filename"] == DBNull.Value ? null : dr["filename"].ToString();
+                answer = dr["answer"] == DBNull.Value ? null : dr["answer"].ToString();
             }
 
+            return (filename != null && answer == null) ? true : false;
+
         }
+
     }
 }
 

@@ -73,7 +73,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT d.registration_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT d.registration_date,
                                                          d.document_type,
                                                          d.document_number,
                                                          d.quality,
@@ -153,7 +153,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select d.doc_ID FROM Tbl_HB_documents AS d 
+                using SqlCommand cmd = new SqlCommand(@"Select d.doc_ID FROM Tbl_HB_documents AS d 
                                                          INNER JOIN Tbl_DeclineRequest AS r
                                                          ON d.doc_ID=r.Doc_ID
                                 where d.quality in (1,2,3,5) and d.document_type in (18,19) and d.document_subtype=1 and

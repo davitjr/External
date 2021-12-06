@@ -350,29 +350,27 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand(@" SELECT L.app_id,Reg_Date,Oper_Result,Deny_Reason,
+                using SqlCommand cmd = new SqlCommand(@" SELECT L.app_id,Reg_Date,Oper_Result,Deny_Reason,
                                                     Case when L.currency='AMD' then L.Amount else L.Amount_Currency end as amount,L.Currency 
                                                     from Tbl_operations_by_period_log L INNER JOIN
                                                     Tbl_operations_by_period P ON L.App_Id=P.App_Id 
-                                                    WHERE L.App_Id=@app_id And Reg_Date>=@dateFrom  and Reg_Date<=@dateTo ORDER BY Reg_Date ASC", conn))
+                                                    WHERE L.App_Id=@app_id And Reg_Date>=@dateFrom  and Reg_Date<=@dateTo ORDER BY Reg_Date ASC", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = ProductId;
+                cmd.Parameters.Add("@dateFrom", SqlDbType.DateTime).Value = dateFrom;
+                cmd.Parameters.Add("@dateTo", SqlDbType.DateTime).Value = dateTo;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = ProductId;
-                    cmd.Parameters.Add("@dateFrom", SqlDbType.DateTime).Value = dateFrom;
-                    cmd.Parameters.Add("@dateTo", SqlDbType.DateTime).Value = dateTo;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    while (dr.Read())
-                    {
-                        PeriodicTransferHistory transfer = new PeriodicTransferHistory();
-                        transfer.RegistrationDate = Convert.ToDateTime(dr["Reg_Date"]);
-                        transfer.Currency = (dr["Currency"]).ToString();
-                        transfer.OperationResult = Convert.ToInt16(dr["Oper_Result"]);
-                        transfer.OperationResultDescription = (dr["Deny_Reason"]).ToString();
-                        transfer.OperationResultDescription = Utility.ConvertAnsiToUnicode(transfer.OperationResultDescription);
-                        transfer.Amount = Convert.ToDouble(dr["amount"]);
-                        transferHistory.Add(transfer);
-                    }
+                    PeriodicTransferHistory transfer = new PeriodicTransferHistory();
+                    transfer.RegistrationDate = Convert.ToDateTime(dr["Reg_Date"]);
+                    transfer.Currency = (dr["Currency"]).ToString();
+                    transfer.OperationResult = Convert.ToInt16(dr["Oper_Result"]);
+                    transfer.OperationResultDescription = (dr["Deny_Reason"]).ToString();
+                    transfer.OperationResultDescription = Utility.ConvertAnsiToUnicode(transfer.OperationResultDescription);
+                    transfer.Amount = Convert.ToDouble(dr["amount"]);
+                    transferHistory.Add(transfer);
                 }
             }
             return transferHistory;
@@ -488,20 +486,18 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.CommandText = "SELECT App_Id, Transfer_Type FROM [dbo].Tbl_operations_by_period where App_Id = @app_id";
+                cmd.Connection = conn;
+
+                cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = appId;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    conn.Open();
-                    cmd.CommandText = "SELECT App_Id, Transfer_Type FROM [dbo].Tbl_operations_by_period where App_Id = @app_id";
-                    cmd.Connection = conn;
-
-                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = appId;
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        TransferType = Convert.ToInt32(dr["Transfer_Type"].ToString());
-                    }
+                    TransferType = Convert.ToInt32(dr["Transfer_Type"].ToString());
                 }
             }
 

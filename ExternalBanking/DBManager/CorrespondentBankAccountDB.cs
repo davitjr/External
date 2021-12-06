@@ -31,7 +31,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT Code_Account,Name_of_bank, currency, arm_number, isnull(transfersystem,0) transfersystem , swift_code FROM [Tbl_of_armenians_banks;] " + whereCond + " GROUP BY Code_Account,Name_of_bank, currency, arm_number, transfersystem, swift_code ", conn);
+                using SqlCommand cmd = new SqlCommand(@" SELECT Code_Account,Name_of_bank, currency, arm_number, isnull(transfersystem,0) transfersystem , swift_code FROM [Tbl_of_armenians_banks;] " + whereCond + " GROUP BY Code_Account,Name_of_bank, currency, arm_number, transfersystem, swift_code ", conn);
  
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)

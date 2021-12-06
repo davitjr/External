@@ -17,45 +17,43 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "pr_save_membership_rewards_order";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                    cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
-                    cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
-                    cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                    cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
-                    cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
-                    cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)order.Source;
-                    cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
-                    cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                    cmd.Parameters.Add("@product_app_Id", SqlDbType.Float).Value = order.ProductId;
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "pr_save_membership_rewards_order";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
+                cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
+                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+                cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
+                cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
+                cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)order.Source;
+                cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
+                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+                cmd.Parameters.Add("@product_app_Id", SqlDbType.Float).Value = order.ProductId;
 
-                    SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
+                SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
 
-                    param.Direction = ParameterDirection.Output;
-                    cmd.Parameters.Add(param);
-                    cmd.ExecuteNonQuery();
-                    result.ResultCode = ResultCode.Normal;
-                    order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                    result.Id = order.Id;
+                param.Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(param);
+                cmd.ExecuteNonQuery();
+                result.ResultCode = ResultCode.Normal;
+                order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+                result.Id = order.Id;
 
-                    return result;
-                }
+                return result;
             }
 
         }
 
         internal static MembershipRewardsOrder GetCardMembershipRewardsOrder(MembershipRewardsOrder order)
         {
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                                                                 hb.filial,
                                                                                                 hb.customer_number,
                                                                                                 hb.registration_date,
@@ -84,7 +82,7 @@ namespace ExternalBanking.DBManager
                 order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                 order.Source = (SourceType)Convert.ToInt16(dt.Rows[0]["source_type"]);
                 order.FilialCode = dt.Rows[0]["operationFilialCode"] != DBNull.Value ? Convert.ToUInt16(dt.Rows[0]["operationFilialCode"]) : (ushort)0;
-                
+
             }
             return order;
         }

@@ -85,7 +85,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
 
-                   
+
 
             }
 
@@ -101,7 +101,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
 
                 string sql = "";
-                
+
 
                 sql = depositSelectScript + @" WHERE A.customer_number=@customerNumber and d.quality=1
                                                  and not (d.type=14 and d.capital=0) ORDER BY d.date_of_beginning desc ";
@@ -131,7 +131,7 @@ namespace ExternalBanking.DBManager
                         deposits.Add(deposit);
                     }
                 }
-                   
+
 
             }
 
@@ -200,7 +200,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
 
 
-                string sql = depositSelectScript+ @" WHERE A.customer_number=@customerNumber and d.quality=0 and not (d.type=14 and d.capital=0)";
+                string sql = depositSelectScript + @" WHERE A.customer_number=@customerNumber and d.quality=0 and not (d.type=14 and d.capital=0)";
 
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -227,7 +227,7 @@ namespace ExternalBanking.DBManager
                         deposits.Add(deposit);
                     }
                 }
-                   
+
 
             }
 
@@ -261,9 +261,9 @@ namespace ExternalBanking.DBManager
                 deposit.RecontractSign = Convert.ToBoolean(row["recontract_possibility"]);
                 deposit.DepositQuality = byte.Parse(row["Quality"].ToString());
                 deposit.ClosingDate = deposit.DepositQuality == 0 ? DateTime.Parse(row["date_of_operation"].ToString()) : default(DateTime?);
-                deposit.ProfitTax  = double.Parse(row["tax"].ToString());
+                deposit.ProfitTax = double.Parse(row["tax"].ToString());
 
-                deposit.ConnectAccount=Account.GetAccount(Convert.ToUInt64(row["connect_account_full_number"]));
+                deposit.ConnectAccount = Account.GetAccount(Convert.ToUInt64(row["connect_account_full_number"]));
 
                 if (Convert.ToUInt64(row["connect_account_full_number"]) == Convert.ToUInt64(row["connect_account_added"]))
                 {
@@ -273,15 +273,15 @@ namespace ExternalBanking.DBManager
                 {
                     deposit.ConnectAccountForPercent = Account.GetAccount(Convert.ToUInt64(row["connect_account_added"]));
                 }
-                
+
 
                 deposit.TotalRateValue = decimal.Parse(row["total_profit"].ToString());
                 deposit.EffectiveInterestRate = Convert.ToDecimal(row["interest_rate_effective"]);
-                deposit.StatementDeliveryType=Convert.ToByte(row["for_extract_sending"]);
+                deposit.StatementDeliveryType = Convert.ToByte(row["for_extract_sending"]);
                 deposit.ProfitOnMonthFirstDay = Convert.ToDecimal(row["transfer_from_acc"]);
                 deposit.DayOfRateCalculation = DateTime.Parse(row["date_of_operation"].ToString());
                 deposit.AllowAmountAddition = int.Parse(row["penalty_rate"].ToString()) == 10 ? false : true;
-                      
+
                 if (row.Table.Columns.Contains("Co_type"))
                     deposit.JointType = ushort.Parse(row["Co_Type"].ToString());
                 else
@@ -309,7 +309,7 @@ namespace ExternalBanking.DBManager
 
                 deposit.DepositOption = new List<DepositOption>();
 
-                if(deposit.DocID != 0)
+                if (deposit.DocID != 0)
                 {
                     deposit.SourceType = Order.GetOrderSourceType(deposit.DocID);
                 }
@@ -322,7 +322,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        internal static ActionError IsAllowedAmountAddition(string debitAccountNumber,string creditAccountNumber,double amountAMD,double amount,SourceType source)
+        internal static ActionError IsAllowedAmountAddition(string debitAccountNumber, string creditAccountNumber, double amountAMD, double amount, SourceType source)
         {
             ActionError error = new ActionError();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -396,7 +396,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@end_date", SqlDbType.SmallDateTime).Value = order.Deposit.EndDate;
                     cmd.Parameters.Add("@interest_rate", SqlDbType.Float).Value = order.Deposit.InterestRate;
                     cmd.Parameters.Add("@isVariation", SqlDbType.Bit).Value = order.InterestRateChanged;
-                    if(order.DepositAction!=null && order.DepositAction.ActionId!=0)
+                    if (order.DepositAction != null && order.DepositAction.ActionId != 0)
                         cmd.Parameters.Add("@actionId", SqlDbType.Int).Value = order.DepositAction.ActionId;
 
                     SqlParameter prm = new SqlParameter("@dt", SqlDbType.Structured);
@@ -407,7 +407,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@capital_account", SqlDbType.NVarChar, 50).Value = order.DebitAccount.AccountNumber;
                     cmd.Parameters.Add("@percent_account", SqlDbType.NVarChar, 20).Value = order.PercentAccount.AccountNumber;
                     cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = order.Amount;
-                    cmd.Parameters.Add("@recontract_possibility", SqlDbType.Bit).Value = ((short)recontractPossibility)-1;
+                    cmd.Parameters.Add("@recontract_possibility", SqlDbType.Bit).Value = ((short)recontractPossibility) - 1;
 
 
                     if (InfoDB.CommunicationTypeExistence(order.CustomerNumber) == 1)
@@ -419,7 +419,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@statement_by_email", SqlDbType.SmallInt).Value = order.Deposit.StatementDeliveryType;
                     }
 
-                    
+
 
 
 
@@ -460,8 +460,8 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
                     }
 
-                    if (order.DepositAccount!=null)
-                       cmd.Parameters.Add("@deposit_account", SqlDbType.NVarChar, 20).Value = order.DepositAccount.AccountNumber;
+                    if (order.DepositAccount != null)
+                        cmd.Parameters.Add("@deposit_account", SqlDbType.NVarChar, 20).Value = order.DepositAccount.AccountNumber;
 
 
                     //SqlParameter param = new SqlParameter("@msg", SqlDbType.NVarChar, 4000);
@@ -484,7 +484,7 @@ namespace ExternalBanking.DBManager
                             {
                                 case 1:
                                     cmd.Parameters.Add("@allowAddition", SqlDbType.Bit).Value = 1;
-                                    cmd.Parameters.Add("@allowDecreasing", SqlDbType.Bit).Value = 0;       
+                                    cmd.Parameters.Add("@allowDecreasing", SqlDbType.Bit).Value = 0;
                                     break;
                                 case 2:
                                     cmd.Parameters.Add("@allowDecreasing", SqlDbType.Bit).Value = 1;
@@ -511,7 +511,7 @@ namespace ExternalBanking.DBManager
                             }
                         }
 
-                        if (!order.Deposit.DepositOption.Exists(m => m.Type == 1 || m.Type==2 || m.Type==3))
+                        if (!order.Deposit.DepositOption.Exists(m => m.Type == 1 || m.Type == 2 || m.Type == 3))
                         {
                             cmd.Parameters.Add("@allowAddition", SqlDbType.Bit).Value = 0;
                             cmd.Parameters.Add("@allowDecreasing", SqlDbType.Bit).Value = 0;
@@ -521,7 +521,7 @@ namespace ExternalBanking.DBManager
                     {
                         cmd.Parameters.Add("@allowDecreasing", SqlDbType.Bit).Value = 0;
                         cmd.Parameters.Add("@allowAddition", SqlDbType.Bit).Value = 0;
-                        cmd.Parameters.Add("@repaymentType", SqlDbType.SmallInt).Value = (order.DepositType == DepositType.ChildrensDeposit || order.DepositType == DepositType.DepositAccumulative ) ? 2 : 1  ;
+                        cmd.Parameters.Add("@repaymentType", SqlDbType.SmallInt).Value = (order.DepositType == DepositType.ChildrensDeposit || order.DepositType == DepositType.DepositAccumulative) ? 2 : 1;
                         cmd.Parameters.Add("@ratePeriod", SqlDbType.Int).Value = 0;
 
                     }
@@ -538,7 +538,7 @@ namespace ExternalBanking.DBManager
                         result.Id = order.Id;
 
                     }
-                    else if (actionResult == 0 || actionResult==8 || actionResult==229 ||actionResult==227 || actionResult==230)
+                    else if (actionResult == 0 || actionResult == 8 || actionResult == 229 || actionResult == 227 || actionResult == 230)
                     {
                         result.ResultCode = ResultCode.Failed;
                         result.Id = -1;
@@ -667,7 +667,7 @@ namespace ExternalBanking.DBManager
 
 
                     cmd.ExecuteNonQuery();
-                     ushort result = Convert.ToUInt16(cmd.Parameters["@result_code"].Value);
+                    ushort result = Convert.ToUInt16(cmd.Parameters["@result_code"].Value);
                     condition.Percent = Convert.ToDouble(cmd.Parameters["@rate"].Value);
                     condition.MinAmount = Convert.ToDouble(cmd.Parameters["@min_amount"].Value);
                     condition.MinDate = GetDepositMinDate(order);
@@ -697,10 +697,10 @@ namespace ExternalBanking.DBManager
 
         public static ActionResult CheckDepositOrderCondition(DepositOrder order, bool isEmployeeDeposit = false)
         {
-            DataTable dt=new DataTable();
+            DataTable dt = new DataTable();
             ActionResult result = new ActionResult();
-             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-             {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
                 using (SqlCommand cmd = new SqlCommand())
                 {
 
@@ -769,14 +769,14 @@ namespace ExternalBanking.DBManager
 
                     dt.Load(cmd.ExecuteReader());
 
-                    
-                        for (int i = 0; i < dt.Rows.Count;i++ )
+
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (Convert.ToInt16(dt.Rows[i]["result_code"]) != 0)
                         {
-                            if(Convert.ToInt16(dt.Rows[i]["result_code"])!=0)
-                            {
-                                result.Errors.Add(new ActionError(Convert.ToInt16(dt.Rows[i]["result_code"]), new string[] { (dt.Rows[i]["var1"].ToString()) }));
-                            }
+                            result.Errors.Add(new ActionError(Convert.ToInt16(dt.Rows[i]["result_code"]), new string[] { (dt.Rows[i]["var1"].ToString()) }));
                         }
+                    }
 
 
                     // ushort result = Convert.ToUInt16(cmd.Parameters["@result_code"].Value);
@@ -786,8 +786,8 @@ namespace ExternalBanking.DBManager
                     //condition.MaxDate = GetDepositMaxDate(order);
 
                 }
-             }
-             return result;
+            }
+            return result;
         }
 
         /// <summary>
@@ -801,12 +801,12 @@ namespace ExternalBanking.DBManager
             DateTime depositMinDate;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                    conn.Open();
+                conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"Select  date_of_beginning FROM Tbl_deposit_product_history WHERE product_code=@deposit_type
-		                                             and date_of_beginning <=@date_start ORDER BY date_of_beginning DESC",conn))
+		                                             and date_of_beginning <=@date_start ORDER BY date_of_beginning DESC", conn))
                 {
 
-               
+
                     cmd.Parameters.Add("@date_start", SqlDbType.SmallDateTime).Value = order.Deposit.StartDate.Date;
                     cmd.Parameters.Add("@deposit_type", SqlDbType.SmallInt).Value = (short)order.DepositType;
 
@@ -842,21 +842,21 @@ namespace ExternalBanking.DBManager
                                         depositMinDate = default(DateTime);
                                     }
                                 }
-                                   
+
                             }
-                               
+
                         }
                         else
                         {
                             depositMinDate = default(DateTime);
                         }
                     }
-                      
+
                 }
             }
-                return depositMinDate;
+            return depositMinDate;
 
-            }
+        }
         /// <summary>
         /// Ավանդի մաքսիմալ վերջնաժամկետ
         /// </summary>
@@ -898,17 +898,17 @@ namespace ExternalBanking.DBManager
                     {
                         depositMaxDate = default(DateTime);
                     }
-                   
+
                 }
                 else
                 {
                     depositMaxDate = default(DateTime);
                 }
-               
+
             }
             return depositMaxDate;
 
-        }        
+        }
         /// <summary>
         /// Վերադարձնում է ավանդի հայտի տվյալները
         /// </summary>
@@ -937,7 +937,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                     dt.Load(cmd.ExecuteReader());
 
-                    if(dt.Rows[0]["document_number"] != DBNull.Value)
+                    if (dt.Rows[0]["document_number"] != DBNull.Value)
                         order.OrderNumber = dt.Rows[0]["document_number"].ToString();
 
                     order.Deposit.Currency = dt.Rows[0]["currency"].ToString();
@@ -979,11 +979,11 @@ namespace ExternalBanking.DBManager
 
                     order.ThirdPersonCustomerNumbers = jointList;
 
-                    if(Convert.ToInt16(dt.Rows[0]["statement_by_email"]) != -1)
+                    if (Convert.ToInt16(dt.Rows[0]["statement_by_email"]) != -1)
                         order.Deposit.StatementDeliveryType = Convert.ToInt16(dt.Rows[0]["statement_by_email"]);
                     else
                         order.Deposit.StatementDeliveryType = null;
-                    
+
 
 
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
@@ -997,7 +997,7 @@ namespace ExternalBanking.DBManager
                     short allowDecreasing = 0;
                     short repaymentType = 0;
                     short ratePeriod = 0;
-                    if (dt.Rows[0]["allow_addition_option"]!= DBNull.Value)
+                    if (dt.Rows[0]["allow_addition_option"] != DBNull.Value)
                     {
                         allowAddition = Convert.ToInt16(dt.Rows[0]["allow_addition_option"]);
 
@@ -1026,7 +1026,7 @@ namespace ExternalBanking.DBManager
                     {
                         if (allowAddition == 1 && allowDecreasing == 0)
                         {
-                            optionList.Add(businesDepositOptions.Where(x=>x.Type == 1).First());
+                            optionList.Add(businesDepositOptions.Where(x => x.Type == 1).First());
                         }
                         if (allowAddition == 0 && allowDecreasing == 1)
                         {
@@ -1158,28 +1158,28 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"Select doc_ID from Tbl_HB_documents where quality in (2,3,5) and document_type=4 and document_subtype=1 and
-                                                document_number=@ordernumber and  customer_number=@customer_number",conn))
+                                                document_number=@ordernumber and  customer_number=@customer_number", conn))
                 {
                     cmd.Parameters.Add("@ordernumber", SqlDbType.Float).Value = orderNumber;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                     return cmd.ExecuteReader().Read();
                 }
-                   
+
             }
         }
 
-        internal static bool CheckDepositProducdID(long depositNumber,ulong customerNumber)
+        internal static bool CheckDepositProducdID(long depositNumber, ulong customerNumber)
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"select deposit_number from [Tbl_deposits;] where customer_number=@customer_number and deposit_number=@deposit_number",conn))
+                using (SqlCommand cmd = new SqlCommand(@"select deposit_number from [Tbl_deposits;] where customer_number=@customer_number and deposit_number=@deposit_number", conn))
                 {
                     cmd.Parameters.Add("@deposit_number", SqlDbType.Float).Value = depositNumber;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                     return cmd.ExecuteReader().Read();
                 }
- 
+
             }
         }
         /// <summary>
@@ -1223,7 +1223,7 @@ namespace ExternalBanking.DBManager
                                 dt.Load(dr);
                             }
                         }
-                            
+
                     }
 
                     for (int i = 0; i < dt.Rows.Count; i++)
@@ -1233,7 +1233,7 @@ namespace ExternalBanking.DBManager
                         repayment.Add(depositRepayment);
                     }
                 }
-                   
+
 
             }
             repayment = repayment.OrderBy(o => o.DateOfRepayment).ToList();
@@ -1267,7 +1267,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"select a.customer_number from [Tbl_deposits;] as d left join Tbl_Co_Accounts_Main as m on d.deposit_full_number=m.arm_number left join Tbl_co_accounts as a on m.ID=a.co_main_ID where d.App_Id=@app_id",conn))
+                using (SqlCommand cmd = new SqlCommand(@"select a.customer_number from [Tbl_deposits;] as d left join Tbl_Co_Accounts_Main as m on d.deposit_full_number=m.arm_number left join Tbl_co_accounts as a on m.ID=a.co_main_ID where d.App_Id=@app_id", conn))
                 {
                     cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
                     dt.Load(cmd.ExecuteReader());
@@ -1331,7 +1331,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@startDate", SqlDbType.DateTime).Value = depositOrder.Deposit.StartDate;
                     cmd.Parameters.Add("@endDate", SqlDbType.DateTime).Value = depositOrder.Deposit.EndDate;
                     cmd.Parameters.Add("@interestRate", SqlDbType.Float).Value = depositOrder.Deposit.InterestRate;
-                    cmd.Parameters.Add("@capitalAccount", SqlDbType.NVarChar,50).Value = depositOrder.DebitAccount.AccountNumber.ToString();
+                    cmd.Parameters.Add("@capitalAccount", SqlDbType.NVarChar, 50).Value = depositOrder.DebitAccount.AccountNumber.ToString();
                     cmd.Parameters.Add("@percentAccount", SqlDbType.NVarChar, 50).Value = depositOrder.PercentAccount.AccountNumber.ToString();
                     cmd.Parameters.Add("@recontractPossibility", SqlDbType.SmallInt).Value = ((short)depositOrder.RecontractPossibility) - 1;
                     cmd.Parameters.Add("@statementByEmail", SqlDbType.SmallInt).Value = depositOrder.Deposit.StatementDeliveryType;
@@ -1353,7 +1353,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(depositSelectScript + " WHERE deposit_number=@depositNumber and A.customer_number=@customer_number", conn))
+                using (SqlCommand cmd = new SqlCommand(depositSelectScript + " WHERE deposit_number=@depositNumber and A.customer_number=@customer_number", conn))
                 {
                     cmd.Parameters.Add("@depositNumber", SqlDbType.Float).Value = depositNumber;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
@@ -1372,7 +1372,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
 
-                   
+
 
             }
 
@@ -1419,7 +1419,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"select HB_doc_ID from [Tbl_deposits;] d inner join V_All_Accounts a on
-                                                  d.deposit_full_number=a.Arm_number where a.customer_number= @customer_number and App_Id=@app_id",conn))
+                                                  d.deposit_full_number=a.Arm_number where a.customer_number= @customer_number and App_Id=@app_id", conn))
                 {
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                     cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
@@ -1434,7 +1434,7 @@ namespace ExternalBanking.DBManager
                         using (SqlConnection HBconn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
                         {
                             HBconn.Open();
-                            using (SqlCommand HBcmd = new SqlCommand(@"select source_type from Tbl_HB_documents where customer_number=@customer_number and doc_ID=@doc_id",HBconn))
+                            using (SqlCommand HBcmd = new SqlCommand(@"select source_type from Tbl_HB_documents where customer_number=@customer_number and doc_ID=@doc_id", HBconn))
                             {
                                 HBcmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                                 HBcmd.Parameters.Add("@doc_id", SqlDbType.Float).Value = HBDocId;
@@ -1451,7 +1451,7 @@ namespace ExternalBanking.DBManager
 
                     }
                 }
-                   
+
             }
             return source;
         }
@@ -1489,7 +1489,7 @@ namespace ExternalBanking.DBManager
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         DepositOption option = new DepositOption();
-                        option.Type =Convert.ToUInt16(dt.Rows[i]["option_type"]);
+                        option.Type = Convert.ToUInt16(dt.Rows[i]["option_type"]);
                         option.Rate = Convert.ToDouble(dt.Rows[i]["option_rate"]);
                         order.Deposit.DepositOption.Add(option);
                     }
@@ -1508,7 +1508,7 @@ namespace ExternalBanking.DBManager
                                                     NULL as interest_rate, 0 as action_id UNION ALL SELECT AD.action_number,
                                                     TA.description, AD.currency, AD.interest_rate, AD.id as action_id FROM Tbl_deposits_actions_details AD
                                                     LEFT JOIN Tbl_type_of_deposits_actions TA on AD.action_number = TA.code WHERE AD.reason_app_ID
-                                                    is null and AD.closing_date is null and AD.customer_number = @customernumber and AD.filialcode = @userFilialCode and AD.deadline >= @startDate ",conn))
+                                                    is null and AD.closing_date is null and AD.customer_number = @customernumber and AD.filialcode = @userFilialCode and AD.deadline >= @startDate ", conn))
                 {
                     cmd.Parameters.Add("@customernumber", SqlDbType.Float).Value = order.CustomerNumber;
                     cmd.Parameters.Add("@userFilialCode", SqlDbType.Int).Value = order.user.filialCode;
@@ -1548,10 +1548,10 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"select amount_max_limit from Tbl_deposits_actions_amount_limits where action_number=@actionNumber and currency=@currency",conn))
+                using (SqlCommand cmd = new SqlCommand(@"select amount_max_limit from Tbl_deposits_actions_amount_limits where action_number=@actionNumber and currency=@currency", conn))
                 {
                     cmd.Parameters.Add("@actionNumber", SqlDbType.SmallInt).Value = order.DepositAction.ActionNumber;
-                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Deposit.Currency; 
+                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Deposit.Currency;
                     amountMaxLimit = Convert.ToDouble(cmd.ExecuteScalar());
                 }
             }
@@ -1566,7 +1566,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(depositSelectScript + " WHERE deposit_full_number=@depositFullNumber and d.quality=1", conn))
+                using (SqlCommand cmd = new SqlCommand(depositSelectScript + " WHERE deposit_full_number=@depositFullNumber and d.quality=1", conn))
                 {
                     cmd.Parameters.Add("@depositFullNumber", SqlDbType.Float).Value = depositFullNumber;
 
@@ -1704,7 +1704,7 @@ namespace ExternalBanking.DBManager
 
             int attachType = 0;
             attachType = type;
-            
+
 
             return UploadedFile.GetAttachedFile(docId, attachType);
         }
@@ -1827,8 +1827,8 @@ namespace ExternalBanking.DBManager
             return deposit;
         }
 
-        
-        public static DataTable GetRateForBusinessDeposits(string currency,DateTime startDate, DateTime endDate, ulong customerNumber)
+
+        public static DataTable GetRateForBusinessDeposits(string currency, DateTime startDate, DateTime endDate, ulong customerNumber)
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
@@ -1837,11 +1837,11 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.Connection = conn;
 
-                    cmd.Parameters.Add("@curr", SqlDbType.VarChar,3).Value = currency;
+                    cmd.Parameters.Add("@curr", SqlDbType.VarChar, 3).Value = currency;
                     cmd.Parameters.Add("@startDate", SqlDbType.DateTime).Value = startDate;
                     cmd.Parameters.Add("@endDate", SqlDbType.DateTime).Value = endDate;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                   
+
                     conn.Open();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -1900,6 +1900,6 @@ namespace ExternalBanking.DBManager
             return deposits;
         }
 
-        
+
     }
 }

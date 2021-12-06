@@ -67,42 +67,38 @@ namespace ExternalBanking.DBManager
             Customer customer = new Customer();
             identityID = customer.GetIdentityId(customerNumber);
 
-            using (SqlConnection conn = new SqlConnection (WebConfigurationManager.ConnectionStrings["SMSBaseConn"].ToString()))
-            {
-                using(SqlCommand cmd = new SqlCommand ())
-                {
-                    cmd.Connection=conn ;
-                    cmd.CommandType=CommandType.Text ;
-                    cmd.CommandText = @"SELECT * FROM tbl_sent_messages 
+            using SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["SMSBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = @"SELECT * FROM tbl_sent_messages 
                                         WHERE identity_ID=@identityID AND registration_date >=@dateFrom AND registration_date <=@dateTo
                                         ORDER BY registration_date desc";
-                    cmd.Parameters.Add("@identityID", SqlDbType.Int).Value = identityID;
-                    cmd.Parameters.Add("@dateFrom", SqlDbType.SmallDateTime).Value = dateFrom;
-                    cmd.Parameters.Add("@dateTo", SqlDbType.SmallDateTime).Value = dateTo;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
+            cmd.Parameters.Add("@identityID", SqlDbType.Int).Value = identityID;
+            cmd.Parameters.Add("@dateFrom", SqlDbType.SmallDateTime).Value = dateFrom;
+            cmd.Parameters.Add("@dateTo", SqlDbType.SmallDateTime).Value = dateTo;
+            conn.Open();
+            using SqlDataReader dr = cmd.ExecuteReader();
 
-                    while (dr.Read ())
-                    {
-                        SMSMessage smsMessage = new SMSMessage();
-                        smsMessage.ID = uint.Parse(dr["ID"].ToString());
-                        smsMessage.PhoneNumber = dr["phone_number"].ToString();
-                        smsMessage.MessageText = dr["message_text"].ToString();
-                        smsMessage.MessageType = Convert.ToInt32(dr["message_type_ID"]);
-                        smsMessage.Status = Convert.ToInt32(dr["message_status_ID"]);
-                        smsMessage.SessionID = Convert.ToInt32(dr["messaging_sesion_ID"]);
-                        
-                        if (dr["identity_id"]!=DBNull.Value)
-                        {
-                            smsMessage.IdentityID = Convert.ToUInt64(dr["identity_ID"]);
-                        }
-                        
-                        smsMessage.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
-                        smsMessages.Add(smsMessage);
-                    }
-                    return smsMessages;
+            while (dr.Read())
+            {
+                SMSMessage smsMessage = new SMSMessage();
+                smsMessage.ID = uint.Parse(dr["ID"].ToString());
+                smsMessage.PhoneNumber = dr["phone_number"].ToString();
+                smsMessage.MessageText = dr["message_text"].ToString();
+                smsMessage.MessageType = Convert.ToInt32(dr["message_type_ID"]);
+                smsMessage.Status = Convert.ToInt32(dr["message_status_ID"]);
+                smsMessage.SessionID = Convert.ToInt32(dr["messaging_sesion_ID"]);
+
+                if (dr["identity_id"] != DBNull.Value)
+                {
+                    smsMessage.IdentityID = Convert.ToUInt64(dr["identity_ID"]);
                 }
+
+                smsMessage.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
+                smsMessages.Add(smsMessage);
             }
+            return smsMessages;
         }
 
 
@@ -117,44 +113,40 @@ namespace ExternalBanking.DBManager
             Customer customer = new Customer();
             identityID = customer.GetIdentityId(customerNumber);
 
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["SMSBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = @"SELECT * FROM tbl_sent_messages 
+            using SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["SMSBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = @"SELECT * FROM tbl_sent_messages 
                                         WHERE identity_ID=@identityID AND message_type_ID = @messageType 
                                               AND registration_date >=@dateFrom AND registration_date <=@dateTo
                                         ORDER BY registration_date desc";
-                    cmd.Parameters.Add("@identityID", SqlDbType.Int).Value = identityID;
-                    cmd.Parameters.Add("@dateFrom", SqlDbType.SmallDateTime).Value = dateFrom;
-                    cmd.Parameters.Add("@dateTo", SqlDbType.SmallDateTime).Value = dateTo;
-                    cmd.Parameters.Add("@messageType", SqlDbType.Int).Value = messageType;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
+            cmd.Parameters.Add("@identityID", SqlDbType.Int).Value = identityID;
+            cmd.Parameters.Add("@dateFrom", SqlDbType.SmallDateTime).Value = dateFrom;
+            cmd.Parameters.Add("@dateTo", SqlDbType.SmallDateTime).Value = dateTo;
+            cmd.Parameters.Add("@messageType", SqlDbType.Int).Value = messageType;
+            conn.Open();
+            using SqlDataReader dr = cmd.ExecuteReader();
 
-                    while (dr.Read())
-                    {
-                        SMSMessage smsMessage = new SMSMessage();
-                        smsMessage.ID = uint.Parse(dr["ID"].ToString());
-                        smsMessage.PhoneNumber = dr["phone_number"].ToString();
-                        smsMessage.MessageText = dr["message_text"].ToString();
-                        smsMessage.MessageType = Convert.ToInt32(dr["message_type_ID"]);
-                        smsMessage.Status = Convert.ToInt32(dr["message_status_ID"]);
-                        smsMessage.SessionID = Convert.ToInt32(dr["messaging_sesion_ID"]);
+            while (dr.Read())
+            {
+                SMSMessage smsMessage = new SMSMessage();
+                smsMessage.ID = uint.Parse(dr["ID"].ToString());
+                smsMessage.PhoneNumber = dr["phone_number"].ToString();
+                smsMessage.MessageText = dr["message_text"].ToString();
+                smsMessage.MessageType = Convert.ToInt32(dr["message_type_ID"]);
+                smsMessage.Status = Convert.ToInt32(dr["message_status_ID"]);
+                smsMessage.SessionID = Convert.ToInt32(dr["messaging_sesion_ID"]);
 
-                        if (dr["identity_id"] != DBNull.Value)
-                        {
-                            smsMessage.IdentityID = Convert.ToUInt64(dr["identity_ID"]);
-                        }
-
-                        smsMessage.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
-                        smsMessages.Add(smsMessage);
-                    }
-                    return smsMessages;
+                if (dr["identity_id"] != DBNull.Value)
+                {
+                    smsMessage.IdentityID = Convert.ToUInt64(dr["identity_ID"]);
                 }
+
+                smsMessage.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
+                smsMessages.Add(smsMessage);
             }
+            return smsMessages;
         }
 
         /// <summary>

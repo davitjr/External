@@ -60,25 +60,23 @@ namespace ExternalBanking.DBManager
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "Select A.product_app_Id, A.concession_date, A.number_of_months, B.quality " +
-                                                        "From[Tbl_loan_interest_rate_concession_order_details] AS A " +
-                                                        "Inner Join Tbl_HB_documents AS B " +
-                                                        "ON A.Doc_ID = B.doc_ID " +
-                                                        "WHERE A.product_app_Id = @productId";
-                    cmd.CommandType = CommandType.Text;
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "Select A.product_app_Id, A.concession_date, A.number_of_months, B.quality " +
+                                                    "From[Tbl_loan_interest_rate_concession_order_details] AS A " +
+                                                    "Inner Join Tbl_HB_documents AS B " +
+                                                    "ON A.Doc_ID = B.doc_ID " +
+                                                    "WHERE A.product_app_Id = @productId";
+                cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@productId", SqlDbType.BigInt).Value = productId;
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        concessionDetails.ProductAppId =  ulong.Parse(dr["product_app_Id"].ToString());
-                        concessionDetails.ConcessionDate = DateTime.Parse(dr["concession_date"].ToString());
-                        concessionDetails.NumberOfMonths = int.Parse(dr["number_of_months"].ToString());
-                        concessionDetails.Quality = (OrderQuality)dr["quality"];
-                    }
+                cmd.Parameters.Add("@productId", SqlDbType.BigInt).Value = productId;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    concessionDetails.ProductAppId = ulong.Parse(dr["product_app_Id"].ToString());
+                    concessionDetails.ConcessionDate = DateTime.Parse(dr["concession_date"].ToString());
+                    concessionDetails.NumberOfMonths = int.Parse(dr["number_of_months"].ToString());
+                    concessionDetails.Quality = (OrderQuality)dr["quality"];
                 }
 
             }
@@ -92,15 +90,13 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT filialcode,Current_rate_value, current_fee FROM [V_shortLoans] where app_id = " + productId, conn))
+                using SqlCommand cmd = new SqlCommand("SELECT filialcode,Current_rate_value, current_fee FROM [V_shortLoans] where app_id = " + productId, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        concessionDetails.LoanFilialCode = Convert.ToInt32(dr["filialcode"]);
-                        concessionDetails.CurrentRateValue = Convert.ToDouble(dr["Current_rate_value"]);
-                        concessionDetails.CurrentFee = Convert.ToDouble(dr["current_fee"]);
-                    }
+                    concessionDetails.LoanFilialCode = Convert.ToInt32(dr["filialcode"]);
+                    concessionDetails.CurrentRateValue = Convert.ToDouble(dr["Current_rate_value"]);
+                    concessionDetails.CurrentFee = Convert.ToDouble(dr["current_fee"]);
                 }
             }
             return concessionDetails;
@@ -126,11 +122,11 @@ namespace ExternalBanking.DBManager
                                             on ld.doc_id=hb.doc_ID
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

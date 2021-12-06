@@ -104,7 +104,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT doc_ID FROM Tbl_HB_Products_Identity id
+                using SqlCommand cmd = new SqlCommand(@"SELECT doc_ID FROM Tbl_HB_Products_Identity id
                                                     INNER JOIN Tbl_HB_documents hb
                                                     ON hb.doc_ID=id.HB_Doc_ID
                                                     WHERE App_ID=@AppID and hb.quality in(1,2,3,5,50,100) AND document_type=@documentType AND doc_ID<>@docId", conn);

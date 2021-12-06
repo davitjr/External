@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -18,7 +15,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"	DECLARE @docId as int
+                using SqlCommand cmd = new SqlCommand(@"	DECLARE @docId as int
                                                     INSERT INTO Tbl_HB_documents
                                                     (filial,customer_number,registration_date,document_type,
                                                     document_number,document_subtype,amount,currency,debet_account,credit_account,
@@ -72,83 +69,81 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
 
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "sp_addLoanRepaymentDetails";
+                cmd.CommandType = CommandType.StoredProcedure;
+                if (order.Id != 0)
                 {
-
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "sp_addLoanRepaymentDetails";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    if (order.Id != 0)
-                    {
-                        cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = order.Id;
-                    }
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                    cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = order.Type;
-                    cmd.Parameters.Add("@document_subtype", SqlDbType.Int).Value = order.SubType;
-                    cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = order.ProductId;
-                    cmd.Parameters.Add("@credit_account", SqlDbType.VarChar, 50).Value = order.CreditAccount.AccountNumber.ToString();
-                    cmd.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = order.RegistrationDate;
-                    cmd.Parameters.Add("@currency", SqlDbType.VarChar, 50).Value = order.Currency;
-                    cmd.Parameters.Add("@descr", SqlDbType.NVarChar).Value = order.Description;
-
-                    //if (order.PercentAccount != null)
-                    //{
-                    //    cmd.Parameters.Add("@AccountAMD", SqlDbType.VarChar, 50).Value = order.PercentAccount.AccountNumber;
-                    //}
-                    //cmd.Parameters.Add("@AmountAMD", SqlDbType.Float).Value = order.PercentAmount;
-                    if (order.DebitAccount != null)
-                    {
-                        cmd.Parameters.Add("@Account", SqlDbType.VarChar, 50).Value = order.DebitAccount.AccountNumber;
-                    }
-                    ////test
-                    if (order.Currency == "AMD")
-                    {
-                        cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = order.Amount;
-                    }
-                    else
-                    {
-                        Loan loan = CTLoanMatureOrder.GetLoanByLoanFullNumber(order.CreditAccount.AccountNumber);
-                        cmd.Parameters.Add("@AccountAMD", SqlDbType.VarChar, 50).Value = AccountDB.GetProductAccountFromCreditCode(loan.CreditCode, 18, 279).AccountNumber;
-                        cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = Math.Round(order.Amount / order.ConvertationRate, 2, MidpointRounding.AwayFromZero);
-                        // cmd.Parameters.Add("@AmountAMD_in_AMD", SqlDbType.Float).Value = order.Amount;
-                    }
-                    //  cmd.Parameters.Add("@AmountAMD_in_AMD", SqlDbType.Float).Value = Math.Round(order.PercentAmount * Utility.GetCBKursForDate(Utility.GetCurrentOperDay().Date.AddDays(-1), order.ProductCurrency), 1, MidpointRounding.AwayFromZero);
-                    cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
-                    cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = order.Source;
-                    cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
-                    //  cmd.Parameters.Add("@isProblematic", SqlDbType.Bit).Value = order.IsProblematic;
-                    cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                    //   cmd.Parameters.Add("@repaymentSource", SqlDbType.SmallInt).Value = order.sour;
-
-                    SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
-                    param.Direction = ParameterDirection.Output;
-                    cmd.Parameters.Add(param);
-                    cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.SmallInt) { Direction = ParameterDirection.Output });
-                    cmd.Parameters.Add("@mature_mode", SqlDbType.SmallInt).Value = (int)order.MatureMode;
-
-                    cmd.ExecuteNonQuery();
-                    ushort actionResult = Convert.ToUInt16(cmd.Parameters["@result"].Value);
-                    if (actionResult == 0 || actionResult == 9 || actionResult == 10)
-                    {
-                        result.ResultCode = 0;
-                        order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                        order.Quality = OrderQuality.Draft;
-
-                        result.PaymentID = order.Id;
-                        result.OrderID = order.OrderId;
-
-                        SaveCTOrderDetails(order);
-                    }
-                    else
-                    {
-                        result.ResultCode = 7;
-                        //result.Errors.Add(new ActionError((short)actionResult));
-                    }
-
-                    return result;
+                    cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = order.Id;
                 }
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = order.Type;
+                cmd.Parameters.Add("@document_subtype", SqlDbType.Int).Value = order.SubType;
+                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+                cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = order.ProductId;
+                cmd.Parameters.Add("@credit_account", SqlDbType.VarChar, 50).Value = order.CreditAccount.AccountNumber.ToString();
+                cmd.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = order.RegistrationDate;
+                cmd.Parameters.Add("@currency", SqlDbType.VarChar, 50).Value = order.Currency;
+                cmd.Parameters.Add("@descr", SqlDbType.NVarChar).Value = order.Description;
+
+                //if (order.PercentAccount != null)
+                //{
+                //    cmd.Parameters.Add("@AccountAMD", SqlDbType.VarChar, 50).Value = order.PercentAccount.AccountNumber;
+                //}
+                //cmd.Parameters.Add("@AmountAMD", SqlDbType.Float).Value = order.PercentAmount;
+                if (order.DebitAccount != null)
+                {
+                    cmd.Parameters.Add("@Account", SqlDbType.VarChar, 50).Value = order.DebitAccount.AccountNumber;
+                }
+                ////test
+                if (order.Currency == "AMD")
+                {
+                    cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = order.Amount;
+                }
+                else
+                {
+                    Loan loan = CTLoanMatureOrder.GetLoanByLoanFullNumber(order.CreditAccount.AccountNumber);
+                    cmd.Parameters.Add("@AccountAMD", SqlDbType.VarChar, 50).Value = AccountDB.GetProductAccountFromCreditCode(loan.CreditCode, 18, 279).AccountNumber;
+                    cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = Math.Round(order.Amount / order.ConvertationRate, 2, MidpointRounding.AwayFromZero);
+                    // cmd.Parameters.Add("@AmountAMD_in_AMD", SqlDbType.Float).Value = order.Amount;
+                }
+                //  cmd.Parameters.Add("@AmountAMD_in_AMD", SqlDbType.Float).Value = Math.Round(order.PercentAmount * Utility.GetCBKursForDate(Utility.GetCurrentOperDay().Date.AddDays(-1), order.ProductCurrency), 1, MidpointRounding.AwayFromZero);
+                cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
+                cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = order.Source;
+                cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
+                //  cmd.Parameters.Add("@isProblematic", SqlDbType.Bit).Value = order.IsProblematic;
+                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+                //   cmd.Parameters.Add("@repaymentSource", SqlDbType.SmallInt).Value = order.sour;
+
+                SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
+                param.Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(param);
+                cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.SmallInt) { Direction = ParameterDirection.Output });
+                cmd.Parameters.Add("@mature_mode", SqlDbType.SmallInt).Value = (int)order.MatureMode;
+
+                cmd.ExecuteNonQuery();
+                ushort actionResult = Convert.ToUInt16(cmd.Parameters["@result"].Value);
+                if (actionResult == 0 || actionResult == 9 || actionResult == 10)
+                {
+                    result.ResultCode = 0;
+                    order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+                    order.Quality = OrderQuality.Draft;
+
+                    result.PaymentID = order.Id;
+                    result.OrderID = order.OrderId;
+
+                    SaveCTOrderDetails(order);
+                }
+                else
+                {
+                    result.ResultCode = 7;
+                    //result.Errors.Add(new ActionError((short)actionResult));
+                }
+
+                return result;
 
             }
         }
@@ -159,7 +154,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT  
+                using SqlCommand cmd = new SqlCommand(@"SELECT  
                                                     filial,customer_number,registration_date,document_type,
                                                     document_number,document_subtype,amount,currency,debet_account,credit_account,
                                                     description,quality,
@@ -204,7 +199,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"
+                using SqlCommand cmd = new SqlCommand(@"
                                             SELECT  filial,customer_number,registration_date,document_type,
                                                     document_number,document_subtype,hb.amount,currency,debet_account,credit_account,
                                                     description,quality,
@@ -253,21 +248,19 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"
+                using SqlCommand cmd = new SqlCommand(@"
                                                         SELECT hb.doc_ID from Tbl_HB_documents hb
                                                         INNER JOIN tbl_payment_registration_request_details req
                                                         ON hb.doc_ID=req.Doc_ID
-                                                        WHERE hb.debet_account=@accountNumber and req.order_id=@paymentId", conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-                    cmd.Parameters.Add("@paymentId", SqlDbType.BigInt).Value = paymentId;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                                                        WHERE hb.debet_account=@accountNumber and req.order_id=@paymentId", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
+                cmd.Parameters.Add("@paymentId", SqlDbType.BigInt).Value = paymentId;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        isUnique = true;
-                    }
+                if (dr.Read())
+                {
+                    isUnique = true;
                 }
 
             }
@@ -277,11 +270,10 @@ namespace ExternalBanking.DBManager
         internal static void SaveCTOrderDetails(CTOrder order)
         {
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"	
+            using SqlCommand cmd = new SqlCommand(@"	
                                                     INSERT INTO tbl_payment_registration_request_details
                                                     (Doc_ID,order_id,payment_date,
                                                     terminal_id,terminal_address,terminal_descrption,phone_number)
@@ -289,20 +281,19 @@ namespace ExternalBanking.DBManager
                                                     (@Doc_ID,@order_id,@payment_date,@terminal_id,@terminal_address,@terminal_descrption,@phone_number)
                                                     Select Scope_identity() as ID
                                             ", conn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = order.Id;
-                cmd.Parameters.Add("@order_id", SqlDbType.Int).Value = order.OrderId;
-                cmd.Parameters.Add("@payment_date", SqlDbType.SmallDateTime).Value = order.PaymentDateTime;
-                cmd.Parameters.Add("@terminal_id", SqlDbType.NVarChar, 255).Value = order.TerminalID;
-                cmd.Parameters.Add("@terminal_address", SqlDbType.NVarChar, 255).Value = order.TerminalAddress;
-                cmd.Parameters.Add("@terminal_descrption", SqlDbType.NVarChar, 255).Value = order.TerminalDescription;
-                if (order.PhoneNumber != null)
-                    cmd.Parameters.Add("@phone_number", SqlDbType.NVarChar, 255).Value = order.PhoneNumber;
-                else
-                    cmd.Parameters.Add("@phone_number", SqlDbType.NVarChar, 255).Value = DBNull.Value;
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = order.Id;
+            cmd.Parameters.Add("@order_id", SqlDbType.Int).Value = order.OrderId;
+            cmd.Parameters.Add("@payment_date", SqlDbType.SmallDateTime).Value = order.PaymentDateTime;
+            cmd.Parameters.Add("@terminal_id", SqlDbType.NVarChar, 255).Value = order.TerminalID;
+            cmd.Parameters.Add("@terminal_address", SqlDbType.NVarChar, 255).Value = order.TerminalAddress;
+            cmd.Parameters.Add("@terminal_descrption", SqlDbType.NVarChar, 255).Value = order.TerminalDescription;
+            if (order.PhoneNumber != null)
+                cmd.Parameters.Add("@phone_number", SqlDbType.NVarChar, 255).Value = order.PhoneNumber;
+            else
+                cmd.Parameters.Add("@phone_number", SqlDbType.NVarChar, 255).Value = DBNull.Value;
 
-                cmd.ExecuteScalar();
-            }
+            cmd.ExecuteScalar();
 
         }
         internal static ActionResult ConfirmOrderOnline(long docID, int userID)

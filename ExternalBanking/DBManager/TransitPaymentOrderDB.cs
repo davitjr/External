@@ -73,7 +73,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT Doc_id,amount,transit_account_type,description,document_number,document_subtype,currency,registration_date,quality,document_subtype,debet_account,credit_account,d.operation_date   FROM  Tbl_HB_documents d  WHERE Doc_id=@Docid and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT Doc_id,amount,transit_account_type,description,document_number,document_subtype,currency,registration_date,quality,document_subtype,debet_account,credit_account,d.operation_date   FROM  Tbl_HB_documents d  WHERE Doc_id=@Docid and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 dt.Load(cmd.ExecuteReader());
@@ -106,10 +106,10 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT [order_account_type] from [tbl_type_of_transit_accounts] where id=@id", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT [order_account_type] from [tbl_type_of_transit_accounts] where id=@id", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@id", SqlDbType.Float).Value = transitAccountType;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

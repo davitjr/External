@@ -1,11 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -15,7 +13,6 @@ namespace ExternalBanking
         /// Վաճառված պարտատոմս
         /// </summary>
         public Bond Bond { get; set; }
-
 
         /// <summary>
         /// Հայտի պահպանում և ուղարկում
@@ -27,10 +24,23 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
+            ActionResult result = CheckBondIssueReplacementDate(this.Bond.BondIssueId);
+            if (result.Errors.Count > 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
 
-            this.Complete();
+            Complete();
 
-            ActionResult result = this.Validate();
+            if ((GetCustomerTypeAndResidence(CustomerNumber).Item1 == false
+                && Bond.CustomerDepositaryAccount.AccountNumber == 0 && Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.Exists) == false)
+            {
+                if (Bond.DepositaryAccountExistenceType != DepositaryAccountExistence.ExistsInOtherOperator)
+                    SetDepositaryInfo();
+            }
+
+            result = Validate();
             List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
@@ -41,12 +51,12 @@ namespace ExternalBanking
 
             Action action = Action.Add;
 
-            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
             {
                 result = BondOrderDB.SaveBondOrder(this, userName);
-               
-                result = base.SaveOrderOPPerson();
-                this.SaveOrderAttachments();
+
+                result = SaveOrderOPPerson();
+                SaveOrderAttachments();
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -54,18 +64,102 @@ namespace ExternalBanking
                 }
                 else
                 {
-                    base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
+                    SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
                 }
-                
+
                 LogOrderChange(user, action);
 
-                result = base.Approve(schemaType, userName);
+                result = Approve(schemaType, userName);
 
                 if (result.ResultCode == ResultCode.Normal)
                 {
-                    this.Quality = OrderQuality.Sent3;
-                    base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
-                    base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
+                    Quality = OrderQuality.Sent3;
+                    SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
+                    SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
+                    LogOrderChange(user, Action.Update);
+                    scope.Complete();
+                }
+                else
+                {
+                    return result;
+                }
+            }
+
+            ActionResult resultConfirm = base.Confirm(user);
+            return resultConfirm;
+        }
+
+        /// <summary>
+        /// Հայտի պահպանում և ուղարկում
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="source"></param>
+        /// <param name="user"></param>
+        /// <param name="schemaType"></param>
+        /// <returns></returns>
+        public ActionResult Save(string userName)
+        {
+            Complete();
+
+            ActionResult result = Validate();
+
+            if (result.Errors.Count > 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+
+            Action action = Action.Add;
+
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
+            {
+                result = BondOrderDB.SaveBondOrder(this, userName);
+
+                ActionResult resultOpPerson = SaveOrderOPPerson();
+
+                if (resultOpPerson.Errors.Count > 0)
+                {
+                    resultOpPerson.ResultCode = ResultCode.Failed;
+                    return resultOpPerson;
+                }
+
+                SaveOrderAttachments();
+
+                if (result.ResultCode != ResultCode.Normal)
+                {
+                    return result;
+                }
+                else
+                {
+                    SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
+                }
+
+                LogOrderChange(user, action);
+
+                scope.Complete();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Հայտի պահպանում և ուղարկում
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="user"></param>
+        /// <param name="schemaType"></param>
+        /// <returns></returns>
+        public ActionResult Approve(string userName, User user, short schemaType)
+        {
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
+            {
+                ActionResult result = Approve(schemaType, userName);
+
+                if (result.ResultCode == ResultCode.Normal)
+                {
+                    Quality = OrderQuality.Sent3;
+                    SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
+                    SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
                     LogOrderChange(user, Action.Update);
                     scope.Complete();
                 }
@@ -81,66 +175,76 @@ namespace ExternalBanking
 
         private void Complete()
         {
-            this.RegistrationDate = DateTime.Now.Date;
-            if ((this.OrderNumber == null || this.OrderNumber == "") && this.Id == 0)
-                this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+            RegistrationDate = DateTime.Now.Date;
+            if ((OrderNumber == null || OrderNumber == "") && Id == 0)
+            {
+                OrderNumber = GenerateNextOrderNumber(CustomerNumber);
+            }
 
-            BondIssueFilter bondIssueFilter = new BondIssueFilter();
-            bondIssueFilter.BondIssueId = this.Bond.BondIssueId;
+            BondIssueFilter bondIssueFilter = new BondIssueFilter
+            {
+                BondIssueId = Bond.BondIssueId
+            };
             List<BondIssue> bondIssues = BondIssueFilter.SearchBondIssues(bondIssueFilter);
-           
 
-            if(bondIssues != null && bondIssues.Count > 0)
+            if (bondIssues != null && bondIssues.Count > 0)
             {
                 BondIssue bondIssue = bondIssues.First();
-                this.Bond.BondIssueId = bondIssue.ID;
-                this.Bond.InterestRate = bondIssue.InterestRate;
-                this.Bond.Currency = bondIssue.Currency;
-                this.Bond.ISIN = bondIssue.ISIN;
-            }
+                Bond.BondIssueId = bondIssue.ID;
+                Bond.InterestRate = bondIssue.InterestRate;
+                Bond.Currency = bondIssue.Currency;
+                Bond.ISIN = bondIssue.ISIN;
 
- 
-
-            this.Bond.UnitPrice = Bond.GetBondPrice(this.Bond.BondIssueId);
-            this.Bond.TotalPrice = Math.Round(this.Bond.BondCount * this.Bond.UnitPrice, 4);
-
-            this.Amount = this.Bond.TotalPrice;
-            this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
-
-            if(this.Bond.DepositaryAccountExistenceType  == DepositaryAccountExistence.NonExisted)
-            {
-                if (this.Bond.CustomerDepositaryAccount != null)
+                if (Bond.ShareType == SharesTypes.Stocks)
                 {
-                    this.Bond.CustomerDepositaryAccount = null;
+                    Bond.UnitPrice = (double)bondIssue.PlacementPrice;
                 }
             }
-            else
+
+
+            if (Bond.ShareType == SharesTypes.Bonds)
             {
-                
-                if (DepositaryAccount.HasCustomerDepositaryAccount(this.CustomerNumber))
+                Bond.UnitPrice = Bond.GetBondPrice(Bond.BondIssueId);
+
+
+                if (Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.NonExisted)
                 {
-                    bool hasAccount = false;
-                    this.Bond.CustomerDepositaryAccount = DepositaryAccount.GetCustomerDepositaryAccount(this.CustomerNumber, ref hasAccount);
-                    this.Bond.DepositaryAccountExistenceType = DepositaryAccountExistence.ExistsInBank;
+                    if (Bond.CustomerDepositaryAccount != null)
+                    {
+                        Bond.CustomerDepositaryAccount = null;
+                    }
                 }
                 else
                 {
-                    if(this.Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.Exists)
+
+                    if (DepositaryAccount.HasCustomerDepositaryAccount(CustomerNumber))
                     {
-                        if (this.Bond.CustomerDepositaryAccount != null && this.Bond.CustomerDepositaryAccount.BankCode != 0)
-                        {
-                            this.Bond.CustomerDepositaryAccount.Description = Info.GetBank(this.Bond.CustomerDepositaryAccount.BankCode, Languages.hy);
-                        }
+                        bool hasAccount = false;
+                        Bond.CustomerDepositaryAccount = DepositaryAccount.GetCustomerDepositaryAccount(CustomerNumber, ref hasAccount);
+                        Bond.DepositaryAccountExistenceType = DepositaryAccountExistence.ExistsInBank;
                     }
                     else
                     {
-                        this.Bond.CustomerDepositaryAccount = null;
+                        if (Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.Exists)
+                        {
+                            if (Bond.CustomerDepositaryAccount != null && Bond.CustomerDepositaryAccount.BankCode != 0)
+                            {
+                                Bond.CustomerDepositaryAccount.Description = Info.GetBank(Bond.CustomerDepositaryAccount.BankCode, Languages.hy);
+                            }
+                        }
+                        else
+                        {
+                            Bond.CustomerDepositaryAccount = null;
+                        }
                     }
-                    
                 }
             }
-           
-               
+
+            Bond.TotalPrice = Math.Round(Bond.BondCount * Bond.UnitPrice, 4);
+
+            Amount = Bond.TotalPrice;
+            OPPerson = SetOrderOPPerson(CustomerNumber);
+
         }
 
         public ActionResult Validate()
@@ -155,6 +259,36 @@ namespace ExternalBanking
             BondOrderDB.GetBondOrder(this);
         }
 
-       
+        public static int GetBondOrderIssueSeria(int bondIssueId)
+        {
+            return BondOrderDB.GetBondOrderIssueSeria(bondIssueId);
+        }
+
+        public void SetDepositaryInfo()
+        {
+
+            DepositaryAccount account = DepositaryAccountDB.GetDepositaryAccountForStock(this.CustomerNumber);
+
+            this.Bond.CustomerDepositaryAccount = account;
+
+        }
+
+        public static ActionResult ConfirmStockOrder(int bondId, int userID)
+        {
+            return BondOrderDB.ConfirmStockOrder(bondId, userID);
+        }
+
+
+        public static Tuple<bool, bool> GetCustomerTypeAndResidence(ulong customerNumber)
+        {
+            return BondOrderDB.GetCustomerTypeAndResidence(customerNumber);
+        }
+
+        public ActionResult CheckBondIssueReplacementDate(int bondIssueId)
+        {
+            ActionResult result = new ActionResult();
+            result.Errors.AddRange(Validation.ValidateBondIssueReplacementDate(bondIssueId));
+            return result;
+        }
     }
 }

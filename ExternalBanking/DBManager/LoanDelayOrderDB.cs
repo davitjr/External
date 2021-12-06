@@ -14,42 +14,38 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveLoanDelayOrder(LoanDelayOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand();
 
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "pr_loan_delay_order";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                    cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
-                    cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
-                    cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                    cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
-                    cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
-                    cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
-                    cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
-                    cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                    cmd.Parameters.Add("@product_app_Id", SqlDbType.Float).Value = order.ProductAppId;
+            conn.Open();
+            cmd.Connection = conn;
+            cmd.CommandText = "pr_loan_delay_order";
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
+            cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
+            cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
+            cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            cmd.Parameters.Add("@product_app_Id", SqlDbType.Float).Value = order.ProductAppId;
 
-                    cmd.Parameters.Add("@delay_date", SqlDbType.SmallDateTime).Value = order.DelayDate;
-                    cmd.Parameters.Add("@delay_reason", SqlDbType.NVarChar, 500).Value = order.DelayReason;
+            cmd.Parameters.Add("@delay_date", SqlDbType.SmallDateTime).Value = order.DelayDate;
+            cmd.Parameters.Add("@delay_reason", SqlDbType.NVarChar, 500).Value = order.DelayReason;
 
 
-                    SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
+            SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
 
-                    param.Direction = ParameterDirection.Output;
-                    cmd.Parameters.Add(param);
-                    cmd.ExecuteNonQuery();
-                    result.ResultCode = ResultCode.Normal;
-                    order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                    result.Id = order.Id;
+            param.Direction = ParameterDirection.Output;
+            cmd.Parameters.Add(param);
+            cmd.ExecuteNonQuery();
+            result.ResultCode = ResultCode.Normal;
+            order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+            result.Id = order.Id;
 
-                    return result;
-                }
-            }
+            return result;
 
         }
         internal static LoanDelayOrder GetLoanDelayOrderData(LoanDelayOrder order)
@@ -72,11 +68,11 @@ namespace ExternalBanking.DBManager
                                             on ld.doc_id=hb.doc_ID
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())
@@ -159,11 +155,11 @@ namespace ExternalBanking.DBManager
 											inner join tbl_cancel_delay_reason rt on ld.delay_reason = rt.reason_type
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())
@@ -192,23 +188,20 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlDataReader dr;
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT  1 FROM [Tbl_repayments_of_bl;] bl
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT  1 FROM [Tbl_repayments_of_bl;] bl
                                         INNER JOIN tbl_loan_repayments_delays dl
                                         on dl.app_id= bl.app_id
                                         WHERE dl.app_id=@appId AND bl.date_of_repayment>=dl.delay_date AND bl.is_rescheduled=1";
-                    cmd.CommandType = CommandType.Text;
+                cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@appId", SqlDbType.BigInt).Value = producId;
-                    dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                        isValid = false;
+                cmd.Parameters.Add("@appId", SqlDbType.BigInt).Value = producId;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                    isValid = false;
 
-                    return isValid;
-                }
+                return isValid;
 
             }
         }

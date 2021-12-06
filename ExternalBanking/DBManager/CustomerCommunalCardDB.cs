@@ -20,7 +20,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT * FROM Tbl_Communal_Customer_Card WHERE customer_number=@customerNumber AND quality=1", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT * FROM Tbl_Communal_Customer_Card WHERE customer_number=@customerNumber AND quality=1", conn);
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -58,10 +58,9 @@ namespace ExternalBanking.DBManager
         {
 
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_Communal_Customer_Card
+            using SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_Communal_Customer_Card
                                                 (
                                                      ID
                                                     ,Communal_Type
@@ -94,22 +93,21 @@ namespace ExternalBanking.DBManager
                                                 
 
                     ", conn);
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerCommunalCard.CustomerNumber;
-                    cmd.Parameters.Add("@communalType", SqlDbType.TinyInt).Value = customerCommunalCard.CommunalType;
-                    cmd.Parameters.Add("@аbonentType", SqlDbType.TinyInt).Value = (ushort)customerCommunalCard.AbonentType;
-                    cmd.Parameters.Add("@abonentNumber", SqlDbType.NVarChar,50).Value = string.IsNullOrEmpty(customerCommunalCard.AbonentNumber)?"": customerCommunalCard.AbonentNumber;
-                    cmd.Parameters.Add("@branchCode", SqlDbType.NVarChar, 50).Value = string.IsNullOrEmpty(customerCommunalCard.BranchCode) ? "" : customerCommunalCard.BranchCode;
-                    cmd.Parameters.Add("@openDate", SqlDbType.SmallDateTime).Value = customerCommunalCard.OpenDate.Date;
-                    cmd.Parameters.Add("@openerSetNumber", SqlDbType.Int).Value = customerCommunalCard.OpenerSetNumber;
-                    cmd.Parameters.Add("@editingDate", SqlDbType.SmallDateTime).Value = DBNull.Value;
-                    cmd.Parameters.Add("@editorSetNumber", SqlDbType.Int).Value = DBNull.Value;
-                    cmd.Parameters.Add("@quality", SqlDbType.TinyInt).Value = customerCommunalCard.Quality;
-                    cmd.Parameters.Add("@openerFilialCode", SqlDbType.Int).Value = customerCommunalCard.OpenerFilialCode;
-                    cmd.ExecuteNonQuery();
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerCommunalCard.CustomerNumber;
+            cmd.Parameters.Add("@communalType", SqlDbType.TinyInt).Value = customerCommunalCard.CommunalType;
+            cmd.Parameters.Add("@аbonentType", SqlDbType.TinyInt).Value = (ushort)customerCommunalCard.AbonentType;
+            cmd.Parameters.Add("@abonentNumber", SqlDbType.NVarChar, 50).Value = string.IsNullOrEmpty(customerCommunalCard.AbonentNumber) ? "" : customerCommunalCard.AbonentNumber;
+            cmd.Parameters.Add("@branchCode", SqlDbType.NVarChar, 50).Value = string.IsNullOrEmpty(customerCommunalCard.BranchCode) ? "" : customerCommunalCard.BranchCode;
+            cmd.Parameters.Add("@openDate", SqlDbType.SmallDateTime).Value = customerCommunalCard.OpenDate.Date;
+            cmd.Parameters.Add("@openerSetNumber", SqlDbType.Int).Value = customerCommunalCard.OpenerSetNumber;
+            cmd.Parameters.Add("@editingDate", SqlDbType.SmallDateTime).Value = DBNull.Value;
+            cmd.Parameters.Add("@editorSetNumber", SqlDbType.Int).Value = DBNull.Value;
+            cmd.Parameters.Add("@quality", SqlDbType.TinyInt).Value = customerCommunalCard.Quality;
+            cmd.Parameters.Add("@openerFilialCode", SqlDbType.Int).Value = customerCommunalCard.OpenerFilialCode;
+            cmd.ExecuteNonQuery();
 
-                    result.ResultCode = ResultCode.Normal;
-                    return result;
-            }
+            result.ResultCode = ResultCode.Normal;
+            return result;
         }
 
         internal static ActionResult ChangeCustomerCommunalCardQuality(CustomerCommunalCard customerCommunalCard)
@@ -119,7 +117,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"UPDATE Tbl_Communal_Customer_Card 
+                using SqlCommand cmd = new SqlCommand(@"UPDATE Tbl_Communal_Customer_Card 
                                                     SET Quality=@quality,
                                                     Editor_Set_Number=@editorSetNumber,
                                                     Editing_Date=@editingDate
@@ -143,7 +141,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT ID FROM Tbl_Communal_Customer_Card
+                using SqlCommand cmd = new SqlCommand(@"SELECT ID FROM Tbl_Communal_Customer_Card
                                                   WHERE Communal_Type=@communalType AND FindField1=@abonentNumber 
                                                   AND FindField2=@branchCode AND Quality=1 AND F_J=@аbonentType
                                                   AND Customer_number=@customerNumber", conn);
@@ -152,7 +150,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@abonentNumber", SqlDbType.NVarChar, 50).Value = string.IsNullOrEmpty(customerCommunalCard.AbonentNumber) ? "" : customerCommunalCard.AbonentNumber;
                 cmd.Parameters.Add("@branchCode", SqlDbType.NVarChar, 50).Value = string.IsNullOrEmpty(customerCommunalCard.BranchCode) ? "" : customerCommunalCard.BranchCode;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerCommunalCard.CustomerNumber;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     result = true;

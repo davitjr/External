@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -28,12 +25,12 @@ namespace ExternalBanking
         /// <summary>
         /// Պարտատոմսի թողարկման ամսաթվի սկիզբ
         /// </summary>
-        public DateTime StartDate{ get; set; }
+        public DateTime StartDate { get; set; }
 
         /// <summary>
         /// Պարտատոմսի թողարկման ամսաթվի ավարտ
         /// </summary>
-        public DateTime EndDate{ get; set; }
+        public DateTime EndDate { get; set; }
 
         /// <summary>
         /// Պարտատոմսի կարգավիճակ
@@ -45,7 +42,15 @@ namespace ExternalBanking
         /// </summary>
         public BondIssuerType IssuerType { get; set; }
 
+        /// <summary>
+        /// Արժեթղթի տեսակ
+        /// </summary>
+        public SharesTypes ShareType { get; set; }
 
+        /// <summary>
+        /// Թողարկման սերիա
+        /// </summary>
+        public int? IssueSeria { get; set; }
 
         #endregion
 

@@ -81,60 +81,48 @@ namespace ExternalBanking.DBManager
         }
         internal static PlasticCardSentToArcaStatus PlasticCardSentToArca(long productId)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT ISNULL(fileID, 0) fileID
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            conn.Open();
+            cmd.Connection = conn;
+            cmd.CommandText = @"SELECT ISNULL(fileID, 0) fileID
                                         FROM  Tbl_ArcaRequestHeaders                                        
                                         WHERE appId = @appId and commandType in (1, 2, 4)";
-                    cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@appId", SqlDbType.BigInt).Value = productId;
+            cmd.Parameters.Add("@appId", SqlDbType.BigInt).Value = productId;
 
-                    SqlDataReader rd;
+            using SqlDataReader rd = cmd.ExecuteReader();
 
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        return int.Parse(rd["fileID"].ToString()) == 0 ? PlasticCardSentToArcaStatus.NoFiles : PlasticCardSentToArcaStatus.SentToArca;
-                    }
-                    else return PlasticCardSentToArcaStatus.NoInfo;
-                }
+            if (rd.Read())
+            {
+                return int.Parse(rd["fileID"].ToString()) == 0 ? PlasticCardSentToArcaStatus.NoFiles : PlasticCardSentToArcaStatus.SentToArca;
             }
+            else return PlasticCardSentToArcaStatus.NoInfo;
 
 
         }
         internal static bool CheckForArcaFileGenerationProcess()
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"select Lock_for_reading
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            conn.Open();
+            cmd.Connection = conn;
+            cmd.CommandText = @"select Lock_for_reading
                                         from Tbl_locking_for_reading
                                         where [File_ID] = 26";
 
-                    cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
-                    SqlDataReader rd;
+            using SqlDataReader rd = cmd.ExecuteReader();
 
-                    rd = cmd.ExecuteReader();
-
-                    if (rd.Read())
-                    {
-                        return bool.Parse(rd["Lock_for_reading"].ToString());
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
+            if (rd.Read())
+            {
+                return bool.Parse(rd["Lock_for_reading"].ToString());
+            }
+            else
+            {
+                return false;
             }
         }
 

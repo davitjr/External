@@ -87,7 +87,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
+               using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
                                                           H.customer_number,
                                                           H.document_number,
                                                           H.currency,
@@ -301,9 +301,9 @@ namespace ExternalBanking.DBManager
                     }
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
+                    
 
-                    rd = cmd.ExecuteReader();
+                    using SqlDataReader rd = cmd.ExecuteReader();
 
                     if (rd.Read())
                     {

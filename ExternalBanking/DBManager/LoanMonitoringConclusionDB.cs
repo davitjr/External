@@ -23,7 +23,7 @@ namespace ExternalBanking.DBManager
                                 ON C.id=L.monitoring_id
                               WHERE app_id=@productId and linked=1";
 
-                using(SqlCommand cmd=new SqlCommand(sql, conn))
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
@@ -33,7 +33,7 @@ namespace ExternalBanking.DBManager
                         while (dr.Read())
                         {
                             monitoring = Set(dr);
-                            
+
                             monitorings.Add(monitoring);
                         }
                     }
@@ -42,7 +42,7 @@ namespace ExternalBanking.DBManager
             return monitorings;
         }
 
-        internal static LoanMonitoringConclusion Get(long monitoringId,long productId)
+        internal static LoanMonitoringConclusion Get(long monitoringId, long productId)
         {
             LoanMonitoringConclusion monitoring = new LoanMonitoringConclusion();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
@@ -65,7 +65,7 @@ namespace ExternalBanking.DBManager
                             monitoring = Set(dr);
                             monitoring.GetLinkedMonitoringLoans();
                             monitoring.GetProvisionQualityConclusion();
-                             monitoring.ProvisionQualityConclusion.ForEach(x => monitoring.ProvisionQualityConclusionsDescription = Info.GetProvisionQualityConclusionTypeDescription(x, Languages.hy) + "," );
+                            monitoring.ProvisionQualityConclusion.ForEach(x => monitoring.ProvisionQualityConclusionsDescription = Info.GetProvisionQualityConclusionTypeDescription(x) + ",");
                         }
                     }
                 }
@@ -77,19 +77,19 @@ namespace ExternalBanking.DBManager
         {
             LoanMonitoringConclusion monitoring = new LoanMonitoringConclusion();
             monitoring.MonitoringId = long.Parse(dr["id"].ToString());
-            monitoring.LoanProductId= long.Parse(dr["app_id"].ToString());
+            monitoring.LoanProductId = long.Parse(dr["app_id"].ToString());
             monitoring.Conclusion = short.Parse(dr["conclusion"].ToString());
-            monitoring.ConclusionDescription = Info.GetLoanMonitoringConclusionDescription(monitoring.Conclusion, Languages.hy);
+            monitoring.ConclusionDescription = Info.GetLoanMonitoringConclusionDescription(monitoring.Conclusion);
             monitoring.MonitoringType = short.Parse(dr["monitoring_type"].ToString());
             monitoring.MonitoringSubType = short.Parse(dr["monitoring_sub_type"].ToString());
-            monitoring.MonitoringTypeDescription = Info.GetLoanMonitoringTypeDescription(monitoring.MonitoringType, Languages.hy);
+            monitoring.MonitoringTypeDescription = Info.GetLoanMonitoringTypeDescription(monitoring.MonitoringType);
             monitoring.MonitoringDate = DateTime.Parse(dr["monitoring_Date"].ToString());
             monitoring.ProfitReduced = bool.Parse(dr["profit_reduced"].ToString());
             monitoring.ProfitReduceType = short.Parse(dr["profit_reduce_type"].ToString());
-            monitoring.ProfitReduceTypeDescritpion = Info.GetProfitReductionTypeDescription(monitoring.ProfitReduceType, Languages.hy);
+            monitoring.ProfitReduceTypeDescritpion = Info.GetProfitReductionTypeDescription(monitoring.ProfitReduceType);
             monitoring.ProfitReductionSize = float.Parse(dr["reduction_size"].ToString());
             monitoring.ProvisionCostConclusion = dr["provision_cost_conclusion"] == DBNull.Value ? (short)0 : short.Parse(dr["provision_cost_conclusion"].ToString());
-            monitoring.ProvisionCostConclusionDescription = Info.GetProvisionCostConclusionTypeDescription(monitoring.ProvisionCostConclusion, Languages.hy);
+            monitoring.ProvisionCostConclusionDescription = Info.GetProvisionCostConclusionTypeDescription(monitoring.ProvisionCostConclusion);
             monitoring.ProvisionCoverCoefficient = dr["provision_cover_coefficient"] == DBNull.Value ? (short)0 : float.Parse(dr["provision_cover_coefficient"].ToString());
             monitoring.Comments = dr["comments"].ToString();
             monitoring.RegistrationDate = DateTime.Parse(dr["registration_Date"].ToString());
@@ -120,7 +120,7 @@ namespace ExternalBanking.DBManager
                         {
                             factor = new MonitoringConclusionFactor();
                             factor.FactorId = Convert.ToInt16(dr["factor_id"].ToString());
-                            factor.FactorDescription = Info.GetLoanMonitoringFactorDescription(factor.FactorId, Languages.hy);
+                            factor.FactorDescription = Info.GetLoanMonitoringFactorDescription(factor.FactorId);
                             factors.Add(factor);
                         }
                     }
@@ -131,14 +131,14 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static List<short> GetProvisionQualityConclusion(long monitoringId,long productId)
+        internal static List<short> GetProvisionQualityConclusion(long monitoringId, long productId)
         {
             List<short> conclusions = new List<short>();
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT provision_quality_conclusion FROM Tbl_loan_monitoring_provision_quality_conclusions WHERE monitoring_id=@monitoringId AND app_id=@productId";
-                using (SqlCommand cmd=new SqlCommand(sql, conn))
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@monitoringId", SqlDbType.Float).Value = monitoringId;
@@ -196,7 +196,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        internal static ActionResult SaveMonitoringConclusion(LoanMonitoringConclusion monitoring,int userId)
+        internal static ActionResult SaveMonitoringConclusion(LoanMonitoringConclusion monitoring, int userId)
         {
             ActionResult result = new ActionResult();
 
@@ -220,7 +220,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@reductionSize", SqlDbType.Float).Value = monitoring.ProfitReductionSize;
                     cmd.Parameters.Add("@provisionCostConclusion", SqlDbType.TinyInt).Value = monitoring.ProvisionCostConclusion;
                     cmd.Parameters.Add("@provisionCoverCoefficient", SqlDbType.Float).Value = monitoring.ProvisionCoverCoefficient;
-                    cmd.Parameters.Add("@comments", SqlDbType.NVarChar,2500).Value = monitoring.Comments;
+                    cmd.Parameters.Add("@comments", SqlDbType.NVarChar, 2500).Value = monitoring.Comments;
                     cmd.Parameters.Add("@registrationDate", SqlDbType.SmallDateTime).Value = monitoring.RegistrationDate;
                     cmd.Parameters.Add("@registrationSetNumber", SqlDbType.Int).Value = userId;
 
@@ -247,7 +247,7 @@ namespace ExternalBanking.DBManager
                     cmd.ExecuteNonQuery();
 
                     result.ResultCode = ResultCode.Normal;
-                    monitoring.MonitoringId= Convert.ToInt64(cmd.Parameters["@monitoringId"].Value);
+                    monitoring.MonitoringId = Convert.ToInt64(cmd.Parameters["@monitoringId"].Value);
                     result.Id = monitoring.MonitoringId;
                 }
 
@@ -270,7 +270,7 @@ namespace ExternalBanking.DBManager
                     result.ResultCode = ResultCode.Normal;
                 }
 
-               
+
             }
             return result;
         }
@@ -302,26 +302,26 @@ namespace ExternalBanking.DBManager
             dt.Columns.Add("provision_quality_conclusion");
             dt.Columns.Add("factor_id");
             dt.Columns.Add("linked");
-            MonitoringConclusionFactor factor=new MonitoringConclusionFactor();
+            MonitoringConclusionFactor factor = new MonitoringConclusionFactor();
             MonitoringConclusionLinkedLoan linkedLoan = new MonitoringConclusionLinkedLoan();
             short qualityConclusion;
-            if (details!=null)
+            if (details != null)
             {
                 foreach (var det in details)
                 {
                     if (det is MonitoringConclusionFactor)
                     {
                         factor = (MonitoringConclusionFactor)(object)det;
-                        dt.Rows.Add(null, null, factor.FactorId,  null);
+                        dt.Rows.Add(null, null, factor.FactorId, null);
                     }
                     if (det is MonitoringConclusionLinkedLoan)
                     {
                         linkedLoan = (MonitoringConclusionLinkedLoan)(object)det;
-                        if (linkedLoan.MainProduct==false)
+                        if (linkedLoan.MainProduct == false)
                         {
                             dt.Rows.Add(linkedLoan.ProductId, null, null, linkedLoan.Linked);
                         }
-                        
+
                     }
                     if (det is short)
                     {
@@ -330,9 +330,9 @@ namespace ExternalBanking.DBManager
                     }
                 }
             }
-            
 
-            
+
+
             return dt;
         }
 
@@ -351,7 +351,7 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.Read())
                         {
-                            coefficient = float.Parse(dr["coefficient"].ToString())*100;
+                            coefficient = float.Parse(dr["coefficient"].ToString()) * 100;
                         }
                     }
                 }
@@ -359,7 +359,7 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static List<MonitoringConclusionLinkedLoan> GetLinkedLoans(long productId,ulong customerNumber)
+        internal static List<MonitoringConclusionLinkedLoan> GetLinkedLoans(long productId, ulong customerNumber)
         {
             List<MonitoringConclusionLinkedLoan> linkedLoans = new List<MonitoringConclusionLinkedLoan>();
             MonitoringConclusionLinkedLoan linkedLoan;
@@ -387,7 +387,7 @@ namespace ExternalBanking.DBManager
                             linkedLoan.CustomerDescription = Utility.ConvertAnsiToUnicode(dr["customer_description"].ToString());
                             linkedLoan.StartCapital = double.Parse(dr["start_capital"].ToString());
                             linkedLoan.Currency = dr["currency"].ToString();
-                            linkedLoan.StartDate =DateTime.Parse(dr["date_of_beginning"].ToString());
+                            linkedLoan.StartDate = DateTime.Parse(dr["date_of_beginning"].ToString());
                             linkedLoan.EndDate = DateTime.Parse(dr["end_date"].ToString());
                             linkedLoans.Add(linkedLoan);
                         }
@@ -427,21 +427,17 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT  [dbo].[fn_is_set_provision_conclusions](@monitoringId) result";
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@monitoringId", SqlDbType.VarChar, 50).Value = monitoringId;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT  [dbo].[fn_is_set_provision_conclusions](@monitoringId) result";
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@monitoringId", SqlDbType.VarChar, 50).Value = monitoringId;
-                    SqlDataReader dr;
-                    dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        result = bool.Parse(dr["result"].ToString());
-                    }
-
+                    result = bool.Parse(dr["result"].ToString());
                 }
             }
             return result;

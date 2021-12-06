@@ -416,7 +416,7 @@ namespace ExternalBanking
             if (order.IsActionDeposit)
             {
 
-                if (order.AccountType == 2 || order.AccountType == 2)
+                if (order.AccountType == 2)
                 {
                     //Ակցիայով հնարավոր է մուտքագրել միայն անհատական ավանդ
                     result.Add(new ActionError(1093));
@@ -6557,19 +6557,19 @@ namespace ExternalBanking
 
             List<ActionError> result = new List<ActionError>();
 
-            if (additionalData.SenderLivingPlace == 0 || additionalData.SenderLivingPlace == 0)
+            if (additionalData.SenderLivingPlace == 0)
             {
                 //Գումար ուղարկողի բնակության վայրը ընտրված չէ
                 result.Add(new ActionError(829));
             }
 
-            if (additionalData.ReceiverLivingPlace == 0 || additionalData.ReceiverLivingPlace == 0)
+            if (additionalData.ReceiverLivingPlace == 0)
             {
                 //Գումար ստացողի բնակության վայրը ընտրված չէ
                 result.Add(new ActionError(830));
             }
 
-            if (additionalData.TransferAmountType == 0 || additionalData.TransferAmountType == 0)
+            if (additionalData.TransferAmountType == 0)
             {
                 //Փոխանցվող գումարի բնույթը ընտրված չէ
                 result.Add(new ActionError(831));
@@ -9146,10 +9146,6 @@ namespace ExternalBanking
                 result.Add(new ActionError(1434, new string[] { "Նշված քարտի համար արդեն մուտքագրված է տվյալ տեսակի հայտ" }));
             }
 
-            //string canChangeCardService = null;
-            //order.user.AdvancedOptions.TryGetValue("canChangeCardService", out canChangeCardService);
-
-
             Card card = Card.GetCardWithOutBallance(order.ProductID);
 
             if (order.user.filialCode == 22059 && card.FilialCode == 22000)
@@ -9157,18 +9153,17 @@ namespace ExternalBanking
                 order.user.filialCode = (ushort)card.FilialCode;
             }
 
-            //if (canChangeCardService != "1" && order.user.filialCode != card.FilialCode)
-            //{
-            //    //Քարտը պատկանում է այլ մասնաճյուղի
-            //    result.Add(new ActionError(905));
-            //    return result;
-            //}
+
             if (order.Source == SourceType.Bank)
             {
-                if (order.OperationType != 2 && (string.IsNullOrEmpty(order.MobilePhone) || order.MobilePhone.Substring(0, 3) != "374" || order.MobilePhone.Length < 11))
+                if (order.IsArmenia && order.OperationType != 2 && (string.IsNullOrEmpty(order.MobilePhone) || order.MobilePhone.Substring(0, 3) != "374" || order.MobilePhone.Length < 11))
                 {
                     //Բջջային հեռախոսի ֆորմատը սխալ է (ճիշտ ֆորմատը՝ 374XXYYYYYY)
                     result.Add(new ActionError(1433, new string[] { "Բջջային հեռախոսի ֆորմատը սխալ է(ճիշտ ֆորմատը՝ 374XXYYYYYY) " }));
+                }
+                if  (!order.IsArmenia)
+                {
+                    order.MobilePhone = "00" + order.MobilePhone;
                 }
             }
             else
@@ -9195,7 +9190,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(1436));
             }
 
-            if ((response == CardServiceQualities.RegistrateNotConfirmedInArca && order.OperationType != 1) || (response == CardServiceQualities.TerminateNotConfirmedInArca && order.OperationType != 2) || (response == CardServiceQualities.ChangeNotConfirmedInArca && order.OperationType != 3))
+            if (order.Source != SourceType.Bank && ((response == CardServiceQualities.RegistrateNotConfirmedInArca && order.OperationType != 1) || (response == CardServiceQualities.TerminateNotConfirmedInArca && order.OperationType != 2) || (response == CardServiceQualities.ChangeNotConfirmedInArca && order.OperationType != 3)))
             {
                 //Քարտի համար կա մուտքագրված Գրանցել/դադարեցնել հայտ, որը դեռևս հաստատված չէ
                 result.Add(new ActionError(1437));
@@ -9577,6 +9572,11 @@ namespace ExternalBanking
 
                 customerBonds.RemoveAll(b => b.Quality == BondQuality.Deleted || b.Quality == BondQuality.Rejected);
 
+                if (order.Bond.ShareType == SharesTypes.Stocks)
+                {
+                    customerBonds.RemoveAll(b => b.Quality == BondQuality.AvailableForApproveDiling || b.Quality == BondQuality.AvailableForApproveDilingBackOffice);
+                }
+
                 int customerBondsCount = 0;
                 if (customerBonds.Count > 0)
                 {
@@ -9588,7 +9588,7 @@ namespace ExternalBanking
                 if (notDistibutedBondsCount == 0)
                 {
                     //Տվյալ թողարկման համար գոյություն չունեն չտեղաբաշխված պարտատոմսեր։
-                    result.Add(new ActionError(1447));
+                    result.Add(new ActionError(2040));
                 }
                 else
                 {
@@ -9617,13 +9617,13 @@ namespace ExternalBanking
                     }
                 }
 
-                if ((order.Attachments == null || order.Attachments.Count < 1) && order.Bond.DepositaryAccountExistenceType != DepositaryAccountExistence.ExistsInBank)
+                if (order.Bond.ShareType == SharesTypes.Bonds && (order.Attachments == null || order.Attachments.Count < 1) && order.Bond.DepositaryAccountExistenceType != DepositaryAccountExistence.ExistsInBank)
                 {
                     //Փաստաթղթերը կցված չեն։
                     result.Add(new ActionError(1462));
                 }
 
-                else if (order.Attachments != null)
+                if (order.Attachments != null)
                 {
                     if (order.Attachments.Count > 30)
                     {
@@ -9642,7 +9642,7 @@ namespace ExternalBanking
 
 
 
-                if (DepositaryAccount.HasCustomerDepositaryAccount(order.CustomerNumber))
+                if (DepositaryAccount.HasCustomerDepositaryAccount(order.CustomerNumber) && order.Bond.ShareType == SharesTypes.Bonds)
                 {
 
                     if (order.Bond.DepositaryAccountExistenceType != DepositaryAccountExistence.ExistsInBank)
@@ -9653,20 +9653,36 @@ namespace ExternalBanking
                 }
                 else
                 {
-                    if (order.Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.Exists)
+                    if (order.Bond.ShareType != SharesTypes.Stocks)
                     {
-                        if (order.Bond.CustomerDepositaryAccount == null || order.Bond.CustomerDepositaryAccount.AccountNumber == 0 || order.Bond.CustomerDepositaryAccount.BankCode == 0)
+                        if (order.Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.Exists)
                         {
-                            //Արժեթղթերի հաշվի տվյալները լիարժեք լրացված չեն։
-                            result.Add(new ActionError(1467));
+                            if (order.Bond.CustomerDepositaryAccount == null || order.Bond.CustomerDepositaryAccount.AccountNumber == 0 || order.Bond.CustomerDepositaryAccount.BankCode == 0)
+                            {
+                                //Արժեթղթերի հաշվի տվյալները լիարժեք լրացված չեն։
+                                result.Add(new ActionError(1467));
+                            }
                         }
                     }
-                }
 
+                }
                 if (order.Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.None)
                 {
                     //Արժեթղթերի հաշվի առկայության տեսակը մուտքագրված չէ։
                     result.Add(new ActionError(1469));
+                }
+
+                 if(order.Bond.ShareType == SharesTypes.Stocks)
+                {
+                    if(order.Bond.SecuringMoney == true)
+                    {
+                        double debitAccountBalance = Account.GetAccountAvailableBalanceForStocksInAmd(order.Bond.AccountForBond.AccountNumber);
+                        if (order.Bond.TotalPrice > debitAccountBalance)
+                        {
+                                //հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար
+                                result.Add(new ActionError(1099, new string[] { order.Bond.AccountForBond.AccountNumber, "գործարքը կատարելու" }));
+                        }
+                    }
                 }
 
             }
@@ -9726,7 +9742,7 @@ namespace ExternalBanking
             //Մերժման հայտ
             else if (order.SubType == 3)
             {
-                if (bond.Quality != BondQuality.AvailableForApprove && bond.Quality != BondQuality.New)
+                if (bond.Quality != BondQuality.AvailableForApprove && bond.Quality != BondQuality.New && bond.ShareType != SharesTypes.Stocks)
                 {
                     //Տվյալ կարգավիճակով պարտատոմսը հնարավոր չէ մերժել։
                     result.Add(new ActionError(1491));
@@ -9855,11 +9871,11 @@ namespace ExternalBanking
         {
             List<ActionError> result = new List<ActionError>();
 
-            if (DepositaryAccount.HasCustomerDepositaryAccount(order.CustomerNumber) == true)
-            {
-                //Հաճախորդն արդեն ունի արժեթղթերի հաշիվ:
-                result.Add(new ActionError(1483));
-            }
+            //if (DepositaryAccount.HasCustomerDepositaryAccount(order.CustomerNumber) == true)
+            //{
+            //    //Հաճախորդն արդեն ունի արժեթղթերի հաշիվ:
+            //    result.Add(new ActionError(1483));
+            //}
 
             if (DepositaryAccountOrder.ExistsNotConfirmedDepositaryAccountOrder(order.CustomerNumber, order.SubType))
             {
@@ -12298,6 +12314,145 @@ namespace ExternalBanking
                     result.Add(new ActionError(1993));
                 }
             }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Բաժնետոմսի թողարկման ստուգումներ
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        internal static List<ActionError> ValidateStockIssue(BondIssue bondIssue)
+        {
+            List<ActionError> result = new List<ActionError>();
+
+            Action action = bondIssue.ID == 0 ? Action.Add : Action.Update;
+
+            if (bondIssue.IssuerType == BondIssuerType.ACBA)
+            {
+                BondIssueFilter bondIssueFilter = new BondIssueFilter();
+                bondIssueFilter.ISIN = bondIssue.ISIN;
+                bondIssueFilter.Quality = BondIssueQuality.Approved;
+
+                List<BondIssue> bondIssues = BondIssueFilter.SearchBondIssues(bondIssueFilter);
+
+                if (action == Action.Add && BondIssueDB.GetCheckISINandSeria(bondIssue.ISIN, bondIssue.IssueSeria.Value))
+                {
+                    //Տվյալ ԱՄՏԾ-ով և թողարկամն սերիաով բաժնետոմսի թողարկում արդեն գոյություն ունի։
+                    result.Add(new ActionError(2020));
+                }
+
+                if (bondIssue.MinSaleQuantity > bondIssue.MaxSaleQuantity)
+                {
+                    //Մեկ ներդրողի նկատմամբ կիրառվող ձեռք բերվող բաժնետոմսերի նվազագույն ձեռք բերման քանակը պետք է չգերազանցի առավելագույն քանակը։
+                    result.Add(new ActionError(2021));
+                }
+
+                if (bondIssue.TotalCount * bondIssue.NominalPrice != bondIssue.TotalVolume)
+                {
+                    //Թողարկման ընդհանուր անվանական արժեքը հավասար չէ մեկ բաժնետոմսի անվանական արժեքի և տեղաբաշխման ենթակա քանակի արտադրյալին
+                    result.Add(new ActionError(2033));
+                }
+                if (bondIssue.MaxSaleQuantity > bondIssue.TotalCount)
+                {
+                    //Մեկ ներդրողի նկատմամբ կիրառվող ձեռք բերվող բաժնետոմսերի առավելագույն ձեռք բերման քանակը մեծ է բաժնետոմսերի ընդհանուր քանակից
+                    result.Add(new ActionError(2022));
+                }
+
+                if (bondIssue.TotalVolume % bondIssue.NominalPrice != 0)
+                {
+                    //Թողարկման ընդհանուր անվանական արժեքը սխալ է մուտքագրված։
+                    result.Add(new ActionError(2023));
+                }
+
+                if (bondIssue.ReplacementEndDate < bondIssue.ReplacementDate)
+                {
+                    //Տեղաբաշխման նախատեսվող ավարտը փոքր է տեղաբաշխման սկզբից։
+                    result.Add(new ActionError(2024));
+                }
+
+                if (bondIssue.IssueDate < bondIssue.RegistrationDate)
+                {
+                    //Թողարկման ամսաթիվը փոքր է գրանցման ամսաթվից։
+                    result.Add(new ActionError(2025));
+                }
+
+                if (bondIssue.ReplacementDate < bondIssue.RegistrationDate)
+                {
+                    //Տեղաբաշխման սկիզբը փոքր է գրանցման ամսաթվից։
+                    result.Add(new ActionError(2026));
+                }
+
+                if (bondIssue.BankAccount == null || bondIssue.BankAccount.AccountNumber == null)
+                {
+                    //Բաժնետոմսի ձեռքբերման Բանկի Ռեզիդենտների հաշվեհամար մուտքագրված չէ։
+                    result.Add(new ActionError(2027));
+                }
+                else
+                {
+                    Account bankAccount = Account.GetAccountFromAllAccounts(bondIssue.BankAccount.AccountNumber);
+                    if (bankAccount == null)
+                    {
+                        //Բանկի Ռեզիդենտների հաշվեհամարը գոյություն չունի:
+                        result.Add(new ActionError(2028));
+                    }
+                    else
+                    {
+                        if (bankAccount.Currency != bondIssue.Currency)
+                        {
+                            //Բանկի Ռեզիդենտների հաշվեհամարի արժույթը չի համապատասխանում թողարկման արժույթին։
+                            result.Add(new ActionError(2029));
+                        }
+                    }
+                }
+
+                if (bondIssue.BankAccountForNonResident == null || bondIssue.BankAccountForNonResident.AccountNumber == null)
+                {
+                    //Բաժնետոմսի ձեռքբերման Բանկի Ոչ Ռեզիդենտների հաշվեհամար մուտքագրված չէ։
+                    result.Add(new ActionError(2030));
+                }
+                else
+                {
+                    Account bankAccount = Account.GetAccountFromAllAccounts(bondIssue.BankAccountForNonResident.AccountNumber);
+                    if (bankAccount == null)
+                    {
+                        //Բանկի Ոչ Ռեզիդենտների հաշվեհամարը գոյություն չունի:
+                        result.Add(new ActionError(2031));
+                    }
+                    else
+                    {
+                        if (bankAccount.Currency != bondIssue.Currency)
+                        {
+                            //Բանկի Ոչ Ռեզիդենտների հաշվեհամարի արժույթը չի համապատասխանում թողարկման արժույթին։
+                            result.Add(new ActionError(2032));
+                        }
+                    }
+                }
+
+                if (action == Action.Add && bondIssue.ReplacementDate < DateTime.Now.Date)
+                {
+                    //Տեղաբաշխման սկիզբը փոքր է այսօրվա ամսաթվից:
+                    result.Add(new ActionError(1489));
+                }
+
+            }
+
+            if (bondIssue.Currency != "AMD" && bondIssue.Currency != "USD")
+            {
+                //Մուտքագրված արժույթը սխալ է
+                result.Add(new ActionError(777));
+            }
+
+            return result;
+        }
+
+        public static List<ActionError> ValidateBondIssueReplacementDate(int bondIssueId)
+        {
+            List<ActionError> result = new List<ActionError>();
+
+            if (!BondIssueDB.CheckBondIssueReplacementDate(bondIssueId))
+                result.Add(new ActionError(2041));
 
             return result;
         }

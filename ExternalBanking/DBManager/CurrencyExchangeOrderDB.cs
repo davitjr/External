@@ -229,20 +229,18 @@ namespace ExternalBanking.DBManager
             SourceType type = SourceType.Bank;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "select source_type from Tbl_HB_documents where doc_ID = " + Id.ToString();
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "select source_type from Tbl_HB_documents where doc_ID = " + Id.ToString();
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            type = (SourceType)Convert.ToInt32(reader["source_type"]);
-                        }
+                        type = (SourceType)Convert.ToInt32(reader["source_type"]);
                     }
                 }
             }
@@ -260,15 +258,13 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "sp_printExchange";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
+               using SqlCommand cmd = new SqlCommand(sqltext, conn);
 
                 cmd.Parameters.Add("@doc_id", SqlDbType.Float).Value = orderId;
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
 
@@ -290,14 +286,12 @@ namespace ExternalBanking.DBManager
                     "DocDef OUTER APPLY (SELECT  country sender_country FROM   V_CustomersAddresses WITH (nolock) " +
                     "WHERE  identityId=c.identityId and addressType = 2) Addr  where C.customer_number= @customerNumber";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt1.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt1.Load(dr);
 
             }
             if (dt1.Rows[0]["passport_number"].ToString() != null)

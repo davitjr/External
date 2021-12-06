@@ -74,7 +74,7 @@ namespace ExternalBanking.DBManager
                 hbApplication.SetID = Convert.ToInt32(row["set_id"].ToString());
                 hbApplication.InvolvingSetNumber = Convert.ToInt32(row["set_id"].ToString());
                 hbApplication.PermissionType = Convert.ToByte(row["permission_type"].ToString());
-                hbApplication.SetName = Utility.ConvertAnsiToUnicode((hbApplication != null ? Utility.GetUserFullName(hbApplication.SetID) : Utility.GetUserFullName(hbApplication.SetID)));
+                hbApplication.SetName = Utility.ConvertAnsiToUnicode(Utility.GetUserFullName(hbApplication.SetID));
 
                 hbApplication.StatusChangeSetID = row["status_change_set_id"] != DBNull.Value ? Convert.ToInt32(row["status_change_set_id"].ToString()) : default(int);
 
@@ -347,28 +347,25 @@ namespace ExternalBanking.DBManager
             int? notConfirmOrderId = null;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"select top 1 doc_ID from tbl_hb_documents where customer_number = @customer_number and document_type = @document_type and quality = 3 order by doc_ID desc";
+
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                cmd.Parameters.Add("@document_type", SqlDbType.Int).Value = (int)documentType;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.HasRows)
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"select top 1 doc_ID from tbl_hb_documents where customer_number = @customer_number and document_type = @document_type and quality = 3 order by doc_ID desc";
-
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                    cmd.Parameters.Add("@document_type", SqlDbType.Int).Value = (int)documentType;
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.HasRows)
+                    if (dr.Read())
                     {
-                        if (dr.Read())
-                        {
-                            isFind = true;
-                            notConfirmOrderId = (int?)dr["doc_ID"];
-                        }
+                        isFind = true;
+                        notConfirmOrderId = (int?)dr["doc_ID"];
                     }
-
                 }
             }
             return (notConfirmOrderId, isFind);

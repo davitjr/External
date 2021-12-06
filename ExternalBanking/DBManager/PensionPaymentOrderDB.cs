@@ -98,57 +98,55 @@ namespace ExternalBanking.DBManager
         {
             ActionResult result = new ActionResult();
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = "pr_save_pension_payment_order";
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
+            cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = order.Amount;
+            cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 5).Value = order.Currency;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = UserNname;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            cmd.Parameters.Add("@registration_date", SqlDbType.DateTime).Value = order.RegistrationDate;
+            cmd.Parameters.Add("@debet_account", SqlDbType.NVarChar, 50).Value = order.DebitAccount.AccountNumber;
+            cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar, 50).Value = order.CreditAccount;
+            cmd.Parameters.Add("@pension_id", SqlDbType.BigInt).Value = order.PensionPaymentId;
+            cmd.Parameters.Add("@document_type", SqlDbType.TinyInt).Value = order.Type;
+            cmd.Parameters.Add("@ducument_sub_type", SqlDbType.TinyInt).Value = order.SubType;
+            cmd.Parameters.Add("@description", SqlDbType.NVarChar, 100).Value = order.Description;
+            cmd.Parameters.Add("@document_number", SqlDbType.Int).Value = order.OrderNumber;
+            cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = order.Source;
+
+            SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
+            param.Direction = ParameterDirection.Output;
+            cmd.Parameters.Add(param);
+
+            cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
+
+
+            cmd.ExecuteNonQuery();
+
+            byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
+            int id = Convert.ToInt32(cmd.Parameters["@id"].Value);
+
+            order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+            result.Id = order.Id;
+            order.Quality = OrderQuality.Draft;
+
+            if (actionResult == 1)
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = "pr_save_pension_payment_order";
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
-                cmd.Parameters.Add("@Amount", SqlDbType.Float).Value = order.Amount;
-                cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 5).Value = order.Currency;
-                cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = UserNname;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                cmd.Parameters.Add("@registration_date", SqlDbType.DateTime).Value = order.RegistrationDate;
-                cmd.Parameters.Add("@debet_account", SqlDbType.NVarChar, 50).Value = order.DebitAccount.AccountNumber;
-                cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar, 50).Value = order.CreditAccount;
-                cmd.Parameters.Add("@pension_id", SqlDbType.BigInt).Value = order.PensionPaymentId;
-                cmd.Parameters.Add("@document_type", SqlDbType.TinyInt).Value = order.Type;
-                cmd.Parameters.Add("@ducument_sub_type", SqlDbType.TinyInt).Value = order.SubType;
-                cmd.Parameters.Add("@description", SqlDbType.NVarChar, 100).Value = order.Description;
-                cmd.Parameters.Add("@document_number", SqlDbType.Int).Value = order.OrderNumber;
-                cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = order.Source;
-
-                SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
-                param.Direction = ParameterDirection.Output;
-                cmd.Parameters.Add(param);
-
-                cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
-
-
-                cmd.ExecuteNonQuery();
-
-                byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
-                int id = Convert.ToInt32(cmd.Parameters["@id"].Value);
-
-                order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
-                result.Id = order.Id;
-                order.Quality = OrderQuality.Draft;
-
-                if (actionResult == 1)
-                {
-                    result.ResultCode = ResultCode.Normal;
-                    result.Id = id;
-                }
-                else if (actionResult == 0)
-                {
-                    result.ResultCode = ResultCode.Failed;
-                    result.Id = -1;
-                }
-                return result;
+                result.ResultCode = ResultCode.Normal;
+                result.Id = id;
             }
+            else if (actionResult == 0)
+            {
+                result.ResultCode = ResultCode.Failed;
+                result.Id = -1;
+            }
+            return result;
         }
 
 

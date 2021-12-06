@@ -390,23 +390,20 @@ namespace ExternalBanking.DBManager
             bool check = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["UtilityPaymentsConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT  WaterV AS WaterEnd,
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = @"SELECT  WaterV AS WaterEnd,
                                                 AndamV AS AndamEnd
                                                 FROM Tbl_WaterCo_Main 
                                                 WHERE  Kod = @abonentNumber AND FilialCode=@branchCode";
-                    cmd.Parameters.Add("@abonentNumber", SqlDbType.NVarChar).Value = abonentNumber;
-                    cmd.Parameters.Add("@branchCode", SqlDbType.NVarChar).Value = branchCode;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                cmd.Parameters.Add("@abonentNumber", SqlDbType.NVarChar).Value = abonentNumber;
+                cmd.Parameters.Add("@branchCode", SqlDbType.NVarChar).Value = branchCode;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        check = true;
-                    }
-
+                if (dr.Read())
+                {
+                    check = true;
                 }
             }
             return check;
@@ -445,11 +442,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveReestrUtilityPaymentOrder(ReestrUtilityPaymentOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"  declare @filial as int
+            using SqlCommand cmd = new SqlCommand(@"  declare @filial as int
                                                     declare @DocID as int
                                                     if @customer_number<>0
                                                     begin
@@ -472,31 +468,30 @@ namespace ExternalBanking.DBManager
                                                     (@DocID,@branch,@service_provided_filialcode,@comunal_type)
                                                     Select @DocID as ID
                                                      ", conn);
-                cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
 
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
-                cmd.Parameters.Add("@document_subtype", SqlDbType.Int).Value = order.SubType;
-                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
-                cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
-                cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
-                cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
-                cmd.Parameters.Add("@comunal_type", SqlDbType.Int).Value = (int)order.CommunalType;
-                cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Currency;
-                cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
-                cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
-                cmd.Parameters.Add("@branch", SqlDbType.NVarChar).Value = order.Branch;
-                cmd.Parameters.Add("@service_provided_filialcode", SqlDbType.NVarChar).Value = order.AbonentFilialCode;
-               
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
+            cmd.Parameters.Add("@document_subtype", SqlDbType.Int).Value = order.SubType;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
+            cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
+            cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
+            cmd.Parameters.Add("@comunal_type", SqlDbType.Int).Value = (int)order.CommunalType;
+            cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Currency;
+            cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
+            cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
+            cmd.Parameters.Add("@branch", SqlDbType.NVarChar).Value = order.Branch;
+            cmd.Parameters.Add("@service_provided_filialcode", SqlDbType.NVarChar).Value = order.AbonentFilialCode;
 
-                order.Id = Convert.ToInt64(cmd.ExecuteScalar());
-                result.ResultCode = ResultCode.Normal;
-                return result;
-            }
+
+            order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+            result.ResultCode = ResultCode.Normal;
+            return result;
 
         }
 

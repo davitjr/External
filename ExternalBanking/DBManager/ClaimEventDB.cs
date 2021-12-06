@@ -15,7 +15,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select * From Tbl_problem_loan_events  Where Claim_Number =@claimNumber  Order By event_date", conn);
+                using SqlCommand cmd = new SqlCommand(@"Select * From Tbl_problem_loan_events  Where Claim_Number =@claimNumber  Order By event_date", conn);
                 cmd.Parameters.Add("@claimNumber", SqlDbType.Int).Value = claimNumber;
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)

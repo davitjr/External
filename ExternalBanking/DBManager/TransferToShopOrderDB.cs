@@ -14,11 +14,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveTransferToShopOrder(TransferToShopOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"	declare @filial as int
+            using SqlCommand cmd = new SqlCommand(@"	declare @filial as int
                                                     select @filial=filialcode from Tbl_customers where customer_number=@customer_number
                                                     INSERT INTO Tbl_HB_documents
                                                     (filial,customer_number,registration_date,document_type,
@@ -30,26 +29,25 @@ namespace ExternalBanking.DBManager
                                                     @debit_acc,@credit_acc,@descr,1,@source_type,@operationFilialCode,@oper_day)
                                                     Select Scope_identity() as ID
                                             ", conn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
-                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (short)order.Type;
-                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
-                cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
-                cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
-                cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
-                cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
-                cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.Description == null ? "" : order.Description;
-                cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
-                cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)source;
-                cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (short)order.Type;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
+            cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
+            cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
+            cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
+            cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
+            cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.Description == null ? "" : order.Description;
+            cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
+            cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)source;
+            cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            order.Id = Convert.ToInt64(cmd.ExecuteScalar());
 
-                result.ResultCode = ResultCode.Normal;
-                return result;
-            }
+            result.ResultCode = ResultCode.Normal;
+            return result;
         }
 
 
@@ -65,7 +63,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT
+                using SqlCommand cmd = new SqlCommand(@"SELECT
                                                         filial,
                                                         customer_number,
                                                         registration_date,
@@ -116,25 +114,21 @@ namespace ExternalBanking.DBManager
 
         internal static bool CheckTransferToShopPayment(ulong productId)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select product_app_ID FROM Tbl_prepayments_contracts WHERE status=1 and [type] = 200 and product_app_ID =@app_Id", conn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@app_Id", SqlDbType.Float).Value = productId;
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"Select product_app_ID FROM Tbl_prepayments_contracts WHERE status=1 and [type] = 200 and product_app_ID =@app_Id", conn);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@app_Id", SqlDbType.Float).Value = productId;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    if (dr.Read())
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }        
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
@@ -144,7 +138,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT debet_account_number FROM [Tbl_prepayments_contracts] WHERE product_app_id = @app_Id", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT debet_account_number FROM [Tbl_prepayments_contracts] WHERE product_app_id = @app_Id", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@app_Id", SqlDbType.Float).Value = productId;
                 if (cmd.ExecuteScalar() != null)
@@ -162,7 +156,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT arm_number FROM [Tbl_prepayments_contracts] WHERE product_app_id = @app_Id", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT arm_number FROM [Tbl_prepayments_contracts] WHERE product_app_id = @app_Id", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@app_Id", SqlDbType.Float).Value = productId;
                 if (cmd.ExecuteScalar() != null)
@@ -179,7 +173,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT amount FROM [Tbl_prepayments_contracts] WHERE product_app_id = @app_Id", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT amount FROM [Tbl_prepayments_contracts] WHERE product_app_id = @app_Id", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@app_Id", SqlDbType.Float).Value = productId;
                 if (cmd.ExecuteScalar() != null)

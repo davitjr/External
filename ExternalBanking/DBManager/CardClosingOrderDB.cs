@@ -96,12 +96,12 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"select 1 from Tbl_CardChanges where app_id=@app_ID", conn);
+                using SqlCommand cmd = new SqlCommand(@"select 1 from Tbl_CardChanges where app_id=@app_ID", conn);
 
                 cmd.Parameters.Add("@app_ID", SqlDbType.Float).Value = productId;
 
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     if ((reason > 38 && reason < 48) || (reason > 56 && reason < 65) || reason == 75)
@@ -131,13 +131,13 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 nn FROM [Tbl_Operations_By_Period] 
+                using SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 nn FROM [Tbl_Operations_By_Period] 
                                                  WHERE (quality = 1 And (Debet_Account =@cardAccount OR Credit_Account =@cardAccount))", conn);
 
                 cmd.Parameters.Add("@cardAccount", SqlDbType.Float).Value = accountNumber;
 
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     result.Add(new ActionError(524, new string[] { dr["nn"].ToString() }));
@@ -154,7 +154,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 //CashBack NFC  (50)
-                SqlCommand cmd = new SqlCommand(@"select 1 
+                using SqlCommand cmd = new SqlCommand(@"select 1 
                     FROM Tbl_Visa_Clearing
                     where  ((TransOK=0  and  ( @cardType NOT IN (34, 50) or ( device_type in (6011,6010,2222,742))))
                     or (  @cardType IN (34, 50)  and not (device_type in (6011,6010,2222,742) or Transaction_type in(12,17)) and confirmation_date is null))
@@ -163,7 +163,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar).Value = cardNumber;
                 cmd.Parameters.Add("@cardType", SqlDbType.TinyInt).Value = cardType;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     result.Add(new ActionError(525));
@@ -180,7 +180,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select  d.doc_ID                                            
+                using SqlCommand cmd = new SqlCommand(@"select  d.doc_ID                                            
                                                   from Tbl_HB_documents as d left join Tbl_card_closing_order_details as c on  d.doc_ID=c.Doc_ID
 
                                                   where c.app_id=@appID and d.quality in(1,2,3,5)", conn);
@@ -229,7 +229,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT card_number FROM Tbl_pension_application WHERE  quality = 0 and deleted = 0 and closing_date is null and card_number =@card_number", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT card_number FROM Tbl_pension_application WHERE  quality = 0 and deleted = 0 and closing_date is null and card_number =@card_number", conn);
 
                 cmd.Parameters.Add("@card_number", SqlDbType.Float).Value = cardNumber;
 

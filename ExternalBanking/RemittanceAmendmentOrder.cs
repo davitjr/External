@@ -128,7 +128,7 @@ namespace ExternalBanking
                 result = RemittanceAmendementOrderDB.Save(this, userName);
                 ulong orderId = (ulong)result.Id;
 
-                Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
 
 
 
@@ -277,10 +277,6 @@ namespace ExternalBanking
                 result = ARUSHelper.ConvertARUSActionResultToXBActionResult(ARUSRequestResponse.ActionResult);
                 RemittanceAmendementOrderDB.UpdateARUSMessage(this.Id, result.Errors[0].Description);
                 result.ResultCode = ResultCode.SavedNotConfirmed;
-            }
-            else if (ARUSRequestResponse.ActionResult.ResultCode == ARUSDataService.ResultCode.Failed)
-            {
-                result = ARUSHelper.ConvertARUSActionResultToXBActionResult(ARUSRequestResponse.ActionResult);
             }
             else if (ARUSRequestResponse.ActionResult.ResultCode == ARUSDataService.ResultCode.Normal)
             {

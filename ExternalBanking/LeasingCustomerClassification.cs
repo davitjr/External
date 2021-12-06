@@ -59,7 +59,7 @@ namespace ExternalBanking
         public string RegistrationDateString
         {
             get { return registrationDateString = RegistrationDate == DateTime.MinValue ? "" : RegistrationDate.ToString("dd/MM/yyyy"); }
-            set { }
+            set { registrationDateString = value; }
         }
 
 
@@ -72,7 +72,7 @@ namespace ExternalBanking
         public string ClosingDateString
         {
             get { return closingDateString = ClosingDate == DateTime.MinValue ? "" : ClosingDate.ToString("dd/MM/yyyy"); }
-            set { }
+            set { closingDateString = value; }
         }
 
         private string fileName;
@@ -109,7 +109,7 @@ namespace ExternalBanking
         public string ClassificationDateString
         {
             get { return classificationDateString = ClassificationDate == DateTime.MinValue ? "" : ClassificationDate.ToString("dd/MM/yyyy"); }
-            set { }
+            set { ClassificationDateString = value; }
         }
 
 
@@ -190,7 +190,7 @@ namespace ExternalBanking
         public string ReportDateString
         {
             get { return reportDateString = ReportDate == DateTime.MinValue ? "" : ReportDate.ToString("dd/MM/yyyy"); }
-            set { }
+            set { reportDateString = value; }
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace ExternalBanking
         public string ClosingReportDateString
         {
             get { return closingReportDateString = ClosingReportDate == DateTime.MinValue ? "" : ClosingReportDate.ToString("dd/MM/yyyy"); }
-            set { }
+            set { closingReportDateString = value; }
         }
 
 

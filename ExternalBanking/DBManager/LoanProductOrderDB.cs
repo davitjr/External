@@ -269,7 +269,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT d.amount,d.source_type,d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,n.*,d.operation_date,A.region,d.order_group_id,d.confirmation_date                                             
+                using SqlCommand cmd = new SqlCommand(@" SELECT d.amount,d.source_type,d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,n.*,d.operation_date,A.region,d.order_group_id,d.confirmation_date                                             
 		                                           FROM Tbl_HB_documents as d left join Tbl_New_Loan_Documents as n on  d.doc_ID=n.Doc_ID
                                                    LEFT JOIN tbl_armenian_places A ON N.use_of_arm_place=A.number 
                                                    WHERE d.Doc_ID=@DocID and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
@@ -277,7 +277,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 dt.Load(cmd.ExecuteReader());
-              
+
                 order.OrderNumber = dt.Rows[0]["document_number"].ToString();
                 order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
                 order.Currency = dt.Rows[0]["currency"].ToString();
@@ -335,7 +335,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT
+               using SqlCommand cmd = new SqlCommand(@" SELECT
                                                    
                                                     d.amount,
                                                     d.currency,
@@ -445,19 +445,17 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT [dbo].[fn_GetInterestRateForCreditLine](@cardNumber) as interest_rate", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT [dbo].[fn_GetInterestRateForCreditLine](@cardNumber) as interest_rate", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@cardNumber", SqlDbType.VarChar, 16).Value = cardNumber;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    if (dr.Read())
-                    {
-                        Double.TryParse(dr["interest_rate"].ToString(), out interestRate);
-                    }
-                    if (interestRate < 0)
-                        interestRate = 0;
+                    Double.TryParse(dr["interest_rate"].ToString(), out interestRate);
                 }
+                if (interestRate < 0)
+                    interestRate = 0;
             }
 
             return interestRate;
@@ -467,7 +465,7 @@ namespace ExternalBanking.DBManager
         {
             bool check = false;
 
-            using(SqlConnection conn=new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
                 string tbl = "", condition = "";
@@ -481,16 +479,14 @@ namespace ExternalBanking.DBManager
                     tbl = "[Tbl_credit_lines]";
                 }
 
-                SqlCommand cmd = new SqlCommand("SELECT loan_full_number FROM " + tbl + " WHERE quality = 10 and customer_number = @customerNumber" + condition, conn);
+                using SqlCommand cmd = new SqlCommand("SELECT loan_full_number FROM " + tbl + " WHERE quality = 10 and customer_number = @customerNumber" + condition, conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.VarChar, 16).Value = order.CustomerNumber;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    if (dr.Read())
-                    {
-                        check = true;
-                    }
+                    check = true;
                 }
             }
 
@@ -552,7 +548,7 @@ namespace ExternalBanking.DBManager
                     }
 
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     if (dr.Read())
                     {
                         short errCode = 0;
@@ -586,7 +582,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("Select dbo.fn_get_deposit_loan_and_provision_coefficent(@loanCurrency,@provisionCurrency) as syntheticStatus", conn);
+                using SqlCommand cmd = new SqlCommand("Select dbo.fn_get_deposit_loan_and_provision_coefficent(@loanCurrency,@provisionCurrency) as syntheticStatus", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@loanCurrency", SqlDbType.NVarChar, 3).Value = loanCurrency;
                 cmd.Parameters.Add("@provisionCurrency", SqlDbType.NVarChar, 3).Value = provisionCurrency;
@@ -613,7 +609,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("Select dbo.fn_get_deposit_credit_line_and_provision_coefficent(@loanCurrency,@provisionCurrency, @needRepayment,@creditLineType) as syntheticStatus", conn);
+                using SqlCommand cmd = new SqlCommand("Select dbo.fn_get_deposit_credit_line_and_provision_coefficent(@loanCurrency,@provisionCurrency, @needRepayment,@creditLineType) as syntheticStatus", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@loanCurrency", SqlDbType.NVarChar, 3).Value = loanCurrency;
                 cmd.Parameters.Add("@provisionCurrency", SqlDbType.NVarChar, 3).Value = provisionCurrency;
@@ -636,20 +632,18 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT [dbo].[fn_get_interest_rate_for_DepositLoan](@startDate,@endDate) as interest_rate", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT [dbo].[fn_get_interest_rate_for_DepositLoan](@startDate,@endDate) as interest_rate", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@startDate", SqlDbType.SmallDateTime).Value = startDate;
                 cmd.Parameters.Add("@endDate", SqlDbType.SmallDateTime).Value = endDate;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    if (dr.Read())
-                    {
-                        Double.TryParse(dr["interest_rate"].ToString(), out interestRate);
-                    }
-                    if (interestRate < 0)
-                        interestRate = 0;
+                    Double.TryParse(dr["interest_rate"].ToString(), out interestRate);
                 }
+                if (interestRate < 0)
+                    interestRate = 0;
             }
 
             return interestRate;
@@ -663,7 +657,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[fn_fast_overdraft_validations](@customerNumber,@cardNumber,@bankingSource)", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT * FROM [dbo].[fn_fast_overdraft_validations](@customerNumber,@cardNumber,@bankingSource)", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
                 if (!string.IsNullOrEmpty(cardNumber))
@@ -672,15 +666,12 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 16).Value = DBNull.Value;
                 cmd.Parameters.Add("@bankingSource", SqlDbType.Int).Value = (ushort)source;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    dt.Load(dr);
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        ActionError error = new ActionError(Convert.ToInt16(dt.Rows[i]["err_number"]));
-                        errors.Add(error);
-                    }
-
+                    ActionError error = new ActionError(Convert.ToInt16(dt.Rows[i]["err_number"]));
+                    errors.Add(error);
                 }
             }
 
@@ -692,11 +683,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveLoanApplicationQualityChangeOrder(LoanProductOrder order, string userName)
         {
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+            using SqlCommand cmd = new SqlCommand(@"
                                                     declare @filial as int
                                                     SELECT @filial=filialcode FROM dbo.Tbl_customers WHERE customer_number=@customer_number   
                                                     INSERT INTO Tbl_HB_documents
@@ -708,33 +698,32 @@ namespace ExternalBanking.DBManager
                                                     1,@source_type,@operation_filial_code,@oper_day,@description,@group_id)
                                                     Select Scope_identity() as ID
                                                      ", conn);
-                cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
 
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
-                cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
-                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
-                cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
-                cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)order.Source;
-                cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                if (!string.IsNullOrEmpty(order.Description))
-                    cmd.Parameters.Add("@description", SqlDbType.NVarChar, 150).Value = Utility.ConvertUnicodeToAnsi(order.Description);
-                else
-                    cmd.Parameters.Add("@description", SqlDbType.NVarChar, 150).Value = DBNull.Value;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
+            cmd.Parameters.Add("@doc_sub_type", SqlDbType.Int).Value = order.SubType;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
+            cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
+            cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)order.Source;
+            cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            if (!string.IsNullOrEmpty(order.Description))
+                cmd.Parameters.Add("@description", SqlDbType.NVarChar, 150).Value = Utility.ConvertUnicodeToAnsi(order.Description);
+            else
+                cmd.Parameters.Add("@description", SqlDbType.NVarChar, 150).Value = DBNull.Value;
 
-                if (order.GroupId != 0)
-                    cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
-                else
-                    cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = DBNull.Value;
+            if (order.GroupId != 0)
+                cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
+            else
+                cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = DBNull.Value;
 
-                order.Id = Convert.ToInt64(cmd.ExecuteScalar());
-                result.Id = order.Id;
-                result.ResultCode = ResultCode.Normal;
-                return result;
-            }
+            order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+            result.Id = order.Id;
+            result.ResultCode = ResultCode.Normal;
+            return result;
 
         }
 
@@ -742,22 +731,18 @@ namespace ExternalBanking.DBManager
 
         internal static bool CheckLoanApplication(string cardNumber)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"select app_id from Tbl_loan_applications where CardNumber=@card_number and (status=1 or status=2) and loan_type=54 and wrong_app = 0", conn);
+
+            cmd.Parameters.Add("@card_number", SqlDbType.NVarChar).Value = cardNumber;
+
+            if (cmd.ExecuteReader().Read())
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select app_id from Tbl_loan_applications where CardNumber=@card_number and (status=1 or status=2) and loan_type=54 and wrong_app = 0", conn);
-
-                cmd.Parameters.Add("@card_number", SqlDbType.NVarChar).Value = cardNumber;
-
-                if (cmd.ExecuteReader().Read())
-                {
-                    return true;
-                }
-                else
-                    return false;
-
-
+                return true;
             }
+            else
+                return false;
 
         }
 
@@ -766,7 +751,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT doc_ID FROM Tbl_HB_Products_Identity id
+                using SqlCommand cmd = new SqlCommand(@"SELECT doc_ID FROM Tbl_HB_Products_Identity id
                                                     INNER JOIN Tbl_HB_documents hb
                                                     ON hb.doc_ID=id.HB_Doc_ID
                                                     WHERE App_ID=@AppID and hb.quality in(2,3,5,50,100) AND document_type=@documentType AND doc_ID<>@docId", conn);
@@ -794,7 +779,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT [dbo].[fn_get_deposit_credit_line_repayment_percent](@loanCurrency,@provisionCurrency,@needRepayment,@cardAccountNumber) as repaymentPercent", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT [dbo].[fn_get_deposit_credit_line_repayment_percent](@loanCurrency,@provisionCurrency,@needRepayment,@cardAccountNumber) as repaymentPercent", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@loanCurrency", SqlDbType.NVarChar, 16).Value = loanCurrency;
                 cmd.Parameters.Add("@provisionCurrency", SqlDbType.NVarChar, 3).Value = provisionCurrency;
@@ -811,11 +796,11 @@ namespace ExternalBanking.DBManager
         {
             int country = 0;
             int useLocality = 0;
-            DataTable dt = new DataTable();
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select case when ISNULL(C.country, 0)= 0 then d.country else c.country end as country,    
+                using SqlCommand cmd = new SqlCommand(@"select case when ISNULL(C.country, 0)= 0 then d.country else c.country end as country,    
                                         case when isnull(d.townVillage,0) = 0 then c.townVillage_code else  d.townVillage  end as townvillage 
                                         from Tbl_Customers  a 
                                         inner join Tbl_Customer_Addresses b
@@ -828,7 +813,7 @@ namespace ExternalBanking.DBManager
 
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -879,7 +864,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("pr_get_array_of_repayments", conn);
+                using SqlCommand cmd = new SqlCommand("pr_get_array_of_repayments", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@grafikMode", SqlDbType.TinyInt).Value = 1;
                 cmd.Parameters.Add("@startCapital", SqlDbType.Float).Value = startCapital;
@@ -894,7 +879,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@onlyRatePeriodsNumber", SqlDbType.Int).Value = 0;
                 cmd.Parameters.Add("@changedRateCalculationType", SqlDbType.TinyInt).Value = 0;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
@@ -918,7 +903,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT dbo.fnc_calculate_commission_amount(0,@dateofbeginning,@customerNumber,@StartCapital,@Currency,29,@dateofbeginning,@DateOfNormalEnd,0,0,0,0,0,0)", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT dbo.fnc_calculate_commission_amount(0,@dateofbeginning,@customerNumber,@StartCapital,@Currency,29,@dateofbeginning,@DateOfNormalEnd,0,0,0,0,0,0)", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@dateofbeginning", SqlDbType.DateTime).Value = dateOfBeginning;
                 cmd.Parameters.Add("@DateOfNormalEnd", SqlDbType.DateTime).Value = dateofNormalEnd;
@@ -942,14 +927,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("pr_get_credit_line_decreasing_amount", conn);
+                using SqlCommand cmd = new SqlCommand("pr_get_credit_line_decreasing_amount", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@start_date", SqlDbType.SmallDateTime).Value = startDate;
                 cmd.Parameters.Add("@end_date", SqlDbType.SmallDateTime).Value = endDate;
                 cmd.Parameters.Add("@start_capital", SqlDbType.Float).Value = startCapital;
                 cmd.Parameters.Add("@currency", SqlDbType.NVarChar).Value = currency;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
@@ -1099,7 +1084,7 @@ namespace ExternalBanking.DBManager
             return UploadedFile.GetAttachedFile(docid, attachType);
 
         }
-        
+
         public static byte[] PrintDepositLoanContract(long docId, ulong customerNumber, bool fromApprove = false)
         {
             byte[] result;
@@ -1177,13 +1162,13 @@ namespace ExternalBanking.DBManager
             return result;
         }
 
-        internal static bool CheckActiveCreditLine(string loanAccountNumber, ulong customerNumber )
+        internal static bool CheckActiveCreditLine(string loanAccountNumber, ulong customerNumber)
         {
             bool check = false;
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand(@"SELECT loan_full_number
+                using SqlCommand cmd = new SqlCommand(@"SELECT loan_full_number
                                                   FROM [Tbl_credit_lines] 
                                                   WHERE quality = 0 
                                                         AND customer_number = @customerNumber 
@@ -1195,12 +1180,10 @@ namespace ExternalBanking.DBManager
 
                 conn.Open();
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    if (dr.Read())
-                    {
-                        check = true;
-                    }
+                    check = true;
                 }
             }
 
@@ -1214,7 +1197,7 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand(@"SELECT n.credit_line_account
+                using SqlCommand cmd = new SqlCommand(@"SELECT n.credit_line_account
                                                 FROM Tbl_HB_documents AS d 
                                                 LEFT JOIN Tbl_New_Credit_Line_Documents AS n
                                                 ON  d.doc_ID=n.Doc_ID
@@ -1226,12 +1209,10 @@ namespace ExternalBanking.DBManager
 
                 conn.Open();
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    if (dr.Read())
-                    {
-                        check = true;
-                    }
+                    check = true;
                 }
             }
 
@@ -1242,23 +1223,20 @@ namespace ExternalBanking.DBManager
         internal static void UpdateLoanProductOrderContractDate(long orderId)
         {
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+            using SqlCommand cmd = new SqlCommand(@"
                                                     UPDATE Tbl_new_loan_documents
                                                     SET contract_date = @contract_date
                                                     WHERE doc_id = @doc_id", conn);
-                cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
-                cmd.Parameters.Add("@contract_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
-                cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = orderId;
+            cmd.Parameters.Add("@contract_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
+            cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = orderId;
 
 
-                cmd.ExecuteScalar();
-
-            }
+            cmd.ExecuteScalar();
 
         }
 
@@ -1440,14 +1418,14 @@ namespace ExternalBanking.DBManager
             {
 
                 string query = @"SELECT TOP 1 app_id FROM [Tbl_liability_add]
-                                 WHERE loan_full_number = @loan_full_number and date_of_beginning = @date"; 
+                                 WHERE loan_full_number = @loan_full_number and date_of_beginning = @date";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     conn.Open();
                     cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@loan_full_number", SqlDbType.NVarChar,20).Value = loanFullNumber;
+                    cmd.Parameters.Add("@loan_full_number", SqlDbType.NVarChar, 20).Value = loanFullNumber;
                     cmd.Parameters.Add("@date", SqlDbType.DateTime).Value = startDate;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -1465,23 +1443,20 @@ namespace ExternalBanking.DBManager
         internal static void UpdateCreditLineProductOrderContractDate(long orderId)
         {
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+            using SqlCommand cmd = new SqlCommand(@"
                                                     UPDATE Tbl_New_Credit_Line_Documents
                                                     SET contract_date = @contract_date
                                                     WHERE doc_id = @doc_id", conn);
-                cmd.CommandType = CommandType.Text;
+            cmd.CommandType = CommandType.Text;
 
-                cmd.Parameters.Add("@contract_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
-                cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = orderId;
+            cmd.Parameters.Add("@contract_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
+            cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = orderId;
 
 
-                cmd.ExecuteScalar();
-
-            }
+            cmd.ExecuteScalar();
 
         }
 

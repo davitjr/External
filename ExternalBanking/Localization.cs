@@ -777,8 +777,8 @@ namespace ExternalBanking
         {
             if (loanApplication != null)
             {
-                loanApplication.ProductTypeDescription = Info.GetLoanApplicationProductTypeDescription(loanApplication.ProductType, culture.Language);
-                loanApplication.QualityDescription = Info.GetLoanApplicationQualityTypeDescription(loanApplication.Quality, culture.Language);
+                loanApplication.ProductTypeDescription = Info.GetLoanApplicationProductTypeDescription(loanApplication.ProductType);
+                loanApplication.QualityDescription = Info.GetLoanApplicationQualityTypeDescription(loanApplication.Quality);
                 loanApplication.CommunicationTypeDescription = Info.GetCommunicationTypeDescription(loanApplication.CommunicationType, culture.Language);
             }
         }

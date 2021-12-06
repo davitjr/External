@@ -15,17 +15,15 @@ namespace ExternalBanking.DBManager.QrTransfers
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand("pr_Get_Account_Qr_Code_Guid", conn))
-                {
-                    conn.Open();
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.Add("@account_Number", SqlDbType.NVarChar).Value = accountNumber;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand("pr_Get_Account_Qr_Code_Guid", conn);
+                conn.Open();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@account_Number", SqlDbType.NVarChar).Value = accountNumber;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        guid = Convert.ToString(dr["guid"]);
-                    }
+                if (dr.Read())
+                {
+                    guid = Convert.ToString(dr["guid"]);
                 }
             }
             return guid;
@@ -37,18 +35,16 @@ namespace ExternalBanking.DBManager.QrTransfers
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand("pr_Search_Account_By_Qr_Code", conn))
-                {
-                    conn.Open();
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.Add("@guid", SqlDbType.NVarChar).Value = guid;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand("pr_Search_Account_By_Qr_Code", conn);
+                conn.Open();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@guid", SqlDbType.NVarChar).Value = guid;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        qrTransfer.AccountNumber = Convert.ToString(dr["accountNumber"]);
-                        qrTransfer.CustomerNumber = ulong.Parse(dr["customerNumber"].ToString());
-                    }
+                if (dr.Read())
+                {
+                    qrTransfer.AccountNumber = Convert.ToString(dr["accountNumber"]);
+                    qrTransfer.CustomerNumber = ulong.Parse(dr["customerNumber"].ToString());
                 }
             }
             return qrTransfer;

@@ -19,7 +19,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT H.change_date, H.change_set_number, case D.document_type when 202 then N'Փոփոխված' else
+                using SqlCommand cmd = new SqlCommand(@"SELECT H.change_date, H.change_set_number, case D.document_type when 202 then N'Փոփոխված' else
                                                   (case document_subtype when 1 then N'Ուղարկված/վերադարձված' else N'Վճարված/չեղարկված' end) end as quality_name
                                                   FROM Tbl_HB_Documents D INNER JOIN TBL_HB_Quality_History H on D.doc_id = H.doc_id
                                                   WHERE D.transfer_id = @transfer_id and D.quality = 30 and document_type in (198,202)", conn);

@@ -102,7 +102,7 @@ namespace ExternalBanking
             this.OPPerson = OrderDB.GetOrderOPPerson(this.Id);
         }
 
-        public ActionResult SaveCredentialDetails(ulong orderId)
+        public ActionResult SaveCredentialDetails(long orderId)
         {
             ActionResult result = new ActionResult();
             CredentialOrder credentialOrder = new CredentialOrder();
@@ -141,11 +141,13 @@ namespace ExternalBanking
             {
                 result = CredentialOrderDB.SaveCredentialActivationOrder(this, userName);
                 //**********                
-                ulong orderId = base.Save(this, source, user);
-                result = SaveCredentialDetails(orderId);
-                Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                result=this.SaveOrderFee();
-                ActionResult res = BOOrderCustomer.Save(this, orderId, user);
+                //ulong orderId = base.Save(this, source, user);
+                ulong orderId = 0;
+                result = SaveCredentialDetails(this.Id);
+                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+
+                result = this.SaveOrderFee();
+                //ActionResult res = BOOrderCustomer.Save(this, (ulong)this.Id, user);
                 //**********
                 if (result.ResultCode != ResultCode.Normal)
                 {

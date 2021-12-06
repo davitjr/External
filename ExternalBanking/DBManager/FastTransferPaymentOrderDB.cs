@@ -469,6 +469,7 @@ F.ARUS_success,
                             }
 
 
+                            order.TransferAdditionalData = TransferAdditionalDataDB.GetTransferAdditionalData(order.Id);
 
                         }
                         else
@@ -478,7 +479,6 @@ F.ARUS_success,
                     }
                 }
             }
-            order.TransferAdditionalData = TransferAdditionalDataDB.GetTransferAdditionalData(order.Id);
             return order;
         }
 
@@ -599,19 +599,16 @@ F.ARUS_success,
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT sender_issue_country_code, beneficiary_mobile_no, MTO_agent_code FROM Tbl_Fast_Transfer_Order_Details
-                                                         WHERE doc_id  = @doc_id ", conn))
+                using SqlCommand cmd = new SqlCommand(@"SELECT sender_issue_country_code, beneficiary_mobile_no, MTO_agent_code FROM Tbl_Fast_Transfer_Order_Details
+                                                         WHERE doc_id  = @doc_id ", conn);
+                cmd.Parameters.Add("doc_id", SqlDbType.Int).Value = docId;
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    cmd.Parameters.Add("doc_id", SqlDbType.Int).Value = docId;
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        details.Add("countryName", dr["sender_issue_country_code"].ToString());
-                        details.Add("recipientPhoneNumber", dr["beneficiary_mobile_no"].ToString());
-                        details.Add("MTOAgentCode", dr["MTO_agent_code"].ToString());
-                    }
-
+                    details.Add("countryName", dr["sender_issue_country_code"].ToString());
+                    details.Add("recipientPhoneNumber", dr["beneficiary_mobile_no"].ToString());
+                    details.Add("MTOAgentCode", dr["MTO_agent_code"].ToString());
                 }
             }
 

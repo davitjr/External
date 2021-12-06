@@ -33,7 +33,7 @@ namespace ExternalBanking
             OperationList = new List<AssigneeOperation>();               
         }
 
-        public void Save(ulong id, Action actionType = Action.Add)
+        public void Save(long id, Action actionType = Action.Add)
         {
             ActionResult result = new ActionResult();
             result = CredentialOrderDB.SaveAssigneesDetails(this, id, actionType);

@@ -19,14 +19,14 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT hb.quality,hq.change_date FROM Tbl_HB_documents hb
+                using SqlCommand cmd = new SqlCommand(@"SELECT hb.quality,hq.change_date FROM Tbl_HB_documents hb
 													INNER JOIN Tbl_HB_quality_history hq
 													on hq.quality=hb.quality and hq.Doc_ID=hb.doc_ID
                                                     WHERE hb.doc_ID=@docId", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@docId", SqlDbType.Float).Value = paymentID;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+               using  SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -104,7 +104,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 hb.quality,hq.change_date ,hb.Doc_ID FROM Tbl_HB_documents hb
+                using SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 hb.quality,hq.change_date ,hb.Doc_ID FROM Tbl_HB_documents hb
                                                     INNER JOIN tbl_payment_registration_request_details dt
                                                     ON hb.doc_ID=dt.doc_ID
 													INNER JOIN Tbl_HB_quality_history hq
@@ -114,7 +114,7 @@ namespace ExternalBanking.DBManager
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@orderId", SqlDbType.Float).Value = orderID;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -151,13 +151,13 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT account_number FROM tbl_external_payments_system_configurations
+                using SqlCommand cmd = new SqlCommand(@"SELECT account_number FROM tbl_external_payments_system_configurations
                                                     WHERE customer_number=@customerNumber
                                                     ", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -183,7 +183,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT acc.actionID,acc.access FROM Tbl_terminal_users us
+                using SqlCommand cmd = new SqlCommand(@"SELECT acc.actionID,acc.access FROM Tbl_terminal_users us
                                                     INNER JOIN Tbl_terminal_action_access acc
                                                     ON acc.term_user_id=us.id
                                                     WHERE us.ID=@terminalId
@@ -191,7 +191,7 @@ namespace ExternalBanking.DBManager
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@terminalId", SqlDbType.Int).Value = terminalId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 DataTable dt = new DataTable();
                 dt.Load(dr);
                 if (dt.Rows.Count > 0)
@@ -222,12 +222,12 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT ID FROM tbl_external_payments_system_configurations 
+               using SqlCommand cmd = new SqlCommand(@"SELECT ID FROM tbl_external_payments_system_configurations 
                                                                             WHERE  customer_number = @customerNumber", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -247,13 +247,13 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT customer_number,username 
+                using SqlCommand cmd = new SqlCommand(@"SELECT customer_number,username 
                                                                             FROM [dbo].[Tbl_terminal_users] 
                                                                             WHERE  ID = @ID", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@ID", SqlDbType.Float).Value = teminalID;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

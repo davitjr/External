@@ -751,13 +751,14 @@ namespace ExternalBankingService.Interfaces
         Dictionary<string, string> GetAllTypesOfPlasticCardsSMS();
 
         [OperationContract]
-        List<string> GetCardMobilePhones(ulong customerNumber, ulong curdNumber);
-
+        List<Tuple<string,bool>> GetCardMobilePhones(ulong customerNumber, ulong cardNumber);
         [OperationContract]
-        string GetCurrentPhone(ulong curdNumber);
-
+        string GetCurrentPhone(ulong cardNumber);
         [OperationContract]
-        string SMSTypeAndValue(string curdNumber);
+        string GetCustomerEmailByCardNumber(string cardNumber);
+        
+        [OperationContract]
+        string SMSTypeAndValue(string cardNumber);
 
         [OperationContract]
         Dictionary<string, string> GetTypeOfLoanDelete();
@@ -770,5 +771,13 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         Dictionary<string, string> GetCommissionNonCollectionReasons();
+
+        [OperationContract]
+        Tuple<bool, bool> GetCustomerTypeAndResidence(ulong customerNumber);
+
+
+        [OperationContract]
+        Dictionary<string, string> GetDepositoryAccountOperators();
+
     }
 }

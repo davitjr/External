@@ -22,7 +22,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT [ID]
+                using SqlCommand cmd = new SqlCommand(@"SELECT [ID]
                                                         ,[response_ID]
                                                         ,[violation_ID]
                                                         ,[violation_date]
@@ -107,7 +107,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT [ID]
+                using SqlCommand cmd = new SqlCommand(@"SELECT [ID]
                                                         ,[response_ID]
                                                         ,[violation_ID]
                                                         ,[violation_date]

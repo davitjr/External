@@ -40,11 +40,6 @@ namespace ExternalBanking
         public string PayerCard { get; set; }
 
         /// <summary>
-        /// Arca-ի ունիկալ համար
-        /// </summary>
-        public string BindingId { get; set; }
-
-        /// <summary>
         /// Arca-ի Տերմինալ համար/Terminal ID
         /// </summary>
         public string TerminalId { get; set; }

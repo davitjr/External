@@ -17,7 +17,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT n.*,i.Description as notInfoDesc,o.Description as optionDesc,f.Description as frequencyDesc,l.Description as languageDesc,n.customer_number
+                using SqlCommand cmd = new SqlCommand(@"SELECT n.*,i.Description as notInfoDesc,o.Description as optionDesc,f.Description as frequencyDesc,l.Description as languageDesc,n.customer_number
                                                           FROM [tbl_product_notification_configurations] n                  
                                                           INNER JOIN tbl_types_of_product_notification_information i
                                                           ON i.id=n.information_type
@@ -53,13 +53,12 @@ namespace ExternalBanking.DBManager
         private static List<int> setCommunications(ProductNotificationConfigurations config)
         {
             List<int> communicationIds = new List<int>();
-            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            string cmdText = string.Empty;
+            if (config.NotificationOption == 2)
             {
-                conn.Open();
-                string cmdText = string.Empty;
-                if (config.NotificationOption == 2)
-                {
-                    cmdText = @"SELECT  com.CustomerEmailId as communicationID, e.emailAddress , p.communication_type as comType   
+                cmdText = @"SELECT  com.CustomerEmailId as communicationID, e.emailAddress , p.communication_type as comType   
                                         FROM tbl_product_notification_configuration_communications p
                                         INNER JOIN Tbl_Communications_By_Email com
                                         ON com.id=p.communication_ID
@@ -68,10 +67,10 @@ namespace ExternalBanking.DBManager
                                         INNER JOIN Tbl_Emails e
                                         ON ce.emailid=e.id
                                         WHERE p.product_notification_configuration_ID=@configID";
-                }
-                else if (config.NotificationOption == 5)
-                {
-                    cmdText = @"SELECT  com.CustomerPhoneId as communicationID,ph.phoneNumber, p.communication_type as comType  
+            }
+            else if (config.NotificationOption == 5)
+            {
+                cmdText = @"SELECT  com.CustomerPhoneId as communicationID,ph.phoneNumber, p.communication_type as comType  
                                         FROM tbl_product_notification_configuration_communications p
                                         INNER JOIN Tbl_Communications_By_Phone com
                                         ON com.id=p.communication_ID
@@ -80,38 +79,37 @@ namespace ExternalBanking.DBManager
                                         INNER JOIN Tbl_Phones ph
                                         ON cp.phoneid=ph.id
                                         WHERE p.product_notification_configuration_ID=@configID";
-                }
-                
-                SqlCommand cmd = new SqlCommand(cmdText, conn);
-                cmd.Parameters.Add("@configID", SqlDbType.Float).Value = config.ID; 
-                DataTable dt = new DataTable();
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
-                string comString = string.Empty;
-                foreach (DataRow row in dt.Rows)
-                {
-                    if (row != null)
-                    {
-                        communicationIds.Add(int.Parse(row["communicationID"].ToString()));
-                        //Email
-                        if (short.Parse(row["comType"].ToString()) == 1)
-                        {
-                            comString += row["emailAddress"].ToString() + ",";
-                        }
-                        //Phone
-                        if (short.Parse(row["comType"].ToString()) == 2)
-                        {
-                            comString += row["phoneNumber"].ToString() + ",";
-                        }
+            }
 
+            using SqlCommand cmd = new SqlCommand(cmdText, conn);
+            cmd.Parameters.Add("@configID", SqlDbType.Float).Value = config.ID;
+            DataTable dt = new DataTable();
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
+                dt.Load(dr);
+            }
+            string comString = string.Empty;
+            foreach (DataRow row in dt.Rows)
+            {
+                if (row != null)
+                {
+                    communicationIds.Add(int.Parse(row["communicationID"].ToString()));
+                    //Email
+                    if (short.Parse(row["comType"].ToString()) == 1)
+                    {
+                        comString += row["emailAddress"].ToString() + ",";
+                    }
+                    //Phone
+                    if (short.Parse(row["comType"].ToString()) == 2)
+                    {
+                        comString += row["phoneNumber"].ToString() + ",";
                     }
 
                 }
-                config.CommunicationsDescription = comString;
-                return communicationIds;
+
             }
+            config.CommunicationsDescription = comString;
+            return communicationIds;
         }
 
 

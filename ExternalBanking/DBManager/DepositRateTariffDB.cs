@@ -95,7 +95,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select a.code,a.description,b.description as FreqDescr,b.description_eng as FreqDescr_eng,
+                using SqlCommand cmd = new SqlCommand(@"select a.code,a.description,b.description as FreqDescr,b.description_eng as FreqDescr_eng,
                         rate_repayment_frequency from [Tbl_type_of_deposits;] a left  join Tbl_Type_of_deposit_repayment_frequency  b 
                                      on a.rate_repayment_frequency = b.id where code  = @depositType", conn);
 

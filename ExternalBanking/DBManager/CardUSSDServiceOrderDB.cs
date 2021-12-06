@@ -92,7 +92,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select  d.doc_ID                                            
+                using SqlCommand cmd = new SqlCommand(@"select  d.doc_ID                                            
                                                   from Tbl_HB_documents as d left join Tbl_card_USSD_serivce_order_details as c on  d.doc_ID=c.Doc_ID
 
                                                   where c.product_app_id=@appID and d.quality in(1,2,3,5)", conn);
@@ -134,11 +134,11 @@ namespace ExternalBanking.DBManager
                                             on dt.doc_id=hb.doc_ID
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+               using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+               using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())

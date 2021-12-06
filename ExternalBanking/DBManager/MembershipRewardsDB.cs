@@ -13,25 +13,25 @@ namespace ExternalBanking.DBManager
         public static MembershipRewards GetCardMembershipRewards(string cardNumber)
         {
             MembershipRewards mr = null;
-           
-            using(SqlConnection conn=new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = "SELECT TOP 1 *,(Select status from Tbl_type_of_MR_status where id=a.status) as status_descr, (SELECT Change_date FROM Tbl_MR_history AS h WHERE a.MR_Id = h.MR_Id AND h.Status = 2) AS fee_payment_date  FROM tbl_MR_applications a where cardnumber=@cardNumber order by mr_id desc";
 
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.Add("@cardNumber", SqlDbType.VarChar, 16).Value = cardNumber;
                 cmd.CommandType = CommandType.Text;
                 conn.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     mr = new MembershipRewards();
-                    mr.Id =Convert.ToInt32(dr["MR_Id"].ToString());
+                    mr.Id = Convert.ToInt32(dr["MR_Id"].ToString());
                     mr.Status = Convert.ToUInt16(dr["Status"].ToString());
                     mr.StatusDescription = dr["status_descr"].ToString();
                     mr.RegistrationDate = DateTime.Parse(dr["RegDate"].ToString());
-                    mr.EndDate =DateTime.Parse(dr["EndDate"].ToString());
-                    mr.ClosingDate = dr["Closing_date"]!=DBNull.Value ? DateTime.Parse(dr["Closing_date"].ToString()):default(DateTime?);
+                    mr.EndDate = DateTime.Parse(dr["EndDate"].ToString());
+                    mr.ClosingDate = dr["Closing_date"] != DBNull.Value ? DateTime.Parse(dr["Closing_date"].ToString()) : default(DateTime?);
                     mr.ServiceFee = Convert.ToDouble(dr["ServiceFee"].ToString());
                     mr.ServiceFeeReal = Convert.ToDouble(dr["ServiceFeeReal"].ToString());
                     mr.ServiceFeePayed = Convert.ToDouble(dr["ServiceFeePayed"].ToString());
@@ -58,14 +58,14 @@ namespace ExternalBanking.DBManager
                                         WHERE cardnumber = @cardNumber AND regdate>= @startDate AND regdate <= @endDate
                                         ORDER BY regdate ASC ";
 
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 16).Value = cardNumber;
                 cmd.Parameters.Add("@startDate", SqlDbType.SmallDateTime).Value = startDate.Date;
                 cmd.Parameters.Add("@endDate", SqlDbType.SmallDateTime).Value = endDate.Date;
 
                 cmd.CommandType = CommandType.Text;
                 conn.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 while (dr.Read())
                 {
@@ -98,11 +98,11 @@ namespace ExternalBanking.DBManager
                                         FROM tbl_MR_applications m 
                                                     LEFT JOIN tbl_visa_numbers_accounts v ON m.CardNumber = v.visa_number
                                         WHERE m.mr_id = @ID  AND  v.closing_date IS NULL";
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
                 cmd.CommandType = CommandType.Text;
                 conn.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     mr = new MembershipRewards();
@@ -128,15 +128,15 @@ namespace ExternalBanking.DBManager
 
         public static double GetMembershipRewardsBonus(int Id)
         {
-            double balanceBonus=0;
+            double balanceBonus = 0;
 
-            using(SqlConnection conn=new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand("Select ISNULL(sum(case debet_credit when 'c' then bonus_scores else -bonus_scores end),0) as bonus from Tbl_cards_bonus_history where mr_id=@MRId", conn);
+                using SqlCommand cmd = new SqlCommand("Select ISNULL(sum(case debet_credit when 'c' then bonus_scores else -bonus_scores end),0) as bonus from Tbl_cards_bonus_history where mr_id=@MRId", conn);
                 cmd.Parameters.Add("@MRId", SqlDbType.Int).Value = Id;
                 cmd.CommandType = CommandType.Text;
                 conn.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     balanceBonus = Convert.ToDouble(dr["bonus"].ToString());
@@ -156,11 +156,11 @@ namespace ExternalBanking.DBManager
                                         FROM Tbl_MR_Applications a INNER JOIN Tbl_MR_history h ON h.MR_Id=a.MR_Id 
                                         WHERE cardnumber = @cardNumber 
                                         ORDER BY a.mr_id asc, h.Change_date asc";
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.Add("@cardNumber", SqlDbType.VarChar, 16).Value = cardNumber;
                 cmd.CommandType = CommandType.Text;
                 conn.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 while (dr.Read())
                 {

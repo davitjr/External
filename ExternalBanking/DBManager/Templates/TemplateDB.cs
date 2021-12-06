@@ -80,7 +80,7 @@ namespace ExternalBanking.DBManager
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static List<Template> GetGroupTemplates(int groupId)
+        public static List<Template> GetGroupTemplates(int groupId, TemplateStatus status)
         {
             List<Template> templates = new List<Template>();
 
@@ -94,12 +94,13 @@ namespace ExternalBanking.DBManager
                                 ON t.document_type = s.document_type and t.document_subtype = s.document_sub_type  
                                 INNER JOIN [dbo].[tbl_group_template_short_info] I
                                 ON t.id = i.template_id
-                                WHERE [type] = 2 and t.order_group_id = @groupId";
+                                WHERE [type] = 2 AND status = @status AND t.order_group_id = @groupId";
 
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
+                    cmd.Parameters.Add("@status", SqlDbType.Int).Value = (int)status;
 
                     DataTable dt = new DataTable();
                     using (SqlDataReader dr = cmd.ExecuteReader())

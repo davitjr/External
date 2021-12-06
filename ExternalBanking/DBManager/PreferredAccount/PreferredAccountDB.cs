@@ -19,14 +19,13 @@ namespace ExternalBanking.DBManager.PreferredAccounts
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand();
+                using SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                SqlDataReader dr;
                 cmd.CommandText = "get_selected_preferred_account";
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@service_type", SqlDbType.Int).Value = (int)serviceType;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

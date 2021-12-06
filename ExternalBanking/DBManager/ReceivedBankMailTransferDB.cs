@@ -249,8 +249,6 @@ namespace ExternalBanking.DBManager
         {
 
             DataTable dt = new DataTable();
-            SqlCommand cmd = new SqlCommand();
-
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -263,100 +261,98 @@ namespace ExternalBanking.DBManager
 
 
 
-                using (cmd = new SqlCommand(str, conn))
+                using SqlCommand cmd = new SqlCommand(str, conn);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = transfer.ID;
+                dt.Load(cmd.ExecuteReader());
+
+                if (dt.Rows.Count != 0)
                 {
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = transfer.ID;
-                    dt.Load(cmd.ExecuteReader());
 
-                    if (dt.Rows.Count != 0)
+                    transfer.ID = Convert.ToUInt64(dt.Rows[0]["ID"]);
+                    transfer.DateGet = Convert.ToDateTime(dt.Rows[0]["DateGet"]);
+                    transfer.TimeGet = Convert.ToDateTime(dt.Rows[0]["TimeGet"]);
+                    transfer.FName = dt.Rows[0]["F_Name"].ToString();
+                    transfer.AccDebetCB = dt.Rows[0]["AccDebetCB"].ToString();
+                    transfer.DescrDebetCB = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrDebetCB"].ToString());
+                    transfer.AccDebet = dt.Rows[0]["AccDebet"].ToString();
+                    transfer.AccCredit = dt.Rows[0]["AccCredit"].ToString();
+                    transfer.DescrCredit = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrCredit"].ToString());
+                    transfer.DescrPoxancym = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrPoxancym"].ToString());
+                    transfer.DateTransfer = Convert.ToDateTime(dt.Rows[0]["DatePoxancym"]);
+                    transfer.Valuta = dt.Rows[0]["Valuta"].ToString();
+                    transfer.Amount = Convert.ToDouble(dt.Rows[0]["amount"]);
+                    transfer.TransOK = Convert.ToByte(dt.Rows[0]["TransOK"]);
+                    transfer.StrFirstLine = dt.Rows[0]["strFirstLine"].ToString();
+                    transfer.Editing = Convert.ToInt32(dt.Rows[0]["ID"]);
+                    transfer.DateTrans = Convert.ToDateTime(dt.Rows[0]["DateTrans"]);
+                    transfer.UserCode = Convert.ToInt32(dt.Rows[0]["UserCode"]);
+                    transfer.ForPrint = Convert.ToInt32(dt.Rows[0]["For_Print"]);
+
+                    if (dt.Rows[0]["card_number"] != DBNull.Value)
                     {
-
-                        transfer.ID = Convert.ToUInt64(dt.Rows[0]["ID"]);
-                        transfer.DateGet = Convert.ToDateTime(dt.Rows[0]["DateGet"]);
-                        transfer.TimeGet = Convert.ToDateTime(dt.Rows[0]["TimeGet"]);
-                        transfer.FName = dt.Rows[0]["F_Name"].ToString();
-                        transfer.AccDebetCB = dt.Rows[0]["AccDebetCB"].ToString();
-                        transfer.DescrDebetCB = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrDebetCB"].ToString());
-                        transfer.AccDebet = dt.Rows[0]["AccDebet"].ToString();
-                        transfer.AccCredit = dt.Rows[0]["AccCredit"].ToString();
-                        transfer.DescrCredit = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrCredit"].ToString());
-                        transfer.DescrPoxancym = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrPoxancym"].ToString());
-                        transfer.DateTransfer = Convert.ToDateTime(dt.Rows[0]["DatePoxancym"]);
-                        transfer.Valuta = dt.Rows[0]["Valuta"].ToString();
-                        transfer.Amount = Convert.ToDouble(dt.Rows[0]["amount"]);
-                        transfer.TransOK = Convert.ToByte(dt.Rows[0]["TransOK"]);
-                        transfer.StrFirstLine = dt.Rows[0]["strFirstLine"].ToString();
-                        transfer.Editing = Convert.ToInt32(dt.Rows[0]["ID"]);
-                        transfer.DateTrans = Convert.ToDateTime(dt.Rows[0]["DateTrans"]);
-                        transfer.UserCode = Convert.ToInt32(dt.Rows[0]["UserCode"]);
-                        transfer.ForPrint = Convert.ToInt32(dt.Rows[0]["For_Print"]);
-
-                        if (dt.Rows[0]["card_number"] != DBNull.Value)
-                        {
-                            transfer.CardNumber = dt.Rows[0]["card_number"].ToString();
-                        }
-
-                        transfer.CardFilial = Convert.ToInt16(dt.Rows[0]["Card_Filial"]);
-                        transfer.FileForBranch = dt.Rows[0]["File_For_Branch"].ToString();
-                        transfer.SocialNumber = dt.Rows[0]["Social_Number"].ToString();
-                        transfer.DescrDebet = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrDebet"].ToString());
-                        transfer.Verified = Convert.ToInt16(dt.Rows[0]["Verified"]);
-                        if (dt.Rows[0]["Verifier_Set_Number"] != DBNull.Value)
-                        {
-                            transfer.VerifierSetNumber = Convert.ToInt16(dt.Rows[0]["Verifier_Set_Number"]);
-                        }
-
-                        transfer.NotAutomatTrans = Convert.ToInt16(dt.Rows[0]["NotAutomatTrans"]);
-
-                        if (dt.Rows[0]["Transactions_Group_number"] != DBNull.Value)
-                        {
-                            transfer.TransactionsGroupNumber = Convert.ToInt64(dt.Rows[0]["Transactions_Group_number"]);
-                        }
-
-                        transfer.AmlCheck = Convert.ToInt16(dt.Rows[0]["aml_check"]);
-                        if (dt.Rows[0]["aml_check_date"] != DBNull.Value)
-                        {
-                            transfer.AmlCheckDate = Convert.ToDateTime(dt.Rows[0]["aml_check_date"]);
-                            transfer.AmlCheckSetNumber = Convert.ToInt16(dt.Rows[0]["aml_check_set_number"]);
-                        }
-
-                        transfer.VerifiedAML = Convert.ToInt16(dt.Rows[0]["verified_AML"]);
-                        if (dt.Rows[0]["verifier_set_date_AML"] != DBNull.Value)
-                        {
-                            transfer.VerifierSetDateAML = Convert.ToDateTime(dt.Rows[0]["verifier_set_date_AML"]);
-                            transfer.VerifierSetNumber_AML = Convert.ToInt16(dt.Rows[0]["verifier_set_number_AML"]);
-                        }
-
-                        transfer.Ident = dt.Rows[0]["Ident"].ToString();
-                        if (dt.Rows[0]["unknown_reason"] != DBNull.Value)
-                        {
-                            transfer.UnknownReason = dt.Rows[0]["unknown_reason"].ToString();
-                        }
-
-                        transfer.UnknownTransfer = Convert.ToInt16(dt.Rows[0]["unknown_transfer"]);
-                        transfer.UnknownTransferSend = Convert.ToInt16(dt.Rows[0]["unknown_transfer_send"]);
-
-                        if (dt.Rows[0]["payment_code"] != DBNull.Value)
-                        {
-                            transfer.SenderType = dt.Rows[0]["sender_type"].ToString();
-                            transfer.ReceiverType = dt.Rows[0]["receiver_type"].ToString();
-                            transfer.AddInf = dt.Rows[0]["add_inf"].ToString();
-                            transfer.PaymentCode = dt.Rows[0]["payment_code"].ToString();
-                        }
-                        if (dt.Rows[0]["confirmation_date"] != DBNull.Value)
-                            transfer.ConfirmationDate = Convert.ToDateTime(dt.Rows[0]["confirmation_date"]);
-                        if (dt.Rows[0]["confirmation_set_number"] != DBNull.Value)
-                            transfer.ConfirmationSetNumber = Convert.ToInt16(dt.Rows[0]["confirmation_set_number"]);
-                        if (dt.Rows[0]["confirmation_time"] != DBNull.Value)
-                            transfer.ConfirmationTime = (TimeSpan)dt.Rows[0]["confirmation_time"];
-                        if (dt.Rows[0]["payment_order_reference_number"] != DBNull.Value)
-                            transfer.PaymentOrderReferenceNumber = dt.Rows[0]["payment_order_reference_number"].ToString();
-
-                 
-
-
-
+                        transfer.CardNumber = dt.Rows[0]["card_number"].ToString();
                     }
+
+                    transfer.CardFilial = Convert.ToInt16(dt.Rows[0]["Card_Filial"]);
+                    transfer.FileForBranch = dt.Rows[0]["File_For_Branch"].ToString();
+                    transfer.SocialNumber = dt.Rows[0]["Social_Number"].ToString();
+                    transfer.DescrDebet = Utility.ConvertAnsiToUnicode(dt.Rows[0]["DescrDebet"].ToString());
+                    transfer.Verified = Convert.ToInt16(dt.Rows[0]["Verified"]);
+                    if (dt.Rows[0]["Verifier_Set_Number"] != DBNull.Value)
+                    {
+                        transfer.VerifierSetNumber = Convert.ToInt16(dt.Rows[0]["Verifier_Set_Number"]);
+                    }
+
+                    transfer.NotAutomatTrans = Convert.ToInt16(dt.Rows[0]["NotAutomatTrans"]);
+
+                    if (dt.Rows[0]["Transactions_Group_number"] != DBNull.Value)
+                    {
+                        transfer.TransactionsGroupNumber = Convert.ToInt64(dt.Rows[0]["Transactions_Group_number"]);
+                    }
+
+                    transfer.AmlCheck = Convert.ToInt16(dt.Rows[0]["aml_check"]);
+                    if (dt.Rows[0]["aml_check_date"] != DBNull.Value)
+                    {
+                        transfer.AmlCheckDate = Convert.ToDateTime(dt.Rows[0]["aml_check_date"]);
+                        transfer.AmlCheckSetNumber = Convert.ToInt16(dt.Rows[0]["aml_check_set_number"]);
+                    }
+
+                    transfer.VerifiedAML = Convert.ToInt16(dt.Rows[0]["verified_AML"]);
+                    if (dt.Rows[0]["verifier_set_date_AML"] != DBNull.Value)
+                    {
+                        transfer.VerifierSetDateAML = Convert.ToDateTime(dt.Rows[0]["verifier_set_date_AML"]);
+                        transfer.VerifierSetNumber_AML = Convert.ToInt16(dt.Rows[0]["verifier_set_number_AML"]);
+                    }
+
+                    transfer.Ident = dt.Rows[0]["Ident"].ToString();
+                    if (dt.Rows[0]["unknown_reason"] != DBNull.Value)
+                    {
+                        transfer.UnknownReason = dt.Rows[0]["unknown_reason"].ToString();
+                    }
+
+                    transfer.UnknownTransfer = Convert.ToInt16(dt.Rows[0]["unknown_transfer"]);
+                    transfer.UnknownTransferSend = Convert.ToInt16(dt.Rows[0]["unknown_transfer_send"]);
+
+                    if (dt.Rows[0]["payment_code"] != DBNull.Value)
+                    {
+                        transfer.SenderType = dt.Rows[0]["sender_type"].ToString();
+                        transfer.ReceiverType = dt.Rows[0]["receiver_type"].ToString();
+                        transfer.AddInf = dt.Rows[0]["add_inf"].ToString();
+                        transfer.PaymentCode = dt.Rows[0]["payment_code"].ToString();
+                    }
+                    if (dt.Rows[0]["confirmation_date"] != DBNull.Value)
+                        transfer.ConfirmationDate = Convert.ToDateTime(dt.Rows[0]["confirmation_date"]);
+                    if (dt.Rows[0]["confirmation_set_number"] != DBNull.Value)
+                        transfer.ConfirmationSetNumber = Convert.ToInt16(dt.Rows[0]["confirmation_set_number"]);
+                    if (dt.Rows[0]["confirmation_time"] != DBNull.Value)
+                        transfer.ConfirmationTime = (TimeSpan)dt.Rows[0]["confirmation_time"];
+                    if (dt.Rows[0]["payment_order_reference_number"] != DBNull.Value)
+                        transfer.PaymentOrderReferenceNumber = dt.Rows[0]["payment_order_reference_number"].ToString();
+
+
+
+
+
                 }
 
             }

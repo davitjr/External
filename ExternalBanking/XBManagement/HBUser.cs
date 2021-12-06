@@ -147,7 +147,7 @@ namespace ExternalBanking.XBManagement
         /// <returns></returns>
         public static HBUser GetHBUserByUserName(string hbUserName)
         {
-            HBUser hbUser = HBUserDB.GetHBUserByUserName(hbUserName);
+           HBUser hbUser = HBUserDB.GetHBUserByUserName(hbUserName);
             //hbUser.GetHBUserProductsPermissions();
             return hbUser;
 

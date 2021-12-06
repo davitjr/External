@@ -38,7 +38,7 @@ namespace ExternalBanking
         public string RRN { get; set; }
         public string AuthId { get; set; }
         public string VisaAlias { get; set; }
-
+        public string CountryCode { get; set; }
         protected void Complete()
         {
             this.RegistrationDate = DateTime.Now.Date;

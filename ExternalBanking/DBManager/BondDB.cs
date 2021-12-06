@@ -18,15 +18,19 @@ namespace ExternalBanking.DBManager
             bond.CustomerDepositaryAccount = new DepositaryAccount();
             string sql = "";
 
-            sql = @"  SELECT b.id, b.app_id, b.ISIN, b.bond_count, b.unit_price, b.total_price, b.filialcode, b.doc_id, b.account_number_for_bond, b.bond_issue_id,
+            sql = @"  SELECT bd.stock_income_account, b.id, b.app_id, b.ISIN, b.bond_count, b.unit_price, b.total_price, b.filialcode, b.doc_id, b.account_number_for_bond, b.bond_issue_id,
                                            b.account_number_for_coupon, b.customer_number, b.amount_charge_date, b.amount_charge_time, E.id as depositary_account_existence_type,
                                            E.[description] as depositary_account_existence_type_description, b.depositary_account, b.depositary_account_description, b.registration_date, b.set_number,
                                            b.currency, b.interest_rate, b.quality,  q.description as bond_description, b.document_number, b.depositary_account_bank_code, b.reject_reason_id, 
-                                           (isnull(R.[description], '') + ' ' + isnull(b.reject_reason_description, '')) as reject_reason_description          
+                                           (isnull(R.[description], '') + ' ' + isnull(b.reject_reason_description, '')) as reject_reason_description, b.share_type, b.securing_money, b.partially_satisfied_count,
+                                            BI.issue_seria
                             FROM Tbl_bonds b inner join Tbl_Type_of_Depositary_Account_Existence E on B.depositary_account_existence_type = E.id
                                         INNER JOIN tbl_type_of_bond_quality q ON b.quality = q.id
+										INNER JOIN tbl_bond_order_details  bd
+										ON  B.doc_id = bd.doc_ID
                                         LEFT JOIN Tbl_type_of_bond_reject_reasons R on b.reject_reason_id = R.id
-                            WHERE b.ID = @ID ";
+                                        INNER JOIN [dbo].[Tbl_bond_issue] BI ON B.bond_issue_id = BI.id
+                            WHERE b.ID =  @ID ";
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -59,7 +63,7 @@ namespace ExternalBanking.DBManager
                     bond.AccountForBond = Account.GetAccount(ulong.Parse(row["account_number_for_bond"].ToString()));
                     bond.AccountForCoupon = Account.GetAccount(ulong.Parse(row["account_number_for_coupon"].ToString()));
                     bond.CustomerNumber = UInt64.Parse(row["customer_number"].ToString());
-                    bond.AmountChargeDate = row["amount_charge_date"] != DBNull.Value ? DateTime.Parse(row["amount_charge_date"].ToString()) : default(DateTime);    
+                    bond.AmountChargeDate = row["amount_charge_date"] != DBNull.Value ? DateTime.Parse(row["amount_charge_date"].ToString()) : default(DateTime);
                     bond.AmountChargeTime = row["amount_charge_time"] != DBNull.Value ? (TimeSpan)row["amount_charge_time"] : default(TimeSpan);
                     bond.CustomerDepositaryAccount.AccountNumber = row["depositary_account"] != DBNull.Value ? Convert.ToDouble(row["depositary_account"]) : 0;
                     bond.CustomerDepositaryAccount.Description = row["depositary_account_description"] != DBNull.Value ? Utility.ConvertAnsiToUnicode(row["depositary_account_description"].ToString()) : default(string);
@@ -70,16 +74,24 @@ namespace ExternalBanking.DBManager
                     bond.Quality = (BondQuality)byte.Parse(row["quality"].ToString());
                     bond.QualityDescription = row["bond_description"].ToString();
                     bond.DocumentNumber = Convert.ToInt32(row["document_number"].ToString());
-                    bond.DepositaryAccountExistenceType = (DepositaryAccountExistence)Convert.ToByte(dt.Rows[0]["depositary_account_existence_type"]);
-                    bond.DepositaryAccountExistenceTypeDescription = dt.Rows[0]["depositary_account_existence_type_description"].ToString();
-                    bond.CustomerDepositaryAccount.BankCode = dt.Rows[0]["depositary_account_bank_code"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["depositary_account_bank_code"]) : 0;
+                    bond.DepositaryAccountExistenceType = (DepositaryAccountExistence)Convert.ToByte(row["depositary_account_existence_type"]);
+                    bond.DepositaryAccountExistenceTypeDescription = row["depositary_account_existence_type_description"].ToString();
+                    bond.CustomerDepositaryAccount.BankCode = row["depositary_account_bank_code"] != DBNull.Value ? Convert.ToInt32(row["depositary_account_bank_code"]) : 0;
+                    bond.CustomerDepositaryAccount.StockIncomeAccountNumber = row["stock_income_account"] != DBNull.Value ? (row["stock_income_account"].ToString()) : default(string);
 
                     if (bond.Quality == BondQuality.Rejected)
                     {
-                        bond.RejectReasonId = (BondRejectReason)(dt.Rows[0]["reject_reason_id"] != DBNull.Value ? Convert.ToByte(dt.Rows[0]["reject_reason_id"]) : 0);
-                        bond.RejectReasonDescription = dt.Rows[0]["reject_reason_description"] != DBNull.Value ? dt.Rows[0]["reject_reason_description"].ToString() : "";
+                        bond.RejectReasonId = (BondRejectReason)(row["reject_reason_id"] != DBNull.Value ? Convert.ToByte(row["reject_reason_id"]) : 0);
+                        bond.RejectReasonDescription = row["reject_reason_description"] != DBNull.Value ? row["reject_reason_description"].ToString() : "";
                     }
-                  
+
+                    bond.ShareType = row["share_type"] != DBNull.Value ? (SharesTypes)Convert.ToInt32(row["share_type"]) : 0;
+
+                    bond.IssueSeria = row["issue_seria"] != DBNull.Value ? Convert.ToInt32(row["issue_seria"]) : 0;
+ 
+                    bond.SecuringMoney = row["securing_money"] != DBNull.Value ? Convert.ToBoolean(row["securing_money"]) : false;
+
+                    bond.PartiallySatisfiedCount = row["partially_satisfied_count"] != DBNull.Value ? Convert.ToInt32(row["partially_satisfied_count"]) : default;
                 }
             }
 
@@ -105,7 +117,8 @@ namespace ExternalBanking.DBManager
                                                     b.currency, b.interest_rate, q.description as bond_description, b.document_number,
                                                     b.depositary_account_existence_type, E.[description] as depositary_account_existence_type_description,
                                                     b.depositary_account_bank_code, b.reject_reason_id, 
-                                                    (isnull(R.[description], '') + ' ' + isnull(b.reject_reason_description, '')) as reject_reason_description
+                                                    (isnull(R.[description], '') + ' ' + isnull(b.reject_reason_description, '')) as reject_reason_description,
+                                                    b.share_type, b.securing_money, b.partially_satisfied_count
                                     FROM Tbl_bonds b 
                                                 INNER JOIN tbl_type_of_bond_quality q ON b.quality = q.id
                                                 INNER JOIN Tbl_Type_of_Depositary_Account_Existence E on B.depositary_account_existence_type = E.id
@@ -154,7 +167,11 @@ namespace ExternalBanking.DBManager
                         command.Parameters.Add("@EndDate", SqlDbType.SmallDateTime).Value = filter.EndDate;
                     }
 
-
+                    if (filter.ShareType != SharesTypes.None)
+                    {
+                        sql += " and [share_type] = @share_type ";
+                        command.Parameters.Add("@share_type", SqlDbType.Int).Value = (int)filter.ShareType;
+                    }
 
                     sql = sql + " ORDER BY b.id desc ";
 
@@ -218,7 +235,11 @@ namespace ExternalBanking.DBManager
                             bond.RejectReasonDescription = row["reject_reason_description"] != DBNull.Value ? row["reject_reason_description"].ToString() : "";
                         }
 
-                      
+                        bond.ShareType = row["share_type"] != DBNull.Value ? (SharesTypes)Convert.ToInt32(row["share_type"]) : 0;
+
+                        bond.SecuringMoney = row["securing_money"] != DBNull.Value ? Convert.ToBoolean(row["securing_money"]) : false;
+
+                        bond.PartiallySatisfiedCount = row["partially_satisfied_count"] != DBNull.Value ? Convert.ToInt32(row["partially_satisfied_count"]) : default;
 
                         bondList.Add(bond);
                     }
@@ -227,6 +248,39 @@ namespace ExternalBanking.DBManager
 
             return bondList;
 
+        }
+
+
+        internal static BondCertificateDetails GetBondCertificateDetailsByDocId(ulong docId)
+        {
+            BondCertificateDetails bondCertificateDetails = new BondCertificateDetails();
+    
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(@"SELECT [ISIN], [bond_count], [dbo].[fnc_convertAnsiToUnicode](CASE WHEN C.type_of_client = 6 THEN  C.[name] + ' ' + C.lastName ELSE C.[Description] END) AS fullname,
+                                B.[registration_date], C.[type_of_client]
+                                FROM [dbo].[Tbl_bonds] B  (nolock) 
+                                INNER JOIN [dbo].[V_CustomerDesriptionDocs] C  (nolock)  ON B.customer_number = C.customer_number 
+                                WHERE B.doc_id = @docId", conn);
+
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        bondCertificateDetails.ClientType = Convert.ToInt32(reader["type_of_client"]);
+                        bondCertificateDetails.BondCount = Convert.ToInt32(reader["bond_count"]);
+                        bondCertificateDetails.FullName  = (reader["fullname"]).ToString();
+                        bondCertificateDetails.ISIN  = (reader["ISIN"]).ToString();
+                        bondCertificateDetails.RegistrationDate  = reader["registration_date"] != DBNull.Value ? Convert.ToDateTime(reader["registration_date"]) : default(DateTime);
+                    }
+                }
+            }
+            return bondCertificateDetails;
         }
     }
 }

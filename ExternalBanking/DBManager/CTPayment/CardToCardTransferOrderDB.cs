@@ -16,7 +16,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("pr_save_card_to_card_transfer_order", conn);
+                using SqlCommand cmd = new SqlCommand("pr_save_card_to_card_transfer_order", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@debetCardNumber", SqlDbType.NVarChar, 16).Value = order.SourceCard.CardNumber;
                 cmd.Parameters.Add("@creditCardNumber", SqlDbType.NVarChar, 16).Value = order.DestinationCardNumber;
@@ -57,13 +57,13 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT card_number, dbo.fnc_getCardExpireDate(card_number) ExpiryDate 
+                using SqlCommand cmd = new SqlCommand(@"SELECT card_number, dbo.fnc_getCardExpireDate(card_number) ExpiryDate 
                                                                               FROM tbl_external_payments_system_configurations
                                                                               WHERE customer_number=@customerNumber ", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -96,7 +96,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@orderID", SqlDbType.Float).Value = order.OrderID;
                     cmd.Parameters.Add("@sourceID", SqlDbType.Int).Value = order.SourceID;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     return dr.Read();
                 }
 
@@ -113,26 +113,23 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"SELECT transfer_ID
+                using SqlCommand cmd = new SqlCommand(@"SELECT transfer_ID
         					                                                        FROM Tbl_card_to_card_transfers
-                                                                                    WHERE order_ID = @orderID", conn))
+                                                                                    WHERE order_ID = @orderID", conn);
+                //transfer_ID
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@orderID", SqlDbType.Float).Value = orderID;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    //transfer_ID
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@orderID", SqlDbType.Float).Value = orderID;
+                    transferID = Convert.ToUInt32(dr["transfer_ID"]);
 
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        transferID = Convert.ToUInt32(dr["transfer_ID"]);
-
-                    }
-                    else
-                    {
-                        transferID = 0;
-                    }
-
+                }
+                else
+                {
+                    transferID = 0;
                 }
             }
 

@@ -14,6 +14,7 @@
     <RootNamespace>ExternalBankingService</RootNamespace>
     <AssemblyName>ExternalBankingService</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IISExpressSSLPort />
@@ -127,9 +128,54 @@
     <None Include="Service References\AOService\service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService.disco" />
     <None Include="Service References\InfSecServiceReference\configuration91.svcinfo" />
     <None Include="Service References\InfSecServiceReference\configuration.svcinfo" />
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.ApplicationClientPermissions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.AuthorizedUser.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.ClientPermissions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.CustomertData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.DocumetsPermissions.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.GetEmployeesTempData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.PermissionsGroupsList.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.PermitedBranches.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.RequestData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.UserAccessForCustomer.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService51.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService52.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService53.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService54.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\InfSecServiceReference\InfSecService1.wsdl" />
     <None Include="Service References\InfSecServiceReference\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -140,6 +186,7 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService1.disco" />
     <Content Include="SSTerminalService.svc" />
     <Content Include="CTPaymentService.svc" />
     <Content Include="Properties\DataSources\ExternalBanking.ACBAServiceReference.AuthorizedUser2.datasource" />
@@ -242,16 +289,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\PublishProfiles\WEB1011 REAL.pubxml" />
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\InfSecServiceReference\InfSecService.wsdl" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
       <SubType>Designer</SubType>

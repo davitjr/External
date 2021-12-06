@@ -1,44 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
     internal class EOServiceDB
     {
-       
-        internal static void  SaveEOGetClientRequest(EOGetClientRequest request)
+
+        internal static void SaveEOGetClientRequest(EOGetClientRequest request)
         {
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand("pr_insert_EO_get_client_request", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
+            using SqlCommand cmd = new SqlCommand("pr_insert_EO_get_client_request", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
 
 
-                cmd.Parameters.Add("@requestID", SqlDbType.Int).Value = request.ID;
-                cmd.Parameters.Add("@companyID", SqlDbType.NVarChar).Value = request.CompID;
-                cmd.Parameters.Add("@passportNumber", SqlDbType.NVarChar).Value = request.Passport;
-                cmd.Parameters.Add("@socialCardNumber", SqlDbType.NVarChar).Value = request.SSN.ToString();
-                cmd.Parameters.Add("@productID", SqlDbType.NVarChar).Value = request.ProductID;
-                cmd.Parameters.Add("@phone", SqlDbType.NVarChar).Value = request.Telephone;
-                SqlParameter param = new SqlParameter("@ID", SqlDbType.Int);
-                param.Direction = ParameterDirection.Output;
-                cmd.Parameters.Add(param);
+            cmd.Parameters.Add("@requestID", SqlDbType.Int).Value = request.ID;
+            cmd.Parameters.Add("@companyID", SqlDbType.NVarChar).Value = request.CompID;
+            cmd.Parameters.Add("@passportNumber", SqlDbType.NVarChar).Value = request.Passport;
+            cmd.Parameters.Add("@socialCardNumber", SqlDbType.NVarChar).Value = request.SSN.ToString();
+            cmd.Parameters.Add("@productID", SqlDbType.NVarChar).Value = request.ProductID;
+            cmd.Parameters.Add("@phone", SqlDbType.NVarChar).Value = request.Telephone;
+            SqlParameter param = new SqlParameter("@ID", SqlDbType.Int);
+            param.Direction = ParameterDirection.Output;
+            cmd.Parameters.Add(param);
 
-                cmd.ExecuteNonQuery();
-
-            }
+            cmd.ExecuteNonQuery();
 
 
 
-     
+
         }
 
         internal static int SaveEOGetClientResponse(EOGetClientResponse response)
@@ -50,7 +44,7 @@ namespace ExternalBanking.DBManager
 
                 int responseID = 0;
 
-                SqlCommand cmd = new SqlCommand("pr_insert_EO_get_client_response", conn);
+                using SqlCommand cmd = new SqlCommand("pr_insert_EO_get_client_response", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@requestID", SqlDbType.Int).Value = response.ParentID;
@@ -81,16 +75,19 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("pr_insert_EO_make_transfer_request", conn);
+                using SqlCommand cmd = new SqlCommand("pr_insert_EO_make_transfer_request", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
 
                 cmd.Parameters.Add("@parentID", SqlDbType.Int).Value = request.ParentID;
-                cmd.Parameters.Add("@amount", SqlDbType.Float).Value = request.Amount ;
+                cmd.Parameters.Add("@amount", SqlDbType.Float).Value = request.Amount;
                 cmd.Parameters.Add("@currency", SqlDbType.NVarChar).Value = request.Currency;
                 cmd.Parameters.Add("@account", SqlDbType.Float).Value = request.Account;
-                SqlParameter param = new SqlParameter("@ID", SqlDbType.Int);
-                param.Direction = ParameterDirection.Output;
+                SqlParameter param = new SqlParameter("@ID", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
                 cmd.Parameters.Add(param);
 
                 cmd.ExecuteNonQuery();
@@ -100,7 +97,7 @@ namespace ExternalBanking.DBManager
 
         }
 
-        internal static void  SaveEOMakeTransferResponse(EOTransferResponse response)
+        internal static void SaveEOMakeTransferResponse(EOTransferResponse response)
         {
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -109,7 +106,7 @@ namespace ExternalBanking.DBManager
 
                 int responseID = 0;
 
-                SqlCommand cmd = new SqlCommand("pr_insert_EO_make_transfer_response", conn);
+                using SqlCommand cmd = new SqlCommand("pr_insert_EO_make_transfer_response", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@parentID", SqlDbType.Int).Value = response.ParentID;

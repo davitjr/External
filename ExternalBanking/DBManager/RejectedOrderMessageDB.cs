@@ -58,37 +58,35 @@ namespace ExternalBanking.DBManager
                                                  " WHERE result.row >  (@initialCount + @start)   and result.row <= (@initialCount + @end)";
                 }
 
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@userId", SqlDbType.Int).Value = userId;
+                cmd.Parameters.Add("@initialCount", SqlDbType.Int).Value = initialCount;
+                cmd.Parameters.Add("@start", SqlDbType.Int).Value = start;
+                cmd.Parameters.Add("@end", SqlDbType.Int).Value = end;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                   
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@userId", SqlDbType.Int).Value =userId;
-                    cmd.Parameters.Add("@initialCount", SqlDbType.Int).Value = initialCount;
-                    cmd.Parameters.Add("@start", SqlDbType.Int).Value = start;
-                    cmd.Parameters.Add("@end", SqlDbType.Int).Value = end;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    while (dr.Read())
-                    {                        
-                        RejectedOrderMessage message = new RejectedOrderMessage();
-                        message.Id= int.Parse(dr["Id"].ToString());
-                        message.UserId= int.Parse(dr["userId"].ToString());
-                        message.Order=Order.GetOrder(long.Parse(dr["doc_Id"].ToString()));
-                        message.Message = dr["message"].ToString();
-                        message.Subject = dr["subject"].ToString();
-                        message.MessageType= int.Parse(dr["message_type"].ToString());
-                        message.MessageTypeDescription = dr["description"].ToString();
-                        if (dr["read_date"] != DBNull.Value)
-                        {
-                            message.ReadDate = DateTime.Parse(dr["read_date"].ToString());
-                        }
-                        else
-                        {
-                            message.ReadDate =null;
-                        }                
-                        message.RegistrationDate = DateTime.Parse(dr["registration_date"].ToString());
-                        userMessages.Add(message);
+                    RejectedOrderMessage message = new RejectedOrderMessage();
+                    message.Id = int.Parse(dr["Id"].ToString());
+                    message.UserId = int.Parse(dr["userId"].ToString());
+                    message.Order = Order.GetOrder(long.Parse(dr["doc_Id"].ToString()));
+                    message.Message = dr["message"].ToString();
+                    message.Subject = dr["subject"].ToString();
+                    message.MessageType = int.Parse(dr["message_type"].ToString());
+                    message.MessageTypeDescription = dr["description"].ToString();
+                    if (dr["read_date"] != DBNull.Value)
+                    {
+                        message.ReadDate = DateTime.Parse(dr["read_date"].ToString());
                     }
+                    else
+                    {
+                        message.ReadDate = null;
+                    }
+                    message.RegistrationDate = DateTime.Parse(dr["registration_date"].ToString());
+                    userMessages.Add(message);
                 }
             }
             return userMessages;

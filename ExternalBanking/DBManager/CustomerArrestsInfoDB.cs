@@ -32,9 +32,9 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.Text;
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                       if(dr.HasRows)
+                        if (dr.HasRows)
                         {
-                            while(dr.Read())
+                            while (dr.Read())
                             {
                                 ArrestTypes arrest = new ArrestTypes();
                                 arrest.ID = Convert.ToInt32(dr[0]);
@@ -95,7 +95,7 @@ namespace ExternalBanking.DBManager
         {
             string json = "";
 
-            if(obj != null)
+            if (obj != null)
             {
 
                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -124,13 +124,13 @@ namespace ExternalBanking.DBManager
                         }
                         _con.Close();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         json = ex.Message;
                         _con.Close();
                     }
                 }
-               
+
             }
 
             return json;
@@ -168,7 +168,7 @@ namespace ExternalBanking.DBManager
                         }
                         _con.Close();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         json = ex.Message;
                     }
@@ -207,161 +207,154 @@ namespace ExternalBanking.DBManager
                 _con.Close();
             }
 
-           
+
             return groupId;
         }
-    
+
 
         internal static string GetCustomerArrestsInfo(ulong customerNumber)
         {
             string json = "";
             List<CustomerArrestInfo> customerArrests = new List<CustomerArrestInfo>();
             List<ArrestTypes> arrestsTypes = JsonConvert.DeserializeObject<List<ArrestTypes>>(GetArrestTypesList());
-            List<ArrestsReasonTypes> arrestsReasonTypes = JsonConvert.DeserializeObject<List<ArrestsReasonTypes>>(GetArrestsReasonTypesList()); 
+            List<ArrestsReasonTypes> arrestsReasonTypes = JsonConvert.DeserializeObject<List<ArrestsReasonTypes>>(GetArrestsReasonTypesList());
 
             if (customerNumber != 0)
             {
                 try
                 {
-                    using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                    using SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                    _con.Open();
+
+                    string query = "select ID,region,branch,village,number,case when (SELECT dbo.IsTextUnicode(Info)) = 1 then Info else [dbo].[fnc_convertAnsiToUnicode](Info) end as Info," +
+                        "customer_number,[Type],SetDate,Set_Number,arrest_reason from tbl_Info Where customer_number = @customerNumber " +
+                        "Order By Isnull(SetDate,'01/jan/1900'),ID";
+
+                    using (SqlCommand cmd = new SqlCommand(query, _con))
                     {
-                        _con.Open();
+                        cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
+                        SqlDataReader reader = cmd.ExecuteReader();
 
-                        string query = "select ID,region,branch,village,number,case when (SELECT dbo.IsTextUnicode(Info)) = 1 then Info else [dbo].[fnc_convertAnsiToUnicode](Info) end as Info," +
-                            "customer_number,[Type],SetDate,Set_Number,arrest_reason from tbl_Info Where customer_number = @customerNumber " +
-                            "Order By Isnull(SetDate,'01/jan/1900'),ID";
 
-                        using (SqlCommand cmd = new SqlCommand(query, _con))
+                        if (reader.HasRows)
                         {
-                            cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
-                            SqlDataReader reader = cmd.ExecuteReader();
-
-
-                            if (reader.HasRows)
+                            while (reader.Read())
                             {
-                                while (reader.Read())
+                                CustomerArrestInfo ca = new CustomerArrestInfo();
+                                ca.ID = Convert.ToInt32(reader["ID"]);
+                                ca.Region = Convert.ToInt32(reader["region"]);
+                                ca.Branch = Convert.ToInt32(reader["branch"]);
+                                ca.Village = Convert.ToInt32(reader["village"]);
+                                ca.Number = Convert.ToInt32(reader["number"]);
+                                ca.CustomerNumber = Convert.ToInt64(reader["customer_number"]);
+                                ca.Description = Convert.ToString(reader["Info"]);
+                                if (Convert.ToString(reader["SetDate"]) != "")
                                 {
-                                    CustomerArrestInfo ca = new CustomerArrestInfo();
-                                    ca.ID = Convert.ToInt32(reader["ID"]);
-                                    ca.Region = Convert.ToInt32(reader["region"]);
-                                    ca.Branch = Convert.ToInt32(reader["branch"]);
-                                    ca.Village = Convert.ToInt32(reader["village"]);
-                                    ca.Number = Convert.ToInt32(reader["number"]);
-                                    ca.CustomerNumber = Convert.ToInt64(reader["customer_number"]);
-                                    ca.Description = Convert.ToString(reader["Info"]);
-                                    if (Convert.ToString(reader["SetDate"]) != "")
-                                    {
-                                        ca.RegistrationDate = Convert.ToDateTime(reader["SetDate"]).ToString("dd/MM/yyyy");
-                                    }
-                                    else
-                                    {
-                                        ca.RegistrationDate = "";
-                                    }
-
-                                    if (Convert.ToString(reader["Set_Number"]) != "")
-                                    {
-                                        ca.SetNumber = Convert.ToInt32(reader["Set_Number"]);
-                                    }
-                                    if (Convert.ToString(reader["arrest_reason"]) != "")
-                                    {
-                                        ca.ArrestReasonID = Convert.ToInt32(reader["arrest_reason"]);
-
-                                        //List<string> keyList = new List<string>(arrestsReasonTypes.Keys);
-                                        //List<string> valueList = new List<string>(arrestsReasonTypes.Values);
-
-
-                                        for (int i = 0; i < arrestsReasonTypes.Count; i++)
-                                        {
-                                            if (arrestsReasonTypes[i].ID == ca.ArrestReasonID)
-                                            {
-                                                ca.ArrestReasonDescription = arrestsReasonTypes[i].Description;
-                                            }
-                                        }
-
-
-                                    }
-                                    else
-                                    {
-                                        ca.ArrestReasonDescription = "";
-                                    }
-
-
-                                    if (Convert.ToString(reader["Type"]) != "")
-                                    {
-
-                                        ca.TypeID = Convert.ToInt32(reader["Type"]);
-
-                                        //List<string> keyList = new List<string>(arrestsTypes.Keys);
-                                        //List<string> valueList = new List<string>(arrestsTypes.Values);
-
-                                        for (int i = 0; i < arrestsTypes.Count; i++)
-                                        {
-                                            if (arrestsTypes[i].ID == ca.TypeID)
-                                            {
-                                                ca.TypeDescription = arrestsTypes[i].Description;
-                                            }
-                                        }
-
-                                    }
-                                    else
-                                    {
-                                        ca.TypeDescription = "";
-                                    }
-
-                                    if (ca.SetNumber != 0)
-                                    {
-
-                                        string sql = @"SELECT * FROM [dbo].[v_cashers_list] WHERE new_id = @id";
-
-                                        using (SqlCommand cmd1 = new SqlCommand(sql, _con))
-                                        {
-                                            cmd1.CommandType = CommandType.Text;
-                                            cmd1.Parameters.Add("@id", SqlDbType.Int).Value = ca.SetNumber;
-                                            using (SqlDataReader dr = cmd1.ExecuteReader())
-                                            {
-                                                if (dr.HasRows)
-                                                {
-                                                    while (dr.Read())
-                                                    {
-                                                        ca.SetPerson = Convert.ToString(dr["First_Name"]) + ' ' + Convert.ToString(dr["Last_Name"]);
-                                                    }
-                                                }
-                                            }
-
-                                        }
-                                    }
-
-                                    customerArrests.Add(ca);
+                                    ca.RegistrationDate = Convert.ToDateTime(reader["SetDate"]).ToString("dd/MM/yyyy");
                                 }
-                            }
-
-                            reader.Close();
-
-                            cmd.CommandText = "SELECT arrest FROM tbl_customers WHERE customer_number= @customerNumber";
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.Clear();
-                            cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
-
-                            reader = cmd.ExecuteReader();
-
-                            if (reader.HasRows)
-                            {
-                                while (reader.Read())
+                                else
                                 {
-                                    if (Convert.ToInt32(reader["arrest"]) == 1 || Convert.ToInt32(reader["arrest"]) == 2)
+                                    ca.RegistrationDate = "";
+                                }
+
+                                if (Convert.ToString(reader["Set_Number"]) != "")
+                                {
+                                    ca.SetNumber = Convert.ToInt32(reader["Set_Number"]);
+                                }
+                                if (Convert.ToString(reader["arrest_reason"]) != "")
+                                {
+                                    ca.ArrestReasonID = Convert.ToInt32(reader["arrest_reason"]);
+
+                                    //List<string> keyList = new List<string>(arrestsReasonTypes.Keys);
+                                    //List<string> valueList = new List<string>(arrestsReasonTypes.Values);
+
+
+                                    for (int i = 0; i < arrestsReasonTypes.Count; i++)
                                     {
-                                        customerArrests[0].HasArrests = true;
+                                        if (arrestsReasonTypes[i].ID == ca.ArrestReasonID)
+                                        {
+                                            ca.ArrestReasonDescription = arrestsReasonTypes[i].Description;
+                                        }
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    ca.ArrestReasonDescription = "";
+                                }
+
+
+                                if (Convert.ToString(reader["Type"]) != "")
+                                {
+
+                                    ca.TypeID = Convert.ToInt32(reader["Type"]);
+
+                                    //List<string> keyList = new List<string>(arrestsTypes.Keys);
+                                    //List<string> valueList = new List<string>(arrestsTypes.Values);
+
+                                    for (int i = 0; i < arrestsTypes.Count; i++)
+                                    {
+                                        if (arrestsTypes[i].ID == ca.TypeID)
+                                        {
+                                            ca.TypeDescription = arrestsTypes[i].Description;
+                                        }
+                                    }
+
+                                }
+                                else
+                                {
+                                    ca.TypeDescription = "";
+                                }
+
+                                if (ca.SetNumber != 0)
+                                {
+
+                                    string sql = @"SELECT * FROM [dbo].[v_cashers_list] WHERE new_id = @id";
+
+                                    using SqlCommand cmd1 = new SqlCommand(sql, _con);
+                                    cmd1.CommandType = CommandType.Text;
+                                    cmd1.Parameters.Add("@id", SqlDbType.Int).Value = ca.SetNumber;
+                                    using SqlDataReader dr = cmd1.ExecuteReader();
+                                    if (dr.HasRows)
+                                    {
+                                        while (dr.Read())
+                                        {
+                                            ca.SetPerson = Convert.ToString(dr["First_Name"]) + ' ' + Convert.ToString(dr["Last_Name"]);
+                                        }
                                     }
                                 }
+
+                                customerArrests.Add(ca);
                             }
-
-
-
                         }
-                        _con.Close();
+
+                        reader.Close();
+
+                        cmd.CommandText = "SELECT arrest FROM tbl_customers WHERE customer_number= @customerNumber";
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Clear();
+                        cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
+
+                        reader = cmd.ExecuteReader();
+
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                if (Convert.ToInt32(reader["arrest"]) == 1 || Convert.ToInt32(reader["arrest"]) == 2)
+                                {
+                                    customerArrests[0].HasArrests = true;
+                                }
+                            }
+                        }
+
+
+
                     }
+                    _con.Close();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     string error = ex.Message;
                 }

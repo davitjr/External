@@ -231,7 +231,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select LP.IdPro From Tbl_Link_application_Provision LP 
+                using SqlCommand cmd = new SqlCommand(@"Select LP.IdPro From Tbl_Link_application_Provision LP 
 				                                  Inner join Tbl_provision_of_clients P 
 				                                  ON LP.IdPro=P.IdPro 
 				                                  Inner join Tbl_type_of_all_provision 
@@ -239,7 +239,7 @@ namespace ExternalBanking.DBManager
                                                   Where  LP.app_id=@productId and matured_date is null and p.type=13 and p.currency<> @currency", conn);
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
                 cmd.Parameters.Add("@currency", SqlDbType.NVarChar).Value = currency;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (!dr.HasRows)
                 {
                     check = true;
@@ -254,19 +254,17 @@ namespace ExternalBanking.DBManager
         internal static bool HasTransportProvison(long productId)
         {
             bool check = false;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT pr.IdPro FROM Tbl_provision_of_clients pr INNER JOIN  Tbl_Link_application_Provision link on pr.IdPro =  link.IdPro 
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT pr.IdPro FROM Tbl_provision_of_clients pr INNER JOIN  Tbl_Link_application_Provision link on pr.IdPro =  link.IdPro 
                                                  WHERE Type in(5,6) AND matured_date is null AND pr.idpro not in (SELECT idpro FROM Tbl_Link_application_Provision WHERE activated_date is not null AND app_id <>@productId) AND app_id = @productId", conn);
-                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
-                if (dr.HasRows)
-                {
-                    check = true;
-                }
-                return check;
+            cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.HasRows)
+            {
+                check = true;
             }
+            return check;
         }
 
 

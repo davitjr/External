@@ -73,11 +73,11 @@ namespace ExternalBanking.DBManager
                                             on lp.doc_id=hb.doc_ID
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())
@@ -102,16 +102,14 @@ namespace ExternalBanking.DBManager
 
         public static bool ExistsLoanProductDataChange(ulong appId)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"select 1 from [dbo].[Tbl_short_time_loans_AddInf] where app_id = @appId ", conn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@appId", SqlDbType.Float).Value = appId;
+            using SqlCommand cmd = new SqlCommand(@"select 1 from [dbo].[Tbl_short_time_loans_AddInf] where app_id = @appId ", conn);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@appId", SqlDbType.Float).Value = appId;
 
-                return Convert.ToBoolean(cmd.ExecuteScalar());
-            }
+            return Convert.ToBoolean(cmd.ExecuteScalar());
         }
 
 

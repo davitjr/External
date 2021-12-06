@@ -117,7 +117,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT HB.registration_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT HB.registration_date,
                                                          HB.document_number,
                                                          HB.document_type,
                                                          HB.document_subtype,
@@ -209,15 +209,13 @@ namespace ExternalBanking.DBManager
                                  "ON CLV.limitType = CL.id " +
                                  "WHERE app_id = @product_id AND(isDeleted = 0 OR isDeleted IS NULL) and ((CLV.limitType in (8, 5, 25) AND CL.periodTypeId = 1) OR (CLV.limitType= 23 AND CL.periodTypeId = 3))";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
 
                 cmd.Parameters.Add("@product_id", SqlDbType.Float).Value = productId;
 
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
 

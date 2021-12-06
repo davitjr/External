@@ -110,17 +110,15 @@ namespace ExternalBanking.DBManager
 
                 sqltext += "ORDER BY TC.customer_number";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
                 cmd.Parameters.AddRange(prms.ToArray());
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    dt.Load(dr);
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        transferContract = SetTransferContract(dt.Rows[i]);
-                        list.Add(transferContract);
-                    }
+                    transferContract = SetTransferContract(dt.Rows[i]);
+                    list.Add(transferContract);
                 }
 
             }
@@ -139,14 +137,12 @@ namespace ExternalBanking.DBManager
 
                 string sqltext = @"SELECT * FROM tbl_contracts_for_transfers_by_call   WHERE contract_id =@contarctId";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
                 cmd.Parameters.Add("@contarctId", SqlDbType.Int).Value = contarctId;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                    transferContract = SetTransferContractForAcbaOnline(dt.Rows[0]);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
+                transferContract = SetTransferContractForAcbaOnline(dt.Rows[0]);
 
             }
             return transferContract;

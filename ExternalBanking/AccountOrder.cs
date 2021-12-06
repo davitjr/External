@@ -289,12 +289,12 @@ namespace ExternalBanking
             {
                 result = AccountOrderDB.Save(this, userName, source);
                
-                if (Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
-                {
-                    //**********  
-                    ulong orderId = base.Save(this, source, user);
-                    //**********
-                }
+                //if (Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
+                //{
+                //    //**********  
+                //    ulong orderId = base.Save(this, source, user);
+                //    //**********
+                //}
 
                 if (result.ResultCode != ResultCode.Normal)
                 {

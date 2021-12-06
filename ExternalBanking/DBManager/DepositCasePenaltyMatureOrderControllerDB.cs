@@ -15,7 +15,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"	declare @filial as int
+                using SqlCommand cmd = new SqlCommand(@"	declare @filial as int
                                                     declare @doc_ID as int
                                                     select @filial=filialcode from Tbl_customers where customer_number=@customer_number
                                                     INSERT INTO Tbl_HB_documents
@@ -84,11 +84,11 @@ namespace ExternalBanking.DBManager
                                              ON dt.Doc_ID=hb.doc_ID
                                              WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())

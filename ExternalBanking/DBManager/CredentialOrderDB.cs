@@ -70,9 +70,8 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type,document_subtype,quality,debet_account,amount,currency, L.order_id,D.source_type,D.order_group_id 
+                SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type,document_subtype,quality,debet_account,amount,currency, D.source_type,D.order_group_id 
 		                                           FROM dbo.Tbl_HB_documents D 
-                                                   INNER JOIN [HBBase].[dbo].Tbl_link_HB_document_order L ON D.doc_id = L.document_id
                                                    WHERE Doc_ID=@DocID and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
 
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
@@ -87,7 +86,7 @@ namespace ExternalBanking.DBManager
                 order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
                 order.Source = (SourceType)int.Parse(dt.Rows[0]["source_type"].ToString());
 
-                order.Credential = GetCredentialOrderDetails(ulong.Parse(dt.Rows[0]["order_id"].ToString()), order.Source);
+                order.Credential = GetCredentialOrderDetails((ulong)order.Id, order.Source);
                 order.GroupId = dt.Rows[0]["order_group_id"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["order_group_id"]) : 0;
 
             }
@@ -114,7 +113,7 @@ namespace ExternalBanking.DBManager
                     whereCond = " AND tao.forLegalEntity=1 ";
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT tao.id opType, tao.description opTypeDescr, tao.Groupid, AOG.description opGroupDescription, ISNULL(operationTypeId,0) operationTypeId 
+                using SqlCommand cmd = new SqlCommand(@"SELECT tao.id opType, tao.description opTypeDescr, tao.Groupid, AOG.description opGroupDescription, ISNULL(operationTypeId,0) operationTypeId 
                                                 FROM Tbl_type_of_assign_operation tao 
                                                 LEFT JOIN (SELECT operationTypeId FROM Tbl_assign_operation_account_types GROUP BY operationTypeId) aoa ON tao.ID=aoa.operationTypeId 
                                                 INNER JOIN Tbl_Type_of_assign_operations_groups AOG ON AOG.id = tao.groupId
@@ -157,18 +156,18 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// GET CREDENTIAL ORDER DETAILS
         /// </summary>
-        internal static Credential GetCredentialOrderDetails(ulong orderId, SourceType source)
+        internal static Credential GetCredentialOrderDetails(ulong docId, SourceType source)
         {
             Credential oneCredential = new Credential();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT A.order_Id, A.credential_number, A.start_date, A.end_date, A.credential_type, T.description FROM [HBBase].[dbo].Tbl_credential_order_details A 
+                SqlCommand cmd = new SqlCommand(@"SELECT A.doc_Id, A.credential_number, A.start_date, A.end_date, A.credential_type, T.description FROM [HBBase].[dbo].Tbl_credential_order_details A 
                                                 INNER JOIN Tbl_type_of_assigns T ON A.credential_type = T.id
-                                                WHERE order_id =@orderId", conn);
+                                                WHERE doc_id =@docId", conn);
 
-                cmd.Parameters.Add("@orderId", SqlDbType.Float).Value = orderId;
+                cmd.Parameters.Add("@docId", SqlDbType.Float).Value = docId;
 
                 DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -181,7 +180,7 @@ namespace ExternalBanking.DBManager
 
                 if (row != null)
                 {
-                    oneCredential.Id = ulong.Parse(row["order_Id"].ToString());
+                    oneCredential.Id = ulong.Parse(row["doc_Id"].ToString());
                     oneCredential.CredentialNumber = row["credential_number"].ToString();
                     oneCredential.StartDate = DateTime.Parse(row["start_date"].ToString());
                     oneCredential.EndDate = row["end_date"] == DBNull.Value ? default(DateTime?) : DateTime.Parse(row["end_date"].ToString());
@@ -190,11 +189,11 @@ namespace ExternalBanking.DBManager
 
                     if (source == SourceType.AcbaOnline || source == SourceType.MobileBanking)
                     {
-                        oneCredential.AssigneeList = GetCredentialOrderAssigneesAcbaOnline(orderId);
+                        oneCredential.AssigneeList = GetCredentialOrderAssigneesAcbaOnline(docId);
                     }
                     else
                     {
-                        oneCredential.AssigneeList = GetCredentialOrderAssignees(orderId);
+                        oneCredential.AssigneeList = GetCredentialOrderAssignees(docId);
                     }
 
                 }
@@ -206,14 +205,14 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// GET CREDENTIAL ORDER ASIGNEE DETAILS
         /// </summary>
-        internal static List<Assignee> GetCredentialOrderAssignees(ulong orderId)
+        internal static List<Assignee> GetCredentialOrderAssignees(ulong docId)
         {
             List<Assignee> assigneeList = new List<Assignee>();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT A.id, A.assignee_customer_number, A.signature_type, A.is_employee, isnull(F.unicode_name,'') as Name, isnull(F.unicode_Lastname,'') as LastName, 
+                using SqlCommand cmd = new SqlCommand(@"SELECT A.id, A.assignee_customer_number, A.signature_type, A.is_employee, isnull(F.unicode_name,'') as Name, isnull(F.unicode_Lastname,'') as LastName, 
                                                 isnull(F.unicode_middleName,'') as MiddleName,
                                                 D.passport_inf as GivenBy, D.passport_date as GivenDate, D.passport_type as DocType, D.Passport_Number as DocNumber                                                  
                                                 FROM [HBBase].[dbo].Tbl_assignees_details A
@@ -221,9 +220,9 @@ namespace ExternalBanking.DBManager
 												INNER JOIN Tbl_Persons P On C.IdentityId = P.identityId 
                                                 INNER JOIN V_FullNames F On F.id = p.fullNameId
                                                 INNER JOIN [V_CustomerDescriptionIndividualsDocs] D on C.customer_number = D.customer_number 
-                                                WHERE A.order_id = @orderId", conn);
+                                                WHERE A.doc_id = @docId", conn);
 
-                cmd.Parameters.Add("@orderId", SqlDbType.Float).Value = orderId;
+                cmd.Parameters.Add("@docId", SqlDbType.Float).Value = docId;
 
                 DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -273,21 +272,21 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// GET CREDENTIAL ORDER ASIGNEE DETAILS
         /// </summary>
-        internal static List<Assignee> GetCredentialOrderAssigneesAcbaOnline(ulong orderId)
+        internal static List<Assignee> GetCredentialOrderAssigneesAcbaOnline(ulong docId)
         {
             List<Assignee> assigneeList = new List<Assignee>();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT A.id, A.assignee_customer_number, A.signature_type, A.is_employee, dbo.fnc_convertAnsiToUnicode(assignee_first_name) as Name, dbo.fnc_convertAnsiToUnicode(assignee_last_name) as LastName, 
+                using SqlCommand cmd = new SqlCommand(@"SELECT A.id, A.assignee_customer_number, A.signature_type, A.is_employee, dbo.fnc_convertAnsiToUnicode(assignee_first_name) as Name, dbo.fnc_convertAnsiToUnicode(assignee_last_name) as LastName, 
                                                 dbo.fnc_convertAnsiToUnicode(assignee_middle_name) as MiddleName,
                                                 A.assignee_document_given_by as GivenBy, A.assignee_document_given_date as GivenDate, A.assignee_document_type as DocType, A.assignee_document_number as DocNumber                                                  
                                                 FROM Tbl_assignees_details A                               
                                              
-                                                WHERE A.order_id = @orderId", conn);
+                                                WHERE A.doc_id = @docId", conn);
 
-                cmd.Parameters.Add("@orderId", SqlDbType.Float).Value = orderId;
+                cmd.Parameters.Add("@docId", SqlDbType.Float).Value = docId;
 
                 DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -356,7 +355,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT op.id, op.all_account, op.type,t.Description, t.GroupId, G.Description GroupDescription FROM [HBBase].[dbo].Tbl_assignee_operations op 
+                using SqlCommand cmd = new SqlCommand(@"SELECT op.id, op.all_account, op.type,t.Description, t.GroupId, G.Description GroupDescription FROM [HBBase].[dbo].Tbl_assignee_operations op 
                                                 INNER JOIN Tbl_type_of_assign_operation t on op.type=t.ID 
                                                 INNER JOIN Tbl_Type_of_assign_operations_groups G ON t.GroupId = G.Id                                             
                                                 WHERE assignee_id=@assigneeId", conn);
@@ -409,7 +408,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT op.account_number,acc.type_of_account_new,acc.currency  FROM [HBBase].[dbo].[Tbl_assignee_operation_accounts] op 
+                using SqlCommand cmd = new SqlCommand(@"SELECT op.account_number,acc.type_of_account_new,acc.currency  FROM [HBBase].[dbo].[Tbl_assignee_operation_accounts] op 
 					                                                                                INNER JOIN [tbl_all_accounts;] acc on op.account_number=acc.Arm_number  
 			                                                                                WHERE operation_id=@operationId", conn);
 
@@ -446,7 +445,7 @@ namespace ExternalBanking.DBManager
             return accountsList;
         }
 
-        internal static ActionResult SaveCredentialOrderDetails(CredentialOrder credentialOrder, ulong orderId, Action actionType = Action.Add)
+        internal static ActionResult SaveCredentialOrderDetails(CredentialOrder credentialOrder, long orderId, Action actionType = Action.Add)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -488,7 +487,7 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static ActionResult SaveAssigneesDetails(Assignee assignee, ulong orderId, Action actionType = Action.Add)
+        internal static ActionResult SaveAssigneesDetails(Assignee assignee, long orderId, Action actionType = Action.Add)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -612,7 +611,7 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static ActionResult SaveCredentialTerminationOrderDetails(CredentialTerminationOrder credentialTerminationOrder, ulong orderId)
+        internal static ActionResult SaveCredentialTerminationOrderDetails(CredentialTerminationOrder credentialTerminationOrder, long docId)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
@@ -622,9 +621,10 @@ namespace ExternalBanking.DBManager
 
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO Tbl_credential_termination_details(order_id, closing_reason) VALUES(@orderId, @closingReason)";
+                    cmd.CommandText = "INSERT INTO Tbl_credential_termination_details(doc_id, closing_reason, product_id) VALUES(@docId, @closingReason, @productID)";
 
-                    cmd.Parameters.Add("@orderId", SqlDbType.Int).Value = orderId;
+                    cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
+                    cmd.Parameters.Add("@productID", SqlDbType.BigInt).Value = credentialTerminationOrder.ProductId;
                     cmd.Parameters.Add("@closingReason", SqlDbType.Int).Value = credentialTerminationOrder.ClosingReasonType;
 
                     cmd.ExecuteNonQuery();
@@ -661,11 +661,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveCredentialActivationOrder(CredentialActivationOrder order, string userName)
         {
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"	DECLARE @filial AS int
+            using SqlCommand cmd = new SqlCommand(@"	DECLARE @filial AS int
                                                     DECLARE @doc_ID AS int
                                                     SELECT @filial=filialcode FROM Tbl_customers WHERE customer_number=@customer_number
                                                     INSERT INTO Tbl_HB_documents
@@ -680,43 +679,42 @@ namespace ExternalBanking.DBManager
                                                     INSERT INTO Tbl_HB_Products_Identity(HB_Doc_ID,App_ID)
                                                     VALUES (@doc_ID,@app_ID)                                                  
                                                     SELECT @doc_ID AS ID", conn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@app_ID", SqlDbType.Float).Value = order.Credential.Id;
-                cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
-                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (short)order.Type;
-                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
-                cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
-                if (order.Credential.GivenByBank)
-                {
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@app_ID", SqlDbType.Float).Value = order.Credential.Id;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (short)order.Type;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
+            cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
+            if (order.Credential.GivenByBank)
+            {
 
-                    cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
-                    cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
-                    cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
-                }
-                else
-                {
-                    cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = DBNull.Value;
-                    cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = DBNull.Value;
-                    cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = DBNull.Value;
-                }
-
-
-                cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.Description == null ? "" : order.Description;
-
-
-                cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
-
-                cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)order.Source;
-                cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-
-                order.Id = Convert.ToInt64(cmd.ExecuteScalar());
-
-                result.ResultCode = ResultCode.Normal;
-                return result;
+                cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
+                cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
+                cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
             }
+            else
+            {
+                cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = DBNull.Value;
+                cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = DBNull.Value;
+                cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = DBNull.Value;
+            }
+
+
+            cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.Description == null ? "" : order.Description;
+
+
+            cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
+
+            cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)order.Source;
+            cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+
+            order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+
+            result.ResultCode = ResultCode.Normal;
+            return result;
         }
 
         internal static CredentialActivationOrder GetCredentialActivationOrder(CredentialActivationOrder order)
@@ -732,11 +730,11 @@ namespace ExternalBanking.DBManager
                                             FROM Tbl_HB_documents 
                                             WHERE doc_ID=@docID AND customer_number=case WHEN @customer_number = 0 THEN customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())
@@ -801,11 +799,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveAssigneeIdentificationOrder(AssigneeIdentificationOrder order, string userName)
         {
             ActionResult result = new ActionResult();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"	DECLARE @filial AS int
+            using SqlCommand cmd = new SqlCommand(@"	DECLARE @filial AS int
                                                     DECLARE @doc_ID AS int
                                                     SELECT @filial=filialcode FROM Tbl_customers WHERE customer_number=@customer_number
                                                     INSERT INTO Tbl_HB_documents
@@ -820,51 +817,51 @@ namespace ExternalBanking.DBManager
                                                     INSERT INTO TBl_Assignee_Identification(doc_ID,assignee_id, assignee_customer_number)
                                                     VALUES (@doc_ID,@assignee_id, @assignee_customer_number)                                                  
                                                     SELECT @doc_ID AS ID", conn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                cmd.Parameters.Add("@app_ID", SqlDbType.Float).Value = order.Credential.Id;
-                cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
-                cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (short)order.Type;
-                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
-                cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
-                cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)order.Source;
-                cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
-                cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            cmd.Parameters.Add("@app_ID", SqlDbType.Float).Value = order.Credential.Id;
+            cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
+            cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (short)order.Type;
+            cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+            cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
+            cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
+            cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)order.Source;
+            cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
+            cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
 
-                cmd.Parameters.Add("@assignee_id", SqlDbType.Float).Value = order.Credential.AssigneeList[0].Id;
+            cmd.Parameters.Add("@assignee_id", SqlDbType.Float).Value = order.Credential.AssigneeList[0].Id;
 
-                cmd.Parameters.Add("@assignee_customer_number", SqlDbType.Float).Value = order.Credential.AssigneeList[0].CustomerNumber;
+            cmd.Parameters.Add("@assignee_customer_number", SqlDbType.Float).Value = order.Credential.AssigneeList[0].CustomerNumber;
 
-                order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+            order.Id = Convert.ToInt64(cmd.ExecuteScalar());
 
-                order.Quality = OrderQuality.Draft;
+            order.Quality = OrderQuality.Draft;
 
-                result.ResultCode = ResultCode.Normal;
-                return result;
-            }
+            result.ResultCode = ResultCode.Normal;
+            return result;
         }
-        internal static ulong GetOrderId(long id)
-        {
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    ulong orderId;
+        //internal static ulong GetOrderId(long id)
+        //{
 
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT order_id FROM Tbl_link_HB_document_order WHERE document_id = @document_id";
+        //    using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+        //    {
+        //        using (SqlCommand cmd = new SqlCommand())
+        //        {
+        //            ulong orderId;
 
-                    cmd.Parameters.Add("@document_id", SqlDbType.BigInt).Value = id;
-                    orderId = Convert.ToUInt64(cmd.ExecuteScalar());
+        //            conn.Open();
+        //            cmd.Connection = conn;
+        //            cmd.CommandText = @"SELECT order_id FROM Tbl_link_HB_document_order WHERE document_id = @document_id";
 
-                    return orderId;
-                }
-            }
-        }
-        internal static void RemoveCredentialOrderBODetails(ulong orderId)
+        //            cmd.Parameters.Add("@document_id", SqlDbType.BigInt).Value = id;
+        //            orderId = Convert.ToUInt64(cmd.ExecuteScalar());
+
+        //            return orderId;
+        //        }
+        //    }
+        //}
+        internal static void RemoveCredentialOrderBODetails(long orderId)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -901,5 +898,5 @@ namespace ExternalBanking.DBManager
         }
 
     }
-}
 
+}

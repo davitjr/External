@@ -19,7 +19,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT op.*,t.Description, t.GroupId, G.Description GroupDescription FROM [dbo].[Tbl_assign_operations] op 
+                using SqlCommand cmd = new SqlCommand(@"SELECT op.*,t.Description, t.GroupId, G.Description GroupDescription FROM [dbo].[Tbl_assign_operations] op 
                                                 INNER JOIN Tbl_type_of_assign_operation t on op.type=t.ID 
                                                 INNER JOIN Tbl_Type_of_assign_operations_groups G ON t.GroupId = G.Id                                             
                                                 WHERE assigneeId=@assigneeId", conn);
@@ -81,7 +81,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT op.*,acc.type_of_account_new,acc.currency  FROM [Tbl_assign_operation_accounts] op 
+                using SqlCommand cmd = new SqlCommand(@"SELECT op.*,acc.type_of_account_new,acc.currency  FROM [Tbl_assign_operation_accounts] op 
 					                                                                                INNER JOIN [tbl_all_accounts;] acc on op.account=acc.Arm_number  
 			                                                                                WHERE operationId=@operationId", conn);
 
@@ -134,7 +134,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT at.id,at.operationTypeId,acc.Arm_Number,acc.for_print_type,acc.type_of_account_new,acc.currency,acc.closing_date 
+                using SqlCommand cmd = new SqlCommand(@"SELECT at.id,at.operationTypeId,acc.Arm_Number,acc.for_print_type,acc.type_of_account_new,acc.currency,acc.closing_date 
                             FROM Tbl_assign_operation_account_types at 
                             INNER JOIN (SELECT type_of_product,type_of_account,sint_acc_new 
                                         FROM Tbl_define_sint_acc group by type_of_product,type_of_account,sint_acc_new) sa ON at.accountType=sa.type_of_account and at.productType=sa.type_of_product 

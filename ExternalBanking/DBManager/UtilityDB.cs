@@ -1003,6 +1003,29 @@ namespace ExternalBanking.DBManager
             }
         }
 
+        public static double GetBuyKursForDate(string currency, int filialCode)
+        {
+            double rate;
+            DateTime date = Utility.GetCurrentOperDay();
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = "Select dbo.[fnc_kurs_b_for_date](@curency,DATEADD(day,DATEDIFF(day,0,@date),0),0,@filialCode)";
+                    cmd.Parameters.Add("@date", SqlDbType.DateTime).Value = date;
+                    cmd.Parameters.Add("@curency", SqlDbType.NVarChar).Value = currency;
+                    cmd.Parameters.Add("@filialCode", SqlDbType.Int).Value = filialCode;
+                    rate = (double)cmd.ExecuteScalar();
+                }
+                return rate;
+
+            }
+        }
+
     }
 }
 

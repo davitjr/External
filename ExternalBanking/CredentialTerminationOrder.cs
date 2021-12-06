@@ -56,11 +56,12 @@ namespace ExternalBanking
             {
                 result = CredentialOrderDB.SaveCredentialTerminationOrder(this, userName, source);
                 //**********                
-                ulong orderId = base.Save(this, source, user);
-                Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                BOOrderProduct.Save(this, orderId);
-                BOOrderPaymentDetails.Save(this, orderId);
-                ActionResult res = BOOrderCustomer.Save(this, orderId, user);
+                //ulong orderId = base.Save(this, source, user);
+                ulong orderId = 0;
+                result = CredentialOrderDB.SaveCredentialTerminationOrderDetails(this, this.Id);
+                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+                //BOOrderProduct.Save(this, (ulong)this.Id);
+                //ActionResult res = BOOrderCustomer.Save(this, (ulong)this.Id, user);
                 //**********
                 if (result.ResultCode != ResultCode.Normal)
                 {

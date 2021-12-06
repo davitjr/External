@@ -651,7 +651,7 @@ namespace ExternalBanking.DBManager
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
-                SqlDataReader dr = await cmd.ExecuteReaderAsync();
+                using SqlDataReader dr = await cmd.ExecuteReaderAsync();
                 while (dr.Read())
                 {
                     accountList.Add(new Account
@@ -2028,19 +2028,17 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"Select s.sint_acc
+                using SqlCommand cmd = new SqlCommand(@"Select s.sint_acc
 										From [tbl_all_accounts;] a join Tbl_define_sint_acc s
 										on a.type_of_account_new = s.sint_acc_new
-										Where a.Arm_number=@accountNumber and s.type_of_product=11 and s.type_of_account=24 ", conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader dr = cmd.ExecuteReader();
+										Where a.Arm_number=@accountNumber and s.type_of_product=11 and s.type_of_account=24 ", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        isCardAccount = true;
-                    }
+                if (dr.Read())
+                {
+                    isCardAccount = true;
                 }
 
 
@@ -2075,19 +2073,17 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"Select s.sint_acc
+                using SqlCommand cmd = new SqlCommand(@"Select s.sint_acc
 										From [tbl_all_accounts;] a join .Tbl_define_sint_acc s
 										on a.type_of_account_new = s.sint_acc_new
-										Where a.Arm_number=@accountNumber and s.type_of_product=13 and s.type_of_account=24", conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader dr = cmd.ExecuteReader();
+										Where a.Arm_number=@accountNumber and s.type_of_product=13 and s.type_of_account=24", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                    {
-                        isDepositAccount = true;
-                    }
+                if (dr.Read())
+                {
+                    isDepositAccount = true;
                 }
 
 
@@ -2686,7 +2682,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                   using SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.Read())
                     {
@@ -4809,30 +4805,29 @@ namespace ExternalBanking.DBManager
             {
                 sqlConnection.Open();
 
-                using (SqlCommand sqlCommand = new SqlCommand())
+
+                using SqlCommand sqlCommand = new SqlCommand();
+                sqlCommand.CommandText = "SELECT * FROM dbo.fn_get_transaction_description_for_swift_message(@transactionsGroupNumber, @debitCredit)";
+                sqlCommand.Connection = sqlConnection;
+
+                sqlCommand.Parameters.Add("@transactionsGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
+                sqlCommand.Parameters.Add("@debitCredit", SqlDbType.VarChar, 1).Value = debitCredit;
+
+                using DataTable dataTable = new DataTable();
+
+                using SqlDataReader dataReader = sqlCommand.ExecuteReader();
+                
+                    dataTable.Load(dataReader);
+                
+
+                if (dataTable.Rows.Count > 0)
                 {
-                    sqlCommand.CommandText = "SELECT * FROM dbo.fn_get_transaction_description_for_swift_message(@transactionsGroupNumber, @debitCredit)";
-                    sqlCommand.Connection = sqlConnection;
+                    DataRow row = dataTable.Rows[0];
+                    details.IsAmundiAccount = Convert.ToBoolean(row["is_amundi_account"]);
+                    details.Reference1 = row["reference1"].ToString();
+                    details.Reference2 = row["reference2"].ToString();
+                    details.Description = row["description"].ToString();
 
-                    sqlCommand.Parameters.Add("@transactionsGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
-                    sqlCommand.Parameters.Add("@debitCredit", SqlDbType.VarChar, 1).Value = debitCredit;
-
-                    DataTable dataTable = new DataTable();
-
-                    using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
-                    {
-                        dataTable.Load(dataReader);
-                    }
-
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        DataRow row = dataTable.Rows[0];
-                        details.IsAmundiAccount = Convert.ToBoolean(row["is_amundi_account"]);
-                        details.Reference1 = row["reference1"].ToString();
-                        details.Reference2 = row["reference2"].ToString();
-                        details.Description = row["description"].ToString();
-
-                    }
                 }
 
 
@@ -4849,33 +4844,31 @@ namespace ExternalBanking.DBManager
             {
                 sqlConnection.Open();
 
-                using (SqlCommand sqlCommand = new SqlCommand())
-                {
-                    sqlCommand.CommandText = @"DECLARE @result BIT 
+                using SqlCommand sqlCommand = new SqlCommand();
+                sqlCommand.CommandText = @"DECLARE @result BIT 
                                                         EXEC pr_check_for_transactions @account, @startDate, @endDate, @result OUTPUT 
                                                         SELECT @result as result";
-                    sqlCommand.Connection = sqlConnection;
+                sqlCommand.Connection = sqlConnection;
 
-                    sqlCommand.Parameters.Add("@account", SqlDbType.Float).Value = account.AccountNumber;
-                    sqlCommand.Parameters.Add("@startDate", SqlDbType.SmallDateTime).Value = dateFrom;
-                    sqlCommand.Parameters.Add("@endDate", SqlDbType.SmallDateTime).Value = dateTo;
-                    //SqlParameter parameter = new SqlParameter("@result", SqlDbType.Bit);
-                    //parameter.Direction = ParameterDirection.Output;
-                    //sqlCommand.Parameters.Add(parameter);
+                sqlCommand.Parameters.Add("@account", SqlDbType.Float).Value = account.AccountNumber;
+                sqlCommand.Parameters.Add("@startDate", SqlDbType.SmallDateTime).Value = dateFrom;
+                sqlCommand.Parameters.Add("@endDate", SqlDbType.SmallDateTime).Value = dateTo;
+                //SqlParameter parameter = new SqlParameter("@result", SqlDbType.Bit);
+                //parameter.Direction = ParameterDirection.Output;
+                //sqlCommand.Parameters.Add(parameter);
 
-                    DataTable dataTable = new DataTable();
+                DataTable dataTable = new DataTable();
 
-                    using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
-                    {
-                        dataTable.Load(dataReader);
-                    }
+                using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
+                {
+                    dataTable.Load(dataReader);
+                }
 
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        DataRow row = dataTable.Rows[0];
-                        result = Convert.ToBoolean(row["result"]);
+                if (dataTable.Rows.Count > 0)
+                {
+                    DataRow row = dataTable.Rows[0];
+                    result = Convert.ToBoolean(row["result"]);
 
-                    }
                 }
             }
 
@@ -4895,100 +4888,98 @@ namespace ExternalBanking.DBManager
             {
                 sqlConnection.Open();
 
-                using (SqlCommand sqlCommand = new SqlCommand())
+                using SqlCommand sqlCommand = new SqlCommand();
+
+                sqlCommand.CommandText = "SELECT * FROM dbo.fn_get_transaction_description_for_swift_MT940(@transactionsGroupNumber, @debitCredit)";
+                sqlCommand.Connection = sqlConnection;
+
+                sqlCommand.Parameters.Add("@transactionsGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
+                sqlCommand.Parameters.Add("@debitCredit", SqlDbType.VarChar, 1).Value = debitCredit;
+
+                DataTable dataTable = new DataTable();
+
+                using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
                 {
+                    dataTable.Load(dataReader);
+                }
 
-                    sqlCommand.CommandText = "SELECT * FROM dbo.fn_get_transaction_description_for_swift_MT940(@transactionsGroupNumber, @debitCredit)";
-                    sqlCommand.Connection = sqlConnection;
+                if (dataTable.Rows.Count > 0)
+                {
+                    DataRow row = dataTable.Rows[0];
+                    ORDP = "/ORDP/" + Utility.TranslateToEnglish(row["ORDP"].ToString());
+                    BENM = "/BENM/" + Utility.TranslateToEnglish(row["BENM"].ToString());
 
-                    sqlCommand.Parameters.Add("@transactionsGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
-                    sqlCommand.Parameters.Add("@debitCredit", SqlDbType.VarChar, 1).Value = debitCredit;
-
-                    DataTable dataTable = new DataTable();
-
-                    using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
+                    if (Convert.ToInt16(row["transfer_group"]) == 3)
                     {
-                        dataTable.Load(dataReader);
+                        REMI = "/REMI/" + Utility.TranslateToEnglish(row["REMI"].ToString());
+                    }
+                    else
+                    {
+                        REMI = "/REMI/" + Utility.TranslateToEnglish(description, true);
                     }
 
-                    if (dataTable.Rows.Count > 0)
+
+
+
+                    if (ORDP.Length > 65)
                     {
-                        DataRow row = dataTable.Rows[0];
-                        ORDP = "/ORDP/" + Utility.TranslateToEnglish(row["ORDP"].ToString());
-                        BENM = "/BENM/" + Utility.TranslateToEnglish(row["BENM"].ToString());
-
-                        if (Convert.ToInt16(row["transfer_group"]) == 3)
+                        for (int z = 0; z < ORDP.Length; z += 65)
                         {
-                            REMI = "/REMI/" + Utility.TranslateToEnglish(row["REMI"].ToString());
-                        }
-                        else
-                        {
-                            REMI = "/REMI/" + Utility.TranslateToEnglish(description, true);
-                        }
-
-
-
-
-                        if (ORDP.Length > 65)
-                        {
-                            for (int z = 0; z < ORDP.Length; z += 65)
+                            if ((ORDP.Substring(z)).Length > 65)
                             {
-                                if ((ORDP.Substring(z)).Length > 65)
-                                {
-                                    ORDPFinal += (ORDP.Substring(z, 65)) + Environment.NewLine;
-                                }
-                                else
-                                {
-                                    ORDPFinal += (ORDP.Substring(z));
-                                }
+                                ORDPFinal += (ORDP.Substring(z, 65)) + Environment.NewLine;
+                            }
+                            else
+                            {
+                                ORDPFinal += (ORDP.Substring(z));
                             }
                         }
-                        else
-                        {
-                            ORDPFinal = ORDP;
-                        }
-
-                        if (BENM.Length > 65)
-                        {
-                            for (int z = 0; z < BENM.Length; z += 65)
-                            {
-                                if ((BENM.Substring(z)).Length > 65)
-                                {
-                                    BENMFinal += (BENM.Substring(z, 65)) + Environment.NewLine;
-                                }
-                                else
-                                {
-                                    BENMFinal += (BENM.Substring(z));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            BENMFinal = BENM;
-                        }
-
-                        if (REMI.Length > 65)
-                        {
-                            for (int z = 0; z < REMI.Length; z += 65)
-                            {
-                                if ((REMI.Substring(z)).Length > 65)
-                                {
-                                    REMIFinal += (REMI.Substring(z, 65)) + Environment.NewLine;
-                                }
-                                else
-                                {
-                                    REMIFinal += (REMI.Substring(z));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            REMIFinal = REMI;
-                        }
-
-                        transactionDescription = ORDPFinal + Environment.NewLine + BENMFinal + Environment.NewLine + REMIFinal;
-
                     }
+                    else
+                    {
+                        ORDPFinal = ORDP;
+                    }
+
+                    if (BENM.Length > 65)
+                    {
+                        for (int z = 0; z < BENM.Length; z += 65)
+                        {
+                            if ((BENM.Substring(z)).Length > 65)
+                            {
+                                BENMFinal += (BENM.Substring(z, 65)) + Environment.NewLine;
+                            }
+                            else
+                            {
+                                BENMFinal += (BENM.Substring(z));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        BENMFinal = BENM;
+                    }
+
+                    if (REMI.Length > 65)
+                    {
+                        for (int z = 0; z < REMI.Length; z += 65)
+                        {
+                            if ((REMI.Substring(z)).Length > 65)
+                            {
+                                REMIFinal += (REMI.Substring(z, 65)) + Environment.NewLine;
+                            }
+                            else
+                            {
+                                REMIFinal += (REMI.Substring(z));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        REMIFinal = REMI;
+                    }
+
+                    transactionDescription = ORDPFinal + Environment.NewLine + BENMFinal + Environment.NewLine + REMIFinal;
+
                 }
             }
             return transactionDescription;
@@ -5002,19 +4993,15 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"select closing_date from [tbl_all_accounts;] where arm_number=@accountNumber", conn))
+                using SqlCommand cmd = new SqlCommand(@"select closing_date from [tbl_all_accounts;] where arm_number=@accountNumber", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    if (dr["closing_date"] != DBNull.Value)
                     {
-                        if (dr.Read())
-                        {
-                            if (dr["closing_date"] != DBNull.Value)
-                            {
-                                check = true;
-                            }
-                        }
+                        check = true;
                     }
                 }
             }
@@ -5024,40 +5011,38 @@ namespace ExternalBanking.DBManager
         internal static List<Account> GetCustomerTransitAccounts(ulong customerNumber)
         {
             List<Account> accounts = new List<Account>();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(accountSelectScript + @" INNER JOIN
+            using (SqlCommand cmd = new SqlCommand(accountSelectScript + @" INNER JOIN
 														(SELECT 21 as type_of_product,description,code,DescriptionEng FROM Tbl_type_of_products) t ON 21 = t.code 
 														INNER JOIN Tbl_transit_accounts_for_debit_transactions tr
 														ON a.Arm_number=tr.Arm_number
 														WHERE 
                                                         a.closing_date IS NULL AND tr.customer_number = @customerNumber AND tr.closing_date IS NULL", conn))
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+
+
+                DataTable dt = new DataTable();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-
-
-                    DataTable dt = new DataTable();
-
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        dt.Load(dr);
-                    }
-
-                    if (dt.Rows.Count > 0)
-                    {
-                        for (int i = 0; i < dt.Rows.Count; i++)
-                        {
-                            accounts.Add(SetAccount(dt.Rows[i]));
-                        }
-
-                    }
+                    dt.Load(dr);
                 }
 
-                return accounts;
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        accounts.Add(SetAccount(dt.Rows[i]));
+                    }
+
+                }
             }
+
+            return accounts;
 
 
         }
@@ -5066,39 +5051,37 @@ namespace ExternalBanking.DBManager
         {
             List<Account> accounts = null;
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(accountSelectScript + @" INNER JOIN
+            using (SqlCommand cmd = new SqlCommand(accountSelectScript + @" INNER JOIN
 														(SELECT 21 as type_of_product,description,code,DescriptionEng FROM Tbl_type_of_products) t ON 21 = t.code 
 														INNER JOIN Tbl_transit_accounts_for_debit_transactions tr
 														ON a.Arm_number=tr.Arm_number
 														WHERE 
                                                         a.closing_date IS NOT NULL AND a.customer_number = @customerNumber", conn))
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+
+
+                DataTable dt = new DataTable();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-
-
-                    DataTable dt = new DataTable();
-
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        dt.Load(dr);
-                    }
-
-
-
-                    if (dt.Rows.Count > 0)
-                    {
-                        DataRow row = dt.Rows[0];
-                        accounts.Add(SetAccount(row));
-                    }
+                    dt.Load(dr);
                 }
 
-                return accounts;
+
+
+                if (dt.Rows.Count > 0)
+                {
+                    DataRow row = dt.Rows[0];
+                    accounts.Add(SetAccount(row));
+                }
             }
+
+            return accounts;
 
 
         }
@@ -5310,25 +5293,21 @@ namespace ExternalBanking.DBManager
             {
                 sqlConnection.Open();
 
-                using (SqlCommand sqlCommand = new SqlCommand())
+                using SqlCommand sqlCommand = new SqlCommand();
+
+                sqlCommand.CommandText = "SELECT document_number FROM Tbl_HB_products_accordance PA INNER JOIN Tbl_HB_documents D ON D.doc_ID = PA.doc_ID WHERE Transactions_Group_number = @transactionsGroupNumber ";
+                sqlCommand.Connection = sqlConnection;
+
+                sqlCommand.Parameters.Add("@transactionsGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
+
+                DataTable dataTable = new DataTable();
+
+                using SqlDataReader dr = sqlCommand.ExecuteReader();
+                if (dr.Read())
                 {
-
-                    sqlCommand.CommandText = "SELECT document_number FROM Tbl_HB_products_accordance PA INNER JOIN Tbl_HB_documents D ON D.doc_ID = PA.doc_ID WHERE Transactions_Group_number = @transactionsGroupNumber ";
-                    sqlCommand.Connection = sqlConnection;
-
-                    sqlCommand.Parameters.Add("@transactionsGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
-
-                    DataTable dataTable = new DataTable();
-
-                    using (SqlDataReader dr = sqlCommand.ExecuteReader())
+                    if (dr["document_number"] != DBNull.Value)
                     {
-                        if (dr.Read())
-                        {
-                            if (dr["document_number"] != DBNull.Value)
-                            {
-                                HBDocumentNumber = dr["document_number"].ToString();
-                            }
-                        }
+                        HBDocumentNumber = dr["document_number"].ToString();
                     }
                 }
             }
@@ -5343,25 +5322,21 @@ namespace ExternalBanking.DBManager
             {
                 sqlConnection.Open();
 
-                using (SqlCommand sqlCommand = new SqlCommand())
+                using SqlCommand sqlCommand = new SqlCommand();
+
+                sqlCommand.CommandText = "select hb.document_number from Tbl_HB_documents hb inner join dbo.tbl_bank_mail_in bm  on hb.doc_ID = bm.Add_tbl_unic_number where bm.transactions_group_number = @transactionGroupNumber and hb.source_type <> 2 and bm.Add_tbl_name = 'Tbl_Hb_documents' ";
+                sqlCommand.Connection = sqlConnection;
+
+                sqlCommand.Parameters.Add("@transactionGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
+
+                DataTable dataTable = new DataTable();
+
+                using SqlDataReader dr = sqlCommand.ExecuteReader();
+                if (dr.Read())
                 {
-
-                    sqlCommand.CommandText = "select hb.document_number from Tbl_HB_documents hb inner join dbo.tbl_bank_mail_in bm  on hb.doc_ID = bm.Add_tbl_unic_number where bm.transactions_group_number = @transactionGroupNumber and hb.source_type <> 2 and bm.Add_tbl_name = 'Tbl_Hb_documents' ";
-                    sqlCommand.Connection = sqlConnection;
-
-                    sqlCommand.Parameters.Add("@transactionGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
-
-                    DataTable dataTable = new DataTable();
-
-                    using (SqlDataReader dr = sqlCommand.ExecuteReader())
+                    if (dr["document_number"] != DBNull.Value)
                     {
-                        if (dr.Read())
-                        {
-                            if (dr["document_number"] != DBNull.Value)
-                            {
-                                DocumentNumber = dr["document_number"].ToString();
-                            }
-                        }
+                        DocumentNumber = dr["document_number"].ToString();
                     }
                 }
             }
@@ -6224,33 +6199,31 @@ namespace ExternalBanking.DBManager
 	                        INNER JOIN [tbl_all_accounts;] acc on acc.Arm_number = m.arm_number 
 	                        WHERE m.arm_number = @arm_number 
                             GROUP BY acc.customer_number, third_person_Customer_number, m.closing_date, acc.balance, acc.currency";
-                using (SqlCommand cmd = new SqlCommand(script, conn))
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        string query = @"select dbo.fnc_available_CustomerAmount(@customer_number, @currency, @today) as avalible_amount";
+                        using (SqlCommand cmdCheck = new SqlCommand(query, conn))
                         {
-                            string query = @"select dbo.fnc_available_CustomerAmount(@customer_number, @currency, @today) as avalible_amount";
-                            using (SqlCommand cmdCheck = new SqlCommand(query, conn))
-                            {
-                                cmdCheck.CommandType = CommandType.Text;
-                                cmdCheck.Parameters.Add("@customer_number", SqlDbType.Float).Value = Convert.ToInt64(reader["customer_number"]);
-                                cmdCheck.Parameters.Add("@currency", SqlDbType.NVarChar).Value = Convert.ToString(reader["currency"]);
-                                cmdCheck.Parameters.Add("@today", SqlDbType.SmallDateTime).Value = operDay;
-                                SqlDataReader readerCheck = cmdCheck.ExecuteReader();
+                            cmdCheck.CommandType = CommandType.Text;
+                            cmdCheck.Parameters.Add("@customer_number", SqlDbType.Float).Value = Convert.ToInt64(reader["customer_number"]);
+                            cmdCheck.Parameters.Add("@currency", SqlDbType.NVarChar).Value = Convert.ToString(reader["currency"]);
+                            cmdCheck.Parameters.Add("@today", SqlDbType.SmallDateTime).Value = operDay;
+                            using SqlDataReader readerCheck = cmdCheck.ExecuteReader();
 
-                                if (readerCheck.HasRows)
+                            if (readerCheck.HasRows)
+                            {
+                                while (readerCheck.Read())
                                 {
-                                    while (readerCheck.Read())
+                                    if (Convert.ToDouble(readerCheck["avalible_amount"]) - Convert.ToDouble(reader["balance"]) >= 0)
                                     {
-                                        if (Convert.ToDouble(readerCheck["avalible_amount"]) - Convert.ToDouble(reader["balance"]) >= 0)
-                                        {
-                                            thirdPersonCustomerNumber = Convert.ToUInt64(reader["third_person_Customer_number"]);
-                                        }
+                                        thirdPersonCustomerNumber = Convert.ToUInt64(reader["third_person_Customer_number"]);
                                     }
                                 }
                             }
@@ -6271,16 +6244,14 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string script = @"SELECT arm_number FROM Tbl_define_sint_acc  INNER JOIN [tbl_all_accounts;] ON type_of_account_new = sint_acc_new 
                             where type_of_product = 10 AND arm_number = @arm_number";
-                using (SqlCommand cmd = new SqlCommand(script, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.HasRows)
-                    {
-                        exists = true;
-                    }
+                if (reader.HasRows)
+                {
+                    exists = true;
                 }
             }
 
@@ -6294,7 +6265,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                string script = @"SELECT CASE WHEN DATEADD(YEAR,18,P.birth) < [dbo].[get_oper_day]() THEN 1 ELSE 0 END AS result
+                string script = @"SELECT CASE WHEN DATEADD(YEAR,18,P.birth) <= [dbo].[get_oper_day]() THEN 1 ELSE 0 END AS result
                                 FROM Tbl_co_accounts  CA
                                 inner join tbl_co_accounts_main M on CA.co_main_id = M.id 
                                 INNER JOIN [Tbl_customers] C  with (nolock) ON third_person_customer_number = C.customer_number
@@ -6302,18 +6273,16 @@ namespace ExternalBanking.DBManager
                                 WHERE m.closing_date IS NULL AND M.[arm_number] = @arm_number 
                                 GROUP BY M.[arm_number],P.birth";
 
-                using (SqlCommand cmd = new SqlCommand(script, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.HasRows)
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            result = Convert.ToBoolean(reader["result"]);
-                        }
+                        result = Convert.ToBoolean(reader["result"]);
                     }
                 }
             }
@@ -6334,17 +6303,15 @@ namespace ExternalBanking.DBManager
                                 inner join [tbl_all_accounts;] acc on acc.Arm_number = m.arm_number 
                                 WHERE acc.Arm_number = @arm_number AND acc.customer_number = @customer_number";
 
-                using (SqlCommand cmd = new SqlCommand(script, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.HasRows)
-                    {
-                        result = true;
-                    }
+                if (reader.HasRows)
+                {
+                    result = true;
                 }
             }
 
@@ -6374,6 +6341,27 @@ namespace ExternalBanking.DBManager
                 }
             }
             return accountNumber;
+        }
+
+
+
+        internal static double GetAccountAvailableBalanceForStocksInAmd(string accountNumber)
+        {
+            double accountAmount = 0;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(@"SELECT dbo.fnc_available_AccountAmount_For_24_7(@account,dbo.get_oper_day(),@currency,1,0, 0)", conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@account", SqlDbType.Float).Value = accountNumber;
+                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar).Value = "AMD";
+
+
+                    accountAmount = Convert.ToDouble(cmd.ExecuteScalar());
+                }
+            }
+            return accountAmount;
         }
 
     }

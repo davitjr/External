@@ -199,13 +199,13 @@ namespace ExternalBanking.DBManager
         internal static ReferenceOrder Get(ReferenceOrder order)
         {
 
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             order.Accounts = new List<Account>();
             order.ReferenceTypes = new List<ushort>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT d.registration_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT d.registration_date,
                                                          d.document_type,
                                                          d.document_number,
                                                          d.amount,

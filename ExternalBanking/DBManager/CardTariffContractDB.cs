@@ -16,26 +16,24 @@ namespace ExternalBanking.DBManager
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand(@"SELECT Office_ID , Office_Name, Contract_beginning, Contract_end, Contract_City, Address,Filial,ContractStatus,ReasonId,OfficeaccountNumber
+                using SqlCommand cmd = new SqlCommand(@"SELECT Office_ID , Office_Name, Contract_beginning, Contract_end, Contract_City, Address,Filial,ContractStatus,ReasonId,OfficeaccountNumber
                 FROM Tbl_Contract_salary_by_cards WHERE Office_ID = @ID", conn);
                 cmd.Parameters.AddWithValue("@ID", tariffContract.TariffID);
 
                 conn.Open();
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                    while (dr.Read())
-                    {
-                        tariffContract.TariffID = Convert.ToInt64(dr["Office_ID"]);
-                        tariffContract.Description = Utility.ConvertAnsiToUnicode(dr["Office_Name"].ToString());
-                        tariffContract.StartDate = Convert.ToDateTime(dr["Contract_beginning"]);
-                        tariffContract.EndDate = dr["Contract_end"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dr["Contract_end"]);
-                        tariffContract.Address = Utility.ConvertAnsiToUnicode(dr["Contract_City"].ToString() + "," + dr["Address"].ToString());
-                        tariffContract.FilialCode = Convert.ToInt32(dr["Filial"].ToString());
-                        tariffContract.Quality = Convert.ToUInt16(dr["ContractStatus"].ToString());
-                        tariffContract.Reason = Convert.ToUInt16(dr["ReasonId"].ToString());
-                        tariffContract.AccountNumber = Utility.ConvertAnsiToUnicode(dr["OfficeaccountNumber"].ToString());
-                    }
+                    tariffContract.TariffID = Convert.ToInt64(dr["Office_ID"]);
+                    tariffContract.Description = Utility.ConvertAnsiToUnicode(dr["Office_Name"].ToString());
+                    tariffContract.StartDate = Convert.ToDateTime(dr["Contract_beginning"]);
+                    tariffContract.EndDate = dr["Contract_end"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dr["Contract_end"]);
+                    tariffContract.Address = Utility.ConvertAnsiToUnicode(dr["Contract_City"].ToString() + "," + dr["Address"].ToString());
+                    tariffContract.FilialCode = Convert.ToInt32(dr["Filial"].ToString());
+                    tariffContract.Quality = Convert.ToUInt16(dr["ContractStatus"].ToString());
+                    tariffContract.Reason = Convert.ToUInt16(dr["ReasonId"].ToString());
+                    tariffContract.AccountNumber = Utility.ConvertAnsiToUnicode(dr["OfficeaccountNumber"].ToString());
                 }
             }
 
@@ -47,7 +45,7 @@ namespace ExternalBanking.DBManager
             tariffContract.CardTariffs = new List<CardTariff>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand(@"SELECT R.CardName + ' ' +  C.CardType as CardName, R.CardType,R.currency, R.CashRate, R.GracePeriod, R.Positive_Rate, R.loan_Rate, R.cash_rate_other,R.Quality, R.cardRateID , 
+               using SqlCommand cmd = new SqlCommand(@"SELECT R.CardName + ' ' +  C.CardType as CardName, R.CardType,R.currency, R.CashRate, R.GracePeriod, R.Positive_Rate, R.loan_Rate, R.cash_rate_other,R.Quality, R.cardRateID , 
                                                 R.Cash_rate_int,
                                                 CASE R.currency 
 	                                                WHEN 'AMD' THEN R.Min_fee_local_AMD 
@@ -63,37 +61,35 @@ namespace ExternalBanking.DBManager
 
                 conn.Open();
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                    while (dr.Read())
-                    {
 
-                        CardTariff cardTariff = new CardTariff();
-                        cardTariff.Id = Convert.ToInt32(dr["cardRateID"]);
-                        cardTariff.CardType = Convert.ToInt32(dr["CardType"]);
-                        cardTariff.CardTypeDescription = dr["CardName"].ToString();
-                        cardTariff.Currency = dr["currency"].ToString();
-                        cardTariff.CashRateOur = (dr["CashRate"] != DBNull.Value) ? Convert.ToDouble(dr["CashRate"]) : default(double);//Convert.ToDouble(dr["CashRate"]);
-                        cardTariff.CashRateOther = (dr["cash_rate_other"] != DBNull.Value) ? Convert.ToDouble(dr["cash_rate_other"]) : default(double);  //Convert.ToDouble(dr["cash_rate_other"]);
-                        cardTariff.CashRateInternational = (dr["Cash_rate_int"] != DBNull.Value) ? Convert.ToDouble(dr["Cash_rate_int"]) : default(double); //Convert.ToDouble(dr["Cash_rate_int"]);
-                        cardTariff.GracePeriod = Convert.ToInt32(dr["GracePeriod"]);
-                        cardTariff.PositiveRate = (dr["Positive_Rate"] != DBNull.Value) ? Convert.ToDouble(dr["Positive_Rate"]) : default(double); //Convert.ToDouble(dr["Positive_Rate"]);
-                        cardTariff.NegativeRate = (dr["loan_Rate"] != DBNull.Value) ? Convert.ToDouble(dr["loan_Rate"]) : default(double); //Convert.ToDouble(dr["loan_Rate"]);
-                        cardTariff.Quality = Convert.ToByte(dr["Quality"]);
-                        cardTariff.MinFeeLocal = (dr["Min_fee_local"] != DBNull.Value) ? Convert.ToDouble(dr["Min_fee_local"]) : default(double); //Convert.ToDouble(dr["Min_fee_local"]);
-                        cardTariff.MinFeeInternational = (dr["Min_fee_int"] != DBNull.Value) ? Convert.ToDouble(dr["Min_fee_int"]) : default(double);//Convert.ToDouble(dr["Min_fee_int"]);
-                        cardTariff.CashInFeeRateOur = (dr["CashInFeeRate_ACBA"] != DBNull.Value) ? Convert.ToDouble(dr["CashInFeeRate_ACBA"]) : default(double);//Convert.ToDouble(dr["CashInFeeRate_ACBA"]);
-                        cardTariff.CashInFeeRateOther = (dr["CashInFeeRate_Other"] != DBNull.Value) ? Convert.ToDouble(dr["CashInFeeRate_Other"]) : default(double);//Convert.ToDouble(dr["CashInFeeRate_Other"]);
-                        cardTariff.SMSFeeFromCustomer = (dr["SMSFeeFromCustomer"] != DBNull.Value) ? Convert.ToDouble(dr["SMSFeeFromCustomer"]) : default(double); //Convert.ToDouble(dr["SMSFeeFromCustomer"]);
-                        cardTariff.SMSFeeFromBank = (dr["SMSFeeFromBank"] != DBNull.Value) ? Convert.ToDouble(dr["SMSFeeFromBank"]) : default(double);//Convert.ToDouble(dr["SMSFeeFromBank"]);
-                        cardTariff.CardToCardFeeOur = (dr["C2CFeeOur"] != DBNull.Value) ? Convert.ToDouble(dr["C2CFeeOur"]) : default(double);//Convert.ToDouble(dr["C2CFeeOur"]);
-                        cardTariff.CardToCardFeeOther = (dr["C2CFeeOther"] != DBNull.Value) ? Convert.ToDouble(dr["C2CFeeOther"]) : default(double);//Convert.ToDouble(dr["C2CFeeOther"]);
-                        cardTariff.CardSystem = Convert.ToInt32(dr["CardSystemID"]);
-                        cardTariff.Period = Convert.ToInt32(dr["Period"]);
-                        cardTariff.ServiceFee = Convert.ToInt64(dr["Service_fee"]);
-                        cardTariff.CardValidityPeriod = Convert.ToInt32(dr["ValidityPeriod"]);
-                        tariffContract.CardTariffs.Add(cardTariff);
-                    }
+                    CardTariff cardTariff = new CardTariff();
+                    cardTariff.Id = Convert.ToInt32(dr["cardRateID"]);
+                    cardTariff.CardType = Convert.ToInt32(dr["CardType"]);
+                    cardTariff.CardTypeDescription = dr["CardName"].ToString();
+                    cardTariff.Currency = dr["currency"].ToString();
+                    cardTariff.CashRateOur = (dr["CashRate"] != DBNull.Value) ? Convert.ToDouble(dr["CashRate"]) : default(double);//Convert.ToDouble(dr["CashRate"]);
+                    cardTariff.CashRateOther = (dr["cash_rate_other"] != DBNull.Value) ? Convert.ToDouble(dr["cash_rate_other"]) : default(double);  //Convert.ToDouble(dr["cash_rate_other"]);
+                    cardTariff.CashRateInternational = (dr["Cash_rate_int"] != DBNull.Value) ? Convert.ToDouble(dr["Cash_rate_int"]) : default(double); //Convert.ToDouble(dr["Cash_rate_int"]);
+                    cardTariff.GracePeriod = Convert.ToInt32(dr["GracePeriod"]);
+                    cardTariff.PositiveRate = (dr["Positive_Rate"] != DBNull.Value) ? Convert.ToDouble(dr["Positive_Rate"]) : default(double); //Convert.ToDouble(dr["Positive_Rate"]);
+                    cardTariff.NegativeRate = (dr["loan_Rate"] != DBNull.Value) ? Convert.ToDouble(dr["loan_Rate"]) : default(double); //Convert.ToDouble(dr["loan_Rate"]);
+                    cardTariff.Quality = Convert.ToByte(dr["Quality"]);
+                    cardTariff.MinFeeLocal = (dr["Min_fee_local"] != DBNull.Value) ? Convert.ToDouble(dr["Min_fee_local"]) : default(double); //Convert.ToDouble(dr["Min_fee_local"]);
+                    cardTariff.MinFeeInternational = (dr["Min_fee_int"] != DBNull.Value) ? Convert.ToDouble(dr["Min_fee_int"]) : default(double);//Convert.ToDouble(dr["Min_fee_int"]);
+                    cardTariff.CashInFeeRateOur = (dr["CashInFeeRate_ACBA"] != DBNull.Value) ? Convert.ToDouble(dr["CashInFeeRate_ACBA"]) : default(double);//Convert.ToDouble(dr["CashInFeeRate_ACBA"]);
+                    cardTariff.CashInFeeRateOther = (dr["CashInFeeRate_Other"] != DBNull.Value) ? Convert.ToDouble(dr["CashInFeeRate_Other"]) : default(double);//Convert.ToDouble(dr["CashInFeeRate_Other"]);
+                    cardTariff.SMSFeeFromCustomer = (dr["SMSFeeFromCustomer"] != DBNull.Value) ? Convert.ToDouble(dr["SMSFeeFromCustomer"]) : default(double); //Convert.ToDouble(dr["SMSFeeFromCustomer"]);
+                    cardTariff.SMSFeeFromBank = (dr["SMSFeeFromBank"] != DBNull.Value) ? Convert.ToDouble(dr["SMSFeeFromBank"]) : default(double);//Convert.ToDouble(dr["SMSFeeFromBank"]);
+                    cardTariff.CardToCardFeeOur = (dr["C2CFeeOur"] != DBNull.Value) ? Convert.ToDouble(dr["C2CFeeOur"]) : default(double);//Convert.ToDouble(dr["C2CFeeOur"]);
+                    cardTariff.CardToCardFeeOther = (dr["C2CFeeOther"] != DBNull.Value) ? Convert.ToDouble(dr["C2CFeeOther"]) : default(double);//Convert.ToDouble(dr["C2CFeeOther"]);
+                    cardTariff.CardSystem = Convert.ToInt32(dr["CardSystemID"]);
+                    cardTariff.Period = Convert.ToInt32(dr["Period"]);
+                    cardTariff.ServiceFee = Convert.ToInt64(dr["Service_fee"]);
+                    cardTariff.CardValidityPeriod = Convert.ToInt32(dr["ValidityPeriod"]);
+                    tariffContract.CardTariffs.Add(cardTariff);
                 }
             }
         }    

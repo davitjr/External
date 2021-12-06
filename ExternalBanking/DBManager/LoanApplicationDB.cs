@@ -45,12 +45,12 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(loanApplicationSelectScript + " WHERE A.app_id=@app_id and A.customer_number=@customer_number", conn);
+                using SqlCommand cmd = new SqlCommand(loanApplicationSelectScript + " WHERE A.app_id=@app_id and A.customer_number=@customer_number", conn);
 
                 cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
 
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -78,10 +78,10 @@ namespace ExternalBanking.DBManager
 
                 string sql = loanApplicationSelectScript + @" WHERE A.customer_number=@customerNumber AND loan_type=54 ORDER BY A.application_date desc ";
                 
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
 
@@ -180,7 +180,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("pr_get_customer_fico_score", conn)
+                using SqlCommand cmd = new SqlCommand("pr_get_customer_fico_score", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
@@ -189,7 +189,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@applicationID", SqlDbType.Float).Value = productId;
                 cmd.Parameters.Add("@calcDate", SqlDbType.DateTime).Value = requestDate;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
 

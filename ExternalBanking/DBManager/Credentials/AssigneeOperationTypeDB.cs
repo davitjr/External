@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -10,19 +8,19 @@ namespace ExternalBanking.DBManager
     {
         internal static AssigneeOperationType GetAssigneeOperationType(uint operationTypeId)
         {
-                      
+
             AssigneeOperationType oneAssigneeOperationType = new AssigneeOperationType();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT * FROM [dbo].[Tbl_type_of_assign_operation] 
+                using SqlCommand cmd = new SqlCommand(@"SELECT * FROM [dbo].[Tbl_type_of_assign_operation] 
                                                                             WHERE id=@operationTypeId", conn);
 
                 cmd.Parameters.Add("@operationTypeId", SqlDbType.Int).Value = operationTypeId;
 
                 DataTable dt = new DataTable();
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -35,9 +33,9 @@ namespace ExternalBanking.DBManager
 
                 }
 
-            }                               
+            }
 
             return oneAssigneeOperationType;
-        }        
+        }
     }
 }

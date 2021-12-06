@@ -152,22 +152,17 @@ namespace ExternalBanking.DBManager
 
         internal static bool BelongsToSchema(XBUserGroup group)
         {
-            bool belongs = false;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT group_id FROM Tbl_Approvement_Schema_Details_order_Details WHERE group_id = @group_id", conn))
-                {
-                    cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = group.Id;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(@"SELECT group_id FROM Tbl_Approvement_Schema_Details_order_Details WHERE group_id = @group_id", conn);
+                cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = group.Id;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.HasRows)
-                    {
-                        belongs = true;
-                    }
-                }
+                if (dr.HasRows)
+                    return true;
             }
-            return belongs;
+            return false;
         }
 
         internal static void RemoveGroupFromSchemaDetails(XBUserGroup group, int doc_id)
@@ -235,16 +230,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT id FROM Tbl_Access_Group_Members WHERE user_id = @id and group_id = @group_id", conn))
-                {
-                    cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = group.Id;
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = user.ID;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(@"SELECT id FROM Tbl_Access_Group_Members WHERE user_id = @id and group_id = @group_id", conn);
+                cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = group.Id;
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = user.ID;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.HasRows)
-                    {
-                        belongs = true;
-                    }
+                if (dr.HasRows)
+                {
+                    belongs = true;
                 }
             }
             return belongs;
@@ -262,7 +255,7 @@ namespace ExternalBanking.DBManager
                 script = @"SELECT AG.id,AG.group_name FROM Tbl_Access_Groups AG INNER JOIN Tbl_Applications GC on AG.global_cust_id = GC.id                                        
                                              WHERE GC.customer_number = @customerNumber Order by group_name asc";
 
-                SqlCommand cmd = new SqlCommand(script, conn);
+                using SqlCommand cmd = new SqlCommand(script, conn);
 
 
                 cmd.CommandType = CommandType.Text;
@@ -301,7 +294,7 @@ namespace ExternalBanking.DBManager
                 script = @"SELECT M.user_id FROM Tbl_Access_Group_Members M inner join Tbl_Access_Groups G on M.group_id = G.id                                        
                                              WHERE G.id = @groupId";
 
-                SqlCommand cmd = new SqlCommand(script, conn);
+               using SqlCommand cmd = new SqlCommand(script, conn);
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
@@ -370,16 +363,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT id FROM Tbl_Access_Groups WHERE global_cust_id = @appId and group_name = @groupName", conn))
-                {
-                    cmd.Parameters.Add("@groupName", SqlDbType.NVarChar, 250).Value = groupName;
-                    cmd.Parameters.Add("@appId", SqlDbType.Int).Value = hbAppId;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(@"SELECT id FROM Tbl_Access_Groups WHERE global_cust_id = @appId and group_name = @groupName", conn);
+                cmd.Parameters.Add("@groupName", SqlDbType.NVarChar, 250).Value = groupName;
+                cmd.Parameters.Add("@appId", SqlDbType.Int).Value = hbAppId;
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.HasRows)
-                    {
-                        exists = true;
-                    }
+                if (dr.HasRows)
+                {
+                    exists = true;
                 }
             }
             return exists;
@@ -393,12 +384,12 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT isnull(max (cast(substring(group_name, 7, LEN(group_name) - 6) as int)),0) + 1 as NextGroupNumber FROM Tbl_HB_documents 
+               using SqlCommand cmd = new SqlCommand(@"SELECT isnull(max (cast(substring(group_name, 7, LEN(group_name) - 6) as int)),0) + 1 as NextGroupNumber FROM Tbl_HB_documents 
                                                                  WHERE customer_number =@customerNumber", conn);
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -422,7 +413,7 @@ namespace ExternalBanking.DBManager
                 script = @"SELECT group_id,group_name FROM Tbl_Access_Groups_Order_Details                                    
                            WHERE doc_id = @doc_id and action = 1";
 
-                SqlCommand cmd = new SqlCommand(script, conn);
+               using SqlCommand cmd = new SqlCommand(script, conn);
 
 
                 cmd.CommandType = CommandType.Text;
@@ -461,7 +452,7 @@ namespace ExternalBanking.DBManager
                 script = @"SELECT user_id FROM Tbl_Access_Group_Members_Order_Details                                        
                                              WHERE group_id = @groupId and doc_id = @doc_id and action = 1";
 
-                SqlCommand cmd = new SqlCommand(script, conn);
+               using SqlCommand cmd = new SqlCommand(script, conn);
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
@@ -506,7 +497,7 @@ namespace ExternalBanking.DBManager
                                   ON M.group_id = G.id
                                   WHERE u.user_name=@userName";
 
-                SqlCommand cmd = new SqlCommand(script, conn);
+               using SqlCommand cmd = new SqlCommand(script, conn);
 
 
                 cmd.CommandType = CommandType.Text;

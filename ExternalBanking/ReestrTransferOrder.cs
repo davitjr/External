@@ -372,7 +372,7 @@ namespace ExternalBanking
                 result = PaymentOrderDB.SaveReestr(this, userName, source, fileId, action);
 
                 //**********                
-                ulong orderId = base.Save(this, source, user);
+                //ulong orderId = base.Save(this, source, user);
                 
                 //Պահպանում է ռեեստրով փոխանցման տվյալները
                // PaymentOrderDB.SaveReestrTransferDetails(this);

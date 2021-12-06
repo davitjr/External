@@ -82,7 +82,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT D.app_id AS app_id,
+                using SqlCommand cmd = new SqlCommand(@"SELECT D.app_id AS app_id,
                                                           H.customer_number,
                                                           H.document_number,
                                                           H.currency,

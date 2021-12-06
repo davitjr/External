@@ -29,33 +29,31 @@ namespace ExternalBanking.DBManager
 
                 sql = sql + " ORDER BY id desc";
 
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                cmd.Parameters.Add("@dateFrom", SqlDbType.SmallDateTime).Value = dateFrom;
+                cmd.Parameters.Add("@dateTo", SqlDbType.SmallDateTime).Value = dateTo;
+                cmd.Parameters.Add("@type", SqlDbType.TinyInt).Value = type;
+
+                conn.Open();
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    cmd.Parameters.Add("@dateFrom", SqlDbType.SmallDateTime).Value = dateFrom;
-                    cmd.Parameters.Add("@dateTo", SqlDbType.SmallDateTime).Value = dateTo;
-                    cmd.Parameters.Add("@type", SqlDbType.TinyInt).Value = type;
-
-                    conn.Open();
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    while (dr.Read())
+                    Message message = new Message
                     {
-                        Message message = new Message
-                        {
-                            Id = int.Parse(dr["id"].ToString()),
-                            Type = int.Parse(dr["SentRecieve"].ToString()),
-                            Status = int.Parse(dr["status"].ToString()),
-                            Subject = Utility.ConvertAnsiToUnicode(dr["Subject"].ToString()),
-                            Description = Utility.ConvertAnsiToUnicode(dr["Description"].ToString()),
-                            SentDate = DateTime.Parse(dr["sent_date"].ToString()),
-                            ReplyId =  (dr["reply_id"] != DBNull.Value) ? Convert.ToDouble(dr["reply_id"].ToString()) : 0,
-                        };
-                        message.Attachments = GetMessageAttachmentDetails(message.Id);
-                        messages.Add(message);
-                    }
+                        Id = int.Parse(dr["id"].ToString()),
+                        Type = int.Parse(dr["SentRecieve"].ToString()),
+                        Status = int.Parse(dr["status"].ToString()),
+                        Subject = Utility.ConvertAnsiToUnicode(dr["Subject"].ToString()),
+                        Description = Utility.ConvertAnsiToUnicode(dr["Description"].ToString()),
+                        SentDate = DateTime.Parse(dr["sent_date"].ToString()),
+                        ReplyId = (dr["reply_id"] != DBNull.Value) ? Convert.ToDouble(dr["reply_id"].ToString()) : 0,
+                    };
+                    message.Attachments = GetMessageAttachmentDetails(message.Id);
+                    messages.Add(message);
                 }
             }
 
@@ -74,33 +72,31 @@ namespace ExternalBanking.DBManager
                          WHERE customer_number=@customerNumber 
                          and [SentRecieve]=@type
                          and status<>-1 ORDER BY Sent_Date Desc ";
-              
 
 
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                cmd.Parameters.Add("@type", SqlDbType.TinyInt).Value = type;
+                conn.Open();
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+                short i = 0;
+                while (dr.Read() && i < messagesCount)
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    cmd.Parameters.Add("@type", SqlDbType.TinyInt).Value = type;
-                    conn.Open();
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    short i = 0;
-                    while (dr.Read() && i < messagesCount)
-                    {
-                        Message message = new Message();
-                        message.Id = int.Parse(dr["id"].ToString());
-                        message.Type = int.Parse(dr["SentRecieve"].ToString());
-                        message.Status = int.Parse(dr["status"].ToString());
-                        message.Subject = Utility.ConvertAnsiToUnicode(dr["Subject"].ToString());
-                        message.Description = Utility.ConvertAnsiToUnicode(dr["Description"].ToString());
-                        message.SentDate = DateTime.Parse(dr["sent_date"].ToString());
-                        message.ReplyId = (dr["reply_id"] != DBNull.Value) ? Convert.ToDouble(dr["reply_id"].ToString()) : 0;
+                    Message message = new Message();
+                    message.Id = int.Parse(dr["id"].ToString());
+                    message.Type = int.Parse(dr["SentRecieve"].ToString());
+                    message.Status = int.Parse(dr["status"].ToString());
+                    message.Subject = Utility.ConvertAnsiToUnicode(dr["Subject"].ToString());
+                    message.Description = Utility.ConvertAnsiToUnicode(dr["Description"].ToString());
+                    message.SentDate = DateTime.Parse(dr["sent_date"].ToString());
+                    message.ReplyId = (dr["reply_id"] != DBNull.Value) ? Convert.ToDouble(dr["reply_id"].ToString()) : 0;
 
 
-                        messages.Add(message);
-                        i++;
-                    }
+                    messages.Add(message);
+                    i++;
                 }
             }
 
@@ -113,17 +109,15 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 string sql = @"SELECT count(1) as cnt FROM [Tbl_messages_with_bank] WHERE customer_number=@customerNumber and status=1 and SentRecieve<>1 ";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    conn.Open();
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                conn.Open();
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
-                    if (dr.Read())
-                        messagesCount = int.Parse(dr["cnt"].ToString());
-                }
+                if (dr.Read())
+                    messagesCount = int.Parse(dr["cnt"].ToString());
 
             }
 

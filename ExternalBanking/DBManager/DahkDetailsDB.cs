@@ -803,11 +803,11 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                DataTable dt = new DataTable();
+                 DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
@@ -840,27 +840,25 @@ namespace ExternalBanking.DBManager
                 string sql = @"SELECT  inquest_code FROM tbl_dahk_read_inquests 
 						where isread = 1 and customer_number = @customerNumber and inquest_code = @inquestCode";
 
-                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@inquestCode", SqlDbType.NVarChar).Value = Code;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+
+                DataTable dt = new DataTable();
+                using (SqlDataReader dr = cmd.ExecuteReader())
                 {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@inquestCode", SqlDbType.NVarChar).Value = Code;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-
-                    DataTable dt = new DataTable();
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        dt.Load(dr);
-                    }
-
-                    string sql1 = dt.Rows.Count == 0 ? @"insert into tbl_dahk_read_inquests values(@inquestCode, @customerNumber, 1)" : @"update tbl_dahk_read_inquests set isread = 1 where customer_number = @customerNumber and inquest_code = @inquestCode";
-                    SqlCommand cmd1 = new SqlCommand(sql1, conn);
-                    cmd1.CommandType = CommandType.Text;
-                    cmd1.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    cmd1.Parameters.Add("@inquestCode", SqlDbType.NVarChar).Value = Code;
-                    cmd1.ExecuteNonQuery();
+                    dt.Load(dr);
                 }
+
+                string sql1 = dt.Rows.Count == 0 ? @"insert into tbl_dahk_read_inquests values(@inquestCode, @customerNumber, 1)" : @"update tbl_dahk_read_inquests set isread = 1 where customer_number = @customerNumber and inquest_code = @inquestCode";
+                using SqlCommand cmd1 = new SqlCommand(sql1, conn);
+                cmd1.CommandType = CommandType.Text;
+                cmd1.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                cmd1.Parameters.Add("@inquestCode", SqlDbType.NVarChar).Value = Code;
+                cmd1.ExecuteNonQuery();
             }
         }
 

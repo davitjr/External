@@ -16,13 +16,11 @@ namespace ExternalBanking.DBManager
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        internal static Transfer Get(Transfer transfer, User user=null)
+        internal static Transfer Get(Transfer transfer, User user = null)
         {
 
             DataTable dt = new DataTable();
             DataTable dtDocFlow = new DataTable();
-            SqlCommand cmd = new SqlCommand();
-            SqlCommand cmdDocFlow = new SqlCommand();
 
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
@@ -51,11 +49,11 @@ namespace ExternalBanking.DBManager
                                             LEFT JOIN (select department_id, transfer_unic_number, transfer_registration_date, registered_by, rate_sell, rate_buy  from Tbl_transfers_by_call ) BC ON T.unic_number = BC.transfer_unic_number and T.registration_date = BC.transfer_registration_date
 	                                       LEFT JOIN tbl_types_of_loan_mature LM ON LM.code=TR.mature_type
                                       Where  T.id=@id ";
-             
-                using (cmd = new SqlCommand(str, conn))
+
+                using (SqlCommand cmd = new SqlCommand(str, conn))
                 {
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = transfer.Id;
-         
+
                     dt.Load(cmd.ExecuteReader());
 
                     if (dt.Rows.Count != 0)
@@ -120,7 +118,7 @@ namespace ExternalBanking.DBManager
                         transfer.VerifiedAml = (dt.Rows[0]["Verified_AML"] != DBNull.Value) ? Convert.ToInt16(dt.Rows[0]["Verified_AML"]) : default(short);
                         transfer.Verified = (dt.Rows[0]["Verified"] != DBNull.Value) ? Convert.ToInt16(dt.Rows[0]["Verified"]) : default(short);
                         transfer.DocumentNumber = dt.Rows[0]["document_number"].ToString();
-                       
+
                         if (transfer.TransferGroup == 3)
                         {
                             transfer.DescriptionForPayment = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["descr_for_payment"].ToString());
@@ -194,7 +192,7 @@ namespace ExternalBanking.DBManager
                             transfer.CustomerTypeDescription = Utility.ConvertAnsiToUnicode(dt.Rows[0]["customer_type_description"].ToString());
 
                         if (dt.Rows[0]["sender_address"] != DBNull.Value)
-                            if (transfer.TransferGroup ==3)
+                            if (transfer.TransferGroup == 3)
                                 transfer.SenderAddress = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["sender_address"].ToString());
                             else
                                 transfer.SenderAddress = Utility.ConvertAnsiToUnicode(dt.Rows[0]["sender_address"].ToString());
@@ -227,12 +225,12 @@ namespace ExternalBanking.DBManager
                             transfer.IntermediaryBankSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["Intermidate_bank_swift"].ToString());
 
                         if (dt.Rows[0]["Intermidate_bank"] != DBNull.Value)
-                            transfer.IntermediaryBank = Utility.ConvertAnsiToUnicodeRussian (dt.Rows[0]["Intermidate_bank"].ToString());
+                            transfer.IntermediaryBank = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Intermidate_bank"].ToString());
 
                         if (dt.Rows[0]["Receiver_bank_swift"] != DBNull.Value)
                             transfer.ReceiverBankSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["Receiver_bank_swift"].ToString());
 
-                        if (dt.Rows[0]["Receiver_bank"] != DBNull.Value && transfer.TransferGroup==3)
+                        if (dt.Rows[0]["Receiver_bank"] != DBNull.Value && transfer.TransferGroup == 3)
                             transfer.ReceiverBank = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Receiver_bank"].ToString());
                         else if (dt.Rows[0]["credit_bank_code"] != DBNull.Value && transfer.TransferGroup == 1)
                             transfer.ReceiverBank = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["credit_bank_code"].ToString());
@@ -244,7 +242,7 @@ namespace ExternalBanking.DBManager
                             transfer.ReceiverSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["receiver_swift"].ToString());
 
                         if (dt.Rows[0]["receiver_add_inf"] != DBNull.Value)
-                            if (transfer.TransferGroup ==3)
+                            if (transfer.TransferGroup == 3)
                                 transfer.ReceiverAddInf = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["receiver_add_inf"].ToString());
                             else
                                 transfer.ReceiverAddInf = Utility.ConvertAnsiToUnicode(dt.Rows[0]["receiver_add_inf"].ToString());
@@ -344,12 +342,12 @@ namespace ExternalBanking.DBManager
 
                         if (dt.Rows[0]["routing_code"] != DBNull.Value)
                             transfer.FedwireRoutingCode = dt.Rows[0]["routing_code"].ToString();
- 
+
                         if (dt.Rows[0]["credit_code"] != DBNull.Value)
                         {
                             transfer.CreditCode = dt.Rows[0]["credit_code"].ToString();
-                            transfer.Borrower = Utility.ConvertAnsiToUnicode( dt.Rows[0]["borrower_name"].ToString());
-                            transfer.MatureTypeDescription = Utility.ConvertAnsiToUnicode(dt.Rows[0]["matureDesc"].ToString()) ;
+                            transfer.Borrower = Utility.ConvertAnsiToUnicode(dt.Rows[0]["borrower_name"].ToString());
+                            transfer.MatureTypeDescription = Utility.ConvertAnsiToUnicode(dt.Rows[0]["matureDesc"].ToString());
                         }
 
                         if (dt.Rows[0]["MTO_Agent_Code"] != DBNull.Value)
@@ -365,7 +363,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
 
-                if (user != null && transfer.TransferGroup==3 && transfer.TransferSystem ==1 )
+                if (user != null && transfer.TransferGroup == 3 && transfer.TransferSystem == 1)
                 {
                     using (SqlConnection connDocFlow = new SqlConnection(ConfigurationManager.ConnectionStrings["DocFlowConnRO"].ToString()))
                     {
@@ -380,10 +378,10 @@ namespace ExternalBanking.DBManager
                                                                     Inner join Docflow.dbo.Tbl_request_signers ON R.id=Tbl_request_signers.request_conf_id
                                                                     WHERE step_id=136 and ((signer_type=1 and signer=@setNumber) or (signer_type=2 and signer= @permissionID) ) and R.key2_num=@unic_number and R.key3_date= @registration_date  ";
 
-                        using (cmdDocFlow = new SqlCommand(strDocFlow, connDocFlow))
+                        using (SqlCommand cmdDocFlow = new SqlCommand(strDocFlow, connDocFlow))
                         {
-                            cmdDocFlow.Parameters.Add("@unic_number", SqlDbType.Int).Value = transfer.UnicNumber ;
-                            cmdDocFlow.Parameters.Add("@registration_date", SqlDbType.SmallDateTime ).Value = transfer.RegistrationDate.ToString ("dd/MMM/yy");
+                            cmdDocFlow.Parameters.Add("@unic_number", SqlDbType.Int).Value = transfer.UnicNumber;
+                            cmdDocFlow.Parameters.Add("@registration_date", SqlDbType.SmallDateTime).Value = transfer.RegistrationDate.ToString("dd/MMM/yy");
                             cmdDocFlow.Parameters.Add("@setNumber", SqlDbType.Int).Value = user.userID;
                             cmdDocFlow.Parameters.Add("@permissionID", SqlDbType.Int).Value = user.userPermissionId;
 
@@ -396,7 +394,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-           
+
             }
             return transfer;
         }
@@ -514,7 +512,7 @@ namespace ExternalBanking.DBManager
 
                     }
                 }
-                   
+
 
             }
             return attachments;
@@ -545,9 +543,9 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                       
+
                 }
-                   
+
             }
             return attachment;
         }
@@ -560,30 +558,23 @@ namespace ExternalBanking.DBManager
         internal static List<int> GetTransferCriminalLogId(Transfer transfer)
         {
             List<int> logId = new List<int>();
-            SqlCommand cmd = new SqlCommand();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string str = @"select ID from Tbl_Criminal_LOG where uniq_num=@uniqeNumber and transaction_date=@transactionDate and transaction_type=3";
 
-                using (cmd = new SqlCommand(str, conn))
+                using SqlCommand cmd = new SqlCommand(str, conn);
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = str;
+
+                cmd.Parameters.Add("@uniqeNumber", SqlDbType.Int).Value = transfer.UnicNumber;
+                cmd.Parameters.Add("@transactionDate", SqlDbType.SmallDateTime).Value = transfer.RegistrationDate;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = str;
-
-                    cmd.Parameters.Add("@uniqeNumber", SqlDbType.Int).Value = transfer.UnicNumber;
-                    cmd.Parameters.Add("@transactionDate", SqlDbType.SmallDateTime).Value = transfer.RegistrationDate;
-
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        while (dr.Read())
-                        {
-                            logId.Add(int.Parse(dr["id"].ToString()));
-                        }
-                    }
-
-                       
+                    logId.Add(int.Parse(dr["id"].ToString()));
                 }
 
             }
@@ -644,7 +635,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                      
+
                 }
 
             }
@@ -653,7 +644,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        internal static List<short> CheckForApprove(Transfer  transfer, DateTime setDate, byte type)
+        internal static List<short> CheckForApprove(Transfer transfer, DateTime setDate, byte type)
         {
             List<short> errors = new List<short>();
 
@@ -669,12 +660,12 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@transferID", SqlDbType.BigInt).Value = transfer.Id;
-                     cmd.Parameters.Add("@setDate", SqlDbType.SmallDateTime).Value = setDate; 
+                    cmd.Parameters.Add("@setDate", SqlDbType.SmallDateTime).Value = setDate;
                     cmd.Parameters.Add("@return_error_codes", SqlDbType.TinyInt).Value = 1;
                     cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = transfer.Currency;
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = transfer.Amount;
                     cmd.Parameters.Add("@creditAccount", SqlDbType.Float).Value = transfer.CreditAccount.AccountNumber;
-                    cmd.Parameters.Add("@docflowConfirmationId", SqlDbType.Int).Value = transfer.DocflowConfirmationId ;
+                    cmd.Parameters.Add("@docflowConfirmationId", SqlDbType.Int).Value = transfer.DocflowConfirmationId;
                     cmd.Parameters.Add("@type", SqlDbType.TinyInt).Value = type;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -686,7 +677,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                        
+
                 }
 
             }
@@ -850,7 +841,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                       
+
                 }
 
             }
@@ -917,9 +908,9 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                       
+
                 }
-                    
+
             }
             return policePayment;
         }
@@ -1030,13 +1021,13 @@ namespace ExternalBanking.DBManager
 
                     if (!String.IsNullOrEmpty(filter.Country))
                     {
-                        str += " and T.country = '"+ filter.Country + "' ";
+                        str += " and T.country = '" + filter.Country + "' ";
                     }
                     if (!String.IsNullOrEmpty(filter.Filial) && filter.Filial == user.filialCode.ToString())
                     {
                         str += " and (filial =" + filter.Filial.ToString() + "   or transfer_group=4   or operation_deb_account=220001720394000 or (transfer_type=2 and confirmation_date is not null and cust.filialcode=" + filter.Filial.ToString() + " )) ";
                     }
-                    else if (!String.IsNullOrEmpty(filter.Filial)   && filter.Filial != user.filialCode.ToString())
+                    else if (!String.IsNullOrEmpty(filter.Filial) && filter.Filial != user.filialCode.ToString())
                     {
                         strAccess = " LEFT JOIN  (SELECT A.arm_number FROM [tbl_all_accounts;] A LEFT JOIN Tbl_Accounts_Groups_Permissions AG ON A.account_access_group=AG.access_level  WHERE ag.group_id= " + user.AccountGroup.ToString() + "  GROUP BY arm_number) AC ON  AC.arm_number= TR.operation_deb_account  ";
                         str += " and (filial =" + filter.Filial.ToString() + "   or transfer_group=4   or operation_deb_account=220001720394000 or (transfer_type=2 and confirmation_date is not null and cust.filialcode=" + filter.Filial.ToString() + " )  and  AC.arm_number IS NOT NULL ) ";
@@ -1054,7 +1045,7 @@ namespace ExternalBanking.DBManager
                     }
 
 
-                    if (filter.DocumentNumber  != 0)
+                    if (filter.DocumentNumber != 0)
                     {
                         str += " and document_number =" + filter.DocumentNumber.ToString();
                     }
@@ -1087,16 +1078,16 @@ namespace ExternalBanking.DBManager
 
                     if (filter.TransferRequestStatus != 0)
                     {
-                        strDocFlow= strDocFlow + " and status = "+filter.TransferRequestStatus .ToString();
+                        strDocFlow = strDocFlow + " and status = " + filter.TransferRequestStatus.ToString();
                     }
 
 
-                    if (filter.Session  != 0)
+                    if (filter.Session != 0)
                     {
                         str = str + " and session = " + filter.Session.ToString();
                     }
 
-                    if (filter.TransferRequestStep  != 0)
+                    if (filter.TransferRequestStep != 0)
                     {
                         strDocFlow = strDocFlow + "  and Tbl_request_confirmation_template.step_id =  " + filter.TransferRequestStep.ToString();
                     }
@@ -1161,7 +1152,7 @@ namespace ExternalBanking.DBManager
                                 transfer.CallRegSetNumber = Convert.ToInt32(dr["call_set_number"]);
                             }
 
-                            
+
                             transfer.FilialCode = (dr["filial"] != DBNull.Value) ? Convert.ToUInt16(dr["filial"]) : default(ushort);
                             transfer.VerifiedAml = (dr["Verified_AML"] != DBNull.Value) ? Convert.ToInt16(dr["Verified_AML"]) : default(short);
                             transfer.Verified = (dr["Ver"] != DBNull.Value) ? Convert.ToInt16(dr["Ver"]) : default(short);
@@ -1250,7 +1241,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = transferApproveOrder.OperationDate;
                     cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = transferApproveOrder.Transfer.Currency;
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = transferApproveOrder.Transfer.Amount;
-                    cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar, 20).Value = transferApproveOrder.Transfer.CreditAccount.AccountNumber ;
+                    cmd.Parameters.Add("@credit_account", SqlDbType.NVarChar, 20).Value = transferApproveOrder.Transfer.CreditAccount.AccountNumber;
                     cmd.Parameters.Add("@receiverBankSwiftCode", SqlDbType.NVarChar, 15).Value = transferApproveOrder.Transfer.ReceiverBankSwift;
                     cmd.Parameters.Add("@receiverBank", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.ReceiverBank;
                     cmd.Parameters.Add("@receiverBankAddInf", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.ReceiverBankAddInf;
@@ -1258,18 +1249,18 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@intermediaryBank", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.IntermediaryBank;
                     cmd.Parameters.Add("@descrForPayment", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.DescriptionForPayment;
                     cmd.Parameters.Add("@receiverName", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.Receiver;
-                    cmd.Parameters.Add("@receiverSwiftCode", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.ReceiverSwift ;
-                    cmd.Parameters.Add("@receiverAccount", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.ReceiverAccount ;
+                    cmd.Parameters.Add("@receiverSwiftCode", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.ReceiverSwift;
+                    cmd.Parameters.Add("@receiverAccount", SqlDbType.NVarChar, 255).Value = transferApproveOrder.Transfer.ReceiverAccount;
                     cmd.Parameters.Add("@valueDate", SqlDbType.SmallDateTime).Value = transferApproveOrder.ValueDate;
 
-                    cmd.Parameters.Add("@uip", SqlDbType.NVarChar,25).Value = transferApproveOrder.UIP;
+                    cmd.Parameters.Add("@uip", SqlDbType.NVarChar, 25).Value = transferApproveOrder.UIP;
 
                     if (!String.IsNullOrEmpty(transferApproveOrder.AccountInIntermediaryBank))
-                        cmd.Parameters.Add("@AccountInIntermediaryBank", SqlDbType.NVarChar,50).Value = transferApproveOrder.AccountInIntermediaryBank;
+                        cmd.Parameters.Add("@AccountInIntermediaryBank", SqlDbType.NVarChar, 50).Value = transferApproveOrder.AccountInIntermediaryBank;
 
 
                     if (!String.IsNullOrEmpty(transferApproveOrder.TransactionType26))
-                            cmd.Parameters.Add("@transactionType26", SqlDbType.NVarChar, 3).Value = transferApproveOrder.TransactionType26;
+                        cmd.Parameters.Add("@transactionType26", SqlDbType.NVarChar, 3).Value = transferApproveOrder.TransactionType26;
                     if (!String.IsNullOrEmpty(transferApproveOrder.AccountAbility77B))
                         cmd.Parameters.Add("@accountAbility77B", SqlDbType.NVarChar, 120).Value = transferApproveOrder.AccountAbility77B;
 
@@ -1277,7 +1268,7 @@ namespace ExternalBanking.DBManager
                     {
                         cmd.Parameters.Add("@routing_code", SqlDbType.NVarChar, 50).Value = transferApproveOrder.Transfer.FedwireRoutingCode;
                     }
-                    if (transferApproveOrder.SubType ==1)
+                    if (transferApproveOrder.SubType == 1)
                         cmd.Parameters.Add("@description", SqlDbType.NVarChar, 100).Value = transferApproveOrder.Transfer.VOCode;
                     else
                         cmd.Parameters.Add("@description", SqlDbType.NVarChar, 100).Value = transferApproveOrder.Description;
@@ -1320,9 +1311,7 @@ namespace ExternalBanking.DBManager
         {
 
             DataTable dt = new DataTable();
-            SqlCommand cmd = new SqlCommand();
-
-
+    
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
@@ -1331,42 +1320,40 @@ namespace ExternalBanking.DBManager
                                     FROM Tbl_swift_transfers_approve_data
                                     Where  transfer_id=@id ";
 
-                using (cmd = new SqlCommand(str, conn))
+                using SqlCommand cmd = new SqlCommand(str, conn);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = transfer.Id;
+
+                dt.Load(cmd.ExecuteReader());
+
+                if (dt.Rows.Count != 0)
                 {
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = transfer.Id;
- 
-                    dt.Load(cmd.ExecuteReader());
+                    if (dt.Rows[0]["receiver_account"] != DBNull.Value)
+                        transfer.ReceiverAccount = dt.Rows[0]["receiver_account"].ToString();
 
-                    if (dt.Rows.Count != 0)
-                    {
-                        if (dt.Rows[0]["receiver_account"] != DBNull.Value)
-                            transfer.ReceiverAccount = dt.Rows[0]["receiver_account"].ToString();
+                    if (dt.Rows[0]["receiver_name"] != DBNull.Value)
+                        transfer.Receiver = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["receiver_name"].ToString());
 
-                        if (dt.Rows[0]["receiver_name"] != DBNull.Value)
-                                transfer.Receiver = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["receiver_name"].ToString());
+                    if (dt.Rows[0]["descr_for_payment"] != DBNull.Value)
+                        transfer.DescriptionForPayment = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["descr_for_payment"].ToString());
 
-                        if (dt.Rows[0]["descr_for_payment"] != DBNull.Value)
-                            transfer.DescriptionForPayment  = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["descr_for_payment"].ToString());
-                    
-                        if (dt.Rows[0]["Intermidate_bank_swift"] != DBNull.Value)
-                            transfer.IntermediaryBankSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["Intermidate_bank_swift"].ToString());
+                    if (dt.Rows[0]["Intermidate_bank_swift"] != DBNull.Value)
+                        transfer.IntermediaryBankSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["Intermidate_bank_swift"].ToString());
 
-                        if (dt.Rows[0]["Intermidate_bank"] != DBNull.Value)
-                            transfer.IntermediaryBank = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Intermidate_bank"].ToString());
+                    if (dt.Rows[0]["Intermidate_bank"] != DBNull.Value)
+                        transfer.IntermediaryBank = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Intermidate_bank"].ToString());
 
-                        if (dt.Rows[0]["Receiver_bank_swift"] != DBNull.Value)
-                            transfer.ReceiverBankSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["Receiver_bank_swift"].ToString());
+                    if (dt.Rows[0]["Receiver_bank_swift"] != DBNull.Value)
+                        transfer.ReceiverBankSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["Receiver_bank_swift"].ToString());
 
-                        if (dt.Rows[0]["Receiver_bank"] != DBNull.Value)
-                            transfer.ReceiverBank = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Receiver_bank"].ToString());
+                    if (dt.Rows[0]["Receiver_bank"] != DBNull.Value)
+                        transfer.ReceiverBank = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Receiver_bank"].ToString());
 
-                        if (dt.Rows[0]["Receiver_bank_add_inf"] != DBNull.Value)
-                            transfer.ReceiverBankAddInf = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Receiver_bank_add_inf"].ToString());
+                    if (dt.Rows[0]["Receiver_bank_add_inf"] != DBNull.Value)
+                        transfer.ReceiverBankAddInf = Utility.ConvertAnsiToUnicodeRussian(dt.Rows[0]["Receiver_bank_add_inf"].ToString());
 
-                        if (dt.Rows[0]["receiver_swift_code"] != DBNull.Value)
-                            transfer.ReceiverSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["receiver_swift_code"].ToString());
+                    if (dt.Rows[0]["receiver_swift_code"] != DBNull.Value)
+                        transfer.ReceiverSwift = Utility.ConvertAnsiToUnicode(dt.Rows[0]["receiver_swift_code"].ToString());
 
-                   }
                 }
 
             }
@@ -1377,27 +1364,20 @@ namespace ExternalBanking.DBManager
         internal static void UpdateTransferAfterARUSRequest(ulong id, string URN)
         {
 
-            DataTable dt = new DataTable();
-            SqlCommand cmd = new SqlCommand();
+           using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
 
-
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
-
-                string str = @"UPDATE Tbl_bank_mail_in_reestr 
+            string str = @"UPDATE Tbl_bank_mail_in_reestr 
                                SET code_word = @URN
                                WHERE registration_date = (select registration_date from Tbl_BAnk_mail_in where id = @id) 
                                AND unic_number = (select unic_number from Tbl_BAnk_mail_in where id = @id)";
 
-                using (cmd = new SqlCommand(str, conn))
-                {
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.Parameters.Add("@URN", SqlDbType.NVarChar).Value = URN;
+            using (SqlCommand cmd = new SqlCommand(str, conn))
+            {
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                cmd.Parameters.Add("@URN", SqlDbType.NVarChar).Value = URN;
 
-                    cmd.ExecuteScalar();
-
-                }
+                cmd.ExecuteScalar();
 
             }
         }
@@ -1410,27 +1390,23 @@ namespace ExternalBanking.DBManager
         internal static ulong GetTransferIdFromTransferByCallId(ulong transferByCallId)
         {
             DataTable dt = new DataTable();
-            SqlCommand cmd = new SqlCommand();
+
             ulong transferId;
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
 
-                string str = @"SELECT   B.id as transferId
+            string str = @"SELECT   B.id as transferId
                                       FROM Tbl_transfers_by_call  C join tbl_bank_mail_in  B on C.[transfer_registration_date]= B.registration_date and C.[transfer_unic_number]=B.unic_number
                                        where C.id= @id ";
 
-                using (cmd = new SqlCommand(str, conn))
-                {
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = transferByCallId;
-                    dt.Load(cmd.ExecuteReader());
+            using SqlCommand cmd = new SqlCommand(str, conn);
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = transferByCallId;
+            dt.Load(cmd.ExecuteReader());
 
-                    transferId = (dt.Rows[0]["transferId"] != DBNull.Value) ? Convert.ToUInt64(dt.Rows[0]["transferId"]) : 0;
+            transferId = (dt.Rows[0]["transferId"] != DBNull.Value) ? Convert.ToUInt64(dt.Rows[0]["transferId"]) : 0;
 
-                    return transferId;
-                }
-            }
+            return transferId;
         }
 
         /// <summary>

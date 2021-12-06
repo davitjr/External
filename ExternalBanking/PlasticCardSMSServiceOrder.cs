@@ -64,6 +64,12 @@ namespace ExternalBanking
         /// </summary>
         public ulong MainCardProductID { get; set; }
 
+        /// <summary>
+        /// Հեռախոսահամարը հայկական է թե ոչ
+        /// </summary>
+        public bool IsArmenia { get; set; }
+
+
         public new ActionResult Save(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
             this.Complete();
@@ -335,7 +341,7 @@ namespace ExternalBanking
         }
 
 
-        public static DataTable GetCardMobilePhones(ulong customerNumber, ulong curdNumber)
+        public static List<Tuple<string, bool>> GetCardMobilePhones(ulong customerNumber, ulong curdNumber)
         {
             return PlasticCardSMSServiceOrderDB.GetCardMobilePhones(customerNumber, curdNumber);
         }
@@ -348,5 +354,7 @@ namespace ExternalBanking
         {
             return PlasticCardSMSServiceOrderDB.SMSTypeAndValue(curdNumber);
         }
+
+        
     }
 }

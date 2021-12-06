@@ -132,16 +132,7 @@ namespace ExternalBanking.XBManagement
 
             if (!needToConfirm)
             {
-                ActionResult resultConfirm = base.Confirm(user);
-
-                if (resultConfirm.ResultCode != ResultCode.Normal)
-                {
-                    result = resultConfirm;
-                }
-                else
-                {
-                    result = resultConfirm;
-                }
+                result = base.Confirm(user);
             }
             return result;
         }

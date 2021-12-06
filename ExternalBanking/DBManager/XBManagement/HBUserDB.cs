@@ -285,7 +285,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@docID", SqlDbType.Int).Value = docId;
                     cmd.Parameters.Add("@userSetNumber", SqlDbType.Int).Value = userID;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = hbUser.CustomerNumber;
-                    cmd.Parameters.Add("@hb_user_customer_number", SqlDbType.Float).Value = hbUser.CustomerNumber == 0 ? hbUser.CustomerNumber : hbUser.CustomerNumber;
+                    cmd.Parameters.Add("@hb_user_customer_number", SqlDbType.Float).Value = hbUser.CustomerNumber;
                     cmd.Parameters.Add("@hb_user_name", SqlDbType.NVarChar, 24).Value = hbUser.UserName;
                     cmd.Parameters.Add("@identification_per_order", SqlDbType.Bit).Value = hbUser.IdentificationPerOrder;
                     cmd.Parameters.Add("@limited_access", SqlDbType.Bit).Value = hbUser.LimitedAccess;

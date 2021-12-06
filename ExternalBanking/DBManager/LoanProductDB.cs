@@ -18,9 +18,9 @@ namespace ExternalBanking.DBManager
             using(SqlConnection conn=new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT penalty_rate FROM [tbl_penalty] WHERE with_date<=@date ORDER BY with_date DESC", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT penalty_rate FROM [tbl_penalty] WHERE with_date<=@date ORDER BY with_date DESC", conn);
                 cmd.Parameters.Add("@date", SqlDbType.DateTime).Value = date;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     penaltyRate = double.Parse(dr["penalty_rate"].ToString());
@@ -114,18 +114,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT dbo.fn_hasclaim(@productId) result";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        claimAvailability = Convert.ToBoolean(Convert.ToInt16(dr["result"].ToString()));
-                    }
-
-
+                    claimAvailability = Convert.ToBoolean(Convert.ToInt16(dr["result"].ToString()));
                 }
             }
 
@@ -141,19 +137,15 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT dbo.fn_get_credit_code_by_application_id(@productId,@productType) result";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+                cmd.Parameters.Add("@productType", SqlDbType.SmallInt).Value = productType;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                    cmd.Parameters.Add("@productType", SqlDbType.SmallInt).Value = productType;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        creditCode = dr["result"].ToString();
-                    }
-
-
+                    creditCode = dr["result"].ToString();
                 }
             }
 
@@ -170,18 +162,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT dbo.fn_get_application_id_by_credit_code(@creditCode) result";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@creditCode", SqlDbType.NVarChar, 16).Value = creditCode;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@creditCode", SqlDbType.NVarChar,16).Value = creditCode;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        productId = Convert.ToUInt64(dr["result"]);
-                    }
-
-
+                    productId = Convert.ToUInt64(dr["result"]);
                 }
             }
 
@@ -258,18 +246,14 @@ namespace ExternalBanking.DBManager
                 string sql = @"SELECT Account_number FROM Tbl_Products_Accounts p INNER JOIN 
                                 Tbl_Products_Accounts_Groups pg ON p.Group_Id = pg.Group_ID
 	                            WHERE Type_of_account = 282 AND  App_ID = @app_id";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        NextPeriodRateAccount = dr["Account_number"].ToString();
-                    }
-
-
+                    NextPeriodRateAccount = dr["Account_number"].ToString();
                 }
             }
 
@@ -284,18 +268,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT balance FROM [tbl_all_accounts;] WHERE Arm_number = @account_number";
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@account_number", SqlDbType.NVarChar, 20).Value = NextPeriodRateAccount;
+                conn.Open();
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@account_number", SqlDbType.NVarChar,20).Value = NextPeriodRateAccount;
-                    conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        NextPeriodRateAccountBalance = Convert.ToDouble(dr["balance"]);
-                    }
-
-
+                    NextPeriodRateAccountBalance = Convert.ToDouble(dr["balance"]);
                 }
             }
 

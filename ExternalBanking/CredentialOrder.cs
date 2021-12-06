@@ -73,18 +73,20 @@ namespace ExternalBanking
                 //**********
                 if (action == Action.Add)
                 {
-                    ulong orderId = base.Save(this, source, user);
-                    Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                    BOOrderPaymentDetails.Save(this, orderId);
-                    result = BOOrderCustomer.Save(this, orderId, user);
+                    //ulong orderId = base.Save(this, source, user);
+                    ulong orderId = 0;
+                    result = SaveCredentialDetails(this, this.Id);
+                    //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
+
                 }
                 else
                 {
-                    ulong orderId = BOOrderPaymentDetails.GetOrderId(this.Id);
+                    //ulong orderId = BOOrderPaymentDetails.GetOrderId(this.Id);
                     CredentialOrderDB.RemoveCredentialOrderDetails(this.Id);
-                    CredentialOrderDB.RemoveCredentialOrderBODetails(orderId);
-                    BOOrderPaymentDetails.Save(this, orderId, Action.Update);
-                    result = BOOrderCustomer.Save(this, orderId, user);
+                    CredentialOrderDB.RemoveCredentialOrderBODetails(this.Id);
+                    result = SaveCredentialDetails(this, this.Id, Action.Update);
+                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
                 }
 
                 //**********
@@ -198,18 +200,20 @@ namespace ExternalBanking
                 //**********                
                 if (action == Action.Add)
                 {
-                    ulong orderId = base.Save(this, source, user);
-                    Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                    BOOrderPaymentDetails.Save(this, orderId);
-                    result = BOOrderCustomer.Save(this, orderId, user);
+                    //ulong orderId = base.Save(this, source, user);
+                    ulong orderId = 0;
+                    result = SaveCredentialDetails(this, this.Id);
+                    //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
+
                 }
                 else
                 {
-                    ulong orderId = BOOrderPaymentDetails.GetOrderId(this.Id);
+                    //ulong orderId = BOOrderPaymentDetails.GetOrderId(this.Id);
                     CredentialOrderDB.RemoveCredentialOrderDetails(this.Id);
-                    CredentialOrderDB.RemoveCredentialOrderBODetails(orderId);
-                    BOOrderPaymentDetails.Save(this, orderId, Action.Update);
-                    result = BOOrderCustomer.Save(this, orderId, user);
+                    CredentialOrderDB.RemoveCredentialOrderBODetails(this.Id);
+                    result = SaveCredentialDetails(this, this.Id, Action.Update);
+                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
                 }
                 //**********
                 if (result.ResultCode != ResultCode.Normal)
@@ -256,6 +260,21 @@ namespace ExternalBanking
             {
                 result = base.Confirm(user);
             }   
+            return result;
+        }
+
+        public ActionResult SaveCredentialDetails(CredentialOrder credentialOrder, long orderId, Action actionType = Action.Add)
+        {
+            ActionResult result = new ActionResult();
+            result = CredentialOrderDB.SaveCredentialOrderDetails(credentialOrder, orderId);
+            credentialOrder.Credential.Id = (uint)result.Id;
+            if (credentialOrder.Credential.AssigneeList != null)
+            {
+                credentialOrder.Credential.AssigneeList.ForEach(oneAssignee =>
+                {
+                    oneAssignee.Save(orderId, actionType);
+                });
+            }
             return result;
         }
 

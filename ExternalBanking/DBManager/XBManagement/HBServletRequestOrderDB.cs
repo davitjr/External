@@ -68,10 +68,9 @@ namespace ExternalBanking.DBManager
 
         internal static HBServletRequestOrder GetHBServletRequestOrder(HBServletRequestOrder order)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT registration_date,
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT registration_date,
                                                          doc.document_number,
                                                          doc.document_type,
                                                          doc.debet_account,
@@ -88,31 +87,30 @@ namespace ExternalBanking.DBManager
                                                          INNER JOIN Tbl_HBServletRequest_Order_Details det
                                                          on doc.doc_ID=det.doc_ID
                                                          WHERE doc.customer_number=case when @customer_number = 0 then doc.customer_number else @customer_number end AND doc.doc_ID=@DocID", conn);
-                cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                using (SqlDataReader dr = cmd.ExecuteReader())
+            cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
+                if (dr.HasRows)
                 {
-                    if (dr.HasRows)
+                    while (dr.Read())
                     {
-                        while (dr.Read())
+                        order.HBtoken = new HBToken
                         {
-                            order.HBtoken = new HBToken
-                            {
-                                TokenNumber = dr["hb_token_id"].ToString()
-                            };
-                            order.OrderNumber = dr["document_number"].ToString();
-                            order.Type = (OrderType)dr["document_type"];
-                            order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
-                            order.Quality = (OrderQuality)Convert.ToInt16(dr["quality"]);
-                            order.SubType = Convert.ToByte(dr["document_subtype"]);
-                            order.Source = (SourceType)int.Parse(dr["source_type"].ToString());
-                            order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
-                            order.ConfirmationDate = dr["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dr["confirmation_date"]) : default(DateTime?);
-                        }
+                            TokenNumber = dr["hb_token_id"].ToString()
+                        };
+                        order.OrderNumber = dr["document_number"].ToString();
+                        order.Type = (OrderType)dr["document_type"];
+                        order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
+                        order.Quality = (OrderQuality)Convert.ToInt16(dr["quality"]);
+                        order.SubType = Convert.ToByte(dr["document_subtype"]);
+                        order.Source = (SourceType)int.Parse(dr["source_type"].ToString());
+                        order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+                        order.ConfirmationDate = dr["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dr["confirmation_date"]) : default(DateTime?);
                     }
                 }
-                return order;
             }
+            return order;
         }
         internal static ActionResult UpdateHBdocumentQuality(long docID, User user)
         {
@@ -146,10 +144,9 @@ namespace ExternalBanking.DBManager
         internal static HBServletRequestOrder GetHBServletRequestOrder(ulong customerNumber, OrderType documentType)
         {
             HBServletRequestOrder order = null;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"
 											SELECT TOP 1 registration_date,
                                                          doc.doc_id,
                                                          doc.document_number,
@@ -171,35 +168,34 @@ namespace ExternalBanking.DBManager
                                                           inner join dbo.tbl_tokens TT 
                                                         on det.hb_token_id = TT.id 
                                                          WHERE doc.customer_number=case when @customer_number = 0 then doc.customer_number else @customer_number end AND doc.document_type=@documentType order by doc_ID desc", conn);
-                cmd.Parameters.Add("@documentType", SqlDbType.Int).Value = (int)documentType;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                using (SqlDataReader dr = cmd.ExecuteReader())
+            cmd.Parameters.Add("@documentType", SqlDbType.Int).Value = (int)documentType;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
+                if (dr.HasRows)
                 {
-                    if (dr.HasRows)
+                    if (dr.Read())
                     {
-                        if (dr.Read())
+                        order = new HBServletRequestOrder
                         {
-                            order = new HBServletRequestOrder
-                            {
-                                HBtoken = new HBToken(),
+                            HBtoken = new HBToken(),
 
-                                Id = int.Parse(dr["doc_id"].ToString()),
-                                OrderNumber = dr["document_number"].ToString(),
-                                Type = (OrderType)dr["document_type"],
-                                RegistrationDate = Convert.ToDateTime(dr["registration_date"]),
-                                Quality = (OrderQuality)Convert.ToInt16(dr["quality"]),
-                                SubType = Convert.ToByte(dr["document_subtype"]),
-                                Source = (SourceType)int.Parse(dr["source_type"].ToString()),
-                                OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?)
-                            };
-                            order.HBtoken.TokenNumber = dr["token_serial"].ToString();
-                            order.HBtoken.GID = dr["gid"].ToString();
-                            order.HBtoken.ID = int.Parse(dr["tokenId"].ToString());
-                        }
+                            Id = int.Parse(dr["doc_id"].ToString()),
+                            OrderNumber = dr["document_number"].ToString(),
+                            Type = (OrderType)dr["document_type"],
+                            RegistrationDate = Convert.ToDateTime(dr["registration_date"]),
+                            Quality = (OrderQuality)Convert.ToInt16(dr["quality"]),
+                            SubType = Convert.ToByte(dr["document_subtype"]),
+                            Source = (SourceType)int.Parse(dr["source_type"].ToString()),
+                            OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?)
+                        };
+                        order.HBtoken.TokenNumber = dr["token_serial"].ToString();
+                        order.HBtoken.GID = dr["gid"].ToString();
+                        order.HBtoken.ID = int.Parse(dr["tokenId"].ToString());
                     }
                 }
-                return order;
             }
+            return order;
 
         }
     }

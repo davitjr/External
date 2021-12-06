@@ -19,7 +19,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT A.id, A.assignee_CustNumber, A.signature_type, A.isemployee, isnull(F.unicode_name,'') as Name, isnull(F.unicode_Lastname,'') as LastName, 
+                using SqlCommand cmd = new SqlCommand(@"SELECT A.id, A.assignee_CustNumber, A.signature_type, A.isemployee, isnull(F.unicode_name,'') as Name, isnull(F.unicode_Lastname,'') as LastName, 
                                                 isnull(F.unicode_middleName,'') as MiddleName, D.document_number, D.document_type
                                                 FROM Tbl_assignees A
                                                 LEFT JOIN tbl_Customers C ON A.assignee_CustNumber = C.Customer_number

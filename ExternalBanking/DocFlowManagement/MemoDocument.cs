@@ -46,7 +46,7 @@ namespace ExternalBanking.DocFlowManagement
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DocFlowConn"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand("Sp_Get_MemoDocument_Template", conn);
+               using SqlCommand cmd = new SqlCommand("Sp_Get_MemoDocument_Template", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 SqlParameter param = cmd.Parameters.Add(new SqlParameter("@memo_type", SqlDbType.Int));
                 param.Direction = ParameterDirection.Input;

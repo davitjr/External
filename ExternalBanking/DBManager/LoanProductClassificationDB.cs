@@ -15,7 +15,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT date_of_calculation,sum_of_capital,[days],individ,store,
+                using SqlCommand cmd = new SqlCommand(@"SELECT date_of_calculation,sum_of_capital,[days],individ,store,
                                                 CASE [type] WHEN 1 THEN CASE WHEN isnull(C.loan_type,0)=9 THEN N'Օգտ․ մաս․ գեր․' ELSE N'Օգտ․ մաս․' END WHEN 5 THEN N'Չօգտ․ մաս․' END  as [type] 
                                                 FROM Tbl_store_new s
                                                 LEFT JOIN (select app_id,loan_type from tbl_credit_lines where app_id=@app_id) c
@@ -25,7 +25,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@app_Id", SqlDbType.Float).Value = productId;
                 cmd.Parameters.Add("@date_from", SqlDbType.SmallDateTime).Value = dateFrom;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
 

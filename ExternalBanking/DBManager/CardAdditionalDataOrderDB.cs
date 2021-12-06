@@ -107,7 +107,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = order.Id;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+                   using SqlDataReader dr = cmd.ExecuteReader();
 
                     while (dr.Read())
                     {

@@ -99,7 +99,7 @@ namespace ExternalBanking.DBManager
                 using (SqlCommand cmd = new SqlCommand(@"SELECT id FROM tbl_approvement_schema WHERE customer_number = @customer_number", conn))
                 {
                     cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = customerNumber;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     return dr.HasRows;
                 }
             }

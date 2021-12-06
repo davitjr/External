@@ -152,13 +152,13 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT f.app_id   
+                using SqlCommand cmd = new SqlCommand(@"SELECT f.app_id   
                                                   FROM (SELECT app_id,currency FROM Tbl_Factoring WHERE App_Id=@productId or main_app_id=@productId) f 
                                                   INNER JOIN Tbl_Link_application_Provision lp ON f.App_Id=lp.app_id 
                                                   INNER JOIN Tbl_provision_of_clients p ON lp.IdPro=p.IdPro 
                                                   WHERE matured_date is null And p.type = 13 And p.currency <> f.currency", conn);
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (!dr.HasRows)
                 {
                     check = true;
@@ -175,7 +175,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT f.app_id  FROM Tbl_Factoring f 
+                using SqlCommand cmd = new SqlCommand(@"SELECT f.app_id  FROM Tbl_Factoring f 
 						                                      INNER JOIN Tbl_Factoring mf 
 															  ON f.main_app_id=mf.App_Id 
                                                               WHERE f.factoring_regres_type = 1 And f.main_app_id =@productId And 
@@ -186,7 +186,7 @@ namespace ExternalBanking.DBManager
                                                               INNER JOIN Tbl_provision_owners o
 							                                  ON p.IdPro=o.IdPro and o.customer_number=mf.customer_number and lp.app_id=f.app_id)", conn);
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (!dr.HasRows)
                 {
                     check = true;
@@ -248,30 +248,28 @@ namespace ExternalBanking.DBManager
         internal static FactoringTerminationOrder GetFactoringTerminationOrder(FactoringTerminationOrder order)
         {
             DataTable dt = new DataTable();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
 
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT  d.document_number,d.currency,d.debet_account,d.quality,d.description,
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT  d.document_number,d.currency,d.debet_account,d.quality,d.description,
                                                   d.registration_date,d.document_subtype,d.source_type,d.operation_date,I.app_id
                                                   FROM Tbl_HB_documents as d
                                                   INNER JOIN Tbl_HB_Products_Identity I ON d.doc_id=I.hb_doc_id 
                                                   where d.Doc_ID=@DocID and d.customer_number=@customer_number", conn);
 
-                cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                dt.Load(cmd.ExecuteReader());
+            cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            dt.Load(cmd.ExecuteReader());
 
-                order.ProductId = ulong.Parse(dt.Rows[0]["app_id"].ToString());
-                order.Currency = dt.Rows[0]["currency"].ToString();
-                order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
-                order.Description = dt.Rows[0]["description"].ToString();
-                order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
-                order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
-                order.Source = (SourceType)int.Parse(dt.Rows[0]["source_type"].ToString());
-                order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
-                return order;
-            }
+            order.ProductId = ulong.Parse(dt.Rows[0]["app_id"].ToString());
+            order.Currency = dt.Rows[0]["currency"].ToString();
+            order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
+            order.Description = dt.Rows[0]["description"].ToString();
+            order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
+            order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
+            order.Source = (SourceType)int.Parse(dt.Rows[0]["source_type"].ToString());
+            order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
+            return order;
 
         }
 
@@ -279,11 +277,11 @@ namespace ExternalBanking.DBManager
         {
             bool check = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            { 
+            {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT F.app_id FROM tbl_factoring F INNER JOIN tbl_paid_factoring P ON F.app_id=P.main_app_id WHERE F.main_app_id=@productId", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT F.app_id FROM tbl_factoring F INNER JOIN tbl_paid_factoring P ON F.app_id=P.main_app_id WHERE F.main_app_id=@productId", conn);
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (!dr.HasRows)
                 {
                     check = true;
@@ -298,14 +296,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
+                using SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
                                                 WHERE quality in (1,2,3,5) and document_type=142 and document_subtype=1 and
                                                 customer_number=@customerNumber and I.App_ID=@productId", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = order.ProductId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -321,7 +319,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT mf.customer_number 
+                using SqlCommand cmd = new SqlCommand(@"SELECT mf.customer_number 
 														 FROM Tbl_paid_factoring pf 
 															INNER JOIN tbl_factoring f ON pf.main_app_id=f.app_id 
 															INNER JOIN tbl_factoring mf ON f.main_app_id=mf.app_id 

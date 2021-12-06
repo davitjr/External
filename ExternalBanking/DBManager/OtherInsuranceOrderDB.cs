@@ -18,33 +18,31 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT ID,[dbo].[fnc_convertAnsiToUnicode]([Description]) as [Description] FROM [dbo].[Tbl_type_of_insurance_contracts]";
+
+                if (isLoanProduct)
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT ID,[dbo].[fnc_convertAnsiToUnicode]([Description]) as [Description] FROM [dbo].[Tbl_type_of_insurance_contracts]";
+                    cmd.CommandText += " WHERE ID = 1";
+                }
+                else if (isProvision)
+                {
+                    cmd.CommandText += " WHERE ID = 2";
+                }
+                else
+                {
+                    cmd.CommandText += " WHERE ID in (2,3)";
+                }
 
-                    if (isLoanProduct)
-                    {
-                        cmd.CommandText += " WHERE ID = 1";
-                    }
-                    else if (isProvision)
-                    {
-                        cmd.CommandText += " WHERE ID = 2";
-                    }
-                    else
-                    {
-                        cmd.CommandText += " WHERE ID in (2,3)";
-                    }
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            contrtype.Add(Convert.ToString(reader["ID"]), Convert.ToString(reader["Description"]));
-                        }
+                        contrtype.Add(Convert.ToString(reader["ID"]), Convert.ToString(reader["Description"]));
                     }
                 }
             }
@@ -119,17 +117,15 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqlstring = "select customer_number from v_cashers_list where (group_id = 11 or (group_id = 74 and position_id = 6)) and new_id = " + setNumber.ToString();
 
-                using (SqlCommand cmd = new SqlCommand(sqlstring, conn))
+                using SqlCommand cmd = new SqlCommand(sqlstring, conn);
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+
+                if (reader.HasRows)
                 {
-                    cmd.CommandType = System.Data.CommandType.Text;
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-
-                    if (reader.HasRows)
-                    {
-                        result = true;
-                    }
+                    result = true;
                 }
 
 

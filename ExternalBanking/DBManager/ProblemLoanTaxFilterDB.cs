@@ -16,7 +16,6 @@ namespace ExternalBanking.DBManager
             Dictionary<int, List<ProblemLoanTax>> searchResults = new Dictionary<int, List<ProblemLoanTax>>();
             List<ProblemLoanTax> problemLoanTaxesList = new List<ProblemLoanTax>();
             ProblemLoanTax problemLoanTaxes;
-            SqlDataReader dr;
             int totalCustomersCount = 0;
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -50,7 +49,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@taxCourtDecision", SqlDbType.SmallInt).Value = problemLoanTaxFilter.TaxCourtDecision;
                     cmd.Parameters.Add("@cache", SqlDbType.SmallInt).Value = Cache;
 
-                    dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.Read())
                     {

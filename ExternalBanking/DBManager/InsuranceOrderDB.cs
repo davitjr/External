@@ -114,11 +114,11 @@ namespace ExternalBanking.DBManager
                                             on hb.doc_ID=insh.Doc_ID
                                             WHERE hb.doc_id=@docID and hb.customer_number=case when @customer_number = 0 then hb.customer_number else @customer_number end";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())

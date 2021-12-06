@@ -8,7 +8,7 @@ namespace ExternalBanking
 {
     public class AutomateCardBlockingUnblocking
     {
-        public static int[] FreezingReasonsForBlocking = { 4, 5, 6, 25, 26, 27, 28 };
+        public readonly static int[] FreezingReasonsForBlocking = { 4, 5, 6, 25, 26, 27, 28 };
 
         public static ArcaCardsTransationActionReason GetCardTransactionReasonByFreezeReasonId(ushort freezeReason)
         {

@@ -237,6 +237,13 @@ namespace ExternalBanking
                             return result;
                         }
                     }
+
+                    if (card.Type == 21)
+                    {
+                        //Հնարավոր չէ պահպանել հայտ տվյալ քարտատեսակի դեպքում։
+                        result.Errors.Add(new ActionError(1900));
+                        return result;
+                    }
                 }
 
                 result.Errors.AddRange(Validation.ValidateFastOverdraftApplication(this));

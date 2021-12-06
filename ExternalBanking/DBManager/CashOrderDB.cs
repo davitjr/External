@@ -92,7 +92,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT c.Doc_id, c.cashTakeDate, c.CashAmount, c.CashApp_filial,d.document_number,d.document_subtype,d.currency,d.registration_date,d.quality,d.document_subtype,d.operation_date,d.order_group_id,d.confirmation_date
+                using SqlCommand cmd = new SqlCommand(@"SELECT c.Doc_id, c.cashTakeDate, c.CashAmount, c.CashApp_filial,d.document_number,d.document_subtype,d.currency,d.registration_date,d.quality,d.document_subtype,d.operation_date,d.order_group_id,d.confirmation_date
                                                     FROM tbl_new_cash_application c INNER JOIN Tbl_HB_documents d ON c.doc_id=d.doc_id WHERE c.Doc_id=@Docid and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;

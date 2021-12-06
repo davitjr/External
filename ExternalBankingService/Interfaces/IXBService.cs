@@ -86,6 +86,7 @@ namespace ExternalBankingService.Interfaces
     [ServiceKnownType(typeof(CurrencyExchangeOrder))]
     [ServiceKnownType(typeof(RenewedCardAccountRegOrder))]
     [ServiceKnownType(typeof(VisaAliasOrder))]
+    [ServiceKnownType(typeof(ConsumeLoanApplicationOrder))]
 
     public interface IXBService
     {
@@ -1994,6 +1995,9 @@ namespace ExternalBankingService.Interfaces
         DepositaryAccount GetCustomerDepositaryAccount(ulong customerNumber);
 
         [OperationContract]
+        List<DepositaryAccount> GetCustomerDepositaryAccounts(ulong customerNumber);
+
+        [OperationContract]
         List<Bond> GetBondsForDealing(BondFilter searchParams, string bondFilterType);
 
         [OperationContract]
@@ -2006,10 +2010,16 @@ namespace ExternalBankingService.Interfaces
         ActionResult SaveAndApproveDepositaryAccountOrder(DepositaryAccountOrder order);
 
         [OperationContract]
+        ActionResult SaveDepositaryAccountOrder(DepositaryAccountOrder order);
+
+        [OperationContract]
+        ActionResult ApproveDepositaryAccountOrder(DepositaryAccountOrder order);
+
+        [OperationContract]
         ActionResult SaveAndApproveBondQualityUpdateOrder(BondQualityUpdateOrder order);
 
         [OperationContract]
-        DepositaryAccountOrder GetDepositaryAccountOrder(int id);
+        DepositaryAccountOrder GetDepositaryAccountOrder(long id);
 
         [OperationContract]
         DepositaryAccount GetDepositaryAccountById(int id);
@@ -3420,5 +3430,47 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         CardHolderAndCardType GetCardTypeAndCardHolder(string cardNumber);
+        [OperationContract]
+        int GetBondOrderIssueSeria(int bondIssueId);
+
+        [OperationContract]
+        double GetUnitPrice(int bondIssueId);
+
+        [OperationContract]
+        void DeleteDepoAccounts(ulong customerNumber);
+
+        [OperationContract]
+        double GetDepositaryAccount(ulong customerNumber);
+
+        [OperationContract]
+        ActionResult SaveBondOrder(BondOrder order);
+
+        [OperationContract]
+        ActionResult ApproveBondOrder(BondOrder order);
+
+        [OperationContract]
+        List<Account> GetAccountsForStock();
+
+        [OperationContract]
+        ActionResult ConfirmStockOrder(int bondId);
+
+        [OperationContract]
+        double GetBuyKursForDate(string currency);
+
+        [OperationContract]
+        ActionResult UpdateDepositoryAccountOrder(DepositaryAccountOrder order);
+
+        [OperationContract]
+        ActionResult SaveConsumeLoanApplicationOrder(ConsumeLoanApplicationOrder order);
+
+        [OperationContract]
+        ConsumeLoanApplicationOrder GetConsumeLoanApplicationOrder(long ID);
+
+        [OperationContract]
+        (long, DateTime) ExistsConsumeLoanApplicationOrder(List<OrderQuality> qualities);
+
+        [OperationContract]
+        BondCertificateDetails GetBondCertificateDetailsByDocId(ulong docId);
+
     }
 }

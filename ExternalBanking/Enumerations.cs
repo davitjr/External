@@ -784,7 +784,7 @@ namespace ExternalBanking
         AddFondOrder = 190,
 
         /// <summary>
-        /// Արժեթղթերի հաշվի բացման հայտ
+        /// Արժեթղթերի հաշվի ստուգման հայտ
         /// </summary>
         DepositaryAccountOrder = 191,
 
@@ -1027,7 +1027,7 @@ namespace ExternalBanking
         /// Քարտի վերաթողարկման հայտ
         /// </summary>
         CardRenewOrder = 243,
-       
+
         /// <summary>
         /// Քարտի վերաբացման հայտ
         /// </summary>
@@ -1050,7 +1050,7 @@ namespace ExternalBanking
         /// <summary>
         /// Ավանդի գրավով սպառողական վարկի հեռացում
         /// </summary>
-        DeleteLoanOrder = 248,   
+        DeleteLoanOrder = 248,
         /// <summary>
         /// Հաշվի հեռացում
         /// </summary>
@@ -1071,7 +1071,17 @@ namespace ExternalBanking
         /// <summary>
         /// Հղումով փոխանցման վճարման կատարման հայտ
         /// </summary>
-        LinkTransferPaymentConfirmation = 254
+        LinkTransferPaymentConfirmation = 254,
+
+        /// <summary>
+        /// Սպառողական վարկի դիմումի հայտ
+        /// </summary>
+        ConsumeLoanApplicationOrder = 255,
+
+        /// <summary>
+        /// Արժեթղթերի հաշվի բացման հայտ
+        /// </summary>
+        DepositaryAccountOpeningOrder = 256
     }
 
     /// <summary>
@@ -1346,7 +1356,12 @@ namespace ExternalBanking
         /// <summary>
         /// Ուղարկված է ՓԼԱՖ բաժնի հաստատման
         /// </summary>
-        SentToAML = 57
+        SentToAML = 57,
+
+        /// <summary>
+        /// Դիտարկվում է աշխատակցի կողմից
+        /// </summary>
+        ReviewingByEmployee = 60
     }
 
     /// <summary>
@@ -2468,6 +2483,10 @@ namespace ExternalBanking
         /// </summary>
         Approved = 11,
         /// <summary>
+        ///  Տեղաբաշխված
+        /// </summary>
+        Distributed = 50,
+        /// <summary>
         /// Հեռացված
         /// </summary>
         Deleted = 99,
@@ -2545,7 +2564,27 @@ namespace ExternalBanking
         /// <summary>
         /// Մերժված
         /// </summary>
-        Rejected = 31
+        Rejected = 31,
+        /// <summary>
+        /// Հաստատման ենթակա (Դիլինգի բեք օֆիս)
+        /// </summary>
+        AvailableForApproveDilingBackOffice = 21,
+        /// <summary>
+        /// Հաստատման ենթակա (Դիլինիգի բաժին)
+        /// </summary>
+        AvailableForApproveDiling = 22,
+        /// <summary>
+        ///Բավարարված
+        /// </summary>
+        Satisfied = 50,
+        /// <summary>
+        /// Մասնակի բավարաված
+        /// </summary>
+        PartiallySatisfied = 51,
+        /// <summary>
+        /// Տեղաբաշխված
+        /// </summary>
+        Distributed = 60
 
     }
 
@@ -2566,7 +2605,11 @@ namespace ExternalBanking
         /// <summary>
         /// Առկա չէ
         /// </summary>
-        NonExisted = 3
+        NonExisted = 3,
+        /// <summary>
+        /// Առկա է Այլ ՀՕ
+        /// </summary>
+        ExistsInOtherOperator = 4
 
     }
 
@@ -2853,540 +2896,556 @@ namespace ExternalBanking
         DELETED
     }
 
+    /// <summary>
+    /// Քարտի տեսակներ
+    /// </summary>
+    public enum PlasticCardType
+    {
+        VISA_BUSINESS = 3,
+        VISA_BUSINESS_PW = 45,
+        VISA_BSNS_CHP = 18,
+        ARCA_BUSINESS = 22,
+        ARCA_PENSION = 21,
+        AMEX_GOLD_CHP = 41,
+        ACBA_FEDERATION = 43,
+        VISA_VIRTUAL = 51
+
+    }
+
+    /// <summary>
+    /// Գործարքների խմբի տեսակ
+    /// </summary>
+    public enum OrderGroupType : short
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Հաճախորդի կողմից ստեղծված
+        /// </summary>
+        CreatedByCustomer = 1,
+
+        /// <summary>
+        /// Ծրագրի կողմից ավտոմատ ստեղծված (մի քանի հայտ միավորելու համար)
+        /// </summary>
+        CreatedAutomatically = 2
+    }
+
+    /// <summary>
+    /// Աշխատավարձային ծրագրերի տեսակներ
+    /// </summary>
+    public enum RelatedOfficeTypes
+    {
+        PensionCards = 1158,
+        AmexGoldFoundersDirectors = 1227,
+        AmexPAPEMonthly = 1663,
+        AMexPAPEYearly = 1664,
+        AmexGoldMasterCardGold = 2650,
+        AMEXLinkedCards = 1314,
+        AMEXLinkedReplacementCards = 1692,
+        GPMMembers = 2769
+    }
+
+    public enum TemplateStatus : short
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Գործող
+        /// </summary>
+        Active = 1,
+
+        /// <summary>
+        /// Հեռացված 
+        /// </summary>
+        Deleted = 40
+    }
+
+    public enum PlasticCardReportRecievingTypes : int
+    {
+        /// <summary>
+        /// Փոստային կապի միջոցով
+        /// </summary>
+        byMail = 1,
+        /// <summary>
+        /// Էլ․ փոստի միջոցով
+        /// </summary>
+        byEmail = 4,
+        /// <summary>
+        /// Հեռացված
+        /// </summary>
+        Deleted = 0,
+        /// <summary>
+        /// Առձեռն՝ Բանկի տարածքում
+        /// </summary>
+        byHandBankTerritory = 3
+    }
+
+    /// <summary>
+    /// 24/7 ռեժիմով գործարք կատարելու թույլատրելիություն
+    /// </summary>
+    public enum MakingTransactionIn24_7ModeAllowbility : ushort
+    {
+        /// <summary>
+        /// Չի թույլատրվում
+        /// </summary>
+        NotAllowed = 0,
+        /// <summary>
+        /// Թույլատրվում է
+        /// </summary>
+        Allowed = 1,
+        /// <summary>
+        /// Թույլատրվում է որոշակի պայմանի դեպքում
+        /// </summary>
+        ConditionallyAllowed = 2
+    }
+
+
+    public enum PlasticCardPINCodeRecievingTypes
+    {
+        /// <summary>
+        /// PIN կոդի ծրագրով
+        /// </summary>
+        byPINCodeProgram = 1,
+        /// <summary>
+        /// SMS-ի միջոցով
+        /// </summary>
+        bySMS = 2
+    }
+
+    /// <summary>
+    /// Տոկոսային մարժաայի տեսակներ
+    /// </summary>
+    public enum InterestMarginType : byte
+    {
+        /// <summary>
+        /// Ընթացիկ (ցպահանջ) հաշիվների տեղաբաշխում
+        /// </summary>
+        CurrentAccounts = 1,
+
+        /// <summary>
+        /// Ժամկետային ավանդների տեղաբաշխում
+        /// </summary>
+        TermDeposits = 2,
+
+        /// <summary>
+        /// Բանկի կողմից թողարկված պարտատոմսերի դիմաց ներգրաված միջոցների տեղաբաշխում
+        /// </summary>
+        BankBonds = 3,
+    }
+
+    /// <summary>
+    /// Գործարքների խմբի կարգավիճակ
+    /// </summary>
+    public enum OrderGroupStatus : short
+    {
+        /// <summary>
+        /// Գործող
+        /// </summary>
+        Active = 1,
+
+        /// <summary>
+        /// Հեռացված
+        /// </summary>
+        Deleted = 0
+    }
+
+    public enum CardStatementDataTypes : short
+    {
+        /// <summary>
+        /// MR
+        /// </summary>
+        MR = 0,
+
+        /// <summary>
+        /// ՎԱՐԿԱՅԻՆ ԳԾԻ ՎԵՐԱԲԵՐՅԱԼ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
+        /// </summary>
+        SummaryCreditLine = 1,
+
+        /// <summary>
+        /// ՎԱՍՏԱԿԱԾ ԵԿԱՄՈՒՏՆԵՐ ԵՎ ԲՈՆՈՒՍՆԵՐ
+        /// </summary>
+        SummaryBonus = 2,
+
+        /// <summary>
+        /// Լրացուցիչ տվյալներ
+        /// </summary>
+        AddInfo = 3,
+
+        /// <summary>
+        /// ՉՁԵՎԱԿԵՐՊՎԱԾ ԵՎ ԱՐԳԵԼԱԴՐՎԱԾ  ԳՈՐԾԱՐՔՆԵՐԻ/ԳՈՐԾԱՌՆՈՒԹՅՈՒՆՆԵՐԻ ՎԵՐԱԲԵՐՅԱԼ ՄԱՆՐԱՄԱՍՆ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
+        /// </summary>
+        UnsettledTransactions = 4,
+
+        /// <summary>
+        /// ԿԱՏԱՐՎԱԾ ԳՈՐԾԱՐՔՆԵՐԻ ՎԵՐԱԲԵՐՅԱԼ ԱՄՓՈՓ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
+        /// </summary>
+        Summery = 5,
+
+        /// <summary>
+        /// ՎԱՐԿԱՅԻՆ ԳԾԻ ՎԵՐԱԲԵՐՅԱԼ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
+        /// </summary>
+        Link = 6,
+
+        /// <summary>
+        /// card_statement_BankData (PR)
+        /// </summary>
+        BankDate = 7,
+    }
+
+
+    public enum TaxCourtDecision : SByte
+    {
+        /// <summary>
+        /// Լրացված չէ
+        /// </summary>
+        None = -1,
+
+        /// <summary>
+        /// Պետ. տուրքը բավարարել հօգուտ հաճախորդի
+        /// </summary>
+        TaxQualityOperating = 0,
+
+        /// <summary>
+        /// Պետ. տուրքը բավարարել հօգուտ Բանկի
+        /// </summary>
+        TaxQualityContract = 1,
+
+        /// <summary>
+        /// Պետ. տուրքը բավարարել հօգուտ Բանկի
+        /// </summary>
+        TaxQualityDecision = 2,
+
+    }
+
+    public enum PlasticCardSystemType
+    {
+        Amex = 3
+    }
+
+    public enum RelatedOfficeContractStatusTypes
+    {
+        /// <summary>
+        /// Դադարեցված
+        /// </summary>
+        Suspended = 0,
+        /// <summary>
+        /// Սառեցված
+        /// </summary>
+        Frozen = 2
+    }
+    public enum PlasticCardSentToArcaStatus
+    {
+        /// <summary>
+        /// Տվյալներ հայտնաբերված չեն 
+        /// </summary>
+        NoInfo = 0,
+        /// <summary>
+        /// ֆայլերը ուղղարկված են արքա
+        /// </summary>
+        SentToArca = 1,
+        /// <summary>
+        /// ֆայլերը ուղղարկված չեն
+        /// </summary>
+        NoFiles = 2
+
+    }
+    public enum ServiceFeePeriodicityType : int
+    {
+        None = 0,
+        Monthly = 1,
+        Yearly = 2
+    }
+
+    public enum ArcaCardsTransactionActionTypes : short
+    {
+        None = 0,
+        Block = 1,
+        Unblock = 2
+    }
+    /// <summary>
+    /// հասանելի մնացորդի որոշման տեսակներ
+    /// </summary>
+    public enum DigitalAccountRestConfigurationType : short
+    {
+        None = 0,
+        Defalut = 1,
+        Custom = 2
+    }
+    public enum GPMMemberStatus
+    {
+        /// <summary>
+        /// ԳՓՄ անդամ չի հանդիսանում
+        /// </summary>
+        NotMember = 0,
+        /// <summary>
+        /// ԳՓՄ անդամակցության ամսաթիվը մուտքագրված չէ
+        /// </summary>
+        NoMemberDate = 1,
+        /// <summary>
+        /// ԳՓՄ անդամ
+        /// </summary>
+        IsMember = 2
+    }
+    public enum PaymentToARCAStatus : short
+    {
+        None = 0,
+        Waiting = 1,
+        Sending = 2,
+        InProgress = 3,
+        Failure = 4,
+        Success = 5,
+        Resend = 6,
+        Manual = 7
+    }
+
+    public enum TypeOfHbProductTypes
+    {
+        /// <summary>
+        /// Բոլորը
+        /// </summary>
+        None,
+        /// <summary>
+        /// Փոխանցում
+        /// </summary>
+        Transfers,
+        /// <summary>
+        /// Դիմում
+        /// </summary>
+        Application,
+        /// <summary>
+        /// Վճարում 
+        /// </summary>
+        Payment
+    }
+
+    public enum LoanProductType
+    {
+        /// <summary>
+        /// Ունի գոնե մեկ ընթացիկ հաշիվ
+        /// </summary>
+        Loan = 1,
+        /// <summary>
+        /// Ունի գոնե մեկ ընթացիկ հաշիվ և գոնե մեկ քարտ
+        /// </summary>
+        CreditLine = 2,
+        /// <summary>
+        /// Ունի գոնե մեկ քարտ
+        /// </summary>
+        FastOverdraft = 3
+    }
+    public enum VirtualCardRequestTypes
+    {
+        /// <summary>
+        /// Քարտի վերաթողարկում, փոխարինում
+        /// </summary>
+        ReNewReplace = 1,
+        /// <summary>
+        /// Քարտի հաշվի հեռացում
+        /// </summary>
+        Remove = 2,
+        /// <summary>
+        /// Քարտի փակում
+        /// </summary>
+        Closing = 3
+
+    }
+
+    public enum ReferenceReceiptTypes : int
+    {
+
+        /// <summary>
+        /// Ընտրված չէ
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Մասնաճյուղի տարածքում՝ նույն աշխ. օրվա ընթացքում
+        /// </summary>
+        AtBranchSameWorkingDay = 1,
+
+        /// <summary>
+        /// Մասնաճյուղի տարածքում
+        /// </summary>
+        AtBranch = 2,
+
+        /// <summary>
+        /// Առաքման ծառայության միջոցով
+        /// </summary>
+        DeliveryService = 3
+    }
+
+    public enum PeriodicTransferTypes : byte
+    {
+        /// <summary>
+        /// Ընտրված չէ
+        /// </summary>
+        NotSet = 0,
+        /// <summary>
+        /// Փոխանցումներ
+        /// </summary>
+        Transfer = 1,
+        /// <summary>
+        /// Վճարումներ
+        /// </summary>
+        Payment = 2
+    }
+
+    public enum EmailSenderProfiles
+    {
+        /// <summary>
+        /// Notifications
+        /// </summary>
+        Notifications = 1,
+        /// <summary>
+        /// ACBA Notification
+        /// </summary>
+        Noreply = 2,
+        /// <summary>
+        /// ACBA-CA BANK
+        /// </summary>
+        Info = 3,
+        /// <summary>
+        /// AcbaOnline
+        /// </summary>
+        Acbaonline = 4,
+        /// <summary>
+        /// ACBA Electronic Contracts
+        /// </summary>
+        Econtracts = 5,
+    }
+    public enum InternationalCardTransferTypes
+    {
+        VisaDirect = 1,
+        MasterCardMoneySend = 2
+    }
+    public enum CredilLineActivatorType : byte
+    {
+        /// <summary>
+        /// Վարկային գծի ակտիվացում
+        /// </summary>
+        ActivateCreditLine = 1,
+        /// <summary>
+        /// Վարկային գծի դադարեցում
+        /// </summary>
+        CloseCreditLine = 2
+    }
+
+    /// <summary>
+    /// ՍՏԱԿ R2A փոխանցման վճարման եղանակները
+    /// </summary>
+    public enum PayoutDeliveryCodeForR2A : ushort
+    {
+        /// <summary>
+        /// Կանխիկ ստացման եղանակով
+        /// </summary>
+        Cash = 10,
+        /// <summary>
+        /// Քարտին վճարման եղանակով
+        /// </summary>
+        Card = 20,
+        /// <summary>
+        /// Էլ․ դրամապանակի եղանակով
+        /// </summary>
+        EMoney = 30,
+        /// <summary>
+        /// Հաշվին վճարման եղանակով
+        /// </summary>
+        Account = 40
+    }
+
+    public enum CardLessCashoutStatus
+    {
+        Waiting = 0,
+        Rejected = 1,
+        Completed = 2
+    }
+
+    public enum BillSplitStatus
+    {
+        Completed = 1,
+        InProgress = 0
+    }
+
+    public enum LinkPaymentSourceType : byte
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// հղումով փոխանցում
+        /// </summary>
+        FromLinkPayment,
+
+        /// <summary>
+        /// BillSplit-ից եկած հղումով փոխանցում
+        /// </summary>
+        FromBillSplit
+    }
+
+    public enum ArcaCardsTransationActionReason : byte
+    {
+        /// <summary>
+        /// Սնանկ ճանաչված
+        /// </summary>
+        Bankrupt = 15
+    }
+    public enum ArcaCardsTransationActionType : short
+    {
+        /// <summary>
+        /// Բլոկավորում
+        /// </summary>
+        Block = 1,
+
+        /// <summary>
+        /// Ապաբլոկավորում
+        /// </summary>
+        Unblock = 2
+    }
+
+    public enum SharesTypes : short
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Պարտատոմսեր
+        /// </summary>
+        Bonds,
+
+        /// <summary>
+        /// Բաժնետոմսեր
+        /// </summary>
+        Stocks
+    }
+
+
+
+    public enum ConfirmationSourceType : short
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// ACBA Digital համակարգից
+        /// </summary>
+        FromACBADigital = 1,
+
+        /// <summary>
+        /// Front Office ծրագրից
+        /// </summary>
+        FromBank = 2
+    }
+
 }
-
-
-/// <summary>
-/// Քարտի տեսակներ
-/// </summary>
-public enum PlasticCardType
-{
-    VISA_BUSINESS = 3,
-    VISA_BUSINESS_PW = 45,
-    VISA_BSNS_CHP = 18,
-    ARCA_BUSINESS = 22,
-    ARCA_PENSION = 21,
-    AMEX_GOLD_CHP = 41,
-    ACBA_FEDERATION = 43,
-    VISA_VIRTUAL = 51
-
-}
-
-/// <summary>
-/// Գործարքների խմբի տեսակ
-/// </summary>
-public enum OrderGroupType : short
-{
-    /// <summary>
-    /// Նշված չէ
-    /// </summary>
-    None = 0,
-
-    /// <summary>
-    /// Հաճախորդի կողմից ստեղծված
-    /// </summary>
-    CreatedByCustomer = 1,
-
-    /// <summary>
-    /// Ծրագրի կողմից ավտոմատ ստեղծված (մի քանի հայտ միավորելու համար)
-    /// </summary>
-    CreatedAutomatically = 2
-}
-
-/// <summary>
-/// Աշխատավարձային ծրագրերի տեսակներ
-/// </summary>
-public enum RelatedOfficeTypes
-{
-    PensionCards = 1158,
-    AmexGoldFoundersDirectors = 1227,
-    AmexPAPEMonthly = 1663,
-    AMexPAPEYearly = 1664,
-    AmexGoldMasterCardGold = 2650,
-    AMEXLinkedCards = 1314,
-    AMEXLinkedReplacementCards = 1692,
-    GPMMembers = 2769
-}
-
-public enum TemplateStatus : short
-{
-    /// <summary>
-    /// Նշված չէ
-    /// </summary>
-    None = 0,
-
-    /// <summary>
-    /// Գործող
-    /// </summary>
-    Active = 1,
-
-    /// <summary>
-    /// Հեռացված 
-    /// </summary>
-    Deleted = 40
-}
-
-public enum PlasticCardReportRecievingTypes : int
-{
-    /// <summary>
-    /// Փոստային կապի միջոցով
-    /// </summary>
-    byMail = 1,
-    /// <summary>
-    /// Էլ․ փոստի միջոցով
-    /// </summary>
-    byEmail = 4,
-    /// <summary>
-    /// Հեռացված
-    /// </summary>
-    Deleted = 0,
-    /// <summary>
-    /// Առձեռն՝ Բանկի տարածքում
-    /// </summary>
-    byHandBankTerritory = 3
-}
-
-/// <summary>
-/// 24/7 ռեժիմով գործարք կատարելու թույլատրելիություն
-/// </summary>
-public enum MakingTransactionIn24_7ModeAllowbility : ushort
-{
-    /// <summary>
-    /// Չի թույլատրվում
-    /// </summary>
-    NotAllowed = 0,
-    /// <summary>
-    /// Թույլատրվում է
-    /// </summary>
-    Allowed = 1,
-    /// <summary>
-    /// Թույլատրվում է որոշակի պայմանի դեպքում
-    /// </summary>
-    ConditionallyAllowed = 2
-}
-
-
-public enum PlasticCardPINCodeRecievingTypes
-{
-    /// <summary>
-    /// PIN կոդի ծրագրով
-    /// </summary>
-    byPINCodeProgram = 1,
-    /// <summary>
-    /// SMS-ի միջոցով
-    /// </summary>
-    bySMS = 2
-}
-
-/// <summary>
-/// Տոկոսային մարժաայի տեսակներ
-/// </summary>
-public enum InterestMarginType : byte
-{
-    /// <summary>
-    /// Ընթացիկ (ցպահանջ) հաշիվների տեղաբաշխում
-    /// </summary>
-    CurrentAccounts = 1,
-
-    /// <summary>
-    /// Ժամկետային ավանդների տեղաբաշխում
-    /// </summary>
-    TermDeposits = 2,
-
-    /// <summary>
-    /// Բանկի կողմից թողարկված պարտատոմսերի դիմաց ներգրաված միջոցների տեղաբաշխում
-    /// </summary>
-    BankBonds = 3,
-}
-
-/// <summary>
-/// Գործարքների խմբի կարգավիճակ
-/// </summary>
-public enum OrderGroupStatus : short
-{
-    /// <summary>
-    /// Գործող
-    /// </summary>
-    Active = 1,
-
-    /// <summary>
-    /// Հեռացված
-    /// </summary>
-    Deleted = 0
-}
-
-public enum CardStatementDataTypes : short
-{
-    /// <summary>
-    /// MR
-    /// </summary>
-    MR = 0,
-
-    /// <summary>
-    /// ՎԱՐԿԱՅԻՆ ԳԾԻ ՎԵՐԱԲԵՐՅԱԼ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
-    /// </summary>
-    SummaryCreditLine = 1,
-
-    /// <summary>
-    /// ՎԱՍՏԱԿԱԾ ԵԿԱՄՈՒՏՆԵՐ ԵՎ ԲՈՆՈՒՍՆԵՐ
-    /// </summary>
-    SummaryBonus = 2,
-
-    /// <summary>
-    /// Լրացուցիչ տվյալներ
-    /// </summary>
-    AddInfo = 3,
-
-    /// <summary>
-    /// ՉՁԵՎԱԿԵՐՊՎԱԾ ԵՎ ԱՐԳԵԼԱԴՐՎԱԾ  ԳՈՐԾԱՐՔՆԵՐԻ/ԳՈՐԾԱՌՆՈՒԹՅՈՒՆՆԵՐԻ ՎԵՐԱԲԵՐՅԱԼ ՄԱՆՐԱՄԱՍՆ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
-    /// </summary>
-    UnsettledTransactions = 4,
-
-    /// <summary>
-    /// ԿԱՏԱՐՎԱԾ ԳՈՐԾԱՐՔՆԵՐԻ ՎԵՐԱԲԵՐՅԱԼ ԱՄՓՈՓ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
-    /// </summary>
-    Summery = 5,
-
-    /// <summary>
-    /// ՎԱՐԿԱՅԻՆ ԳԾԻ ՎԵՐԱԲԵՐՅԱԼ ՏԵՂԵԿԱՏՎՈՒԹՅՈՒՆ
-    /// </summary>
-    Link = 6,
-
-    /// <summary>
-    /// card_statement_BankData (PR)
-    /// </summary>
-    BankDate = 7,
-}
-
-
-public enum TaxCourtDecision : SByte
-{
-    /// <summary>
-    /// Լրացված չէ
-    /// </summary>
-    None = -1,
-
-    /// <summary>
-    /// Պետ. տուրքը բավարարել հօգուտ հաճախորդի
-    /// </summary>
-    TaxQualityOperating = 0,
-
-    /// <summary>
-    /// Պետ. տուրքը բավարարել հօգուտ Բանկի
-    /// </summary>
-    TaxQualityContract = 1,
-
-    /// <summary>
-    /// Պետ. տուրքը բավարարել հօգուտ Բանկի
-    /// </summary>
-    TaxQualityDecision = 2,
-
-}
-
-public enum PlasticCardSystemType
-{
-    Amex = 3
-}
-
-public enum RelatedOfficeContractStatusTypes
-{
-    /// <summary>
-    /// Դադարեցված
-    /// </summary>
-    Suspended = 0,
-    /// <summary>
-    /// Սառեցված
-    /// </summary>
-    Frozen = 2
-}
-public enum PlasticCardSentToArcaStatus
-{
-    /// <summary>
-    /// Տվյալներ հայտնաբերված չեն 
-    /// </summary>
-    NoInfo = 0,
-    /// <summary>
-    /// ֆայլերը ուղղարկված են արքա
-    /// </summary>
-    SentToArca = 1,
-    /// <summary>
-    /// ֆայլերը ուղղարկված չեն
-    /// </summary>
-    NoFiles = 2
-
-}
-public enum ServiceFeePeriodicityType : int
-{
-    None = 0,
-    Monthly = 1,
-    Yearly = 2
-}
-
-public enum ArcaCardsTransactionActionTypes : short
-{
-    None = 0,
-    Block = 1,
-    Unblock = 2
-}
-/// <summary>
-/// հասանելի մնացորդի որոշման տեսակներ
-/// </summary>
-public enum DigitalAccountRestConfigurationType : short
-{
-    None = 0,
-    Defalut = 1,
-    Custom = 2
-}
-public enum GPMMemberStatus
-{
-    /// <summary>
-    /// ԳՓՄ անդամ չի հանդիսանում
-    /// </summary>
-    NotMember = 0,
-    /// <summary>
-    /// ԳՓՄ անդամակցության ամսաթիվը մուտքագրված չէ
-    /// </summary>
-    NoMemberDate = 1,
-    /// <summary>
-    /// ԳՓՄ անդամ
-    /// </summary>
-    IsMember = 2
-}
-public enum PaymentToARCAStatus : short
-{
-    None = 0,
-    Waiting = 1,
-    Sending = 2,
-    InProgress = 3,
-    Failure = 4,
-    Success = 5,
-    Resend = 6,
-    Manual = 7
-}
-
-public enum TypeOfHbProductTypes
-{
-    /// <summary>
-    /// Բոլորը
-    /// </summary>
-    None,
-    /// <summary>
-    /// Փոխանցում
-    /// </summary>
-    Transfers,
-    /// <summary>
-    /// Դիմում
-    /// </summary>
-    Application,
-    /// <summary>
-    /// Վճարում 
-    /// </summary>
-    Payment
-}
-
-public enum LoanProductType
-{
-    /// <summary>
-    /// Ունի գոնե մեկ ընթացիկ հաշիվ
-    /// </summary>
-    Loan = 1,
-    /// <summary>
-    /// Ունի գոնե մեկ ընթացիկ հաշիվ և գոնե մեկ քարտ
-    /// </summary>
-    CreditLine = 2,
-    /// <summary>
-    /// Ունի գոնե մեկ քարտ
-    /// </summary>
-    FastOverdraft = 3
-}
-public enum VirtualCardRequestTypes
-{
-    /// <summary>
-    /// Քարտի վերաթողարկում, փոխարինում
-    /// </summary>
-    ReNewReplace = 1,
-    /// <summary>
-    /// Քարտի հաշվի հեռացում
-    /// </summary>
-    Remove = 2,
-    /// <summary>
-    /// Քարտի փակում
-    /// </summary>
-    Closing = 3
-
-}
-
-public enum ReferenceReceiptTypes : int
-{
-
-    /// <summary>
-    /// Ընտրված չէ
-    /// </summary>
-    None = 0,
-
-    /// <summary>
-    /// Մասնաճյուղի տարածքում՝ նույն աշխ. օրվա ընթացքում
-    /// </summary>
-    AtBranchSameWorkingDay = 1,
-
-    /// <summary>
-    /// Մասնաճյուղի տարածքում
-    /// </summary>
-    AtBranch = 2,
-
-    /// <summary>
-    /// Առաքման ծառայության միջոցով
-    /// </summary>
-    DeliveryService = 3
-}
-
-public enum PeriodicTransferTypes : byte
-{
-    /// <summary>
-    /// Ընտրված չէ
-    /// </summary>
-    NotSet = 0,
-    /// <summary>
-    /// Փոխանցումներ
-    /// </summary>
-    Transfer = 1,
-    /// <summary>
-    /// Վճարումներ
-    /// </summary>
-    Payment = 2
-}
-
-public enum EmailSenderProfiles
-{
-    /// <summary>
-    /// Notifications
-    /// </summary>
-    Notifications = 1,
-    /// <summary>
-    /// ACBA Notification
-    /// </summary>
-    Noreply = 2,
-    /// <summary>
-    /// ACBA-CA BANK
-    /// </summary>
-    Info = 3,
-    /// <summary>
-    /// AcbaOnline
-    /// </summary>
-    Acbaonline = 4,
-    /// <summary>
-    /// ACBA Electronic Contracts
-    /// </summary>
-    Econtracts = 5,
-}
-public enum InternationalCardTransferTypes
-{
-    VisaDirect = 1,
-    MasterCardMoneySend = 2
-}
-public enum CredilLineActivatorType : byte
-{
-    /// <summary>
-    /// Վարկային գծի ակտիվացում
-    /// </summary>
-    ActivateCreditLine = 1,
-    /// <summary>
-    /// Վարկային գծի դադարեցում
-    /// </summary>
-    CloseCreditLine = 2
-}
-
-/// <summary>
-/// ՍՏԱԿ R2A փոխանցման վճարման եղանակները
-/// </summary>
-public enum PayoutDeliveryCodeForR2A : ushort
-{
-    /// <summary>
-    /// Կանխիկ ստացման եղանակով
-    /// </summary>
-    Cash = 10,
-    /// <summary>
-    /// Քարտին վճարման եղանակով
-    /// </summary>
-    Card = 20,
-    /// <summary>
-    /// Էլ․ դրամապանակի եղանակով
-    /// </summary>
-    EMoney = 30,
-    /// <summary>
-    /// Հաշվին վճարման եղանակով
-    /// </summary>
-    Account = 40
-}
-
-public enum CardLessCashoutStatus
-{
-    Waiting = 0,
-    Rejected = 1,
-    Completed = 2
-}
-
-public enum BillSplitStatus
-{
-    Completed = 1,
-    InProgress = 0
-}
-
-public enum LinkPaymentSourceType : byte
-{
-    /// <summary>
-    /// Նշված չէ
-    /// </summary>
-    None,
-
-    /// <summary>
-    /// հղումով փոխանցում
-    /// </summary>
-    FromLinkPayment,
-
-    /// <summary>
-    /// BillSplit-ից եկած հղումով փոխանցում
-    /// </summary>
-    FromBillSplit
-}
-
-public enum ArcaCardsTransationActionReason : byte
-{
-    /// <summary>
-    /// Սնանկ ճանաչված
-    /// </summary>
-    Bankrupt = 15
-}
-public enum ArcaCardsTransationActionType : short
-{
-    /// <summary>
-    /// Բլոկավորում
-    /// </summary>
-    Block = 1,
-
-    /// <summary>
-    /// Ապաբլոկավորում
-    /// </summary>
-    Unblock = 2
-}
-
-
-public enum ConfirmationSourceType : short
-{
-    /// <summary>
-    /// Նշված չէ
-    /// </summary>
-    None = 0,
-
-    /// <summary>
-    /// ACBA Digital համակարգից
-    /// </summary>
-    FromACBADigital = 1,
-
-    /// <summary>
-    /// Front Office ծրագրից
-    /// </summary>
-    FromBank = 2
-}
-
-

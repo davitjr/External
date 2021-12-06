@@ -1101,6 +1101,8 @@ namespace ExternalBanking
             {
                 List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
                 currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount);
+              
+                Localization.SetCulture(currentAccounts, Culture);
 
                 List<Account> cardAccounts = Account.GetCardAccounts(this.CustomerNumber);
                 cardAccounts.RemoveAll(m => m.Currency != "AMD" || m.ClosingDate != null);
@@ -1224,6 +1226,21 @@ namespace ExternalBanking
                     return accounts;
                 }
             }
+
+            if (orderType == OrderType.BondRegistrationOrder)
+            {
+                List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
+
+                currentAccounts.RemoveAll(m => m.TypeOfAccount == 283 || m.TypeOfAccount == 282);   //Սահմանափակ հասանելիությամ հաշվիներ
+
+                if (currentAccounts != null && currentAccounts.Count > 0)
+                    Localization.SetCulture(currentAccounts, Culture);
+
+                currentAccounts = currentAccounts.FindAll(m =>  m.AccountType == (ushort)ProductType.CurrentAccount && m.JointType == 0);
+                accounts.AddRange(currentAccounts);
+                return accounts;
+            }
+
             if (orderType == OrderType.DepositCaseActivationOrder)
             {
                 List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
@@ -7933,7 +7950,7 @@ namespace ExternalBanking
             return result;
         }
 
-        public DepositaryAccountOrder GetDepositaryAccountOrder(int ID)
+        public DepositaryAccountOrder GetDepositaryAccountOrder(long ID)
         {
             DepositaryAccountOrder order = new DepositaryAccountOrder();
             order.Id = ID;
@@ -10749,10 +10766,12 @@ namespace ExternalBanking
             List<Account> depositAccounts = Account.GetDepositAccounts(CustomerNumber);
             List<Account> cardAccounts = Account.GetCardAccounts(CustomerNumber);
             accounts.AddRange(depositAccounts);
-            currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount);
+            currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount || m.AccountType == (ushort)ProductType.AparikTexum);
             accounts.AddRange(currentAccounts);
             accounts.AddRange(cardAccounts);
             accounts.RemoveAll(m => m.Currency != "AMD" || m.ISDahkCardTransitAccount(m.AccountNumber) == true);
+
+            Localization.SetCulture(accounts, Culture);
 
             return accounts;
         }
@@ -11114,6 +11133,26 @@ namespace ExternalBanking
             return result;
         }
 
+        public ActionResult SaveDepositaryAccountOrder(DepositaryAccountOrder depositaryAccountOrder, string userName)
+        {
+            ActionResult result  = depositaryAccountOrder.Save(userName, User);
+            if (result.ResultCode == ResultCode.ValidationError)
+            {
+                Localization.SetCulture(result, Culture);
+            }
+            return result;
+        }
+
+        public ActionResult ApproveDepositaryAccountOrder(DepositaryAccountOrder depositaryAccountOrder, string userName, short approvementScheme)
+        {
+            ActionResult result = depositaryAccountOrder.Approve(userName, approvementScheme);
+            if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
+            {
+                Localization.SetCulture(result, Culture);
+            }
+            return result;
+        }
+
         /// </summary>
         /// <param name="order">Հղումով փոխանցման</param>
         /// <returns></returns>
@@ -11157,6 +11196,74 @@ namespace ExternalBanking
         {
             VisaAliasOrder visaAliasOrder = new VisaAliasOrder();
             return visaAliasOrder.GetCardTypeAndCardHolder(CardNumber);
+        }
+
+        public ActionResult SaveBondOrder(BondOrder order, string userName)
+        {
+            ActionResult result = order.Save(userName);
+            if (result.ResultCode == ResultCode.ValidationError)
+            {
+                Localization.SetCulture(result, Culture);
+            }
+            return result;
+        }
+
+        public ActionResult ApproveBondOrder(BondOrder order, string userName, short approvementScheme)
+        {
+            ActionResult result = order.Approve(userName, User, approvementScheme);
+            if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
+            {
+                Localization.SetCulture(result, Culture);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Վերդարձնում է բաժնտոմսի արժեկտրոնների վճարման համար նախատեսված հաշիվները (դրամային ընթացիկ)
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public List<Account> GetAccountsForStock()
+        {
+
+            List<Account>  currentAccounts = Account.GetAccountsForStock(this.CustomerNumber);
+            Localization.SetCulture(currentAccounts, Culture);
+            return currentAccounts;
+        }
+
+
+        /// <summary>
+        /// Սպառողական վարկի դիմումի հայտի պահպանում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult SaveConsumeLoanApplicationOrder(ConsumeLoanApplicationOrder order, string userName)
+        {
+            ActionResult result = new ActionResult();
+            order.CustomerNumber = CustomerNumber;
+            if (order.OrderNumber == "" || order.OrderNumber == null)
+                order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+
+            result = order.Save(userName, Source, User);
+
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Սպառողական վարկի դիմումի հայտի ստացում
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public ConsumeLoanApplicationOrder GetConsumeLoanApplicationOrder(long ID)
+        {
+            ConsumeLoanApplicationOrder order = new ConsumeLoanApplicationOrder();
+            order.Id = ID;
+            order.CustomerNumber = this.CustomerNumber;
+            order.GetConsumeLoanApplicationOrder();
+            Localization.SetCulture(order, Culture);
+            return order;
         }
     }
 }

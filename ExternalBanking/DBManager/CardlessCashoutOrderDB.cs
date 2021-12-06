@@ -311,7 +311,9 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = @"select 1 from TBl_cardless_cashout_order_details where  order_otp= @cardlessCashOutCode";
+                    cmd.CommandText = @"SELECT 1 FROM TBl_cardless_cashout_order_details c
+                                        INNER JOIN (SELECT quality, doc_id FROM TBl_HB_documents) HB ON c.doc_id = HB.doc_id
+                                        WHERE quality = 3 AND order_otp = @cardlessCashOutCode";
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@cardlessCashOutCode", SqlDbType.NVarChar).Value = cardlessCashOutCode;
                     return Convert.ToBoolean(cmd.ExecuteScalar());

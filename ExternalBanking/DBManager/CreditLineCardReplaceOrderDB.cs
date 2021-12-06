@@ -88,7 +88,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
+               using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
                                                           H.customer_number,
                                                           H.document_number,
                                                           H.currency,
@@ -145,9 +145,9 @@ namespace ExternalBanking.DBManager
                                                         AND customer_number = @customerNumber";
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader rd;
+                     
 
-                    rd = cmd.ExecuteReader();
+                    using SqlDataReader rd = cmd.ExecuteReader();
 
                     if (rd.Read())
                     {
@@ -197,8 +197,8 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.Card.Currency;
                     cmd.Parameters.Add("@relOfficeID", SqlDbType.Int).Value = order.RelatedOfficeNumber;
 
-                    SqlDataReader rd;
-                    rd = cmd.ExecuteReader();
+                     
+                    using SqlDataReader rd = cmd.ExecuteReader();
                     if (rd.Read())
                     {
                         suitable = true;

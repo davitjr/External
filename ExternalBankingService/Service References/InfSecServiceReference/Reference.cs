@@ -2149,7 +2149,7 @@ namespace ExternalBankingService.InfSecServiceReference {
         private int IDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private float customer_numberField;
+        private ulong customer_numberField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int department_idField;
@@ -2217,7 +2217,7 @@ namespace ExternalBankingService.InfSecServiceReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public float customer_number {
+        public ulong customer_number {
             get {
                 return this.customer_numberField;
             }

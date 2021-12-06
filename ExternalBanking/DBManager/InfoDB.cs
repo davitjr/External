@@ -19,7 +19,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code, description, description_Engl from [Tbl_type_of_deposits;]", conn))
+                using (SqlCommand cmd = new SqlCommand("Select code, description, description_Engl from [Tbl_type_of_deposits;]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -56,7 +56,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"select code,description,Description_Engl  from [tbl_type_of_loans;]
-                                                union all( select code,description,Description_Engl from Tbl_type_of_product_limits)",conn))
+                                                union all( select code,description,Description_Engl from Tbl_type_of_product_limits)", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -76,7 +76,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"SELECT code, Description,descriptionEng from  Tbl_type_of_products ", conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT code, Description,descriptionEng from  Tbl_type_of_products ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -89,14 +89,14 @@ namespace ExternalBanking.DBManager
             return accountTypes;
         }
 
-       
+
         public static DataTable GetLoanQualityTypes()
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select number as code,quality as description,Description_Engl from [Tbl_loan_list_quality;]",conn))
+                using (SqlCommand cmd = new SqlCommand("select number as code,quality as description,Description_Engl from [Tbl_loan_list_quality;]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -107,7 +107,7 @@ namespace ExternalBanking.DBManager
             }
             return dt;
         }
-        
+
         public static DataTable GetProblemLoanTaxQualityTypes()
         {
             DataTable dt = new DataTable();
@@ -149,7 +149,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT ID_Transfer ,Description,Description_Engl  from Tbl_operations_by_period_Types", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT ID_Transfer ,Description,Description_Engl  from Tbl_operations_by_period_Types", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -168,11 +168,9 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT [id],[description],[description_eng] FROM [dbo].[Tbl_Operations_by_period_duration_types]", conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+               using SqlCommand cmd = new SqlCommand("SELECT [id],[description],[description_eng] FROM [dbo].[Tbl_Operations_by_period_duration_types]", conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
             }
             return dt;
         }
@@ -184,7 +182,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT [id],[description],[description_eng]  FROM [dbo].[Tbl_Operations_by_period_charges_types]",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT [id],[description],[description_eng]  FROM [dbo].[Tbl_Operations_by_period_charges_types]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -203,7 +201,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT [document_type],[document_sub_type],[description_arm],[description_eng],automat_confirm_FRONT_OFFICE_order as autoconfirm FROM [dbo].[Tbl_sub_types_of_HB_products]",
+                using (SqlCommand cmd = new SqlCommand("SELECT [document_type],[document_sub_type],[description_arm],[description_eng],automat_confirm_FRONT_OFFICE_order as autoconfirm FROM [dbo].[Tbl_sub_types_of_HB_products]",
                         conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -221,7 +219,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT [product_type] as Id,[dbo].[fnc_convertAnsiToUnicode]( [product_description]) as Description ,automat_confirm_FRONT_OFFICE_order as autoconfirm, is_hb_product, hb_product_type, product_description_eng as Description_eng  FROM [dbo].[Tbl_types_of_HB_products] order by Description asc", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT [product_type] as Id,[dbo].[fnc_convertAnsiToUnicode]( [product_description]) as Description ,automat_confirm_FRONT_OFFICE_order as autoconfirm, is_hb_product, hb_product_type, product_description_eng as Description_eng  FROM [dbo].[Tbl_types_of_HB_products] order by Description asc", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -238,7 +236,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT [quality],[description_arm],[description_eng] FROM [dbo].[Tbl_types_of_HB_quality]",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT [quality],[description_arm],[description_eng] FROM [dbo].[Tbl_types_of_HB_quality]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -300,7 +298,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT [id],[description],[description_eng] FROM [dbo].[Tbl_Check]", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT [id],[description],[description_eng] FROM [dbo].[Tbl_Check]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -318,7 +316,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("select code as id,description,Description_Engl  from Tbl_type_of_credit_lines ",conn))
+                using (SqlCommand cmd = new SqlCommand("select code as id,description,Description_Engl  from Tbl_type_of_credit_lines ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -342,11 +340,11 @@ namespace ExternalBanking.DBManager
                         dt.Load(dr);
                     }
 
-                    if(referenceTypes.Count > 1 && referenceTypes.Contains(9))
+                    if (referenceTypes.Count > 1 && referenceTypes.Contains(9))
                     {
                         return dt;
                     }
-                    if(referenceTypes.Count == 1 && referenceTypes.Contains(9))
+                    if (referenceTypes.Count == 1 && referenceTypes.Contains(9))
                     {
                         return dt.AsEnumerable()
                             .Where(r => r.Field<int>("ID") == 30).CopyToDataTable();
@@ -366,7 +364,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT type_id As id, description_arm,description_eng FROM tbl_type_of_languages",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT type_id As id, description_arm,description_eng FROM tbl_type_of_languages", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -384,7 +382,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT type_id As id,description_arm,description_eng FROM tbl_types_of_reference ORDER BY type_id",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT type_id As id,description_arm,description_eng FROM tbl_types_of_reference ORDER BY type_id", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -441,7 +439,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT document_sub_type As id,description FROM Tbl_sub_types_of_HB_products where document_type=23",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT document_sub_type As id,description FROM Tbl_sub_types_of_HB_products where document_type=23", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -591,7 +589,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd =new SqlCommand("Select transfersystem,currency FROM Tbl_TransferSystems_Details", conn))
+                using (SqlCommand cmd = new SqlCommand("Select transfersystem,currency FROM Tbl_TransferSystems_Details", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -619,7 +617,7 @@ namespace ExternalBanking.DBManager
                     @"SELECT Tbl_deposit_product_history.currency, [Tbl_type_of_deposits;].code FROM [Tbl_type_of_deposits;]
                                                INNER JOIN Tbl_deposit_product_history ON [Tbl_type_of_deposits;].code = Tbl_deposit_product_history.product_code 
                                                WHERE [Tbl_type_of_deposits;].closing_date Is Null  and Date_Of_Beginning = (Select MAX(Date_Of_Beginning) From Tbl_Deposit_Product_History)  GROUP BY [Tbl_type_of_deposits;].code,
-                                               [Tbl_type_of_deposits;].description, Tbl_deposit_product_history.currency ",conn))
+                                               [Tbl_type_of_deposits;].description, Tbl_deposit_product_history.currency ", conn))
                 {
                     dt.Load(cmd.ExecuteReader());
                 }
@@ -635,7 +633,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code, description, description_Engl from [Tbl_type_of_deposits;] where closing_date is null",conn))
+                using (SqlCommand cmd = new SqlCommand("Select code, description, description_Engl from [Tbl_type_of_deposits;] where closing_date is null", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -654,17 +652,15 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT code, description, description_Engl,allowable_customer_type,allowable_for_thirdh_person 
+                using SqlCommand cmd = new SqlCommand(@"SELECT code, description, description_Engl,allowable_customer_type,allowable_for_thirdh_person 
                                                   FROM [Tbl_type_of_deposits;] WHERE closing_date is null AND (allowable_customer_type=@allowableCustomerType OR allowable_customer_type=0)
                                                   AND allowable_for_thirdh_person=@allowableForThirdhPerson AND allowable_for_cooperative=@allowableForCooperative", conn);
                 cmd.Parameters.Add("@allowableCustomerType", SqlDbType.SmallInt).Value = allowableCustomerType;
                 cmd.Parameters.Add("@allowableForThirdhPerson", SqlDbType.Bit).Value = allowableForThirdhPerson;
                 cmd.Parameters.Add("@allowableForCooperative", SqlDbType.Bit).Value = allowableForCooperative;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -677,7 +673,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("select ID as code,CardSystemType as description from Tbl_type_of_CardSystem ",conn))
+                using (SqlCommand cmd = new SqlCommand("select ID as code,CardSystemType as description from Tbl_type_of_CardSystem ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -778,7 +774,7 @@ namespace ExternalBanking.DBManager
                 using (SqlCommand cmd = new SqlCommand(
                     @" SELECT crd.ID, quality, CardSystemID, s.CardSystemType + ' ' + CardType + ' ' + C_M as CardType, ApplicationsCardType  
                                                                                      FROM tbl_type_of_card crd
-                                                                                                    INNER JOIN Tbl_type_of_CardSystem s ON s.ID = crd.CardSystemID ",conn))
+                                                                                                    INNER JOIN Tbl_type_of_CardSystem s ON s.ID = crd.CardSystemID ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -867,18 +863,16 @@ namespace ExternalBanking.DBManager
 
         internal static DataTable GetReasonForCardTransactionAction(byte actionReasonId)
         {
-            var dt = new DataTable();
-            using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
                 string sqltext = "SELECT description_arm, description_eng FROM tbl_type_of_reasons_for_card_transaction_action WHERE id = @reasonid";
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
                 cmd.Parameters.Add("@reasonid", SqlDbType.Int).Value = actionReasonId;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
             }
             return dt;
         }
@@ -1032,7 +1026,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code, description, description_Engl from [Tbl_types_of_factoring_type]",conn))
+                using (SqlCommand cmd = new SqlCommand("Select code, description, description_Engl from [Tbl_types_of_factoring_type]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1051,7 +1045,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code, description, description_Engl from [Tbl_types_of_factoring_regres_type]", conn))
+                using (SqlCommand cmd = new SqlCommand("Select code, description, description_Engl from [Tbl_types_of_factoring_regres_type]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1069,7 +1063,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT code As id,Convert(NVARCHAR,code)+','+EnglDescription as description_eng,Convert(NVARCHAR,code)+','+ArmDescription As description_arm FROM [Tbl_banks;] WHERE code>=22000 and code<=23000 and ArmDescription is not null",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT code As id,Convert(NVARCHAR,code)+','+EnglDescription as description_eng,Convert(NVARCHAR,code)+','+ArmDescription As description_arm FROM [Tbl_banks;] WHERE code>=22000 and code<=23000 and ArmDescription is not null", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1087,7 +1081,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT id,description from Tbl_Type_Of_CardClosingReasons where is_old=0 order by id_fororderby",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT id,description from Tbl_Type_Of_CardClosingReasons where is_old=0 order by id_fororderby", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1156,7 +1150,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select CountryCodeN,CountryName, CountryCodeA3 from Tbl_Countries where is_used=1   order by Case When CountryCodeN = 51 THEN '         ' Else CountryName End ", conn))
+                using (SqlCommand cmd = new SqlCommand("select CountryCodeN,CountryName, CountryCodeA3 from Tbl_Countries where is_used=1   order by Case When CountryCodeN = 51 THEN '         ' Else CountryName End ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1179,7 +1173,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand("SELECT CASE WHEN Risk_quality =2 THEN CASE  WHEN isnull(Add_inf,'') <> '' THEN  dbo.fnc_convertAnsiToUnicode(Add_inf)  ELSE N'Բարձր ռիսկային երկիր'  END ELSE '' END risk_quality   FROM Tbl_Countries  where CountryCodeN=@country",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT CASE WHEN Risk_quality =2 THEN CASE  WHEN isnull(Add_inf,'') <> '' THEN  dbo.fnc_convertAnsiToUnicode(Add_inf)  ELSE N'Բարձր ռիսկային երկիր'  END ELSE '' END risk_quality   FROM Tbl_Countries  where CountryCodeN=@country", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@country", SqlDbType.NVarChar, 10).Value = countryCode;
@@ -1202,7 +1196,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select T.currency from  tbl_prices_for_transfers T join  [tbl_currency;] C on T.currency=C.currency  where T.currency<>'AMD' and Quality=1 Group by T.currency , int_code  order by int_code  ",conn))
+                using (SqlCommand cmd = new SqlCommand("select T.currency from  tbl_prices_for_transfers T join  [tbl_currency;] C on T.currency=C.currency  where T.currency<>'AMD' and Quality=1 Group by T.currency , int_code  order by int_code  ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1309,7 +1303,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd =new SqlCommand("SELECT bank_name + ',' + city bank_name ,CountryCodeN FROM Tbl_world_banks where swift_code=@swiftCode",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT bank_name + ',' + city bank_name ,CountryCodeN FROM Tbl_world_banks where swift_code=@swiftCode", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@swiftCode", SqlDbType.NVarChar, 11).Value = swiftCode;
@@ -1340,7 +1334,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT Reject_ID, Reject_description , Reject_description_eng FROM Tbl_types_of_HB_rejects ORDER BY for_orderby",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT Reject_ID, Reject_description , Reject_description_eng FROM Tbl_types_of_HB_rejects ORDER BY for_orderby", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1416,7 +1410,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select * from [tbl_type_of_transit_accounts] where for_loan_mature=@forLoanMature",conn))
+                using (SqlCommand cmd = new SqlCommand("select * from [tbl_type_of_transit_accounts] where for_loan_mature=@forLoanMature", conn))
                 {
                     cmd.Parameters.Add("@forLoanMature", SqlDbType.Bit).Value = forLoanMature;
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -1456,7 +1450,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT code,description+CASE WHEN code<>0 THEN ' / '+CASE WHEN by_cash =1 THEN 'Ï³ÝËÇÏ' ELSE '³ÝÏ³ÝËÇÏ' END ELSE '' END AS description FROM Tbl_type_of_bank_operation_fee",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT code,description+CASE WHEN code<>0 THEN ' / '+CASE WHEN by_cash =1 THEN 'Ï³ÝËÇÏ' ELSE '³ÝÏ³ÝËÇÏ' END ELSE '' END AS description FROM Tbl_type_of_bank_operation_fee", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1475,7 +1469,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select currency from [Tbl_currency;] where Quality<>0 and dbo.[fn_check_available_currency_for_account](currency,10,24)=1 order by int_code",conn))
+                using (SqlCommand cmd = new SqlCommand("select currency from [Tbl_currency;] where Quality<>0 and dbo.[fn_check_available_currency_for_account](currency,10,24)=1 order by int_code", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1495,7 +1489,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT Idx_Price as id, Description FROM Tbl_Prices WHERE Add_inf='71' ORDER BY Idx_Price", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT Idx_Price as id, Description FROM Tbl_Prices WHERE Add_inf='71' ORDER BY Idx_Price", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1515,7 +1509,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT id_dispute,dispute_description FROM  tbl_dispute_agreements ORDER BY id_dispute", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT id_dispute,dispute_description FROM  tbl_dispute_agreements ORDER BY id_dispute", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1551,7 +1545,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select reason_id, reason_description from Tbl_operation_deleting_reasons", conn))
+                using (SqlCommand cmd = new SqlCommand("select reason_id, reason_description from Tbl_operation_deleting_reasons", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1661,7 +1655,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select claim_event,claim_event_description from Tbl_problem_loan_event_types ORDER BY priority",conn))
+                using (SqlCommand cmd = new SqlCommand("select claim_event,claim_event_description from Tbl_problem_loan_event_types ORDER BY priority", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1697,7 +1691,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("select number,description from Tbl_problem_loan_court_type",conn))
+                using (SqlCommand cmd = new SqlCommand("select number,description from Tbl_problem_loan_court_type", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1774,7 +1768,7 @@ namespace ExternalBanking.DBManager
 
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"SELECT id, description, forNaturalPerson, forPrivateEntrepreneur, forLegalEntity, description_eng 
-                                                FROM Tbl_Type_of_assign_operations_groups WHERE closingDate IS NULL " +  whereCond + " ORDER BY id", conn))
+                                                FROM Tbl_Type_of_assign_operations_groups WHERE closingDate IS NULL " + whereCond + " ORDER BY id", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1792,7 +1786,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT id, description FROM Tbl_type_of_assigns ORDER BY id",conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT id, description FROM Tbl_type_of_assigns ORDER BY id", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1810,7 +1804,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"SELECT id, description FROM Tbl_type_of_assign_closing_reason ORDER BY id", conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT id, description FROM Tbl_type_of_assign_closing_reason ORDER BY id", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1828,7 +1822,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"SELECT ActionID ,ParentID,Description,DescriptionEN,  OrderType, OrderSubType from V_acs_actions_list ORDER BY ActionID",conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT ActionID ,ParentID,Description,DescriptionEN,  OrderType, OrderSubType from V_acs_actions_list ORDER BY ActionID", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1865,7 +1859,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select * from Tbl_type_of_deposit_closing_reason" +(showinLIst ? " where show_in_list=1" : ""), conn))
+                using (SqlCommand cmd = new SqlCommand("select * from Tbl_type_of_deposit_closing_reason" + (showinLIst ? " where show_in_list=1" : ""), conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2019,7 +2013,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT Banknot,Nominal  FROM Tbl_cur_nominal WHERE Curensy=@currency AND Desk='k' order by Banknot desc",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT Banknot,Nominal  FROM Tbl_cur_nominal WHERE Curensy=@currency AND Desk='k' order by Banknot desc", conn))
                 {
                     cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = currency;
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -2039,7 +2033,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT ReasonId,Reason FROM Tbl_Type_of_salcontractsreason ",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT ReasonId,Reason FROM Tbl_Type_of_salcontractsreason ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2135,7 +2129,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT insurance_type,description,description_eng FROM Tbl_Insurance_Type ", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT insurance_type,description,description_eng FROM Tbl_Insurance_Type ", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2153,7 +2147,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT company_ID,company_name FROM Tbl_type_of_insurance_company group by company_ID,company_name",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT company_ID,company_name FROM Tbl_type_of_insurance_company group by company_ID,company_name", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2193,7 +2187,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"SELECT insurance_type,description,description_eng FROM Tbl_Insurance_Type 
-                                                WHERE is_loan_product=@isLoanProduct AND is_separately_product=@isSeparatelyProduct",conn))
+                                                WHERE is_loan_product=@isLoanProduct AND is_separately_product=@isSeparatelyProduct", conn))
                 {
                     cmd.Parameters.Add("@isLoanProduct", SqlDbType.Bit).Value = isLoanProduct;
                     cmd.Parameters.Add("@isSeparatelyProduct", SqlDbType.Bit).Value = isSeparatelyProduct;
@@ -2214,7 +2208,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT field_type,field_type_description,field_column_type FROM Tbl_card_data_change_field_types",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT field_type,field_type_description,field_column_type FROM Tbl_card_data_change_field_types", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2317,7 +2311,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"SELECT * FROM DocFlow.dbo.Tbl_type_of_request_step_id where step_id<=6 or step_id=57 or step_id=117 or step_id=135 or step_id=136",conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT * FROM DocFlow.dbo.Tbl_type_of_request_step_id where step_id<=6 or step_id=57 or step_id=117 or step_id=135 or step_id=136", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2338,7 +2332,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@" SELECT id,description FROM DocFlow.dbo.Tbl_type_of_request_status where id >=1",conn))
+                using (SqlCommand cmd = new SqlCommand(@" SELECT id,description FROM DocFlow.dbo.Tbl_type_of_request_status where id >=1", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2380,7 +2374,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@" SELECT session FROM Tbl_Bank_Mail_IN WHERE registration_date>=@dateStart And registration_date <=@dateEnd And transfer_group =@transferGroup and not(Session is null) GROUP BY session ORDER BY session",conn))
+                using (SqlCommand cmd = new SqlCommand(@" SELECT session FROM Tbl_Bank_Mail_IN WHERE registration_date>=@dateStart And registration_date <=@dateEnd And transfer_group =@transferGroup and not(Session is null) GROUP BY session ORDER BY session", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@dateStart", SqlDbType.SmallDateTime).Value = dateStart;
@@ -2425,7 +2419,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"SELECT region,name,name_english FROM tbl_all_regions WHERE country=CASE WHEN @country=51 THEN 1 WHEN @country=999 THEN 2 ELSE 3 END",conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT region,name,name_english FROM tbl_all_regions WHERE country=CASE WHEN @country=51 THEN 1 WHEN @country=999 THEN 2 ELSE 3 END", conn))
                 {
                     cmd.Parameters.Add("@country", SqlDbType.Int).Value = country;
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -2446,7 +2440,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"SELECT number,description,description_english FROM Tbl_armenian_places WHERE region=@region and number<>0 ORDER BY DescriptionHex",conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT number,description,description_english FROM Tbl_armenian_places WHERE region=@region and number<>0 ORDER BY DescriptionHex", conn))
                 {
                     cmd.Parameters.Add("@region", SqlDbType.Int).Value = region;
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -2546,7 +2540,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select ID, Question from  [dbo].[Tbl_pBanking_Sec_Questions] order by id asc",conn))
+                using (SqlCommand cmd = new SqlCommand("select ID, Question from  [dbo].[Tbl_pBanking_Sec_Questions] order by id asc", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2600,7 +2594,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("select ID,case ID when 0 then '´áÉáñÁ' else row_type end as row_type  from tbl_type_of_cash_book_row",conn))
+                using (SqlCommand cmd = new SqlCommand("select ID,case ID when 0 then '´áÉáñÁ' else row_type end as row_type  from tbl_type_of_cash_book_row", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2726,7 +2720,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_loan_monitorings",conn))
+                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_loan_monitorings", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2745,7 +2739,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code,description from Tbl_type_of_monitoring_factor_groups", conn))
+                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_monitoring_factor_groups", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2794,7 +2788,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_profits_reduction",conn))
+                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_profits_reduction", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2811,7 +2805,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code,description from Tbl_type_of_provision_cost_conclusions", conn))
+                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_provision_cost_conclusions", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2828,7 +2822,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code,description from Tbl_type_of_provision_quality_conclusions", conn))
+                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_provision_quality_conclusions", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2847,7 +2841,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("Select code,description from Tbl_type_of_monitoring_conclusions", conn))
+                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_type_of_monitoring_conclusions", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2875,7 +2869,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_sub_type_of_loan_monitorings",conn))
+                using (SqlCommand cmd = new SqlCommand("Select code,description from Tbl_sub_type_of_loan_monitorings", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2892,7 +2886,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("Select ID,description from tbl_demand_deposits_tariff_groups",conn))
+                using (SqlCommand cmd = new SqlCommand("Select ID,description from tbl_demand_deposits_tariff_groups", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -2941,7 +2935,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand("exec  sp_get_penalty_rate_of_loans @productType ,	@startDate",conn))
+                using (SqlCommand cmd = new SqlCommand("exec  sp_get_penalty_rate_of_loans @productType ,	@startDate", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@productType", SqlDbType.Int).Value = productType;
@@ -3023,7 +3017,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT [quality],[action_description_arm],[action_description_eng] FROM [dbo].[Tbl_types_of_HB_quality]",conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT [quality],[action_description_arm],[action_description_eng] FROM [dbo].[Tbl_types_of_HB_quality]", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -3041,7 +3035,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT ID, Description FROM tbl_types_of_product_notification_information", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT ID, Description FROM tbl_types_of_product_notification_information", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -3062,7 +3056,7 @@ namespace ExternalBanking.DBManager
                 using (SqlCommand cmd = new SqlCommand(@"SELECT f.ID, f.Description FROM tbl_product_configuration_types_accordence ac
                                                   INNER JOIN tbl_types_of_product_notification_frequency f
                                                   ON f.Id=ac.frequency_ID
-                                                  WHERE ac.frequency_ID IS NOT NULL AND ac.information_ID=@informationType",conn))
+                                                  WHERE ac.frequency_ID IS NOT NULL AND ac.information_ID=@informationType", conn))
                 {
                     cmd.Parameters.Add("@informationType", SqlDbType.TinyInt).Value = informationType;
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -3085,7 +3079,7 @@ namespace ExternalBanking.DBManager
                 using (SqlCommand cmd = new SqlCommand(@"SELECT o.ID, o.Description FROM tbl_product_configuration_types_accordence ac
                                                   INNER JOIN tbl_types_of_product_notification_option o
                                                   ON o.Id=ac.option_ID
-                                                  WHERE ac.option_ID IS NOT NULL AND ac.information_ID=@informationType",conn))
+                                                  WHERE ac.option_ID IS NOT NULL AND ac.information_ID=@informationType", conn))
                 {
                     cmd.Parameters.Add("@informationType", SqlDbType.TinyInt).Value = informationType;
 
@@ -3108,7 +3102,7 @@ namespace ExternalBanking.DBManager
                 using (SqlCommand cmd = new SqlCommand(@"SELECT l.ID, l.Description FROM tbl_product_configuration_types_accordence ac
                                                   INNER JOIN tbl_types_of_product_notification_language l
                                                   ON l.Id=ac.language_ID
-                                                  WHERE ac.language_ID IS NOT NULL AND ac.information_ID=@informationType",conn))
+                                                  WHERE ac.language_ID IS NOT NULL AND ac.information_ID=@informationType", conn))
                 {
                     cmd.Parameters.Add("@informationType", SqlDbType.TinyInt).Value = informationType;
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -3126,7 +3120,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand("SELECT ID, Description FROM tbl_types_ofproduct_notification_file_format", conn))
+                using (SqlCommand cmd = new SqlCommand("SELECT ID, Description FROM tbl_types_ofproduct_notification_file_format", conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -3217,11 +3211,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT id, description FROM Tbl_Type_of_Bond_Issues_by_Period";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3257,11 +3249,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT id, description FROM Tbl_type_of_bond_reject_reasons";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3275,11 +3265,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT id, description FROM tbl_type_of_bond_quality";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3317,11 +3305,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT type, description FROM tbl_type_of_payment_descriptions";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3335,7 +3321,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT * FROM tbl_type_of_card_debit_reasons";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
@@ -3354,11 +3340,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT * FROM Tbl_type_of_oper_day_closing_options";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3367,16 +3351,14 @@ namespace ExternalBanking.DBManager
         internal static DataTable GetTypeOf24_7Modes()
         {
             DataTable dt = new DataTable();
-            using(SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 connection.Open();
                 string SqlQuery = "SELECT * FROM tbl_type_of_24_7_mode";
 
-                SqlCommand cmd = new SqlCommand(SqlQuery, connection);
-                using(SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(SqlQuery, connection);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
             }
             return dt;
         }
@@ -3390,11 +3372,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT * FROM tbl_type_of_utility_services where is_active = 1 ";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3439,11 +3419,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT id, description_arm FROM tbl_type_of_card_transaction_action ORDER BY id";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3457,11 +3435,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT id, description_arm, description_eng FROM tbl_type_of_reasons_for_card_transaction_action WHERE " + ((useBank) ? "used_bank = 1" : "used_ibanking = 1 ") + "order by id asc";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3476,11 +3452,9 @@ namespace ExternalBanking.DBManager
                 string sqltext = "SELECT id, description_arm FROM tbl_type_of_action_card_limit_change_order ORDER BY id";
 
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -3690,11 +3664,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "select * from Tbl_CreditLineMandatoryInstallmentTypes";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
             }
             return dt;
         }
@@ -3805,12 +3777,12 @@ namespace ExternalBanking.DBManager
                     relatedOfficeNumber = 1665;
             }
             //Business (Visa Business, Arca Business, Virtual)
-            else if(cardType == 22 || cardType == 45 || cardType == 51 || cardType == 45)
+            else if (cardType == 22 || cardType == 45 || cardType == 51 || cardType == 45)
             {
                 relatedOfficeNumber = 174;
             }
 
-            
+
 
             return relatedOfficeNumber;
         }
@@ -3977,15 +3949,15 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT code As id,EnglDescription as description_eng,ArmDescription As description_arm FROM [Tbl_banks;] WHERE code=@filialCode", conn))  
+                using (SqlCommand cmd = new SqlCommand("SELECT code As id,EnglDescription as description_eng,ArmDescription As description_arm FROM [Tbl_banks;] WHERE code=@filialCode", conn))
                 {
                     cmd.Parameters.Add("@filialCode", SqlDbType.Float).Value = filialCode;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        while (dr.Read())
+                        if (dr.Read())
                         {
-                            return (language == Languages.hy ? (Utility.ConvertAnsiToUnicode(dr["description_arm"].ToString())) : dr["description_eng"].ToString());
+                            return (language == Languages.hy ? Utility.ConvertAnsiToUnicode(dr["description_arm"].ToString()) : dr["description_eng"].ToString());
                         }
                         return "";
                     }
@@ -4340,15 +4312,13 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT CASE WHEN @lang = 1 THEN description ELSE description_eng END AS description FROM  [Tbl_mandatory_entry_info] WHERE id = @id", conn))
-                {
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.Parameters.Add("@lang", SqlDbType.Int).Value = languages;
+                using SqlCommand cmd = new SqlCommand("SELECT CASE WHEN @lang = 1 THEN description ELSE description_eng END AS description FROM  [Tbl_mandatory_entry_info] WHERE id = @id", conn);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                cmd.Parameters.Add("@lang", SqlDbType.Int).Value = languages;
 
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                        mandatoryEntryInfo = dr["description"].ToString();
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                    mandatoryEntryInfo = dr["description"].ToString();
             }
 
             return mandatoryEntryInfo;
@@ -4360,14 +4330,10 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT id, CASE WHEN @lang = 1 THEN [description] ELSE [description_eng] END AS description FROM Tbl_type_of_reference_receipt", conn))
-                {
-                    cmd.Parameters.Add("@lang", SqlDbType.SmallInt).Value = language;
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        dt.Load(dr);
-                    }
-                }
+                using SqlCommand cmd = new SqlCommand(@"SELECT id, CASE WHEN @lang = 1 THEN [description] ELSE [description_eng] END AS description FROM Tbl_type_of_reference_receipt", conn);
+                cmd.Parameters.Add("@lang", SqlDbType.SmallInt).Value = language;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
 
             }
@@ -4449,14 +4415,12 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using(SqlCommand cmd = new SqlCommand(@"select CountryCodeN from Tbl_world_banks where swift_code = @swiftCode", conn))
-                {
-                    cmd.Parameters.Add("@swiftCode", SqlDbType.NVarChar).Value = swiftCode;
+                using SqlCommand cmd = new SqlCommand(@"select CountryCodeN from Tbl_world_banks where swift_code = @swiftCode", conn);
+                cmd.Parameters.Add("@swiftCode", SqlDbType.NVarChar).Value = swiftCode;
 
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                        city = dr["CountryCodeN"].ToString();
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                    city = dr["CountryCodeN"].ToString();
             }
             return city;
         }
@@ -4464,19 +4428,15 @@ namespace ExternalBanking.DBManager
         public static DataTable GetCardNotRenewReasons()
         {
             DataTable dt = new DataTable();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            using (SqlCommand cmd = new SqlCommand("SELECT id,REPLACE(description,'âí»ñ³ÃáÕ³ñÏí³Í ù³ñï:','') AS description FROM Tbl_Type_Of_CardClosingReasons WHERE forNotRnew = 1", conn))
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT id,REPLACE(description,'âí»ñ³ÃáÕ³ñÏí³Í ù³ñï:','') AS description FROM Tbl_Type_Of_CardClosingReasons WHERE forNotRnew = 1", conn))
-                {
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        dt.Load(dr);
-                    }
-                }
-
-                return dt;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
             }
+
+            return dt;
         }
 
         internal static DataTable GetReasonsForCardTransactionActionForUnblocking()
@@ -4487,11 +4447,9 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "SELECT id, description_arm, description_eng FROM tbl_type_of_reasons_for_card_transaction_action order by id asc";
 
-                SqlCommand cmd = new SqlCommand(sqltext, conn);
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -4503,18 +4461,16 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 card_account FROM [dbo].Tbl_Visa_Numbers_Accounts
+                using SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 card_account FROM [dbo].Tbl_Visa_Numbers_Accounts
                                                         where card_type = 21 and closing_date is NULL AND customer_number = @customer_number
                                                         UNION
                                                         SELECT a.Arm_number FROM V_All_Accounts a 
                                                                 INNER JOIN(SELECT sint_acc_new, type_of_client, type_of_product FROM  dbo.Tbl_define_sint_acc WHERE(type_of_product = 118) AND(type_of_account = 24)                                                GROUP BY sint_acc_new, type_of_client, type_of_product)s ON a.type_of_account_new = s.sint_acc_new INNER JOIN
 		                                                        Tbl_type_of_products t ON type_of_product = t.code 
-		                                                        where a.customer_number = @customer_number and a.closing_date is null ", conn))
-                {
-                    cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = customerNumber;
-                    if (cmd.ExecuteReader().Read())
-                        check = true;
-                }
+		                                                        where a.customer_number = @customer_number and a.closing_date is null ", conn);
+                cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = customerNumber;
+                if (cmd.ExecuteReader().Read())
+                    check = true;
             }
             return check;
         }
@@ -4570,7 +4526,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT code, description, description_Engl,allowable_customer_type,allowable_for_thirdh_person 
+                using SqlCommand cmd = new SqlCommand(@"SELECT code, description, description_Engl,allowable_customer_type,allowable_for_thirdh_person 
                                                   FROM [Tbl_type_of_deposits;] WHERE closing_date is null AND (((allowable_customer_type=@allowableCustomerType OR allowable_customer_type=0)
                                                   AND allowable_for_cooperative=@allowableForCooperative) OR allowable_for_thirdh_person = @allowableForThirdhPerson)", conn);
 
@@ -4578,10 +4534,8 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@allowableForThirdhPerson", SqlDbType.Bit).Value = allowableForThirdhPerson;
                 cmd.Parameters.Add("@allowableForCooperative", SqlDbType.Bit).Value = allowableForCooperative;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -4597,7 +4551,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT acc.account_currency
+                using SqlCommand cmd = new SqlCommand(@"SELECT acc.account_currency
                                                                                     FROM [Tbl_Co_Accounts_Main] acc INNER JOIN Tbl_co_accounts c ON acc.ID = c.co_main_ID 
                                                                                     WHERE type = 2 and acc.closing_date is null
 						                                                                                    and acc.account_currency IN ('AMD', 'USD')
@@ -4607,10 +4561,8 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = customerNumber;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
             }
             return dt;
@@ -4631,6 +4583,23 @@ namespace ExternalBanking.DBManager
 
                 return dt;
             }
+        }
+
+        internal static DataTable GetDepositoryAccountOperators()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("select bank_code, description from tbl_depository_account_operators", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+            }
+            return dt;
         }
     }
 }

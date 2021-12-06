@@ -178,47 +178,39 @@ namespace ExternalBanking.DBManager
 
         internal static bool CheckGroupId(int groupId)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.CommandText = @"SELECT TOP 1 * FROM Tbl_Order_Groups WHERE id = @groupId";
-                    cmd.Connection = conn;
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            conn.Open();
+            cmd.CommandText = @"SELECT TOP 1 * FROM Tbl_Order_Groups WHERE id = @groupId";
+            cmd.Connection = conn;
 
-                    cmd.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    return dr.Read();
-                }
-            }
+            cmd.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
+            using SqlDataReader dr = cmd.ExecuteReader();
+            return dr.Read();
         }
 
         internal static void SaveGroupTemplateShortInfo(GroupTemplateShrotInfo info, long templateId , Action action)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "pr_insert_group_templates_short_info";
-                    cmd.CommandType = CommandType.StoredProcedure;
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            conn.Open();
+            cmd.Connection = conn;
+            cmd.CommandText = "pr_insert_group_templates_short_info";
+            cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.Add("@receiver_account", SqlDbType.NVarChar,20).Value = info.ReceiverAccount;
-                    cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar,100).Value = info.ReceiverName;
-                    cmd.Parameters.Add("@debit_account", SqlDbType.NVarChar,20).Value = info.DebitAccount;
-                    cmd.Parameters.Add("@fee_Account", SqlDbType.NVarChar,20).Value = info.FeeAccount;
-                    cmd.Parameters.Add("@amount", SqlDbType.Float).Value = info.Amount;
-                    cmd.Parameters.Add("@customer_id", SqlDbType.NVarChar,50).Value = info.CustomerId;
-                    cmd.Parameters.Add("@loan_app_id", SqlDbType.BigInt).Value = (long)info.LoanAppId;
-                    cmd.Parameters.Add("@group_id", SqlDbType.Float).Value = info.GroupId;
-                    cmd.Parameters.Add("@template_id", SqlDbType.Int).Value = templateId;
-                    cmd.Parameters.Add("@percent_account", SqlDbType.NVarChar,50).Value = info.PercentAccount;
-                    cmd.Parameters.Add("@action", SqlDbType.Bit).Value = action == Action.Add ? 0 : 1;// 0 ձևանմուշի ստեղծման համար, 1 փոփոխման համար
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            
+            cmd.Parameters.Add("@receiver_account", SqlDbType.NVarChar, 20).Value = info.ReceiverAccount;
+            cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 100).Value = info.ReceiverName;
+            cmd.Parameters.Add("@debit_account", SqlDbType.NVarChar, 20).Value = info.DebitAccount;
+            cmd.Parameters.Add("@fee_Account", SqlDbType.NVarChar, 20).Value = info.FeeAccount;
+            cmd.Parameters.Add("@amount", SqlDbType.Float).Value = info.Amount;
+            cmd.Parameters.Add("@customer_id", SqlDbType.NVarChar, 50).Value = info.CustomerId;
+            cmd.Parameters.Add("@loan_app_id", SqlDbType.BigInt).Value = (long)info.LoanAppId;
+            cmd.Parameters.Add("@group_id", SqlDbType.Float).Value = info.GroupId;
+            cmd.Parameters.Add("@template_id", SqlDbType.Int).Value = templateId;
+            cmd.Parameters.Add("@percent_account", SqlDbType.NVarChar, 50).Value = info.PercentAccount;
+            cmd.Parameters.Add("@action", SqlDbType.Bit).Value = action == Action.Add ? 0 : 1;// 0 ձևանմուշի ստեղծման համար, 1 փոփոխման համար
+            cmd.ExecuteNonQuery();
+
 
         }
     }

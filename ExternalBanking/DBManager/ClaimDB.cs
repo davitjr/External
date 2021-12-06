@@ -15,7 +15,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select * from Tbl_problem_loan_claims  Where app_id=@productId", conn);
+                using SqlCommand cmd = new SqlCommand(@"Select * from Tbl_problem_loan_claims  Where app_id=@productId", conn);
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)
@@ -47,7 +47,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT C.app_id  FROM Tbl_problem_loan_claims C
+               using SqlCommand cmd = new SqlCommand(@"SELECT C.app_id  FROM Tbl_problem_loan_claims C
 						                               INNER JOIN Tbl_problem_loan_taxes T ON c.claim_number=t.claim_number 
                                                       WHERE C.app_id=@productApp_ID AND tax_quality in (0,11,12)", conn);
                 cmd.Parameters.Add("@productApp_ID", SqlDbType.Float).Value = loanProductId;
@@ -68,7 +68,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"
+               using SqlCommand cmd = new SqlCommand(@"
 													  SELECT p.App_Id FROM Tbl_problem_loan_claims C
 						                              INNER JOIN Tbl_problem_loan_taxes T 
 													  ON c.claim_number=t.claim_number 

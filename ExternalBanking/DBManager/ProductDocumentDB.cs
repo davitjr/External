@@ -31,9 +31,9 @@ namespace ExternalBanking.DBManager
 
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     ProductDocument productDocument = new ProductDocument();
@@ -79,7 +79,7 @@ namespace ExternalBanking.DBManager
                      cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
                 }
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     ProductDocument productDocument = new ProductDocument();
@@ -106,9 +106,9 @@ namespace ExternalBanking.DBManager
 
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docId", SqlDbType.Int).Value = documentId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     AttachmentDocument attDocument = new AttachmentDocument();
@@ -144,9 +144,9 @@ namespace ExternalBanking.DBManager
 
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     attachment = (byte[])dr["attachment"];
@@ -161,13 +161,13 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT isNull(HB_doc_ID,0) as HB_doc_ID FROM [tbl_deposits;] WHERE App_Id=@appId
+                using SqlCommand cmd = new SqlCommand(@"SELECT isNull(HB_doc_ID,0) as HB_doc_ID FROM [tbl_deposits;] WHERE App_Id=@appId
                                                     Union ALL SELECT isNull(HB_doc_ID,0) as HB_doc_ID FROM [tbl_short_time_loans;] WHERE App_Id=@appId
                                                     Union ALL SELECT isNull(HB_doc_ID,0) as HB_doc_ID FROM Tbl_credit_lines WHERE App_Id=@appId
                                                     Union ALL SELECT isNull(doc_ID,0) as HB_doc_ID FROM Tbl_bonds WHERE App_Id=@appId", conn);
-                cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
+                 cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     docId = int.Parse(dr["HB_doc_ID"].ToString());

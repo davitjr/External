@@ -196,9 +196,10 @@ namespace ExternalBanking
             {
                 result = PeriodicTransferDataChangeOrderDB.SavePeriodicTransferDataChangeOrder(this);
                 //**********                
-                ulong orderId = base.Save(this, source, user);
-                Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                ActionResult res = BOOrderCustomer.Save(this, orderId, user);
+                //ulong orderId = base.Save(this, source, user);
+                ulong orderId = 0;
+                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+                //ActionResult res = BOOrderCustomer.Save(this, (ulong)this.Id, user);
                 //**********
                 if (result.ResultCode != ResultCode.Normal)
                 {

@@ -17,10 +17,10 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT contract_id FROM Tbl_pension_application WHERE deleted = 0 and quality not in (40,41,42) and customer_number=@customernumber", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT contract_id FROM Tbl_pension_application WHERE deleted = 0 and quality not in (40,41,42) and customer_number=@customernumber", conn);
 
                 cmd.Parameters.Add("@customernumber", SqlDbType.Float).Value = customerNumber;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -38,7 +38,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"  select  p.contract_id,
+                using SqlCommand cmd = new SqlCommand(@"  select  p.contract_id,
                                                             p.filialcode,
                                                             p.contract_number,
                                                             p.customer_number,
@@ -58,7 +58,7 @@ namespace ExternalBanking.DBManager
                                                             ORDER BY contract_id desc ", conn);
 
                 cmd.Parameters.Add("@customernumber", SqlDbType.Float).Value = customerNumber;
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
 
@@ -89,7 +89,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"  select  p.contract_id,
+                using SqlCommand cmd = new SqlCommand(@"  select  p.contract_id,
                                                             p.filialcode,
                                                             p.contract_number,
                                                             p.customer_number,
@@ -109,7 +109,7 @@ namespace ExternalBanking.DBManager
                                                             ORDER BY contract_id desc ", conn);
 
                 cmd.Parameters.Add("@customernumber", SqlDbType.Float).Value = customerNumber;
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
 
@@ -147,12 +147,12 @@ namespace ExternalBanking.DBManager
                 pensionApplication.QualityDescription = Utility.ConvertAnsiToUnicode(Info.GetPensionAppliactionQualityType(pensionApplication.Quality));
                 if (row["card_number"] != DBNull.Value)
                 {
-                    pensionApplication.Account=Account.GetAccount(row["account_number"].ToString());
-                    pensionApplication.Account.ProductNumber=row["card_number"].ToString();
+                    pensionApplication.Account = Account.GetAccount(row["account_number"].ToString());
+                    pensionApplication.Account.ProductNumber = row["card_number"].ToString();
                 }
-                else if(row["account_number"] != DBNull.Value)
+                else if (row["account_number"] != DBNull.Value)
                 {
-                    pensionApplication.Account=Account.GetAccount(row["account_number"].ToString());
+                    pensionApplication.Account = Account.GetAccount(row["account_number"].ToString());
                     pensionApplication.Account.ProductNumber = null;
                 }
                 pensionApplication.SetNumber = Convert.ToInt32(row["number_of_set"]);
@@ -169,7 +169,7 @@ namespace ExternalBanking.DBManager
                 if (Convert.ToInt16(row["deleted"]) == 0)
                     pensionApplication.Deleted = false;
                 else
-                    pensionApplication.Deleted=true;
+                    pensionApplication.Deleted = true;
 
             }
             return pensionApplication;
@@ -182,8 +182,8 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                
-                SqlCommand cmd = new SqlCommand(@"  select  p.contract_id,
+
+                using SqlCommand cmd = new SqlCommand(@"  select  p.contract_id,
                                                             p.filialcode,
                                                             p.contract_number,
                                                             p.customer_number,
@@ -204,7 +204,7 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@customernumber", SqlDbType.Float).Value = customerNumber;
                 cmd.Parameters.Add("@contract_id", SqlDbType.Float).Value = contractId;
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
 
@@ -219,7 +219,7 @@ namespace ExternalBanking.DBManager
 
                     pensionApplication = SetPensionApplication(row);
 
-                   
+
                 }
 
 

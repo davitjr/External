@@ -296,6 +296,8 @@ namespace ExternalBanking.DBManager
 
 
                             template.PaymentOrder.UseCreditLine = dr["use_credit_line"] != DBNull.Value ? Convert.ToBoolean(dr["use_credit_line"]) : false;
+
+                            template.PaymentOrder.RegistrationDate = DateTime.Now;   //default(DateTime?)
                         }
                         else
                         {
@@ -305,7 +307,6 @@ namespace ExternalBanking.DBManager
                 }
             }
             
-            template.PaymentOrder.RegistrationDate = DateTime.Now;   //default(DateTime?)
 
             return template;
         }

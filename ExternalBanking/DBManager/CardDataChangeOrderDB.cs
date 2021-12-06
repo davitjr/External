@@ -33,7 +33,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@product_app_Id", SqlDbType.Float).Value = order.ProductAppId;
 
                     cmd.Parameters.Add("@field_type", SqlDbType.SmallInt).Value = order.FieldType;
-                    cmd.Parameters.Add("@field_value", SqlDbType.NVarChar,50).Value = order.FieldValue;
+                    cmd.Parameters.Add("@field_value", SqlDbType.NVarChar, 50).Value = order.FieldValue;
                     cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 100).Value = order.DocumentNumber;
                     cmd.Parameters.Add("@document_date", SqlDbType.SmallDateTime).Value = order.DocumentDate;
 
@@ -73,11 +73,11 @@ namespace ExternalBanking.DBManager
                                             on ch.doc_id=hb.doc_ID
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())
@@ -95,7 +95,7 @@ namespace ExternalBanking.DBManager
                     order.FieldValue = dr["field_value"] != DBNull.Value ? dr["field_value"].ToString() : null;
                     order.DocumentDate = dr["document_date"] != DBNull.Value ? Convert.ToDateTime(dr["document_date"]) : default(DateTime?);
                     order.DocumentNumber = dr["document_number"] != DBNull.Value ? dr["document_number"].ToString() : null;
-                    order.FieldTypeDescription =  Info.GetCardDataChangeFieldTypeDescription((ushort)order.FieldType);
+                    order.FieldTypeDescription = Info.GetCardDataChangeFieldTypeDescription((ushort)order.FieldType);
                 }
 
 
@@ -110,7 +110,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT required FROM Tbl_card_data_change_field_types
+                using SqlCommand cmd = new SqlCommand(@"SELECT required FROM Tbl_card_data_change_field_types
                                                   WHERE  field_type=@fieldType", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@fieldType", SqlDbType.Float).Value = fieldType;
@@ -147,19 +147,19 @@ namespace ExternalBanking.DBManager
 								                                        group by a.app_id ) MC on MC.Change_Id = M.Change_Id ) A
                                         order by A.Change_Id desc";
 
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
 
-                cmd.CommandType = CommandType.Text;                
+                cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@productAppId", SqlDbType.Float).Value = ProductAppId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 while (dr.Read())
                 {
                     CardDataChangeOrder cardDataChangeOrder = new CardDataChangeOrder();
                     cardDataChangeOrder.user = new ACBAServiceReference.User();
                     cardDataChangeOrder.FieldValue = dr["field_value"].ToString();
-                    cardDataChangeOrder.RegistrationDate = dr["registration_date"]!= DBNull.Value ? Convert.ToDateTime(dr["registration_date"].ToString()) : DateTime.MinValue;
+                    cardDataChangeOrder.RegistrationDate = dr["registration_date"] != DBNull.Value ? Convert.ToDateTime(dr["registration_date"].ToString()) : DateTime.MinValue;
                     cardDataChangeOrder.user.userID = dr["change_set_number"] != DBNull.Value ? short.Parse(dr["change_set_number"].ToString()) : (short)0;
                     cardDataChangeOrder.DocumentNumber = dr["document_number"] != DBNull.Value ? dr["document_number"].ToString() : null;
 

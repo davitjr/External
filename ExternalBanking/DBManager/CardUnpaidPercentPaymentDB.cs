@@ -62,29 +62,27 @@ namespace ExternalBanking.DBManager
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand("pr_get_unpaid_percent_payment_order", conn); 
+                using SqlCommand cmd = new SqlCommand("pr_get_unpaid_percent_payment_order", conn); 
                 cmd.Parameters.AddWithValue("@ID", order.Id);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 conn.Open();
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
                 {
-                    while (dr.Read())
-                    {
-                        order.CustomerNumber = Convert.ToUInt64(dr["customer_number"]);
-                        order.Card = Card.GetCard(Convert.ToUInt64(dr["App_ID"]),order.CustomerNumber);
-                        order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
-                        order.Type = (OrderType)Convert.ToInt16(dr["document_type"]);
-                        order.FilialCode = Convert.ToUInt16(dr["operationFilialCode"]);
-                        order.OrderNumber = dr["document_number"].ToString();
-                        order.Amount = Convert.ToDouble(dr["amount"]);
-                        order.Currency = dr["currency"].ToString();
-                        order.Account = Account.GetAccount(dr["credit_account"].ToString(), order.CustomerNumber);
-                        order.Source = (SourceType)Convert.ToInt16(dr["source_type"]);
-                        order.Quality = (OrderQuality)dr["quality"];
-                                            order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+                    order.CustomerNumber = Convert.ToUInt64(dr["customer_number"]);
+                    order.Card = Card.GetCard(Convert.ToUInt64(dr["App_ID"]), order.CustomerNumber);
+                    order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
+                    order.Type = (OrderType)Convert.ToInt16(dr["document_type"]);
+                    order.FilialCode = Convert.ToUInt16(dr["operationFilialCode"]);
+                    order.OrderNumber = dr["document_number"].ToString();
+                    order.Amount = Convert.ToDouble(dr["amount"]);
+                    order.Currency = dr["currency"].ToString();
+                    order.Account = Account.GetAccount(dr["credit_account"].ToString(), order.CustomerNumber);
+                    order.Source = (SourceType)Convert.ToInt16(dr["source_type"]);
+                    order.Quality = (OrderQuality)dr["quality"];
+                    order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
 
-                    }
                 }
             }
             return order;

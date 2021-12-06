@@ -19,13 +19,13 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT A.assign_Id, A.assign_number, A.beginning_date, A.end_date, A.assign_type, A.[status],
+                using SqlCommand cmd = new SqlCommand(@"SELECT A.assign_Id, A.assign_number, A.beginning_date, A.end_date, A.assign_type, A.[status],
                                                                                                       T.[description], A.given_by_bank, CRD.credentialGivenDate, CRD.notary, CRD.notaryTerritory,
 			                                                                                          CRD.ledgerNumber, CRD.translationValidationDate, CRD.translationOfNotary, CRD.translationOfNotaryTerritory,
 			                                                                                          CRD.translationValidationLedgerNumber
                                                                                       FROM Tbl_assigns A 
                                                                                       INNER JOIN Tbl_type_of_assigns T ON A.Assign_type = T.id
-                                                                                      LEFT JOIN [HBBase].[dbo].Tbl_credential_order_details CRD ON a.order_id = crd.order_id
+                                                                                      LEFT JOIN [HBBase].[dbo].Tbl_credential_order_details CRD ON a.doc_id = crd.doc_id
                                                                                       WHERE A.Customer_Number = @customerNumber Order By Beginning_Date Desc", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
@@ -101,7 +101,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT A.assign_Id, A.assign_number, A.beginning_date, A.end_date, A.assign_type, A.closing_date, A.closing_reason, 
+                using SqlCommand cmd = new SqlCommand(@"SELECT A.assign_Id, A.assign_number, A.beginning_date, A.end_date, A.assign_type, A.closing_date, A.closing_reason, 
                                                 A.closing_set_number, T.description,A.given_by_bank
                                                 FROM Tbl_assigns_history A 
                                                 INNER JOIN Tbl_type_of_assigns T ON A.Assign_type = T.id
@@ -155,8 +155,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select BO.document_id from Tbl_assigns A inner join [HBBase].[dbo].Tbl_Link_HB_document_order BO
-                                                  on A.order_id = BO.order_id where A.assign_id = @assignId", conn);
+                SqlCommand cmd = new SqlCommand(@"select doc_id from Tbl_assigns where assign_id = @assignId", conn);
 
                 cmd.Parameters.Add("@assignId", SqlDbType.Float).Value = credentialId;
 
@@ -167,7 +166,7 @@ namespace ExternalBanking.DBManager
                 }
 
                 if (dt.Rows.Count > 0)
-                    docID = Convert.ToInt32(dt.Rows[0]["document_id"].ToString());
+                    docID = Convert.ToInt32(dt.Rows[0]["doc_id"].ToString());
 
             }
             return docID;
@@ -183,17 +182,15 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select A.assign_id, D.* from Tbl_assigns A inner join TBL_Assignees Ass on A.assign_id = Ass.assign_id
+               using SqlCommand cmd = new SqlCommand(@"select A.assign_id, D.* from Tbl_assigns A inner join TBL_Assignees Ass on A.assign_id = Ass.assign_id
                                                   inner join dbo.TBl_Assignee_Identification D on Ass.id = D.assignee_id 
                                                   where D.doc_id = @docId ", conn);
 
                 cmd.Parameters.Add("@docId", SqlDbType.Float).Value = docId;
 
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    dt.Load(dr);
-                }
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
 
                 //if (dt.Rows.Count > 0)
                 //    credentialId = Convert.ToUInt64(dt.Rows[0]["assign_id"].ToString());

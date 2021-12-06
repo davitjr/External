@@ -9543,9 +9543,9 @@ namespace ExternalBanking.ACBAServiceReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<short, short>))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -10468,9 +10468,9 @@ namespace ExternalBanking.ACBAServiceReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<short, short>))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -17437,9 +17437,9 @@ namespace ExternalBanking.ACBAServiceReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<short, short>))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -18173,9 +18173,9 @@ namespace ExternalBanking.ACBAServiceReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<short, short>))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -18720,9 +18720,9 @@ namespace ExternalBanking.ACBAServiceReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<short, short>))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -22747,9 +22747,9 @@ namespace ExternalBanking.ACBAServiceReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Version))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Tuple<short, short>))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -24201,6 +24201,213 @@ namespace ExternalBanking.ACBAServiceReference {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="TupleOfintArrayOfRACitizenDTpyQ4eh", Namespace="http://schemas.datacontract.org/2004/07/System")]
+    [System.SerializableAttribute()]
+    public partial class TupleOfintArrayOfRACitizenDTpyQ4eh : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private int m_Item1Field;
+        
+        private System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen> m_Item2Field;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public int m_Item1 {
+            get {
+                return this.m_Item1Field;
+            }
+            set {
+                if ((this.m_Item1Field.Equals(value) != true)) {
+                    this.m_Item1Field = value;
+                    this.RaisePropertyChanged("m_Item1");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen> m_Item2 {
+            get {
+                return this.m_Item2Field;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_Item2Field, value) != true)) {
+                    this.m_Item2Field = value;
+                    this.RaisePropertyChanged("m_Item2");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Version", Namespace="http://schemas.datacontract.org/2004/07/System")]
+    [System.SerializableAttribute()]
+    public partial class Version : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private int _BuildField;
+        
+        private int _MajorField;
+        
+        private int _MinorField;
+        
+        private int _RevisionField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public int _Build {
+            get {
+                return this._BuildField;
+            }
+            set {
+                if ((this._BuildField.Equals(value) != true)) {
+                    this._BuildField = value;
+                    this.RaisePropertyChanged("_Build");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public int _Major {
+            get {
+                return this._MajorField;
+            }
+            set {
+                if ((this._MajorField.Equals(value) != true)) {
+                    this._MajorField = value;
+                    this.RaisePropertyChanged("_Major");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public int _Minor {
+            get {
+                return this._MinorField;
+            }
+            set {
+                if ((this._MinorField.Equals(value) != true)) {
+                    this._MinorField = value;
+                    this.RaisePropertyChanged("_Minor");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public int _Revision {
+            get {
+                return this._RevisionField;
+            }
+            set {
+                if ((this._RevisionField.Equals(value) != true)) {
+                    this._RevisionField = value;
+                    this.RaisePropertyChanged("_Revision");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="TupleOfshortshort", Namespace="http://schemas.datacontract.org/2004/07/System")]
+    [System.SerializableAttribute()]
+    public partial class TupleOfshortshort : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private short m_Item1Field;
+        
+        private short m_Item2Field;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public short m_Item1 {
+            get {
+                return this.m_Item1Field;
+            }
+            set {
+                if ((this.m_Item1Field.Equals(value) != true)) {
+                    this.m_Item1Field = value;
+                    this.RaisePropertyChanged("m_Item1");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public short m_Item2 {
+            get {
+                return this.m_Item2Field;
+            }
+            set {
+                if ((this.m_Item2Field.Equals(value) != true)) {
+                    this.m_Item2Field = value;
+                    this.RaisePropertyChanged("m_Item2");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ACBAServiceReference.IACBAOperationService")]
     public interface IACBAOperationService {
@@ -24578,9 +24785,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -24884,9 +25091,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -25172,9 +25379,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -25853,9 +26060,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -26141,9 +26348,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -26451,9 +26658,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -26737,9 +26944,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -27028,9 +27235,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -27643,9 +27850,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -27720,10 +27927,10 @@ namespace ExternalBanking.ACBAServiceReference {
         System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.KeyValue> GetCasherDepartmentAsync(uint setNumber);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICustomerOperations/SearchRACitizen", ReplyAction="http://tempuri.org/ICustomerOperations/SearchRACitizenResponse")]
-        System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>> SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
+        ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICustomerOperations/SearchRACitizen", ReplyAction="http://tempuri.org/ICustomerOperations/SearchRACitizenResponse")]
-        System.Threading.Tasks.Task<System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
+        System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICustomerOperations/GetOldInstitutionName", ReplyAction="http://tempuri.org/ICustomerOperations/GetOldInstitutionNameResponse")]
         string GetOldInstitutionName(uint id);
@@ -28069,10 +28276,10 @@ namespace ExternalBanking.ACBAServiceReference {
         System.Threading.Tasks.Task WriteErrorLogAsync(ExternalBanking.ACBAServiceReference.ACBAException ex, string progName);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IACBAOperationService/CheckProgramVersion", ReplyAction="http://tempuri.org/IACBAOperationService/CheckProgramVersionResponse")]
-        bool CheckProgramVersion(short programId, System.Version version);
+        bool CheckProgramVersion(short programId, ExternalBanking.ACBAServiceReference.Version version);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IACBAOperationService/CheckProgramVersion", ReplyAction="http://tempuri.org/IACBAOperationService/CheckProgramVersionResponse")]
-        System.Threading.Tasks.Task<bool> CheckProgramVersionAsync(short programId, System.Version version);
+        System.Threading.Tasks.Task<bool> CheckProgramVersionAsync(short programId, ExternalBanking.ACBAServiceReference.Version version);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IACBAOperationService/SearchCommunities", ReplyAction="http://tempuri.org/IACBAOperationService/SearchCommunitiesResponse")]
         System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Community> SearchCommunities(ExternalBanking.ACBAServiceReference.SearchCommunity searchCommunity);
@@ -29432,11 +29639,11 @@ namespace ExternalBanking.ACBAServiceReference {
             return base.Channel.GetCasherDepartmentAsync(setNumber);
         }
         
-        public System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>> SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
+        public ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
             return base.Channel.SearchRACitizen(raCitizen, pageNumber);
         }
         
-        public System.Threading.Tasks.Task<System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
+        public System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
             return base.Channel.SearchRACitizenAsync(raCitizen, pageNumber);
         }
         
@@ -29880,11 +30087,11 @@ namespace ExternalBanking.ACBAServiceReference {
             return base.Channel.WriteErrorLogAsync(ex, progName);
         }
         
-        public bool CheckProgramVersion(short programId, System.Version version) {
+        public bool CheckProgramVersion(short programId, ExternalBanking.ACBAServiceReference.Version version) {
             return base.Channel.CheckProgramVersion(programId, version);
         }
         
-        public System.Threading.Tasks.Task<bool> CheckProgramVersionAsync(short programId, System.Version version) {
+        public System.Threading.Tasks.Task<bool> CheckProgramVersionAsync(short programId, ExternalBanking.ACBAServiceReference.Version version) {
             return base.Channel.CheckProgramVersionAsync(programId, version);
         }
         
@@ -31463,10 +31670,10 @@ namespace ExternalBanking.ACBAServiceReference {
         System.Threading.Tasks.Task<System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.KeyValue>> GetMobilePhoneCodesAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IInfoService/GetLegalStatusType", ReplyAction="http://tempuri.org/IInfoService/GetLegalStatusTypeResponse")]
-        System.Tuple<short, short> GetLegalStatusType(string eregistryId);
+        ExternalBanking.ACBAServiceReference.TupleOfshortshort GetLegalStatusType(string eregistryId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IInfoService/GetLegalStatusType", ReplyAction="http://tempuri.org/IInfoService/GetLegalStatusTypeResponse")]
-        System.Threading.Tasks.Task<System.Tuple<short, short>> GetLegalStatusTypeAsync(string eregistryId);
+        System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.TupleOfshortshort> GetLegalStatusTypeAsync(string eregistryId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IInfoService/GetVillageFromDescription", ReplyAction="http://tempuri.org/IInfoService/GetVillageFromDescriptionResponse")]
         ExternalBanking.ACBAServiceReference.Village GetVillageFromDescription(string description);
@@ -32630,11 +32837,11 @@ namespace ExternalBanking.ACBAServiceReference {
             return base.Channel.GetMobilePhoneCodesAsync();
         }
         
-        public System.Tuple<short, short> GetLegalStatusType(string eregistryId) {
+        public ExternalBanking.ACBAServiceReference.TupleOfshortshort GetLegalStatusType(string eregistryId) {
             return base.Channel.GetLegalStatusType(eregistryId);
         }
         
-        public System.Threading.Tasks.Task<System.Tuple<short, short>> GetLegalStatusTypeAsync(string eregistryId) {
+        public System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.TupleOfshortshort> GetLegalStatusTypeAsync(string eregistryId) {
             return base.Channel.GetLegalStatusTypeAsync(eregistryId);
         }
         
@@ -32958,9 +33165,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -33264,9 +33471,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -33552,9 +33759,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -34233,9 +34440,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -34521,9 +34728,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -34831,9 +35038,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -35117,9 +35324,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -35408,9 +35615,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -36023,9 +36230,9 @@ namespace ExternalBanking.ACBAServiceReference {
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<uint, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.Cashier>>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, string>))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Collections.Generic.Dictionary<short, ExternalBanking.ACBAServiceReference.KeyValue>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Version))]
-        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(System.Tuple<short, short>))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.Version))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.TupleOfshortshort))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.LoginInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.PasswordChangeInfo))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ExternalBanking.ACBAServiceReference.AuthorizedUser))]
@@ -36100,10 +36307,10 @@ namespace ExternalBanking.ACBAServiceReference {
         System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.KeyValue> GetCasherDepartmentAsync(uint setNumber);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICustomerOperations/SearchRACitizen", ReplyAction="http://tempuri.org/ICustomerOperations/SearchRACitizenResponse")]
-        System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>> SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
+        ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICustomerOperations/SearchRACitizen", ReplyAction="http://tempuri.org/ICustomerOperations/SearchRACitizenResponse")]
-        System.Threading.Tasks.Task<System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
+        System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICustomerOperations/GetOldInstitutionName", ReplyAction="http://tempuri.org/ICustomerOperations/GetOldInstitutionNameResponse")]
         string GetOldInstitutionName(uint id);
@@ -37634,11 +37841,11 @@ namespace ExternalBanking.ACBAServiceReference {
             return base.Channel.GetCasherDepartmentAsync(setNumber);
         }
         
-        public System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>> SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
+        public ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh SearchRACitizen(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
             return base.Channel.SearchRACitizen(raCitizen, pageNumber);
         }
         
-        public System.Threading.Tasks.Task<System.Tuple<int, System.Collections.Generic.List<ExternalBanking.ACBAServiceReference.RACitizen>>> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
+        public System.Threading.Tasks.Task<ExternalBanking.ACBAServiceReference.TupleOfintArrayOfRACitizenDTpyQ4eh> SearchRACitizenAsync(ExternalBanking.ACBAServiceReference.RACitizen raCitizen, int pageNumber) {
             return base.Channel.SearchRACitizenAsync(raCitizen, pageNumber);
         }
         

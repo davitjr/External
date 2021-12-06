@@ -16,7 +16,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT tf.ID,
+                using SqlCommand cmd = new SqlCommand(@"SELECT tf.ID,
                                                   account_number,
                                                   percent_credit_account,
                                                   tp.product_currency,
@@ -90,7 +90,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT dt.tariff_type_id,
+                using SqlCommand cmd = new SqlCommand(@"SELECT dt.tariff_type_id,
                                                          dt.amount_from,
                                                          dt.amount_to,
                                                          dt.interest_rate,
@@ -138,7 +138,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"      SELECT  document_number,
+                using SqlCommand cmd = new SqlCommand(@"      SELECT  document_number,
                                                         document_date
                                                         FROM tbl_demand_deposits_documents
 														WHERE registration_date=(SELECT MAX(registration_date)  
@@ -160,7 +160,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT document_number,document_date 
+                using SqlCommand cmd = new SqlCommand(@"SELECT document_number,document_date 
                                                   FROM tbl_demand_deposits_documents_individual
                                                   WHERE account_number=@account_number AND
                                                   registration_date=(SELECT MAX(registration_date)
@@ -186,7 +186,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT amount_from,amount_to,interest_rate
+                using SqlCommand cmd = new SqlCommand(@"SELECT amount_from,amount_to,interest_rate
                                                   FROM tbl_demand_deposits_tariff_individual
                                                   WHERE account_number=@account_number", conn);
 

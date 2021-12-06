@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="LoginInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="deviceKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="externalPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="filialCode" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="host" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ipAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="progID" type="xs:int" />
+      <xs:element minOccurs="0" name="progName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="progVersion" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="windowsLogin" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LoginInfo" nillable="true" type="tns:LoginInfo" />
+  <xs:complexType name="PasswordChangeInfo">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:LoginInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="oldPassword" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="PasswordChangeInfo" nillable="true" type="tns:PasswordChangeInfo" />
+  <xs:complexType name="AuthorizedUser">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="configDBBaseName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="configDBPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="configDBServerName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="configDBUserName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="departmentID" type="xs:short" />
+      <xs:element minOccurs="0" name="departmentName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="filialCode" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="filialLogonAccess" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="filialName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="firstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="isAutorized" type="xs:boolean" />
+      <xs:element minOccurs="0" name="isReplacement" type="xs:boolean" />
+      <xs:element minOccurs="0" name="lastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="logedProgramName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="organizationID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="positionID" type="xs:short" />
+      <xs:element minOccurs="0" name="positionName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="replacementEmployeeNumber" type="xs:short" />
+      <xs:element minOccurs="0" name="replacementUserID" type="xs:short" />
+      <xs:element minOccurs="0" name="result" type="xs:int" />
+      <xs:element minOccurs="0" name="resultDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="resultDescriptionAM" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="transLimit" type="xs:int" />
+      <xs:element minOccurs="0" name="transRight" type="xs:int" />
+      <xs:element minOccurs="0" name="userAccountGroup" type="xs:long" />
+      <xs:element minOccurs="0" name="userCustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="userEmployeeID" type="xs:short" />
+      <xs:element minOccurs="0" name="userGroupID" type="xs:short" />
+      <xs:element minOccurs="0" name="userID" type="xs:short" />
+      <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userSessionToken" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AuthorizedUser" nillable="true" type="tns:AuthorizedUser" />
+  <xs:complexType name="ClientPermissionsInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="action" type="xs:short" />
+      <xs:element minOccurs="0" name="pageName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="progName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userGroupID" type="xs:short" />
+      <xs:element minOccurs="0" name="userID" type="xs:short" />
+      <xs:element minOccurs="0" name="varPropertyName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ClientPermissionsInfo" nillable="true" type="tns:ClientPermissionsInfo" />
+  <xs:complexType name="ArrayOfClientPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ClientPermissions" nillable="true" type="tns:ClientPermissions" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfClientPermissions" nillable="true" type="tns:ArrayOfClientPermissions" />
+  <xs:complexType name="ClientPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="nameOfControl" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="nameOfPermission" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="typeOfPermission" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="valueOfPermission" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ClientPermissions" nillable="true" type="tns:ClientPermissions" />
+</xs:schema>

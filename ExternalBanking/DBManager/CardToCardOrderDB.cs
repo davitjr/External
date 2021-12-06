@@ -86,7 +86,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT QH.change_date,
+               using SqlCommand cmd = new SqlCommand(@"SELECT QH.change_date,
                                                          HB.document_number,
                                                          HB.document_type,
                                                          HB.document_subtype,
@@ -155,7 +155,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT OBCO.registration_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT OBCO.registration_date,
 				 OBCO.transactionName, 
 				 OBC.card_number,
 				 OBC.carholder_name,
@@ -266,7 +266,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT QH.change_date,
+                using SqlCommand cmd = new SqlCommand(@" SELECT QH.change_date,
                                                          HB.document_number,
                                                          HB.document_type,
                                                          HB.document_subtype,

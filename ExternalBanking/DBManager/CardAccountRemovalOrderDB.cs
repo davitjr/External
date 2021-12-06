@@ -92,9 +92,9 @@ namespace ExternalBanking.DBManager
                                         WHERE V.App_Id =@appID  and V.visa_number <> V2.visa_number";
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@appID", SqlDbType.Float).Value = appID;
-                    SqlDataReader rd;
+                   
 
-                    rd = cmd.ExecuteReader();
+                   using SqlDataReader rd = cmd.ExecuteReader();
 
                     if (rd.Read())
                     {

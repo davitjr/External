@@ -15,7 +15,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+                using SqlCommand cmd = new SqlCommand(@"
                                                     DECLARE @filial AS int
                                                     SELECT @filial=filialcode FROM Tbl_customers WHERE customer_number=@customer_number   
                                                     INSERT INTO Tbl_HB_documents
@@ -51,10 +51,9 @@ namespace ExternalBanking.DBManager
         internal static void SaveDepositCaseStoppingPenaltyCalculationOrderDetails(DepositCaseStoppingPenaltyCalculationOrder order)
         {
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@" INSERT INTO tbl_deposit_case_penalty_stopping_order_details
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@" INSERT INTO tbl_deposit_case_penalty_stopping_order_details
                                                     (
                                                     Doc_Id,
                                                     app_id,
@@ -70,15 +69,13 @@ namespace ExternalBanking.DBManager
                                                     @documentDate,
                                                     @changingReason
                                                     )", conn);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@DocId", SqlDbType.Int).Value = order.Id;
-                cmd.Parameters.Add("@appId", SqlDbType.Float).Value = order.ProductId;
-                cmd.Parameters.Add("@dateOfStoppingPenaltyCalculation", SqlDbType.SmallDateTime).Value = order.DateOfStoppingPenaltyCalculation.Date;
-                cmd.Parameters.Add("@documentDate", SqlDbType.SmallDateTime).Value = order.DocumentDate.Date;
-                cmd.Parameters.Add("@changingReason", SqlDbType.NVarChar, 250).Value = order.ChangingReason;
-                cmd.ExecuteScalar();
-                
-            }
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@DocId", SqlDbType.Int).Value = order.Id;
+            cmd.Parameters.Add("@appId", SqlDbType.Float).Value = order.ProductId;
+            cmd.Parameters.Add("@dateOfStoppingPenaltyCalculation", SqlDbType.SmallDateTime).Value = order.DateOfStoppingPenaltyCalculation.Date;
+            cmd.Parameters.Add("@documentDate", SqlDbType.SmallDateTime).Value = order.DocumentDate.Date;
+            cmd.Parameters.Add("@changingReason", SqlDbType.NVarChar, 250).Value = order.ChangingReason;
+            cmd.ExecuteScalar();
 
 
         }
@@ -89,7 +86,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"  SELECT d.doc_ID FROM Tbl_HB_documents d
+                using SqlCommand cmd = new SqlCommand(@"  SELECT d.doc_ID FROM Tbl_HB_documents d
                                                     INNER JOIN tbl_deposit_case_penalty_stopping_order_details c
                                                     ON d.doc_ID=c.Doc_id
                                                     WHERE d.customer_number=@customerNumber AND c.app_id=@productId
@@ -113,7 +110,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+               using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                         c.*,
                                                         d.filial,
                                                         d.customer_number,

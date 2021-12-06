@@ -61,32 +61,30 @@ namespace ExternalBanking.DBManager
 
         internal static LoanProductTerminationOrder GetLoanProductTerminationOrder(LoanProductTerminationOrder order)
         {
-            DataTable dt = new DataTable();
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
-            {
+            using DataTable dt = new DataTable();
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
 
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT  d.document_number,d.currency,d.debet_account,d.quality,d.description,d.document_type,
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT  d.document_number,d.currency,d.debet_account,d.quality,d.description,d.document_type,
                                                   d.registration_date,d.document_subtype,d.source_type,d.operation_date,I.app_id
                                                   FROM Tbl_HB_documents as d
                                                   INNER JOIN Tbl_HB_Products_Identity I ON d.doc_id=I.hb_doc_id 
                                                   WHERE d.doc_ID=@docID AND d.customer_number=case WHEN @customer_number = 0 THEN d.customer_number ELSE @customer_number END", conn);
 
-                cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
-                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                dt.Load(cmd.ExecuteReader());
+            cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
+            cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+            dt.Load(cmd.ExecuteReader());
 
-                order.ProductId = ulong.Parse(dt.Rows[0]["app_id"].ToString());
-                order.Currency = dt.Rows[0]["currency"].ToString();
-                order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
-                order.Type= (OrderType)(dt.Rows[0]["document_type"]);
-                order.Description = dt.Rows[0]["description"].ToString();
-                order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
-                order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
-                order.Source = (SourceType)int.Parse(dt.Rows[0]["source_type"].ToString());
-                order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
-                return order;
-            }
+            order.ProductId = ulong.Parse(dt.Rows[0]["app_id"].ToString());
+            order.Currency = dt.Rows[0]["currency"].ToString();
+            order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
+            order.Type = (OrderType)(dt.Rows[0]["document_type"]);
+            order.Description = dt.Rows[0]["description"].ToString();
+            order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
+            order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
+            order.Source = (SourceType)int.Parse(dt.Rows[0]["source_type"].ToString());
+            order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
+            return order;
 
         }
 
@@ -96,14 +94,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
+                using SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
                                                 WHERE quality in (1,2,3,5) and document_type=143 and document_subtype=1 and
                                                 customer_number=@customerNumber and I.App_ID=@productId", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = order.ProductId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+               using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

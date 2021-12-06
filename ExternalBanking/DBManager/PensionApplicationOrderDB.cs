@@ -27,7 +27,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
                     cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
-                    if (order.PensionApplication.Account!=null)
+                    if (order.PensionApplication.Account != null)
                         cmd.Parameters.Add("@account_number", SqlDbType.NVarChar, 50).Value = order.PensionApplication.Account.AccountNumber;
                     cmd.Parameters.Add("@service_type", SqlDbType.Int).Value = order.PensionApplication.ServiceType;
                     if (order.PensionApplication.CardType != 0)
@@ -50,7 +50,7 @@ namespace ExternalBanking.DBManager
                     order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                     result.Id = order.Id;
 
-                   
+
 
                     return result;
                 }
@@ -119,10 +119,10 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@contract_id", SqlDbType.Int).Value = order.PensionApplication.ContractId;
                     cmd.Parameters.Add("@closing_type", SqlDbType.Int).Value = order.ClosingType;
                     cmd.Parameters.Add("@closing_date", SqlDbType.SmallDateTime).Value = order.ClosingDate;
-                    if (order.DeathDate!=null)
+                    if (order.DeathDate != null)
                         cmd.Parameters.Add("@death_date", SqlDbType.SmallDateTime).Value = order.DeathDate;
                     if (!string.IsNullOrEmpty(order.DeathCertificateNumber))
-                         cmd.Parameters.Add("@death_certificate_number", SqlDbType.NVarChar, 50).Value = order.DeathCertificateNumber;
+                        cmd.Parameters.Add("@death_certificate_number", SqlDbType.NVarChar, 50).Value = order.DeathCertificateNumber;
 
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
@@ -167,12 +167,12 @@ namespace ExternalBanking.DBManager
                                             on ap.Doc_ID=hb.doc_ID
                                             WHERE hb.doc_ID=@docID and hb.customer_number=case when @customer_number = 0 then hb.customer_number else @customer_number end";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
-                
+                using SqlDataReader dr = cmd.ExecuteReader();
+
                 if (dr.Read())
                 {
                     order.RegistrationDate = Convert.ToDateTime(dr["registration_date"].ToString());
@@ -187,7 +187,7 @@ namespace ExternalBanking.DBManager
                     order.ClosingTypeDescription = Info.GetPensionAppliactionClosingType(order.ClosingType);
                     order.ClosingDate = dr["closing_date"] != DBNull.Value ? Convert.ToDateTime(dr["closing_date"]) : default(DateTime?);
                     order.DeathDate = dr["death_date"] != DBNull.Value ? Convert.ToDateTime(dr["death_date"]) : default(DateTime?);
-                    order.DeathCertificateNumber = dr["death_certificate_number"] != DBNull.Value ?Utility.ConvertAnsiToUnicode(dr["death_certificate_number"].ToString()) : null;
+                    order.DeathCertificateNumber = dr["death_certificate_number"] != DBNull.Value ? Utility.ConvertAnsiToUnicode(dr["death_certificate_number"].ToString()) : null;
                     order.PensionApplication = PensionApplication.GetPensionApplication(order.CustomerNumber, Convert.ToUInt64(dr["contract_id"].ToString()));
                 }
 
@@ -220,11 +220,11 @@ namespace ExternalBanking.DBManager
                                             on ap.Doc_ID=hb.doc_ID
                                             WHERE hb.doc_ID=@docID and hb.customer_number=case when @customer_number = 0 then hb.customer_number else @customer_number end";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())

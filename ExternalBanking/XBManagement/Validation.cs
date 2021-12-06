@@ -171,11 +171,6 @@ namespace ExternalBanking.XBManagement
                 }
             }
 
-            if (schemaDetails == null)
-            {
-                //Սխեմայի մանրամասները բացակայում են
-                result.Add(new ActionError(920));
-            }
 
             //else if (!isOldGroup && schemaDetails.Group.BelongsToSchema())
             //{
@@ -442,12 +437,7 @@ namespace ExternalBanking.XBManagement
                 //Գոյություն ունի ՀԲ ի սպասարկման հայտ:
                 result.Add(new ActionError(699));
             }
-
-            if (order.FilialCode != order.FilialCode)
-            {
-                //ՀԲ ի սպասարկման վարձի գանձումը կատարվում է միայն հաճախորդի մասնաճյուղում:
-                result.Add(new ActionError(697));                
-            }
+            
 
             else //if (order.HBActivationRequest.RequestType == 1)
             {

@@ -21,16 +21,16 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="https://authorizationService-Test/InformationSecurityService.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="https://authorizationService-dev/InformationSecurityService.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="InformationSecurityService.xsd" MetadataType="Schema" ID="46659ee8-b81d-4513-955e-5aac053624b7" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd4" />
-    <MetadataFile FileName="InformationSecurityService.disco" MetadataType="Disco" ID="50342c73-f6a9-43d3-8a40-1e4eace937ac" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?disco" />
-    <MetadataFile FileName="InformationSecurityService1.xsd" MetadataType="Schema" ID="5dcf59e3-b2ca-414f-877e-052c4fdd0d4f" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd0" />
-    <MetadataFile FileName="InformationSecurityService2.xsd" MetadataType="Schema" ID="ba29af06-509a-40ef-bc0f-980945791039" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd1" />
-    <MetadataFile FileName="InformationSecurityService3.xsd" MetadataType="Schema" ID="20a6b4ed-8950-4da2-abc3-41140c080d09" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd2" />
-    <MetadataFile FileName="InformationSecurityService4.xsd" MetadataType="Schema" ID="d5233707-ae3a-4bee-8c53-5d0259b7f31e" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd3" />
-    <MetadataFile FileName="InfSecService.wsdl" MetadataType="Wsdl" ID="501b9f26-ef84-46dd-a2fd-666df009bea1" SourceId="1" SourceUrl="https://authorizationservice-test/InformationSecurityService.svc?wsdl" />
+    <MetadataFile FileName="InformationSecurityService5.xsd" MetadataType="Schema" ID="8314d510-0488-4f19-b059-0b3ee4765028" SourceId="1" SourceUrl="https://authorizationservice-dev/InformationSecurityService.svc?xsd=xsd2" />
+    <MetadataFile FileName="InfSecService1.wsdl" MetadataType="Wsdl" ID="0e99bf20-c7f5-4fe0-a98b-85500aec8216" SourceId="1" SourceUrl="https://authorizationservice-dev/InformationSecurityService.svc?wsdl" />
+    <MetadataFile FileName="InformationSecurityService51.xsd" MetadataType="Schema" ID="9296d04f-d74c-4ee3-aa20-8e9f583156b9" SourceId="1" SourceUrl="https://authorizationservice-dev/InformationSecurityService.svc?xsd=xsd0" />
+    <MetadataFile FileName="InformationSecurityService1.disco" MetadataType="Disco" ID="bfcb099c-d497-46c6-aa01-65e2c61a6ef0" SourceId="1" SourceUrl="https://authorizationservice-dev/InformationSecurityService.svc?disco" />
+    <MetadataFile FileName="InformationSecurityService52.xsd" MetadataType="Schema" ID="f1ff91e4-9d18-446a-919a-bb3573bbb839" SourceId="1" SourceUrl="https://authorizationservice-dev/InformationSecurityService.svc?xsd=xsd4" />
+    <MetadataFile FileName="InformationSecurityService53.xsd" MetadataType="Schema" ID="e0cfbdc2-0af3-44a4-a6f5-764118c20320" SourceId="1" SourceUrl="https://authorizationservice-dev/InformationSecurityService.svc?xsd=xsd3" />
+    <MetadataFile FileName="InformationSecurityService54.xsd" MetadataType="Schema" ID="06aafa30-b1d9-4baa-a86a-5296e5c15432" SourceId="1" SourceUrl="https://authorizationservice-dev/InformationSecurityService.svc?xsd=xsd1" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

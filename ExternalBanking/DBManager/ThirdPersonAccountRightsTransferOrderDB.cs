@@ -21,18 +21,16 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string script = @"SELECT third_person_Customer_number, arm_number, closing_date FROM tbl_co_accounts_main m 
                                 INNER JOIN tbl_co_accounts a ON m.id = a.co_main_id WHERE arm_number = @arm_number";
-                using (SqlCommand cmd = new SqlCommand(script, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
-                    SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@arm_number", SqlDbType.Float).Value = accountNumber;
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.HasRows)
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            result = reader["closing_date"] != DBNull.Value ? true : false;
-                        }
+                        result = reader["closing_date"] != DBNull.Value ? true : false;
                     }
                 }
             }
@@ -48,18 +46,16 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 string script = @"SELECT dbo.Fnc_Get_customer_acc_argelanq(@customer_number) AS arrest_result";
-                using (SqlCommand cmd = new SqlCommand(script, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.HasRows)
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            result = Convert.ToInt32(reader["arrest_result"]) == 0 ? false : true;
-                        }
+                        result = Convert.ToInt32(reader["arrest_result"]) == 0 ? false : true;
                     }
                 }
             }
@@ -76,18 +72,16 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 string script = @"Select quality from tbl_customers where customer_number = @customer_number";
-                using (SqlCommand cmd = new SqlCommand(script, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
-                    SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(script, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-                    if (reader.HasRows)
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            result = Convert.ToInt32(reader["quality"]) != 1 ? false : true;
-                        }
+                        result = Convert.ToInt32(reader["quality"]) != 1 ? false : true;
                     }
                 }
             }

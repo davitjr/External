@@ -21,11 +21,11 @@ namespace ExternalBanking.DBManager
                                "Tbl_type_of_service_notes.Note_description, Tbl_service_payments_notes.description " +
                                "FROM Tbl_service_payments_notes LEFT JOIN Tbl_type_of_service_notes ON Tbl_service_payments_notes.note_reason = Tbl_type_of_service_notes.Id " +
                                "WHERE Tbl_service_payments_notes.customer_number =@customerNumber";
-                SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
                 conn.Open();
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
@@ -42,11 +42,11 @@ namespace ExternalBanking.DBManager
 
         internal static ServicePaymentNoteOrder GetServicePaymentNoteOrder(ServicePaymentNoteOrder order)
         {
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                          d.customer_number,
                                                          d.registration_date,
                                                          d.document_number,
@@ -95,11 +95,11 @@ namespace ExternalBanking.DBManager
 
         internal static ServicePaymentNoteOrder GetDelatedServicePaymentNoteOrder(ServicePaymentNoteOrder order)
         {
-            DataTable dt = new DataTable();
+           using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                          d.customer_number,
                                                          d.registration_date,
                                                          d.document_number,
@@ -242,7 +242,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT ID FROM Tbl_service_payments_notes WHERE customer_number=@customerNumber AND CAST(date_of_note AS DATE)=CAST(@dateOfNote AS DATE)", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT ID FROM Tbl_service_payments_notes WHERE customer_number=@customerNumber AND CAST(date_of_note AS DATE)=CAST(@dateOfNote AS DATE)", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@dateOfNote", SqlDbType.DateTime).Value = order.OperationDate;
@@ -261,7 +261,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT ID FROM Tbl_service_payments_notes  WHERE ID=@noteID AND CAST(date_of_note as date)=CAST(@operDay as date)", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT ID FROM Tbl_service_payments_notes  WHERE ID=@noteID AND CAST(date_of_note as date)=CAST(@operDay as date)", conn);
                 cmd.Parameters.Add("@noteID", SqlDbType.Int).Value = order.Note.Id;
                 cmd.Parameters.Add("@operDay", SqlDbType.DateTime).Value = order.OperationDate;
                 result = Convert.ToInt32(cmd.ExecuteScalar());

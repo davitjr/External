@@ -665,7 +665,7 @@ namespace ExternalBanking
 
             if (result[0] == ',')
             {
-                result.Remove(0, 2);
+                result = result.Remove(0, 2);
             }
             return result;
 
@@ -1307,6 +1307,11 @@ namespace ExternalBanking
         {
             string customerDescription = ACBAOperationService.GetCustomerDescriptionEnglish(customerNumber);
             return customerDescription;
+        }
+
+        public static double GetBuyKursForDate(string currency, int filialCode)
+        {
+            return UtilityDB.GetBuyKursForDate(currency, filialCode);
         }
     }
 

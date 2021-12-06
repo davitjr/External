@@ -36,10 +36,10 @@ namespace ExternalBanking.DBManager
                                     on a.source_currency=cb.source_currency
 									ORDER BY Case when a.source_currency='USD' then 1 when a.source_currency='EUR' then 2 when a.source_currency='RUR' then 3
 									 when a.source_currency='GBP' then 4 when a.source_currency='CHF' then 5 when a.source_currency='GEL' then 6 end";
-                 SqlCommand cmd = new SqlCommand(sqlString, conn);
+                 using SqlCommand cmd = new SqlCommand(sqlString, conn);
                  cmd.Parameters.Add("@filial", SqlDbType.Int).Value = filial;
                  cmd.CommandType = CommandType.Text;
-                 SqlDataReader dr = cmd.ExecuteReader();
+                 using SqlDataReader dr = cmd.ExecuteReader();
                  while (dr.Read())
                  {
                      ExchangeRate rate = new ExchangeRate();
@@ -90,12 +90,12 @@ namespace ExternalBanking.DBManager
                                             (source_currency)=@currency
                                             and with_date>=@startDate and filialcode=@filial 
                                             ORDER BY with_date DESC";
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@filial", SqlDbType.Int).Value = filialCode;
                 cmd.Parameters.Add("@currency", SqlDbType.NVarChar,3).Value = currency;
                 cmd.Parameters.Add("@startDate", SqlDbType.NVarChar).Value = startDate.ToString("dd/MMM/yy");
                 cmd.CommandType = CommandType.Text;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     ExchangeRate rate = new ExchangeRate();
@@ -146,11 +146,11 @@ namespace ExternalBanking.DBManager
                                     FROM Tbl_rates_sale_buy_total 
                                     WHERE (source_currency) = 'USD' and with_date>=@startDate
                                     ORDER BY convert(datetime,round(convert(float,with_date),0,1)) DESC;";
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@filialCode", SqlDbType.Int).Value = filialCode;
                 cmd.Parameters.Add("@startDate", SqlDbType.NVarChar).Value = startDate.ToString("dd/MMM/yy");
                 cmd.CommandType = CommandType.Text;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     CrossExchangeRate rate = new CrossExchangeRate();
@@ -188,11 +188,11 @@ namespace ExternalBanking.DBManager
                                                 WHERE source_currency = @currency
 	                                                AND with_date >= @startDate
                                                 ORDER BY with_date DESC";
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
                 cmd.Parameters.Add("@startDate", SqlDbType.NVarChar).Value = startDate.ToString("dd/MMM/yy");
                 cmd.CommandType = CommandType.Text;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     ExchangeRate rate = new ExchangeRate();

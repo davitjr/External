@@ -1126,7 +1126,7 @@ namespace ExternalBanking.DBManager
                                 cmdLeasholders.Parameters.Add("@appId", SqlDbType.Float).Value = customer.AppId;
                                 cmdLeasholders.Connection = conn;
 
-                                SqlDataReader reader = cmdLeasholders.ExecuteReader();
+                               using SqlDataReader reader = cmdLeasholders.ExecuteReader();
                                 if (reader.HasRows)
                                 {
                                     while (reader.Read())
@@ -1211,26 +1211,24 @@ namespace ExternalBanking.DBManager
                             {
                                 customer.DateOfBeginning = Convert.ToDateTime(dr["date_of_beginning"]);
                             }
-                            using (SqlCommand cmdLeasholders = new SqlCommand())
-                            {
-                                cmdLeasholders.CommandText = "SELECT co_leasing_number FROM [dbo].[tbl_co_leasholders] WHERE loan_full_number = @loan AND date_of_beginning = @dateOfBeg";
-                                cmdLeasholders.Parameters.Add("@loan", SqlDbType.Float).Value = customer.AccountOrLink;
-                                cmdLeasholders.Parameters.Add("@dateOfBeg", SqlDbType.SmallDateTime).Value = customer.DateOfBeginning;
-                                cmdLeasholders.Connection = conn;
+                            using SqlCommand cmdLeasholders = new SqlCommand();
+                            cmdLeasholders.CommandText = "SELECT co_leasing_number FROM [dbo].[tbl_co_leasholders] WHERE loan_full_number = @loan AND date_of_beginning = @dateOfBeg";
+                            cmdLeasholders.Parameters.Add("@loan", SqlDbType.Float).Value = customer.AccountOrLink;
+                            cmdLeasholders.Parameters.Add("@dateOfBeg", SqlDbType.SmallDateTime).Value = customer.DateOfBeginning;
+                            cmdLeasholders.Connection = conn;
 
-                                SqlDataReader reader = cmdLeasholders.ExecuteReader();
-                                if (reader.HasRows)
+                           using SqlDataReader reader = cmdLeasholders.ExecuteReader();
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
                                 {
-                                    while (reader.Read())
+                                    if (string.IsNullOrEmpty(customer.BorrowerNumber))
                                     {
-                                        if (string.IsNullOrEmpty(customer.BorrowerNumber))
-                                        {
-                                            customer.BorrowerNumber += Convert.ToString(reader["co_leasing_number"]);
-                                        }
-                                        else
-                                        {
-                                            customer.BorrowerNumber += ", " + Convert.ToString(reader["co_leasing_number"]);
-                                        }
+                                        customer.BorrowerNumber += Convert.ToString(reader["co_leasing_number"]);
+                                    }
+                                    else
+                                    {
+                                        customer.BorrowerNumber += ", " + Convert.ToString(reader["co_leasing_number"]);
                                     }
                                 }
                             }
@@ -1439,41 +1437,37 @@ namespace ExternalBanking.DBManager
             int result = 0;
             using (SqlConnection conn = new SqlConnection(config))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                cmd.CommandText = @"SELECT loan_full_number, date_of_beginning FROM [Tbl_short_time_loans;] WHERE app_id = @appId";
+                cmd.Parameters.Add("@appId", SqlDbType.Float).Value = obj.AppId;
+
+                cmd.Connection = conn;
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    cmd.CommandText = @"SELECT loan_full_number, date_of_beginning FROM [Tbl_short_time_loans;] WHERE app_id = @appId";
-                    cmd.Parameters.Add("@appId", SqlDbType.Float).Value = obj.AppId;
-
-                    cmd.Connection = conn;
-                    conn.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        using (SqlCommand cmd1 = new SqlCommand())
                         {
-                            using (SqlCommand cmd1 = new SqlCommand())
-                            {
-                                cmd1.CommandText = @"INSERT INTO [dbo].[tbl_loan_not_classifying]([app_Id],[loan_full_number],[date_of_beginning],
+                            cmd1.CommandText = @"INSERT INTO [dbo].[tbl_loan_not_classifying]([app_Id],[loan_full_number],[date_of_beginning],
                                         [report_number],[report_date],[additional_description],[set_number],[registration_date])
                                         VALUES(@appId,@loan_full_number,@date_of_beginning,@report_number,@report_date,@reason_add_text,@set_number,@set_date)";
 
-                                cmd1.Parameters.Add("@appId", SqlDbType.Float).Value = obj.AppId;
-                                cmd1.Parameters.Add("@loan_full_number", SqlDbType.Float).Value = Convert.ToDouble(reader["loan_full_number"]);
-                                cmd1.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = Convert.ToDateTime(reader["date_of_beginning"]);
-                                cmd1.Parameters.Add("@report_number", SqlDbType.NVarChar, 100).Value = obj.ReportNumber;
-                                cmd1.Parameters.Add("@report_date", SqlDbType.SmallDateTime).Value = obj.ReportDate;
-                                cmd1.Parameters.Add("@reason_add_text", SqlDbType.NVarChar, 1000).Value = obj.AdditionalDescription;
-                                cmd1.Parameters.Add("@set_number", SqlDbType.Int).Value = setNumber;
-                                cmd1.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = registrationDate;
+                            cmd1.Parameters.Add("@appId", SqlDbType.Float).Value = obj.AppId;
+                            cmd1.Parameters.Add("@loan_full_number", SqlDbType.Float).Value = Convert.ToDouble(reader["loan_full_number"]);
+                            cmd1.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = Convert.ToDateTime(reader["date_of_beginning"]);
+                            cmd1.Parameters.Add("@report_number", SqlDbType.NVarChar, 100).Value = obj.ReportNumber;
+                            cmd1.Parameters.Add("@report_date", SqlDbType.SmallDateTime).Value = obj.ReportDate;
+                            cmd1.Parameters.Add("@reason_add_text", SqlDbType.NVarChar, 1000).Value = obj.AdditionalDescription;
+                            cmd1.Parameters.Add("@set_number", SqlDbType.Int).Value = setNumber;
+                            cmd1.Parameters.Add("@set_date", SqlDbType.SmallDateTime).Value = registrationDate;
 
-                                cmd1.Connection = conn;
-                                result = cmd1.ExecuteNonQuery();
-                            }
+                            cmd1.Connection = conn;
+                            result = cmd1.ExecuteNonQuery();
                         }
                     }
-
-
                 }
             }
             if (result == 1)

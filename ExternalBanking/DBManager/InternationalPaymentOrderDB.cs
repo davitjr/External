@@ -410,6 +410,8 @@ namespace ExternalBanking.DBManager
                             order.GroupId = dr["order_group_id"] != DBNull.Value ? Convert.ToInt32(dr["order_group_id"]) : 0;
                             order.ConfirmationDate = dr["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dr["confirmation_date"]) : default(DateTime?);
 
+
+                            order.TransferAdditionalData = TransferAdditionalDataDB.GetTransferAdditionalData(order.Id);
                         }
                         else
                         {
@@ -418,7 +420,6 @@ namespace ExternalBanking.DBManager
                     }
                 }
             }
-            order.TransferAdditionalData = TransferAdditionalDataDB.GetTransferAdditionalData(order.Id);
             return order;
         }
 
@@ -532,14 +533,14 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("  exec  pr_check_customer_swift_transfer_verified @customer_number ,	@swift_code,	@receiver_account  ", conn);
+                using SqlCommand cmd = new SqlCommand("  exec  pr_check_customer_swift_transfer_verified @customer_number ,	@swift_code,	@receiver_account  ", conn);
                 if (swiftCode == null)
                     swiftCode = "";
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = Convert.ToUInt64(customerNummber);
                 cmd.Parameters.Add("@swift_code", SqlDbType.NVarChar, 50).Value = swiftCode;
                 cmd.Parameters.Add("@receiver_account", SqlDbType.NVarChar, 50).Value = receiverAaccount;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -562,12 +563,12 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("  SELECT dbo.fn_check_IBAN_code_length( @accountNumber) isVerified ", conn);
+                using SqlCommand cmd = new SqlCommand("  SELECT dbo.fn_check_IBAN_code_length( @accountNumber) isVerified ", conn);
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@accountNumber", SqlDbType.NVarChar, 255).Value = accountNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -618,11 +619,10 @@ namespace ExternalBanking.DBManager
         {
             InternationalPaymentOrder internationalPayment = new InternationalPaymentOrder();
 
-            SqlDataReader dr;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT top 1 F.emailAddress,E.document_number, E.document_given_by, E.document_valid_date, E.document_given_date,b.nameEng,a.birth,b.lastNameEng,d.CountryName,C.customer_number FROM Tbl_Customers C
+                using SqlCommand cmd = new SqlCommand(@"SELECT top 1 F.emailAddress,E.document_number, E.document_given_by, E.document_valid_date, E.document_given_date,b.nameEng,a.birth,b.lastNameEng,d.CountryName,C.customer_number FROM Tbl_Customers C
 							LEFT JOIN (SELECT identityid,fullNameId,birth FROM Tbl_Persons) a 
 										ON a.identityId = C.identityId
 								LEFT JOIN (SELECT nameEng,lastNameEng,id FROM [V_FullNames]) b
@@ -634,24 +634,22 @@ namespace ExternalBanking.DBManager
 																		ON E.identityId=C.identityId 
 																	LEFT JOIN(SELECT identityId,e.emailAddress FROM Tbl_Customer_Emails ce inner join Tbl_Emails e ON ce.emailId=e.id) F 
 																			ON F.identityId = C.identityId
-																			Where C.customer_number = @CustomerNumber ", conn))
+																			Where C.customer_number = @CustomerNumber ", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@CustomerNumber", SqlDbType.Float).Value = customerNumber;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@CustomerNumber", SqlDbType.Float).Value = customerNumber;
-
-                    dr = cmd.ExecuteReader();
-
-                    while (dr.Read())
-                    {
-                        internationalPayment.SenderEmail = dr["emailAddress"] != DBNull.Value ? dr["emailAddress"].ToString() : "";
-                        internationalPayment.SenderPassport = dr["document_number"] != DBNull.Value ? dr["document_number"].ToString() : "";
-                        internationalPayment.SenderPassport = internationalPayment.SenderPassport + ", " + (dr["document_given_by"] != DBNull.Value ? dr["document_given_by"].ToString() : "");
-                        internationalPayment.SenderPassport = internationalPayment.SenderPassport + ", " + (dr["document_given_date"] != DBNull.Value ? Convert.ToDateTime(dr["document_given_date"].ToString()).ToString() : "");
-                        internationalPayment.Sender = dr["nameEng"] != DBNull.Value ? dr["nameEng"].ToString() : "";
-                        internationalPayment.Sender = internationalPayment.Sender + ", " + (dr["lastNameEng"] != DBNull.Value ? dr["lastNameEng"].ToString() : "");
-                        internationalPayment.SenderDateOfBirth = dr["birth"] != DBNull.Value ? Convert.ToDateTime(dr["birth"].ToString()) : default(DateTime);
-                        internationalPayment.Country = dr["CountryName"] != DBNull.Value ? dr["CountryName"].ToString() : "";
-                    }
+                    internationalPayment.SenderEmail = dr["emailAddress"] != DBNull.Value ? dr["emailAddress"].ToString() : "";
+                    internationalPayment.SenderPassport = dr["document_number"] != DBNull.Value ? dr["document_number"].ToString() : "";
+                    internationalPayment.SenderPassport = internationalPayment.SenderPassport + ", " + (dr["document_given_by"] != DBNull.Value ? dr["document_given_by"].ToString() : "");
+                    internationalPayment.SenderPassport = internationalPayment.SenderPassport + ", " + (dr["document_given_date"] != DBNull.Value ? Convert.ToDateTime(dr["document_given_date"].ToString()).ToString() : "");
+                    internationalPayment.Sender = dr["nameEng"] != DBNull.Value ? dr["nameEng"].ToString() : "";
+                    internationalPayment.Sender = internationalPayment.Sender + ", " + (dr["lastNameEng"] != DBNull.Value ? dr["lastNameEng"].ToString() : "");
+                    internationalPayment.SenderDateOfBirth = dr["birth"] != DBNull.Value ? Convert.ToDateTime(dr["birth"].ToString()) : default(DateTime);
+                    internationalPayment.Country = dr["CountryName"] != DBNull.Value ? dr["CountryName"].ToString() : "";
                 }
             }
 

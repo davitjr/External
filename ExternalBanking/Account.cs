@@ -1167,5 +1167,21 @@ namespace ExternalBanking
         /// <returns></returns>
         internal static string GetClosingCurrentAccountsNumber(ulong customerNumber, string currency) => AccountDB.GetClosingCurrentAccountsNumber(customerNumber, currency);
 
+
+        /// <summary>
+        /// Վերդարձնում է բաժնետոմսի արժեկտրոնների վճարման համար նախատեսված հաշիվները (դրամային ընթացիկ)
+        /// </summary>
+        /// <returns></returns>
+        public static List<Account> GetAccountsForStock(ulong customerNumber)
+        {
+            List<Account> currentAccounts = GetCurrentAccounts(customerNumber, ProductQualityFilter.Opened);
+
+            currentAccounts = currentAccounts.FindAll(m => m.AccountType == (ushort)ProductType.CurrentAccount && m.JointType == 0 && m.TypeOfAccount != 283 && m.TypeOfAccount != 282);
+            return currentAccounts;
+        }
+
+
+        internal static double GetAccountAvailableBalanceForStocksInAmd(string accountNumber) => AccountDB.GetAccountAvailableBalanceForStocksInAmd(accountNumber);
+
     }
 }

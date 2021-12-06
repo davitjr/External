@@ -40,6 +40,18 @@ namespace ExternalBanking
         public int SetNumber { get; set; }
 
         /// <summary>
+        /// Եթե դրական ապա դիմում ենք BondManagementApi
+        /// </summary>
+        public bool IsOpeningAccInDepo { get; set; }
+
+        /// <summary>
+        /// "N" - Normal , "Y" - Suspended
+        /// </summary>
+        public string Status { get; set; }
+
+        public string StockIncomeAccountNumber { get; set; }
+
+        /// <summary>
         /// Վերադարձնում է հաճախորդի՝ Բանկի բազայում առկա արժեթղթերի հաշիվը
         /// </summary>
         /// <param name="customerNumber"></param>
@@ -50,6 +62,17 @@ namespace ExternalBanking
             {
                 account = null;
             }
+            return account;
+        }
+
+        /// <summary>
+        /// Վերադարձնում է հաճախորդի՝ Բանկի բազայում առկա արժեթղթերի հաշիվը
+        /// </summary>
+        /// <param name="customerNumber"></param>
+        public static List<DepositaryAccount> GetCustomerDepositaryAccounts(ulong customerNumber)
+        {
+            List<DepositaryAccount> account = new List<DepositaryAccount>();
+            account = DepositaryAccountDB.GetCustomerDepositaryAccounts(customerNumber);
             return account;
         }
 
@@ -69,6 +92,17 @@ namespace ExternalBanking
         public static DepositaryAccount GetDepositaryAccountById(int id)
         {
             return DepositaryAccountDB.GetDepositaryAccountById(id);
+        }
+
+
+        public static void DeleteDepoAccounts(ulong customerNumber)
+        {
+            DepositaryAccountDB.DeleteDepoAccounts(customerNumber);
+        }
+
+        public static double GetDepositaryAccount(ulong customerNumber)
+        {
+           return DepositaryAccountDB.GetDepositaryAccount(customerNumber);
         }
     }
 }

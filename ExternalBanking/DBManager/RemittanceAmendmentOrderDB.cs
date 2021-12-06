@@ -299,11 +299,11 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT COUNT(1) + 1 as transfer_count from Tbl_HB_Documents
+                using SqlCommand cmd = new SqlCommand(@"SELECT COUNT(1) + 1 as transfer_count from Tbl_HB_Documents
                                                   WHERE document_type = 202 AND transfer_id = @transfer_id AND quality = 30", conn);
 
                 cmd.Parameters.Add("@transfer_id", SqlDbType.Int).Value = transferId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                     int.TryParse(dr["transfer_count"].ToString(), out count);

@@ -163,7 +163,7 @@ namespace ExternalBanking
                 result = RemittanceCancellationOrderDB.Save(this, userName);
                 ulong orderId = (ulong)result.Id;
 
-                Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
 
 
                 result = base.SaveOrderOPPerson();
@@ -308,7 +308,7 @@ namespace ExternalBanking
                 result = RemittanceCancellationOrderDB.Save(this, userName);
                 ulong orderId = (ulong)result.Id;
 
-                Order.SaveLinkHBDocumentOrder(this.Id, orderId);
+                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
 
 
                 result = base.SaveOrderOPPerson();

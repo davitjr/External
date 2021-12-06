@@ -303,22 +303,20 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =
+                using SqlCommand cmd =
                     new SqlCommand(
                         "SELECT [dbo].[fnc_available_CustomerAmount](@customerNumber,@currency,@date) as available_amount",
-                        conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
-                    cmd.Parameters.Add("@date", SqlDbType.SmallDateTime).Value = Utility.GetNextOperDay().Date;
+                        conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
+                cmd.Parameters.Add("@date", SqlDbType.SmallDateTime).Value = Utility.GetNextOperDay().Date;
 
-                    using (SqlDataReader dr = cmd.ExecuteReader())
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
                     {
-                        if (dr.Read())
-                        {
-                            Double.TryParse(dr["available_amount"].ToString(), out availableAmount);
-                        }
+                        Double.TryParse(dr["available_amount"].ToString(), out availableAmount);
                     }
                 }
 
@@ -413,8 +411,7 @@ namespace ExternalBanking.DBManager
         internal static string GetEmailForCustomerDataOrder(uint identityId)
         {
             string Email = "";
-            SqlDataReader dr;
-
+  
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
@@ -427,7 +424,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@identityId", SqlDbType.Int).Value = identityId;
 
-                    dr = cmd.ExecuteReader();
+                  using  SqlDataReader dr = cmd.ExecuteReader();
 
                     while (dr.Read())
                     {
@@ -454,7 +451,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@customer_number", SqlDbType.NVarChar).Value = customerNumber.ToString();
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.Read())
                     {
@@ -470,35 +467,31 @@ namespace ExternalBanking.DBManager
             Customer customer = new Customer();
             ulong identityID = customer.GetIdentityId(customerNumber);
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            using (SqlCommand cmd = new SqlCommand())
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.CommandText = @"SELECT REPLACE(countryCode,'+','')+ areaCode+phoneNumber as phoneNumber FROM Tbl_Customer_Phones cp
+                cmd.CommandText = @"SELECT REPLACE(countryCode,'+','')+ areaCode+phoneNumber as phoneNumber FROM Tbl_Customer_Phones cp
                                         inner join Tbl_Phones p on cp.phoneId=p.id
                                         WHERE cp.phonetype=1 and cp.priority=1 and  cp.identityId=@identityID";
-                    cmd.Parameters.Add("@identityID", SqlDbType.Int).Value = identityID;
-                    cmd.Connection = conn;
-                    conn.Open();
-                    phoneNumber = (string)cmd.ExecuteScalar();
+                cmd.Parameters.Add("@identityID", SqlDbType.Int).Value = identityID;
+                cmd.Connection = conn;
+                conn.Open();
+                phoneNumber = (string)cmd.ExecuteScalar();
 
-                }
-                return phoneNumber;
             }
+            return phoneNumber;
         }
 
         public static bool CheckMobileBankingCustomerDetailsRiskyChanges(string TokenSerial)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT dbo.fn_check_mobile_banking_customer_details_risky_changes(@token_serial)", conn);
-                cmd.Parameters.Add("@token_serial", SqlDbType.NVarChar).Value = TokenSerial;
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand("SELECT dbo.fn_check_mobile_banking_customer_details_risky_changes(@token_serial)", conn);
+            cmd.Parameters.Add("@token_serial", SqlDbType.NVarChar).Value = TokenSerial;
 
-                bool hasRisks = Convert.ToBoolean(cmd.ExecuteScalar());
+            bool hasRisks = Convert.ToBoolean(cmd.ExecuteScalar());
 
-                return hasRisks;
-            }
+            return hasRisks;
 
         }
 
@@ -507,7 +500,7 @@ namespace ExternalBanking.DBManager
             string HVHH = string.Empty;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand(@"SELECT document_number 
+                using SqlCommand cmd = new SqlCommand(@"SELECT document_number 
                                                   FROM tbl_customer_documents_current d
                                                   INNER JOIN tbl_customers c
                                                   ON d.identityid = c.identityid
@@ -524,12 +517,12 @@ namespace ExternalBanking.DBManager
             bool hasBankrupt = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                SqlCommand cmd = new SqlCommand(@"SELECT *
+                using SqlCommand cmd = new SqlCommand(@"SELECT *
                                                 FROM v_customers_DAHK_amounts V 
                                                 where v.customer_number=@customer_number AND v.blockage_type=1", conn);
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                 conn.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.HasRows)
                 {
                     hasBankrupt = true;

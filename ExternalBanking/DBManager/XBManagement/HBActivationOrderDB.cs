@@ -18,7 +18,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"SELECT  rq.* FROM tbl_applications ap
+                using SqlCommand cmd = new SqlCommand(@"SELECT  rq.* FROM tbl_applications ap
                                                           INNER JOIN 
                                                           Tbl_Requests_For_Fee_Charges rq
                                                           ON ap.ID=rq.global_ID
@@ -27,50 +27,48 @@ namespace ExternalBanking.DBManager
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customer_number", SqlDbType.VarChar, 50).Value = customerNumber;
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
                 {
-                    if (dr.HasRows)
+                    while (dr.Read())
                     {
-                        while (dr.Read())
+                        HBActivationRequest request = new HBActivationRequest();
+                        request.Id = Convert.ToInt64(dr["id"]);
+
+                        request.RequestType = Convert.ToInt16(dr["request_type"]);
+                        if (request.RequestType == 3)
                         {
-                            HBActivationRequest request = new HBActivationRequest();
-                            request.Id = Convert.ToInt64(dr["id"]);
-
-                            request.RequestType = Convert.ToInt16(dr["request_type"]);
-                            if (request.RequestType == 3)
-                            {
-                                request.RequestDate = Utility.GetCurrentOperDay();
-                            }
-                            else if (request.RequestType == 1 || request.RequestType == 2)
-                            {
-                                request.RequestDate = dr["application_date"] != DBNull.Value ? Convert.ToDateTime(dr["application_date"]) : default(DateTime);
-                            }
-                            request.RequestTypeDescription = Info.GetTypeOfRequestsForFeeCharge(request.RequestType);
-                            //request.ServiceFee = Convert.ToDouble(dr["service_fee"]);
-                            request.UserName = dr["user_name"].ToString();
-                            request.HBToken = new HBToken();
-                            request.HBToken.HBUser = new HBUser();
-                            request.HBToken.HBUser.CustomerNumber = Convert.ToUInt64(dr["user_customer_number"]);
-                            request.HBToken.HBUser.HBAppID = Convert.ToInt32(dr["global_ID"]);
-                            if (request.RequestType == 1 || request.RequestType == 2)
-                            {
-                                request.HBToken.HBUser.UserFullName = Utility.ConvertAnsiToUnicode(dr["user_full_name"].ToString());
-                                request.HBToken.TokenNumber = dr["token_number"].ToString();
-                                request.HBToken.TokenType = (HBTokenTypes)Convert.ToInt16(dr["token_type"]);
-                                request.HBToken.TokenTypeDescription = Info.GetTokenTypeDescription(request.HBToken.TokenType);
-                                request.HBToken.TokenSubType = (HBTokenSubType)Convert.ToInt16(dr["token_sub_type"]);
-                            }
-
-                            if (customerType == 6)
-                            {
-                                request.ServiceFee = HBToken.GetHBServiceFee(request.HBToken.HBUser.CustomerNumber, Utility.GetCurrentOperDay(), (HBServiceFeeRequestTypes)request.RequestType, request.HBToken.TokenType, request.HBToken.TokenSubType);
-                            }
-                            else
-                            {
-                                request.ServiceFee = HBToken.GetHBServiceFee(customerNumber, Utility.GetCurrentOperDay(), (HBServiceFeeRequestTypes)request.RequestType, request.HBToken.TokenType, request.HBToken.TokenSubType);
-                            }
-                            list.Add(request);
+                            request.RequestDate = Utility.GetCurrentOperDay();
                         }
+                        else if (request.RequestType == 1 || request.RequestType == 2)
+                        {
+                            request.RequestDate = dr["application_date"] != DBNull.Value ? Convert.ToDateTime(dr["application_date"]) : default(DateTime);
+                        }
+                        request.RequestTypeDescription = Info.GetTypeOfRequestsForFeeCharge(request.RequestType);
+                        //request.ServiceFee = Convert.ToDouble(dr["service_fee"]);
+                        request.UserName = dr["user_name"].ToString();
+                        request.HBToken = new HBToken();
+                        request.HBToken.HBUser = new HBUser();
+                        request.HBToken.HBUser.CustomerNumber = Convert.ToUInt64(dr["user_customer_number"]);
+                        request.HBToken.HBUser.HBAppID = Convert.ToInt32(dr["global_ID"]);
+                        if (request.RequestType == 1 || request.RequestType == 2)
+                        {
+                            request.HBToken.HBUser.UserFullName = Utility.ConvertAnsiToUnicode(dr["user_full_name"].ToString());
+                            request.HBToken.TokenNumber = dr["token_number"].ToString();
+                            request.HBToken.TokenType = (HBTokenTypes)Convert.ToInt16(dr["token_type"]);
+                            request.HBToken.TokenTypeDescription = Info.GetTokenTypeDescription(request.HBToken.TokenType);
+                            request.HBToken.TokenSubType = (HBTokenSubType)Convert.ToInt16(dr["token_sub_type"]);
+                        }
+
+                        if (customerType == 6)
+                        {
+                            request.ServiceFee = HBToken.GetHBServiceFee(request.HBToken.HBUser.CustomerNumber, Utility.GetCurrentOperDay(), (HBServiceFeeRequestTypes)request.RequestType, request.HBToken.TokenType, request.HBToken.TokenSubType);
+                        }
+                        else
+                        {
+                            request.ServiceFee = HBToken.GetHBServiceFee(customerNumber, Utility.GetCurrentOperDay(), (HBServiceFeeRequestTypes)request.RequestType, request.HBToken.TokenType, request.HBToken.TokenSubType);
+                        }
+                        list.Add(request);
                     }
                 }
             }
@@ -84,7 +82,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"
+                using SqlCommand cmd = new SqlCommand(@"
                                                 INSERT INTO Tbl_HB_documents(filial,customer_number,registration_date,document_type,document_subtype,
                                                 document_number,amount,currency,debet_account,credit_account,
                                                 [description],quality,source_type,operationFilialCode,operation_date)
@@ -119,7 +117,7 @@ namespace ExternalBanking.DBManager
             return result;
         }
 
-      
+
 
         internal static HBActivationOrder Get(HBActivationOrder order)
         {
@@ -131,11 +129,11 @@ namespace ExternalBanking.DBManager
 											hb.doc_ID=ac.doc_ID
                                             WHERE hb.doc_ID=@docID and hb.customer_number=case when @customer_number = 0 then hb.customer_number else @customer_number end";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())
@@ -212,7 +210,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select doc_ID from Tbl_HB_documents where quality in (1,2,3,5) and document_type=69 and document_subtype=1 and
+                using SqlCommand cmd = new SqlCommand(@"Select doc_ID from Tbl_HB_documents where quality in (1,2,3,5) and document_type=69 and document_subtype=1 and
                                                   customer_number=@customer_number", conn);
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                 if (cmd.ExecuteReader().Read())
@@ -232,28 +230,26 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(@"select token_serial,token_type,user_full_name,customer_number from Tbl_Requests_For_Fee_Charges where global_ID=@globalID", conn);
+                using SqlCommand cmd = new SqlCommand(@"select token_serial,token_type,user_full_name,customer_number from Tbl_Requests_For_Fee_Charges where global_ID=@globalID", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@globalID", SqlDbType.Int).Value = requestId;
 
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
                 {
-                    if (dr.HasRows)
+                    while (dr.Read())
                     {
-                        while (dr.Read())
-                        {
-                            HBToken token = new HBToken();
-                            token.TokenNumber = dr["token_serial"].ToString();
-                            token.TokenType = (HBTokenTypes)Convert.ToInt16(dr["token_type"].ToString());
-                            token.TokenTypeDescription = Info.GetTokenTypeDescription(token.TokenType);
-                            token.HBUser = new HBUser();
-                            token.HBUser.UserFullName = Utility.ConvertAnsiToUnicode(dr["user_full_name"].ToString());
-                            int index = token.UserFullName.IndexOf("  ");
-                            token.HBUser.UserFullName = token.UserFullName.Substring(0, index);
-                            token.HBUser.CustomerNumber = Convert.ToUInt64(dr["customer_number"].ToString());
-                            list.Add(token);
-                        }
+                        HBToken token = new HBToken();
+                        token.TokenNumber = dr["token_serial"].ToString();
+                        token.TokenType = (HBTokenTypes)Convert.ToInt16(dr["token_type"].ToString());
+                        token.TokenTypeDescription = Info.GetTokenTypeDescription(token.TokenType);
+                        token.HBUser = new HBUser();
+                        token.HBUser.UserFullName = Utility.ConvertAnsiToUnicode(dr["user_full_name"].ToString());
+                        int index = token.UserFullName.IndexOf("  ");
+                        token.HBUser.UserFullName = token.UserFullName.Substring(0, index);
+                        token.HBUser.CustomerNumber = Convert.ToUInt64(dr["customer_number"].ToString());
+                        list.Add(token);
                     }
                 }
             }
@@ -269,38 +265,34 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_HB_Activation_Order_Details(doc_id,global_id,request_type,request_date,user_name,token_number,token_type,token_sub_type,service_fee,is_free) 
-                                    VALUES (@doc_id,@global_id,@request_type,@request_date,@user_name,@token_number,@token_type,@token_sub_type,@service_fee,@is_free)", conn))
+                using SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_HB_Activation_Order_Details(doc_id,global_id,request_type,request_date,user_name,token_number,token_type,token_sub_type,service_fee,is_free) 
+                                    VALUES (@doc_id,@global_id,@request_type,@request_date,@user_name,@token_number,@token_type,@token_sub_type,@service_fee,@is_free)", conn);
+
+                foreach (HBActivationRequest request in order.HBActivationRequests)
                 {
-
-                    foreach (HBActivationRequest request in order.HBActivationRequests)
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = order.Id;
+                    cmd.Parameters.Add("@global_id", SqlDbType.Int).Value = request.HBToken.HBUser.HBAppID;
+                    cmd.Parameters.Add("@request_type", SqlDbType.SmallInt).Value = request.RequestType;
+                    cmd.Parameters.Add("@request_date", SqlDbType.DateTime).Value = request.RequestDate;
+                    cmd.Parameters.Add("@service_fee", SqlDbType.Float).Value = request.ServiceFee;
+                    cmd.Parameters.Add("@is_free", SqlDbType.Bit).Value = request.IsFree;
+                    if (request.RequestType == 1 || request.RequestType == 2)
                     {
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = order.Id;
-                        cmd.Parameters.Add("@global_id", SqlDbType.Int).Value = request.HBToken.HBUser.HBAppID;
-                        cmd.Parameters.Add("@request_type", SqlDbType.SmallInt).Value = request.RequestType;
-                        cmd.Parameters.Add("@request_date", SqlDbType.DateTime).Value = request.RequestDate;
-                        cmd.Parameters.Add("@service_fee", SqlDbType.Float).Value = request.ServiceFee;
-                        cmd.Parameters.Add("@is_free", SqlDbType.Bit).Value = request.IsFree;
-                        if (request.RequestType == 1 || request.RequestType == 2)
-                        {
-                            cmd.Parameters.Add("@user_name", SqlDbType.NVarChar, 50).Value = request.UserName == null ? "" : request.UserName;
-                            cmd.Parameters.Add("@token_number", SqlDbType.NVarChar, 50).Value = request.HBToken.TokenNumber;
-                            cmd.Parameters.Add("@token_type", SqlDbType.SmallInt).Value = request.HBToken.TokenType;
-                            cmd.Parameters.Add("@token_sub_type", SqlDbType.SmallInt).Value = (ushort)request.HBToken.TokenSubType;
-                        }
-                        else
-                        {
-                            cmd.Parameters.Add("@user_name", SqlDbType.NVarChar, 50).Value = request.UserName == null ? "" : request.UserName;
-                            cmd.Parameters.Add("@token_number", SqlDbType.NVarChar, 50).Value = DBNull.Value;
-                            cmd.Parameters.Add("@token_type", SqlDbType.SmallInt).Value = DBNull.Value;
-                            cmd.Parameters.Add("@token_sub_type", SqlDbType.SmallInt).Value = DBNull.Value;
-                        }
-
-                        cmd.ExecuteNonQuery();
+                        cmd.Parameters.Add("@user_name", SqlDbType.NVarChar, 50).Value = request.UserName == null ? "" : request.UserName;
+                        cmd.Parameters.Add("@token_number", SqlDbType.NVarChar, 50).Value = request.HBToken.TokenNumber;
+                        cmd.Parameters.Add("@token_type", SqlDbType.SmallInt).Value = request.HBToken.TokenType;
+                        cmd.Parameters.Add("@token_sub_type", SqlDbType.SmallInt).Value = (ushort)request.HBToken.TokenSubType;
+                    }
+                    else
+                    {
+                        cmd.Parameters.Add("@user_name", SqlDbType.NVarChar, 50).Value = request.UserName == null ? "" : request.UserName;
+                        cmd.Parameters.Add("@token_number", SqlDbType.NVarChar, 50).Value = DBNull.Value;
+                        cmd.Parameters.Add("@token_type", SqlDbType.SmallInt).Value = DBNull.Value;
+                        cmd.Parameters.Add("@token_sub_type", SqlDbType.SmallInt).Value = DBNull.Value;
                     }
 
-
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
@@ -319,7 +311,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("pr_HB_Activation_Rejection_order", conn);
+                using SqlCommand cmd = new SqlCommand("pr_HB_Activation_Rejection_order", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
@@ -378,7 +370,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT rq.id,rq.request_type,rq.application_date,rq.global_ID FROM Tbl_PhoneBanking_Contracts pb
+                using SqlCommand cmd = new SqlCommand(@"SELECT rq.id,rq.request_type,rq.application_date,rq.global_ID FROM Tbl_PhoneBanking_Contracts pb
                                                         INNER JOIN 
                                                         Tbl_Requests_For_Fee_Charges rq
                                                         ON pb.ID=rq.global_ID
@@ -388,22 +380,20 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@customer_number", SqlDbType.VarChar, 50).Value = customerNumber;
 
 
-                using (SqlDataReader dr = cmd.ExecuteReader())
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
                 {
-                    if (dr.HasRows)
+                    if (dr.Read())
                     {
-                        if (dr.Read())
+                        request.Id = Convert.ToInt64(dr["id"]);
+                        request.RequestType = (RequestType)Convert.ToInt16(dr["request_type"]);
+                        if (request.RequestType == RequestType.NewPhoneBankingContract)
                         {
-                            request.Id = Convert.ToInt64(dr["id"]);
-                            request.RequestType = (RequestType)Convert.ToInt16(dr["request_type"]);
-                            if (request.RequestType == RequestType.NewPhoneBankingContract)
-                            {
-                                request.RequestDate = Convert.ToDateTime(dr["application_date"]);
-                            }
-                            request.RequestTypeDescription = Info.GetTypeOfRequestsForFeeCharge((short)request.RequestType);
-                            request.GlobalID = Convert.ToInt32(dr["global_ID"]);
-                            request.ServiceFee = PhoneBankingContract.GetPBServiceFee(customerNumber, Utility.GetCurrentOperDay(), (HBServiceFeeRequestTypes)request.RequestType);
+                            request.RequestDate = Convert.ToDateTime(dr["application_date"]);
                         }
+                        request.RequestTypeDescription = Info.GetTypeOfRequestsForFeeCharge((short)request.RequestType);
+                        request.GlobalID = Convert.ToInt32(dr["global_ID"]);
+                        request.ServiceFee = PhoneBankingContract.GetPBServiceFee(customerNumber, Utility.GetCurrentOperDay(), (HBServiceFeeRequestTypes)request.RequestType);
                     }
                 }
 
@@ -418,7 +408,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("pr_Phone_Banking_Contract_Activation_order", conn);
+                using SqlCommand cmd = new SqlCommand("pr_Phone_Banking_Contract_Activation_order", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;

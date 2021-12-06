@@ -19,7 +19,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = "";
-                SqlCommand cmd = new SqlCommand();
+                using SqlCommand cmd = new SqlCommand();
                 connection.Open();
 
                 sql = @"SELECT O.*,t.description as Description FROM tbl_mode_24_7_history O  

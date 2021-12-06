@@ -16,7 +16,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
+               using SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
                                                             currency,
                                                             amount,
                                                             date_of_beginning,
@@ -33,7 +33,7 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
-                DataTable dt = new DataTable();
+               using DataTable dt = new DataTable();
 
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -90,7 +90,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
+                using SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
                                                             currency,
                                                             amount,
                                                             date_of_beginning,
@@ -107,7 +107,7 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
 
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -136,7 +136,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
+                using SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
                                                             currency,
                                                             amount,
                                                             date_of_beginning,
@@ -154,7 +154,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                 cmd.Parameters.Add("@product_id", SqlDbType.Float).Value = productId;
 
-                DataTable dt = new DataTable();
+               using DataTable dt = new DataTable();
 
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {

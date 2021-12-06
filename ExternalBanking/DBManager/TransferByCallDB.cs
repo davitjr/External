@@ -669,29 +669,26 @@ namespace ExternalBanking.DBManager
         internal static List<short> CheckForChange(TransferByCallChangeOrder transferChange, ushort isCallCenter)
         {
             List<short> errors = new List<short>();
-            SqlCommand cmd = new SqlCommand();
-
+          
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 string str = "pr_check_for_transfer_by_call_change";
 
-                using (cmd = new SqlCommand(str, conn))
+                using SqlCommand cmd = new SqlCommand(str, conn);
+                conn.Open();
+                cmd.Connection = conn;
+                cmd.CommandText = str;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add("@callTransferID", SqlDbType.BigInt).Value = transferChange.ReceivedFastTransfer.TransferByCallID;
+                cmd.Parameters.Add("@return_error_codes", SqlDbType.TinyInt).Value = 1;
+                cmd.Parameters.Add("@isCallCenter", SqlDbType.TinyInt).Value = isCallCenter;
+                cmd.Parameters.Add("@documentSubType", SqlDbType.TinyInt).Value = transferChange.SubType;
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
                 {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = str;
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.Add("@callTransferID", SqlDbType.BigInt).Value = transferChange.ReceivedFastTransfer.TransferByCallID;
-                    cmd.Parameters.Add("@return_error_codes", SqlDbType.TinyInt).Value = 1;
-                    cmd.Parameters.Add("@isCallCenter", SqlDbType.TinyInt).Value = isCallCenter;
-                    cmd.Parameters.Add("@documentSubType", SqlDbType.TinyInt).Value = transferChange.SubType;
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    while (dr.Read())
-                    {
-                        errors.Add(short.Parse(dr["code"].ToString()));
-                    }
+                    errors.Add(short.Parse(dr["code"].ToString()));
                 }
 
             }

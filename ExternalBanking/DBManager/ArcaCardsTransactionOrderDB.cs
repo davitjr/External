@@ -90,7 +90,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT HB.registration_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT HB.registration_date,
                                                          HB.document_number,
                                                          HB.document_type,
                                                          HB.document_subtype,

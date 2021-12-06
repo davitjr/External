@@ -12,7 +12,7 @@ namespace ExternalBanking.DBManager
     class LoanProductActivationOrderDB
     {
 
-        internal static ActionResult Save(LoanProductActivationOrder order, string userName, SourceType source,string cardNumber = null)
+        internal static ActionResult Save(LoanProductActivationOrder order, string userName, SourceType source, string cardNumber = null)
         {
             ActionResult result = new ActionResult();
             Account account = new Account();
@@ -29,7 +29,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@product_app_id", SqlDbType.Float).Value = order.ProductId;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                    
+
                     if (order.Id != 0)
                     {
                         cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = order.Id;
@@ -59,7 +59,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@descr", SqlDbType.NVarChar).Value = cardNumber;
                     else
                         cmd.Parameters.Add("@descr", SqlDbType.NVarChar).Value = DBNull.Value;
-                    
+
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
@@ -85,7 +85,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type, description, document_subtype,quality,I.App_ID,D.operation_date                                             
+                using SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type, description, document_subtype,quality,I.App_ID,D.operation_date                                             
 		                                           FROM Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
                                                    
                                                    WHERE D.Doc_ID=@DocID and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
@@ -139,14 +139,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
+                using SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
                                                 WHERE quality in (1,2,3,5,30)  and customer_number=@customerNumber and I.App_ID=@productId
                                                 AND document_type in(73,74,141,152)", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = order.ProductId;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -162,11 +162,11 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT ISNULL(dbo.fnc_get_loan_commission_amount(@productId,@withTax,0),0) repayment_amount", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT ISNULL(dbo.fnc_get_loan_commission_amount(@productId,@withTax,0),0) repayment_amount", conn);
 
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
                 cmd.Parameters.Add("@withTax", SqlDbType.Float).Value = withTax;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -183,14 +183,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT dbo.fn_check_consume_loan_document_attachment(@loanType,@sourceType,@amountInAmd,@customerNumber,@productId) as result", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT dbo.fn_check_consume_loan_document_attachment(@loanType,@sourceType,@amountInAmd,@customerNumber,@productId) as result", conn);
 
                 cmd.Parameters.Add("@loanType", SqlDbType.Int).Value = loanType;
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
                 cmd.Parameters.Add("@sourceType", SqlDbType.Int).Value = sourceType;
                 cmd.Parameters.Add("@amountInAmd", SqlDbType.Money).Value = amount;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -212,7 +212,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     if (dr.Read())
                     {
                         DateTime lastDay = Convert.ToDateTime(dr["day_of_rate_calculation"].ToString());
@@ -318,7 +318,7 @@ namespace ExternalBanking.DBManager
                 {
                     if (productType == 1)
                     {
-                        if (loan.Fond != 22 && loan.Fond != 30)
+                        if (loan?.Fond != 22 && loan?.Fond != 30)
                         {
                             conn.Open();
                             cmd = new SqlCommand(@"SELECT loan_full_number FROM Tbl_repayments_add WHERE repayment_type = 4 AND app_id = @appId", conn);
@@ -331,7 +331,7 @@ namespace ExternalBanking.DBManager
                     }
                     if (productType == 2)
                     {
-                        if (crLine.Fond != 22)
+                        if (crLine?.Fond != 22)
                         {
                             conn.Open();
                             cmd = new SqlCommand(@"SELECT loan_full_number FROM Tbl_repayments_add WHERE repayment_type = 4 AND app_id = @appId", conn);
@@ -347,14 +347,14 @@ namespace ExternalBanking.DBManager
             }
             if (productType == 1)
             {
-                if (loan.LoanType == 7 && loan.InterestRate == 0)
+                if (loan?.LoanType == 7 && loan?.InterestRate == 0)
                 {
-                    if (((loan.StartDate.Year - loan.EndDate.Year) * 12) + loan.StartDate.Month - loan.EndDate.Month > 8)
+                    if (((loan?.StartDate.Year - loan?.EndDate.Year) * 12) + loan?.StartDate.Month - loan?.EndDate.Month > 8)
                     {
                         warnings.Add("Վարկի ժամկետը 8 ամսից ավել է");
                     }
                 }
-                if (loan.LoanType == 38)
+                if (loan?.LoanType == 38)
                 {
                     double profitAmount = 0;
                     profitAmount = GetAparikShopFee(productId);
@@ -389,9 +389,9 @@ namespace ExternalBanking.DBManager
                     sqlString = @"SELECT customer_number FROM Tbl_loan_joint_students WHERE loan_app_id=@appId GROUP BY customer_number";
                 }
 
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     customerNumbers.Add(ulong.Parse(dr["customer_number"].ToString()));
@@ -415,6 +415,7 @@ namespace ExternalBanking.DBManager
                  INNER JOIN Tbl_customers Cust ON  P.Customer_Number = Cust.Customer_Number
                  Inner join Tbl_aparik_shops On P.shop_id=Tbl_aparik_shops.shop_id
                  WHERE P.App_Id =@appId ", conn);
+
                 cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
                 SqlDataReader dr = cmd.ExecuteReader();
 
@@ -454,7 +455,9 @@ namespace ExternalBanking.DBManager
 
                 }
 
+
             }
+
             return profitAmount;
         }
 
@@ -466,10 +469,10 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT dbo.Fn_is_online_formulation_checked(@productId) as result", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT dbo.Fn_is_online_formulation_checked(@productId) as result", conn);
 
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
                     status = ushort.Parse(dr["result"].ToString()) == 1 ? false : true;
@@ -482,18 +485,16 @@ namespace ExternalBanking.DBManager
         internal static bool IsTransportExpensePaid(long productId)
         {
             bool check = false;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT customer_number FROM Tbl_repayments_add WHERE repayment_type = 4 AND app_id =@productId", conn);
+            cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+            using SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.HasRows)
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT customer_number FROM Tbl_repayments_add WHERE repayment_type = 4 AND app_id =@productId", conn);
-                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                SqlDataReader dr = cmd.ExecuteReader();
-                if (dr.HasRows)
-                {
-                    check = true;
-                }
-                return check;
+                check = true;
             }
+            return check;
         }
 
         internal static double GetLoanTotalInsuranceAmount(ulong productId)
@@ -503,7 +504,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT  ISNULL(SUM(P.start_capital),0)
+                using SqlCommand cmd = new SqlCommand(@"SELECT  ISNULL(SUM(P.start_capital),0)
                                                   FROM Tbl_paid_factoring P INNER JOIN Tbl_insurance_contracts INS ON P.main_app_id = INS.app_id
                                                   OUTER APPLY
                                                   (SELECT family_with_children FROM tbl_loan_applications_add_inf LA WHERE LA.app_id = INS.product_app_id) LAA 
@@ -527,13 +528,13 @@ namespace ExternalBanking.DBManager
                 string script = "";
                 script = @"SELECT customer_number,app_ID,quality FROM Tbl_Automatic_HB_Documents_Generation_PreOrder_Details WHERE preOrder_ID=@preOrder_Id";
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(script, conn);
+                using SqlCommand cmd = new SqlCommand(script, conn);
 
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@preOrder_Id", SqlDbType.BigInt).Value = preOrderId;
 
-                DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
                 using (SqlDataReader dr = await cmd.ExecuteReaderAsync())
                 {
                     dt.Load(dr);
@@ -573,19 +574,15 @@ namespace ExternalBanking.DBManager
 
         internal static bool SignedOutOfBankCheck(ulong AppId)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_loan_applications LA
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_loan_applications LA
                                                   INNER JOIN Tbl_Link_application_Provision AP ON AP.app_id = LA.app_id
                                                   INNER JOIN Tbl_provision_of_clients P ON P.idpro = AP.IdPro
                                                   WHERE P.signed_out_of_bank = 1 AND ISNULL(P.signing_out_set_number, 0) = 0 AND LA.app_id = @productApp_ID", conn);
-                cmd.Parameters.Add("@productApp_ID", SqlDbType.Float).Value = AppId;
-                using (SqlDataReader dr = cmd.ExecuteReader())
-                {
-                    return dr.Read();
-                }
-            }
+            cmd.Parameters.Add("@productApp_ID", SqlDbType.Float).Value = AppId;
+            using SqlDataReader dr = cmd.ExecuteReader();
+            return dr.Read();
         }
 
     }

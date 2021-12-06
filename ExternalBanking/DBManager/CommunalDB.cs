@@ -2268,7 +2268,7 @@ namespace ExternalBanking.DBManager
 
                     conn.Open();
 
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     if (dr.Read())
                     {
                         comunalPayments.Add(double.Parse(dr["paid_in_this_month"].ToString()));

@@ -2137,19 +2137,16 @@ namespace ExternalBanking.DBManager
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT 1 FROM tbl_advance_repayment_rate_for_recovery WHERE App_Id = @App_ID";
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = productId;
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT 1 FROM tbl_advance_repayment_rate_for_recovery WHERE App_Id = @App_ID";
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = productId;
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        result = true;
-                    }
-
+                    result = true;
                 }
 
             }
@@ -2165,20 +2162,18 @@ namespace ExternalBanking.DBManager
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "SELECT 1 FROM  [tbl_short_time_loans;] S INNER JOIN dbo.Tbl_HB_Products_Identity IDENT " +
-                                       "ON S.APP_ID = IDENT.App_ID INNER JOIN Tbl_HB_documents HB ON IDENT.HB_Doc_ID =HB.DOC_Id AND HB.quality = 20" +
-                                       "  WHERE S.App_Id = @App_ID";
-                    cmd.CommandType = CommandType.Text;
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT 1 FROM  [tbl_short_time_loans;] S INNER JOIN dbo.Tbl_HB_Products_Identity IDENT " +
+                                   "ON S.APP_ID = IDENT.App_ID INNER JOIN Tbl_HB_documents HB ON IDENT.HB_Doc_ID =HB.DOC_Id AND HB.quality = 20" +
+                                   "  WHERE S.App_Id = @App_ID";
+                cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = productId;
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        result = true;
-                    }
+                cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = productId;
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    result = true;
                 }
             }
 
@@ -2189,21 +2184,19 @@ namespace ExternalBanking.DBManager
             string Account_number = string.Empty;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                conn.Open();
+                cmd.CommandText = "SELECT p.Account_number from [dbo].[Tbl_Products_Accounts] p JOIN [dbo].[Tbl_Products_Accounts_Groups] b ON p.group_id = b.group_id " +
+                    "WHERE App_Id = @app_id AND Type_of_account = 224";
+                cmd.Connection = conn;
+
+                cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = appId;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    conn.Open();
-                    cmd.CommandText = "SELECT p.Account_number from [dbo].[Tbl_Products_Accounts] p JOIN [dbo].[Tbl_Products_Accounts_Groups] b ON p.group_id = b.group_id " +
-                        "WHERE App_Id = @app_id AND Type_of_account = 224";
-                    cmd.Connection = conn;
-
-                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = appId;
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        Account_number = dr["Account_number"].ToString();
-                    }
+                    Account_number = dr["Account_number"].ToString();
                 }
             }
             return Account_number;
@@ -2240,23 +2233,21 @@ namespace ExternalBanking.DBManager
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "select * from tbl_loan_repayments_delays WHERE App_Id = @App_ID";
-                    cmd.CommandType = CommandType.Text;
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "select * from tbl_loan_repayments_delays WHERE App_Id = @App_ID";
+                cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = productId;
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        delayDetails.Id = ulong.Parse(dr["Id"].ToString());
-                        delayDetails.ProductAppId = long.Parse(dr["app_id"].ToString());
-                        delayDetails.DelayReason = dr["delay_reason"].ToString();
-                        delayDetails.DelayDate = DateTime.Parse(dr["delay_date"].ToString());
-                        delayDetails.RegistrationDate = DateTime.Parse(dr["registration_date"].ToString());
-                        delayDetails.SetNumber = int.Parse(dr["registration_set_number"].ToString());
-                    }
+                cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = productId;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    delayDetails.Id = ulong.Parse(dr["Id"].ToString());
+                    delayDetails.ProductAppId = long.Parse(dr["app_id"].ToString());
+                    delayDetails.DelayReason = dr["delay_reason"].ToString();
+                    delayDetails.DelayDate = DateTime.Parse(dr["delay_date"].ToString());
+                    delayDetails.RegistrationDate = DateTime.Parse(dr["registration_date"].ToString());
+                    delayDetails.SetNumber = int.Parse(dr["registration_set_number"].ToString());
                 }
 
             }
@@ -2372,24 +2363,22 @@ FROM [Tbl_Paid_factoring]  WHERE (Loan_type = 38
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "select TOP 1 AppId , StartDate , EndDate , dbo.fnc_convertAnsiToUnicode(ChangeDescription) ChangeDescription, SetNumber " +
+                                  " from Tbl_Loan_Repayment_From_Card_Data_Change WHERE AppId = @App_ID ORDER BY Id DESC";
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = appId;
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "select TOP 1 AppId , StartDate , EndDate , dbo.fnc_convertAnsiToUnicode(ChangeDescription) ChangeDescription, SetNumber " +
-                                      " from Tbl_Loan_Repayment_From_Card_Data_Change WHERE AppId = @App_ID ORDER BY Id DESC";
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@App_ID", SqlDbType.BigInt).Value = appId;
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        loanRepaymentFromCardDataChange.AppId = ulong.Parse(dr["appid"].ToString());
-                        loanRepaymentFromCardDataChange.EndDate = !string.IsNullOrEmpty(dr["EndDate"].ToString()) ? Convert.ToDateTime(dr["EndDate"].ToString()) : (DateTime?)null;
-                        loanRepaymentFromCardDataChange.StartDate = Convert.ToDateTime(dr["StartDate"].ToString());
-                        loanRepaymentFromCardDataChange.SetNumber = Convert.ToInt32(dr["SetNumber"].ToString());
-                        loanRepaymentFromCardDataChange.Description = dr["ChangeDescription"].ToString();
-                    }
+                    loanRepaymentFromCardDataChange.AppId = ulong.Parse(dr["appid"].ToString());
+                    loanRepaymentFromCardDataChange.EndDate = !string.IsNullOrEmpty(dr["EndDate"].ToString()) ? Convert.ToDateTime(dr["EndDate"].ToString()) : (DateTime?)null;
+                    loanRepaymentFromCardDataChange.StartDate = Convert.ToDateTime(dr["StartDate"].ToString());
+                    loanRepaymentFromCardDataChange.SetNumber = Convert.ToInt32(dr["SetNumber"].ToString());
+                    loanRepaymentFromCardDataChange.Description = dr["ChangeDescription"].ToString();
                 }
             }
             return loanRepaymentFromCardDataChange;
@@ -2401,29 +2390,27 @@ FROM [Tbl_Paid_factoring]  WHERE (Loan_type = 38
             {
 
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "pr_Loan_Repayment_From_Card_Data_Change ";
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add("@AppId", SqlDbType.BigInt).Value = loanRepaymentFromCardDataChange.AppId;
+                cmd.Parameters.Add("@StartDate", SqlDbType.SmallDateTime).Value = loanRepaymentFromCardDataChange.StartDate;
+                cmd.Parameters.Add("@EndDate", SqlDbType.SmallDateTime).Value = loanRepaymentFromCardDataChange.EndDate;
+                cmd.Parameters.Add("@ChangeDescription", SqlDbType.NVarChar).Value = loanRepaymentFromCardDataChange.Description;
+                cmd.Parameters.Add("@SetNumber", SqlDbType.Int).Value = loanRepaymentFromCardDataChange.SetNumber;
+                cmd.Parameters.Add("@ChangeAction", SqlDbType.SmallInt).Value = loanRepaymentFromCardDataChange.Action;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
                 {
-                    cmd.Connection = conn;
-                    cmd.CommandText = "pr_Loan_Repayment_From_Card_Data_Change ";
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.Add("@AppId", SqlDbType.BigInt).Value = loanRepaymentFromCardDataChange.AppId;
-                    cmd.Parameters.Add("@StartDate", SqlDbType.SmallDateTime).Value = loanRepaymentFromCardDataChange.StartDate;
-                    cmd.Parameters.Add("@EndDate", SqlDbType.SmallDateTime).Value = loanRepaymentFromCardDataChange.EndDate;
-                    cmd.Parameters.Add("@ChangeDescription", SqlDbType.NVarChar).Value = loanRepaymentFromCardDataChange.Description;
-                    cmd.Parameters.Add("@SetNumber", SqlDbType.Int).Value = loanRepaymentFromCardDataChange.SetNumber;
-                    cmd.Parameters.Add("@ChangeAction", SqlDbType.SmallInt).Value = loanRepaymentFromCardDataChange.Action;
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-                    if (dr.Read())
-                    {
-                        loanRepaymentFromCardDataChange.AppId = ulong.Parse(dr["appid"].ToString());
-                        loanRepaymentFromCardDataChange.EndDate = !string.IsNullOrEmpty(dr["EndDate"].ToString()) ? Convert.ToDateTime(dr["EndDate"].ToString()) : (DateTime?)null;
-                        loanRepaymentFromCardDataChange.StartDate = Convert.ToDateTime(dr["StartDate"].ToString());
-                        loanRepaymentFromCardDataChange.SetNumber = Convert.ToInt32(dr["SetNumber"].ToString());
-                        loanRepaymentFromCardDataChange.Description = dr["ChangeDescription"].ToString();
-                    }
+                    loanRepaymentFromCardDataChange.AppId = ulong.Parse(dr["appid"].ToString());
+                    loanRepaymentFromCardDataChange.EndDate = !string.IsNullOrEmpty(dr["EndDate"].ToString()) ? Convert.ToDateTime(dr["EndDate"].ToString()) : (DateTime?)null;
+                    loanRepaymentFromCardDataChange.StartDate = Convert.ToDateTime(dr["StartDate"].ToString());
+                    loanRepaymentFromCardDataChange.SetNumber = Convert.ToInt32(dr["SetNumber"].ToString());
+                    loanRepaymentFromCardDataChange.Description = dr["ChangeDescription"].ToString();
                 }
             }
             return loanRepaymentFromCardDataChange;

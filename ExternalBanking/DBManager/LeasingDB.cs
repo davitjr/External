@@ -54,7 +54,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@passport", SqlDbType.VarChar).Value = Utility.ConvertUnicodeToAnsi(searchParams.PassportNumber);
                     }
                     conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     while (dr.Read())
                     {
                         SearchLeasingCustomer oneResult = new SearchLeasingCustomer();
@@ -154,31 +154,28 @@ namespace ExternalBanking.DBManager
             List<LeasingInsuranceDetails> insuranceInfo = new List<LeasingInsuranceDetails>();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand(@"Select f.id,fo.oper_description,f.sum_amd,f.pay_date 
+                using SqlCommand cmd = new SqlCommand(@"Select f.id,fo.oper_description,f.sum_amd,f.pay_date 
                                                                                             From Tbl_for_1704 f
                                                                                             Inner Join Tbl_type_of_operations_1704 fo on f.operation_type = fo.oper_type
-                                                                                            where f.date_of_repay is null and f.operation_type in (5, 6, 7, 12, 16, 17, 19, 20, 21, 23, 24, 28) and f.loan_full_number = @loan_full_number and f.date_of_beginning = @date_of_beginning group by f.id,fo.oper_description,f.sum_amd,f.pay_date", conn))
+                                                                                            where f.date_of_repay is null and f.operation_type in (5, 6, 7, 12, 16, 17, 19, 20, 21, 23, 24, 28) and f.loan_full_number = @loan_full_number and f.date_of_beginning = @date_of_beginning group by f.id,fo.oper_description,f.sum_amd,f.pay_date", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@loan_full_number", SqlDbType.BigInt).Value = loanFullNumber;
+                cmd.Parameters.Add("@date_of_beginning", SqlDbType.DateTime).Value = dateOfBeginning;
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@loan_full_number", SqlDbType.BigInt).Value = loanFullNumber;
-                    cmd.Parameters.Add("@date_of_beginning", SqlDbType.DateTime).Value = dateOfBeginning;
-                    conn.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.HasRows)
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            LeasingInsuranceDetails insuranceInfoObj = new LeasingInsuranceDetails();
+                        LeasingInsuranceDetails insuranceInfoObj = new LeasingInsuranceDetails();
 
-                            insuranceInfoObj.Id = Convert.ToInt32(reader["id"]);
-                            insuranceInfoObj.OperDescription = Convert.ToString(reader["oper_description"]);
-                            insuranceInfoObj.SumAmd = Convert.ToDouble(reader["sum_amd"]);
-                            insuranceInfoObj.PayDate = Convert.ToDateTime(reader["pay_date"]);
-                            insuranceInfo.Add(insuranceInfoObj);
-                        }
+                        insuranceInfoObj.Id = Convert.ToInt32(reader["id"]);
+                        insuranceInfoObj.OperDescription = Convert.ToString(reader["oper_description"]);
+                        insuranceInfoObj.SumAmd = Convert.ToDouble(reader["sum_amd"]);
+                        insuranceInfoObj.PayDate = Convert.ToDateTime(reader["pay_date"]);
+                        insuranceInfo.Add(insuranceInfoObj);
                     }
-
                 }
             }
             return insuranceInfo;
@@ -226,7 +223,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@passport", SqlDbType.VarChar).Value = Utility.ConvertUnicodeToAnsi(searchParams.PassportNumber);
                     }
                     conn.Open();
-                    SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
                     while (dr.Read())
                     {
                         LeasingLoan oneResult = new LeasingLoan();

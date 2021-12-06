@@ -93,7 +93,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT Doc_Id FROM tbl_hb_documents WHERE doc_id = @doc_id AND document_type  in (3,64) AND document_subtype = 1 AND customer_number = @customernumber AND quality = 30 AND DATEDIFF(day, registration_date, getdate()) < = 183", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT Doc_Id FROM tbl_hb_documents WHERE doc_id = @doc_id AND document_type  in (3,64) AND document_subtype = 1 AND customer_number = @customernumber AND quality = 30 AND DATEDIFF(day, registration_date, getdate()) < = 183", conn);
                 cmd.Parameters.Add("@doc_id", SqlDbType.Float).Value = Id;
                 cmd.Parameters.Add("@customernumber", SqlDbType.Float).Value = customerNumber;
                 if (cmd.ExecuteReader().Read())
@@ -110,11 +110,11 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static SwiftCopyOrder Get(SwiftCopyOrder order)
         {
-            DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"select d.registration_date,
+                using SqlCommand cmd = new SqlCommand(@"select d.registration_date,
                                                          d.document_number,
                                                          d.document_type,
                                                          d.deb_for_transfer_payment,
@@ -194,9 +194,9 @@ namespace ExternalBanking.DBManager
 
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@Id", SqlDbType.Int).Value = docID;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
                     attachment = (byte[])dr["attachment"];

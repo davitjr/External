@@ -69,7 +69,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type,document_subtype,quality,D.operation_date,C.*                                             
+                using SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type,document_subtype,quality,D.operation_date,C.*                                             
 		                                           FROM Tbl_HB_documents D INNER JOIN tbl_new_transfer_call_contract_documents  C ON D.doc_ID=C.Doc_ID
                                                    WHERE D.Doc_ID=@DocID and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
 
@@ -101,14 +101,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select  C.doc_id from Tbl_HB_documents D INNER JOIN tbl_new_transfer_call_contract_documents C ON D.doc_ID=C.Doc_ID
+                using SqlCommand cmd = new SqlCommand(@"Select  C.doc_id from Tbl_HB_documents D INNER JOIN tbl_new_transfer_call_contract_documents C ON D.doc_ID=C.Doc_ID
                                                 WHERE quality in (1,2,3,5) and document_type=96 and document_subtype=1 and
                                                 customer_number=@customerNumber and C.account_number=@accountNumber", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.TransferCallContractDetails.Account.AccountNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+               using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -179,7 +179,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type,document_subtype,quality,D.operation_date,C.*                                             
+                using SqlCommand cmd = new SqlCommand(@" SELECT registration_date,document_number,customer_number,document_type,document_subtype,quality,D.operation_date,C.*                                             
 		                                           FROM Tbl_HB_documents D INNER JOIN tbl_new_transfer_call_contract_documents  C ON D.doc_ID=C.Doc_ID
                                                    WHERE D.Doc_ID=@DocID and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
 
@@ -211,14 +211,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"Select C.doc_id from Tbl_HB_documents D INNER JOIN tbl_new_transfer_call_contract_documents C ON D.doc_ID=C.Doc_ID
+                using SqlCommand cmd = new SqlCommand(@"Select C.doc_id from Tbl_HB_documents D INNER JOIN tbl_new_transfer_call_contract_documents C ON D.doc_ID=C.Doc_ID
                                                 WHERE quality in (1,2,3,5) and document_type=97 and document_subtype=1 and
                                                 customer_number=@customerNumber and C.account_number=@accountNumber", conn);
 
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.TransferCallContractDetails.Account.AccountNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -235,10 +235,10 @@ namespace ExternalBanking.DBManager
             using(SqlConnection conn=new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT account_number FROM Tbl_contracts_for_transfers_by_call WHERE account_number =@accountNumber and quality = 0 and deleted = 0 and isnull(card_number, '') = ''", conn);
+               using SqlCommand cmd = new SqlCommand(@"SELECT account_number FROM Tbl_contracts_for_transfers_by_call WHERE account_number =@accountNumber and quality = 0 and deleted = 0 and isnull(card_number, '') = ''", conn);
                 cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.TransferCallContractDetails.Account.AccountNumber;
 
-                SqlDataReader dr = cmd.ExecuteReader();
+              using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -255,10 +255,10 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand(@"SELECT contract_number FROM Tbl_contracts_for_transfers_by_call WHERE contract_number =@contractNumber and quality = 0 and deleted = 0 and isnull(card_number, '') = '' and filialcode=@operationFilialCode", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT contract_number FROM Tbl_contracts_for_transfers_by_call WHERE contract_number =@contractNumber and quality = 0 and deleted = 0 and isnull(card_number, '') = '' and filialcode=@operationFilialCode", conn);
                 cmd.Parameters.Add("@contractNumber", SqlDbType.Float).Value = order.TransferCallContractDetails.ContractNumber;
                 cmd.Parameters.Add("@operationFilialCode", SqlDbType.Float).Value = order.FilialCode;
-                SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

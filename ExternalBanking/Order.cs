@@ -811,19 +811,19 @@ namespace ExternalBanking
         /// <param name="source">Տվյալների աղբյուր(HB, Հայկական Ծրագրեր, Մոբայլ Բանկ)</param>
         /// <param name="user">Օգտագործող</param>
         /// <returns></returns>
-        internal ulong Save(Order order, SourceType source, ACBAServiceReference.User user)
-        {
-            ulong result = 0;
+        //internal ulong Save(Order order, SourceType source, ACBAServiceReference.User user)
+        //{
+        //    ulong result = 0;
 
-            result = OrderDB.Save(order, user.userID, source);
+        //    result = OrderDB.Save(order, user.userID, source);
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        internal static ActionResult SaveLinkHBDocumentOrder(long documentId, ulong orderId)
-        {
-            return OrderDB.SaveLinkHBDocumentOrder(documentId, orderId);
-        }
+        //internal static ActionResult SaveLinkHBDocumentOrder(long documentId, ulong orderId)
+        //{
+        //    return OrderDB.SaveLinkHBDocumentOrder(documentId, orderId);
+        //}
 
         /// <summary>
         /// Ստեղծել հերթական հայտի համար

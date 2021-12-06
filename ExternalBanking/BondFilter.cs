@@ -46,6 +46,11 @@ namespace ExternalBanking
         /// </summary>
         public DateTime EndDate { get; set; }
 
+        /// <summary>
+        /// Արժեթղթի տեսակ
+        /// </summary>
+        public SharesTypes ShareType { get; set; }
+
         #endregion
 
     }

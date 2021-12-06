@@ -750,21 +750,19 @@ namespace ExternalBanking.DBManager
         {
             using(SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
-                using(SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"select violation_id 
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = @"select violation_id 
                                         from[dbo].[Tbl_Police_Response_Details]
                                         where ID = @policeResponseId";
-                    cmd.Parameters.Add("@policeResponseId", SqlDbType.Int).Value = policeResponseId;
-                    conn.Open();
+                cmd.Parameters.Add("@policeResponseId", SqlDbType.Int).Value = policeResponseId;
+                conn.Open();
 
-                    SqlDataReader rd = cmd.ExecuteReader();
+                using SqlDataReader rd = cmd.ExecuteReader();
 
-                    if (rd.Read())
-                    {
-                        return rd["violation_id"].ToString();
-                    }
+                if (rd.Read())
+                {
+                    return rd["violation_id"].ToString();
                 }
             }
             return null;

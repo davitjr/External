@@ -72,7 +72,7 @@ namespace ExternalBanking.DBManager
                 phoneBankingContract.StatusDescription = Utility.ConvertAnsiToUnicode(row["quality_description"].ToString());
                 phoneBankingContract.SetID = Convert.ToInt32(row["set_id"].ToString());
 
-                phoneBankingContract.SetName = Utility.ConvertAnsiToUnicode((phoneBankingContract != null ? Utility.GetUserFullName(phoneBankingContract.SetID) : Utility.GetUserFullName(phoneBankingContract.SetID)));
+                phoneBankingContract.SetName = Utility.ConvertAnsiToUnicode(Utility.GetUserFullName(phoneBankingContract.SetID));
 
                 phoneBankingContract.StatusChangeSetID = row["status_change_set_id"] != DBNull.Value ? Convert.ToInt32(row["status_change_set_id"].ToString()) : default(int);
                 phoneBankingContract.ContractDate = row["contract_date"] != DBNull.Value ? Convert.ToDateTime(row["contract_date"]) : default(DateTime?);                 
