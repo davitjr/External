@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.ACBAServiceReference;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.DBManager
 {
@@ -14,7 +10,7 @@ namespace ExternalBanking.DBManager
     {
         public static decimal CashLimit(User user, string currency)
         {
-            decimal result=0;
+            decimal result = 0;
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -56,7 +52,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = "Select dbo.Fnc_Return_cashier_cash_sum(@setNumber,@currency,dbo.get_oper_day()) ";
                     cmd.Parameters.Add("@setNumber", SqlDbType.SmallInt).Value = user.userID;
                     cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = currency;
-                    result = Convert.ToDecimal( cmd.ExecuteScalar());
+                    result = Convert.ToDecimal(cmd.ExecuteScalar());
                 }
             }
             return result;

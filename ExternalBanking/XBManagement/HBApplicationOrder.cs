@@ -1,19 +1,12 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
+using ExternalBanking.DocFlowManagement;
+using ExternalBanking.TokenOperationsCasServiceReference;
+using ExternalBanking.XBManagement.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.Interfaces;
-using ExternalBanking.XBManagement;
-using ExternalBanking.DocFlowManagement;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.XBManagement.Interfaces;
-using ExternalBanking.TokenOperationsCasServiceReference;
-using System.Configuration;
-using ExternalBanking.Helpers;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking.XBManagement
 {
@@ -40,7 +33,7 @@ namespace ExternalBanking.XBManagement
 
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
-          
+
             short customerType = Customer.GetCustomerType(this.CustomerNumber);
 
 

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Text.RegularExpressions;
 
 namespace ExternalBanking.DBManager
 {
@@ -37,7 +35,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = periodicDataChangeOrder.Source;
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = periodicDataChangeOrder.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = periodicDataChangeOrder.OperationDate;
-                    if(periodicDataChangeOrder.ChargeType == 0 )
+                    if (periodicDataChangeOrder.ChargeType == 0)
                     {
                         cmd.Parameters.Add("@total_rest", SqlDbType.Bit).Value = 0;
                         cmd.Parameters.Add("@amount", SqlDbType.Float).Value = periodicDataChangeOrder.Amount;
@@ -67,11 +65,11 @@ namespace ExternalBanking.DBManager
 
                     cmd.ExecuteNonQuery();
 
-                    
+
                     result.ResultCode = ResultCode.Normal;
                     periodicDataChangeOrder.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                     result.Id = periodicDataChangeOrder.Id;
-                   
+
                     return result;
                 }
             }
@@ -83,12 +81,12 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static PeriodicTransferDataChangeOrder GetPeriodicDataChangeOrder(PeriodicTransferDataChangeOrder order)
         {
-           // order = new PeriodicTransferDataChangeOrder();
+            // order = new PeriodicTransferDataChangeOrder();
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                         d.document_type,
                                                         o.first_repayment_date,
                                                         d.registration_date,

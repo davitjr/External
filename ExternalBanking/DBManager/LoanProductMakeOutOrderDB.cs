@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using ExternalBanking.ACBAServiceReference;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
@@ -46,7 +44,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.SmallInt).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     cmd.Parameters.Add("@product_type", SqlDbType.Int).Value = order.ProductType;
-                    
+
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
@@ -93,7 +91,7 @@ namespace ExternalBanking.DBManager
                 }
 
             }
-            
+
             return loanProductMakeOutOrders;
         }
         /// <summary>
@@ -121,7 +119,7 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static bool IsExistsNotConfirmedOrder(LoanProductMakeOutOrder order)
         {
- 
+
             bool check = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {

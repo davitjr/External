@@ -1,7 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -30,7 +29,7 @@ namespace ExternalBanking
 
         public Assignee()
         {
-            OperationList = new List<AssigneeOperation>();               
+            OperationList = new List<AssigneeOperation>();
         }
 
         public void Save(long id, Action actionType = Action.Add)

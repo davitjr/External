@@ -1,11 +1,7 @@
 ﻿using ExternalBanking.DBManager;
 using ExternalBanking.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -103,7 +99,7 @@ namespace ExternalBanking
         public ActionResult ValidateForSend()
         {
             ActionResult result = new ActionResult();
-           
+
             result.ResultCode = result.Errors.Count > 0 ? ResultCode.ValidationError : ResultCode.Normal;
 
             return result;

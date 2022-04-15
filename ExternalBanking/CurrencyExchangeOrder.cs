@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
 using ExternalBanking.SberTransfers.Order;
 using ExternalBanking.UtilityPaymentsManagment;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -376,7 +374,7 @@ namespace ExternalBanking
 
                 if (this.RoundingDirection == ExchangeRoundingDirectionType.ToCurrency)
                 {
-                    if (this.Source == SourceType.SSTerminal || this.Source == SourceType.CashInTerminal) 
+                    if (this.Source == SourceType.SSTerminal || this.Source == SourceType.CashInTerminal)
                     {
                         if (Math.Abs(Utility.RoundAmount((double)((decimal)this.Amount * (decimal)this.ConvertationRate), "AMD") - this.AmountInAmd) >= 10)
                         {
@@ -498,7 +496,7 @@ namespace ExternalBanking
                         rate = Utility.GetLastExchangeRate(this.DebitAccount.Currency, RateType.Cross, ExchangeDirection.Buy, user.filialCode);
                     }
 
-                    if (rate != this.ConvertationRate && isCallTransferPayment == false && Source != SourceType.SSTerminal && Source != SourceType.CashInTerminal)
+                    if (rate != this.ConvertationRate && !isCallTransferPayment && Source != SourceType.SSTerminal && Source != SourceType.CashInTerminal)
                     {
                         //Տեղի է ունեցել փոխարժեքների փոփոխություն:Խնդրում ենք նորից մուտքագրել գործարքը:
                         result.Errors.Add(new ActionError(1095));
@@ -521,7 +519,6 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                Action action = this.Id == 0 ? Action.Add : Action.Update;
 
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
@@ -602,6 +599,14 @@ namespace ExternalBanking
                 {
                     result = PaymentOrderDB.Save(this, userName, source);
 
+                }
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
                 }
 
                 CurrencyExchangeOrderDB.Save(this, userName, Source);
@@ -752,7 +757,7 @@ namespace ExternalBanking
                 if (IsVariation != ExchangeRateVariationType.None || this.SendDillingConfirm)
                 {
                     this.UniqueNumber = Utility.GetLastKeyNumber(4, FilialCode);
-                } 
+                }
             }
 
 
@@ -1057,7 +1062,7 @@ namespace ExternalBanking
                 else
                 {
                     AmountConvertation = Math.Round((Amount * Rate) * 100) / 100;
-                    AmountInAmd = Math.Round((double)(Amount * Rate), 1, MidpointRounding.AwayFromZero);
+                    AmountInAmd = Math.Round((Amount * Rate), 1, MidpointRounding.AwayFromZero);
                 }
             }
         }

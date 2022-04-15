@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using ExternalBanking;
 using System.ServiceModel;
-using System.Text;
-using ExternalBanking;
-using ExternalBanking.ArcaDataServiceReference;
 
 namespace ExternalBankingService.Interfaces
 {
@@ -61,7 +55,7 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         int GetLastKeyNumber(int keyID);
-        
+
         [OperationContract]
         string GetCreditAccountNumberFromLoanFullNumber(string loanFullNumber);
 

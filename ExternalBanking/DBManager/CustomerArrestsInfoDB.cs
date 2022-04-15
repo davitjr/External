@@ -1,15 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
-using System.Data;
 using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Web.Script.Serialization;
-using Newtonsoft.Json;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.DBManager
 {
@@ -354,9 +349,9 @@ namespace ExternalBanking.DBManager
                     }
                     _con.Close();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    string error = ex.Message;
+
                 }
             }
             json = new JavaScriptSerializer().Serialize(customerArrests);

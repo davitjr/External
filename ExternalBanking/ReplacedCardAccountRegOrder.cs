@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {

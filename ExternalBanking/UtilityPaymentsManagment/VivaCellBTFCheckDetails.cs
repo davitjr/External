@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ServiceClient;
-using ExternalBanking.UtilityPaymentsServiceReference; 
+﻿using ExternalBanking.ServiceClient;
+using ExternalBanking.UtilityPaymentsServiceReference;
+using System;
 
 
 
@@ -32,24 +28,24 @@ namespace ExternalBanking.UtilityPaymentsManagment
         #endregion
 
 
-        public VivaCellBTFCheckDetails CheckTransferPossibility (string TransferNote, double amount)
+        public VivaCellBTFCheckDetails CheckTransferPossibility(string TransferNote, double amount)
         {
             VivaCellPaymentBTFCheckRequestResponse vivaCellPaymentBTFCheckRequestResponse = new VivaCellPaymentBTFCheckRequestResponse();
 
             try
             {
-                    vivaCellPaymentBTFCheckRequestResponse = UtilityOperationService.VivaCellBTFCheck(TransferNote, amount);
+                vivaCellPaymentBTFCheckRequestResponse = UtilityOperationService.VivaCellBTFCheck(TransferNote, amount);
 
-                    if ((ResultCode)vivaCellPaymentBTFCheckRequestResponse.ActionResult.ResultCode == ResultCode.Normal)
-                    {
-                        this.PaymentTransactionID = vivaCellPaymentBTFCheckRequestResponse.VivaCellPaymentBTFCheckOutput.PaymentTransactionID;
-                        this.PaymentTransactionDateTime = vivaCellPaymentBTFCheckRequestResponse.VivaCellPaymentBTFCheckOutput.PaymentTransactionDateTime;
-                        this.PaymentTransactionDateTimeFormated = vivaCellPaymentBTFCheckRequestResponse.VivaCellPaymentBTFCheckOutput.PaymentTransactionDateTimeFormated;
-                    }
-                    else
-                    {
-                        this.PaymentTransactionID = null;
-                    }
+                if ((ResultCode)vivaCellPaymentBTFCheckRequestResponse.ActionResult.ResultCode == ResultCode.Normal)
+                {
+                    this.PaymentTransactionID = vivaCellPaymentBTFCheckRequestResponse.VivaCellPaymentBTFCheckOutput.PaymentTransactionID;
+                    this.PaymentTransactionDateTime = vivaCellPaymentBTFCheckRequestResponse.VivaCellPaymentBTFCheckOutput.PaymentTransactionDateTime;
+                    this.PaymentTransactionDateTimeFormated = vivaCellPaymentBTFCheckRequestResponse.VivaCellPaymentBTFCheckOutput.PaymentTransactionDateTimeFormated;
+                }
+                else
+                {
+                    this.PaymentTransactionID = null;
+                }
             }
             catch (Exception ex)
             {

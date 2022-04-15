@@ -2,7 +2,7 @@
 
 namespace ExternalBankingRESTService
 {
-	public class CardStatementRequestResponse
+    public class CardStatementRequestResponse
     {
         public CardStatement CardStatement { get; set; }
         public Result Result { get; set; }

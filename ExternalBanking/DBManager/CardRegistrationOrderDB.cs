@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -19,7 +17,6 @@ namespace ExternalBanking.DBManager
         internal static ActionResult Save(CardRegistrationOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            Account account = new Account();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -87,7 +84,7 @@ namespace ExternalBanking.DBManager
                 using (SqlCommand cmd = new SqlCommand(
                     @" SELECT D.app_id,D.card_account,D.overdraft_account,D.add_inf,H.customer_number,H.document_number,
                                                   H.currency,H.document_type,H.quality,H.operation_date,H.registration_date
-                                                  FROM Tbl_HB_documents H INNER JOIN tbl_card_registration_order_details D ON H.doc_ID = D.doc_ID  WHERE H.doc_ID = @DocID",conn))
+                                                  FROM Tbl_HB_documents H INNER JOIN tbl_card_registration_order_details D ON H.doc_ID = D.doc_ID  WHERE H.doc_ID = @DocID", conn))
                 {
                     cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                     dt.Load(cmd.ExecuteReader());
@@ -109,7 +106,7 @@ namespace ExternalBanking.DBManager
                     order.OverdraftAccount = Account.GetAccount(accountNumber, order.CustomerNumber);
                 }
 
-                    
+
 
             }
             return order;
@@ -121,14 +118,14 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                string str  = "";
+                string str = "";
 
-                if (accountType ==1) 
+                if (accountType == 1)
                     if (mainCardNumber == "")
                         str = @"SELECT 1 FROM tbl_visa_numbers_accounts WHERE card_account = @accountNumber AND closing_date IS NULL ";
                     else
                         str = @"SELECT 1 FROM tbl_visa_numbers_accounts WHERE card_account = @accountNumber AND closing_date IS NULL AND main_card_number <>  @mainCardNumber";
-                else if (accountType ==2)
+                else if (accountType == 2)
                     if (mainCardNumber == "")
                         str = @"SELECT 1 FROM tbl_visa_numbers_accounts WHERE overdraft_account = @accountNumber AND closing_date IS NULL ";
                     else

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -113,7 +110,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public void Get()
         {
-            var depositOrder =  DepositDB.GetDepositOrder(this);
+            var depositOrder = DepositDB.GetDepositOrder(this);
 
 
             if (depositOrder.DepositType == DepositType.BusinesDeposit)
@@ -201,16 +198,8 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(239, new string[] { this.DebitAccount.AccountNumber.ToString() }));
             }
 
-           
 
-            if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
-            {
-                if (InfoDB.CommunicationTypeExistence(this.CustomerNumber) == 1 && this.Deposit.StatementDeliveryType != null)
-                {
-                    //Դիմումը հնարավոր չէ ուղարկել, քանի որ հաղորդակցման եղանակը սխալ է ընտրված։ Անհրաժեշտ է մուտքագրել նոր դիմում։
-                    result.Errors.Add(new ActionError(1732));
-                }
-            }
+
 
 
             if (result.Errors.Count > 0)
@@ -353,7 +342,7 @@ namespace ExternalBanking
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
-            if(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
                 this.Currency = this.Deposit.Currency;
             }
@@ -447,7 +436,7 @@ namespace ExternalBanking
                 result = base.Confirm(user);
             }
             result = base.Confirm(user);
-            
+
 
 
             return result;
@@ -492,8 +481,8 @@ namespace ExternalBanking
 
         private Dictionary<int, double> GetRateForBusinessDeposits()
         {
-            DataTable dt = DepositDB.GetRateForBusinessDeposits(Deposit.Currency, Deposit.StartDate, Deposit.EndDate,CustomerNumber);
-            
+            DataTable dt = DepositDB.GetRateForBusinessDeposits(Deposit.Currency, Deposit.StartDate, Deposit.EndDate, CustomerNumber);
+
             Dictionary<int, double> dictionary = new Dictionary<int, double>
             {
                 { 1, Convert.ToDouble(dt.Rows[0]["Type1"].ToString()) },
@@ -509,7 +498,7 @@ namespace ExternalBanking
 
         }
 
-        
+
 
     }
 

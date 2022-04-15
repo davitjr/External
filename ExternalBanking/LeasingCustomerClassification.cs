@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -59,7 +56,7 @@ namespace ExternalBanking
         public string RegistrationDateString
         {
             get { return registrationDateString = RegistrationDate == DateTime.MinValue ? "" : RegistrationDate.ToString("dd/MM/yyyy"); }
-            set { registrationDateString = value; }
+            set { }
         }
 
 
@@ -72,7 +69,7 @@ namespace ExternalBanking
         public string ClosingDateString
         {
             get { return closingDateString = ClosingDate == DateTime.MinValue ? "" : ClosingDate.ToString("dd/MM/yyyy"); }
-            set { closingDateString = value; }
+            set { }
         }
 
         private string fileName;
@@ -109,7 +106,7 @@ namespace ExternalBanking
         public string ClassificationDateString
         {
             get { return classificationDateString = ClassificationDate == DateTime.MinValue ? "" : ClassificationDate.ToString("dd/MM/yyyy"); }
-            set { ClassificationDateString = value; }
+            set { }
         }
 
 
@@ -190,7 +187,7 @@ namespace ExternalBanking
         public string ReportDateString
         {
             get { return reportDateString = ReportDate == DateTime.MinValue ? "" : ReportDate.ToString("dd/MM/yyyy"); }
-            set { reportDateString = value; }
+            set { }
         }
 
         /// <summary>
@@ -202,7 +199,7 @@ namespace ExternalBanking
         public string ClosingReportDateString
         {
             get { return closingReportDateString = ClosingReportDate == DateTime.MinValue ? "" : ClosingReportDate.ToString("dd/MM/yyyy"); }
-            set { closingReportDateString = value; }
+            set { }
         }
 
 

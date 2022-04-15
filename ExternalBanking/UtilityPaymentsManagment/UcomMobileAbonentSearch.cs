@@ -1,10 +1,6 @@
 ﻿using ExternalBanking.ServiceClient;
 using ExternalBanking.UtilityPaymentsServiceReference;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.UtilityPaymentsManagment
 {
@@ -29,11 +25,11 @@ namespace ExternalBanking.UtilityPaymentsManagment
             var ucomAccountData = new UcomMobileSearchAccountData();
             try
             {
-                    ucomAccountData = UtilityOperationService.UcomMobileAccountData(PhoneNumber);
-                    ucomAbonentSearch.Balance = ucomAccountData.Balance;
-                    ucomAbonentSearch.PhoneNumber = ucomAccountData.PhoneNumber;
-                    ucomAbonentSearch.AbonentName = ucomAccountData.AbonentName;
-                    ucomAbonentSearch.Prepaid = ucomAccountData.Prepaid;
+                ucomAccountData = UtilityOperationService.UcomMobileAccountData(PhoneNumber);
+                ucomAbonentSearch.Balance = ucomAccountData.Balance;
+                ucomAbonentSearch.PhoneNumber = ucomAccountData.PhoneNumber;
+                ucomAbonentSearch.AbonentName = ucomAccountData.AbonentName;
+                ucomAbonentSearch.Prepaid = ucomAccountData.Prepaid;
             }
             catch (Exception ex)
             {

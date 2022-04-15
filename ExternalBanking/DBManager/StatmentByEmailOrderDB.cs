@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
     public class StatmentByEmailOrderDB
-    {  
+    {
         /// <summary>
         /// Քաղվածքների էլեկտրոնային ստացման հայտի պահպանում
         /// </summary>
@@ -92,7 +92,7 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static StatmentByEmailOrder Get(StatmentByEmailOrder order)
         {
-           using DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             order.Accounts = new List<Account>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -117,7 +117,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 dt.Load(cmd.ExecuteReader());
-                if (dt.Rows.Count>0)
+                if (dt.Rows.Count > 0)
                 {
                     order.Type = (OrderType)dt.Rows[0]["document_type"];
                     order.MainEmail = dt.Rows[0]["MainEmail"].ToString();

@@ -2,14 +2,14 @@
 
 namespace ExternalBankingRESTService
 {
-	public class ContactRequestResponse
-	{
-		public Contact Contact { get; set; }
-		public Result Result { get; set; }
+    public class ContactRequestResponse
+    {
+        public Contact Contact { get; set; }
+        public Result Result { get; set; }
 
-		public ContactRequestResponse()
-		{
-			Result = new Result();
-		}
-	}
+        public ContactRequestResponse()
+        {
+            Result = new Result();
+        }
+    }
 }

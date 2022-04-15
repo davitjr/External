@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions; 
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
-    public class SearchCreditHereAndNow:SearchParams
+    public class SearchCreditHereAndNow : SearchParams
     {
         /// <summary>
         /// Խանութի մասնաճյուղ
@@ -17,7 +9,7 @@ namespace ExternalBanking
         /// <summary>
         /// Պրոդուկտի ֆիլտր
         /// </summary>
-        public ProductQualityFilter QualityFilter { get; set; } 
+        public ProductQualityFilter QualityFilter { get; set; }
 
     }
 }

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ArcaDataServiceReference;
+﻿using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
-using System.Transactions;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
 
 namespace ExternalBanking
 {
@@ -73,12 +69,12 @@ namespace ExternalBanking
 
                     CardIdentification sourceCard = new CardIdentification();
                     sourceCard.CardNumber = this.SourceCard.CardNumber;
-                    if(this.SourceID != 0)
+                    if (this.SourceID != 0)
                     {
                         sourceCard.ExpiryDate = this.SourceCard.ExpiryDate.Substring(2, 4) + this.SourceCard.ExpiryDate.Substring(0, 2);
                     }
                     request.SourceCardIdentification = sourceCard;
-                    
+
                     this.Status = 5;
 
                     response = ArcaDataService.C2CTransfer(request);
@@ -86,7 +82,7 @@ namespace ExternalBanking
 
                     result.ResponseCode = response.ResponseCode;
                     result.ResponseCodeDescription = response.ResponseCodeDescription;
-                    result.ResultCode = (byte) response.ResultCode;
+                    result.ResultCode = (byte)response.ResultCode;
                     result.ResultCodeDescription = response.ResultCodeDescription;
                     result.ProcessingCode = response.ProcessingCode;
                     result.SystemTraceAuditNumber = response.SystemTraceAuditNumber;

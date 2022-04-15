@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Web.Configuration;
 using System.Linq;
-using System.Data.SqlTypes;
-using System.Configuration;
-using System.IO;
 using System.Threading.Tasks;
+using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -88,7 +86,8 @@ namespace ExternalBanking.DBManager
                                                 ON ad.app_id = s.App_Id
                                           LEFT JOIN (SELECT doc_id,app_id  FROM (SELECT doc_id FROM  dbo.Tbl_HB_documents  WHERE  
                                         customer_number = @customerNumber AND quality = 20 ) HB
-                                        INNER JOIN dbo.Tbl_HB_Products_Identity IDENT ON
+                                        INNER JOIN 	(SELECT HB_DOC_Id,app_id from dbo.Tbl_HB_Products_Identity UNION
+										SELECT doc_id,app_id FROM Tbl_Consume_Loan_Activation_Order_Details) IDENT ON
                                         HB.doc_id = IDENT.HB_doc_id) CONTRACTS24_7 
 										ON s.app_id = CONTRACTS24_7.app_id
                                     WHERE s.Customer_Number = @customerNumber
@@ -576,7 +575,8 @@ namespace ExternalBanking.DBManager
                                                 ON ad.app_id = s.App_Id
                                             LEFT JOIN (SELECT doc_id,app_id  FROM (SELECT doc_id FROM  dbo.Tbl_HB_documents  WHERE  
                                         customer_number = @customerNumber AND quality = 20 ) HB
-                                        INNER JOIN dbo.Tbl_HB_Products_Identity IDENT ON
+                                        INNER JOIN 	(SELECT HB_DOC_Id,app_id from dbo.Tbl_HB_Products_Identity UNION
+										SELECT doc_id,app_id FROM Tbl_Consume_Loan_Activation_Order_Details) IDENT ON
                                         HB.doc_id = IDENT.HB_doc_id) CONTRACTS24_7 
 										ON s.app_id = CONTRACTS24_7.app_id	
                                     WHERE s.app_id = @appId
@@ -760,10 +760,20 @@ namespace ExternalBanking.DBManager
                 loan.PenaltyAdd = double.Parse(row["penalty_add"].ToString());
                 loan.TotalFee = double.Parse(row["total_fee"].ToString());
                 loan.TotalRateValue = double.Parse(row["total_rate_value"].ToString());
-                if (row["day_of_rate_calculation"] != DBNull.Value && row["day_of_rate_calculation"].ToString() != "")
-                {
-                    loan.DayOfRateCalculation = DateTime.Parse(row["day_of_rate_calculation"].ToString());
-                }
+                //if (row["day_of_rate_calculation"] != DBNull.Value && row["day_of_rate_calculation"].ToString() != "")
+                //{
+                //    loan.DayOfRateCalculation = DateTime.Parse(row["day_of_rate_calculation"].ToString());
+                //}
+
+                DateTime dateValue;
+                DateTime.TryParse(row["day_of_rate_calculation"].ToString(), out dateValue);
+
+                if (dateValue == default(DateTime))
+                    loan.DayOfRateCalculation = null;
+                else
+                    loan.DayOfRateCalculation = dateValue;
+
+
                 loan.StartDate = DateTime.Parse(row["date_of_beginning"].ToString());
                 loan.EndDate = DateTime.Parse(row["date_of_normal_end"].ToString());
                 loan.ContractNumber = ulong.Parse(row["security_code_2"].ToString());
@@ -885,7 +895,7 @@ namespace ExternalBanking.DBManager
                     loan.ContractAmount = Convert.ToDouble(row["sum_of_given_money"]);
                 }
 
-
+                loan.Source = GetSourceWithProductId(loan.ProductId);
             }
             return loan;
         }
@@ -942,6 +952,7 @@ namespace ExternalBanking.DBManager
 
                 using (SqlCommand cmd = new SqlCommand())
                 {
+
                     conn.Open();
                     cmd.Connection = conn;
                     cmd.CommandText = @"SELECT
@@ -954,8 +965,8 @@ namespace ExternalBanking.DBManager
                                                   capital_repayment + rate_repayment + Fee_repayment - Subsidia_rate_repayment AS total_repayment,
                                                   DATEDIFF(DAY, date_of_beginning, date_of_repayment) AS days,
                                                   rescheduled_amount  
-                                                  FROM [Tbl_repayments_of_bl;]
-                                            WHERE customer_number = @Cust_Num
+                                                  FROM " + (loan.Quality != 40 ? "[Tbl_repayments_of_bl;]" : "[Tbl_repayments_of_bl_closed;]") +
+                                            @"WHERE customer_number = @Cust_Num
                                             AND loan_full_number = @lfn
                                             AND date_of_beginning = @dtb
                                             ORDER BY date_of_repayment";
@@ -1410,7 +1421,8 @@ namespace ExternalBanking.DBManager
                                             ON ad.app_id = s.App_Id
                                              LEFT JOIN (SELECT doc_id,app_id  FROM (SELECT doc_id FROM  dbo.Tbl_HB_documents  WHERE  
                                          quality = 20 ) HB
-                                        INNER JOIN dbo.Tbl_HB_Products_Identity IDENT ON
+                                        INNER JOIN (SELECT HB_DOC_Id,app_id from dbo.Tbl_HB_Products_Identity UNION
+										SELECT doc_id,app_id FROM Tbl_Consume_Loan_Activation_Order_Details) IDENT ON
                                         HB.doc_id = IDENT.HB_doc_id) CONTRACTS24_7 
 										ON s.app_id = CONTRACTS24_7.app_id
                                 WHERE S.loan_full_number = @loanFullNumber
@@ -1518,7 +1530,8 @@ namespace ExternalBanking.DBManager
                                                 ON ad.app_id = s.App_Id
                                          LEFT JOIN (SELECT doc_id,app_id  FROM (SELECT doc_id FROM  dbo.Tbl_HB_documents  WHERE  
                                          quality = 20 ) HB
-                                        INNER JOIN dbo.Tbl_HB_Products_Identity IDENT ON
+                                        INNER JOIN 	(SELECT HB_DOC_Id,app_id from dbo.Tbl_HB_Products_Identity UNION
+										SELECT doc_id,app_id FROM Tbl_Consume_Loan_Activation_Order_Details) IDENT ON
                                         HB.doc_id = IDENT.HB_doc_id) CONTRACTS24_7 
 										ON s.app_id = CONTRACTS24_7.app_id
                                     WHERE S.App_Id = @productId
@@ -2164,7 +2177,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "SELECT 1 FROM  [tbl_short_time_loans;] S INNER JOIN dbo.Tbl_HB_Products_Identity IDENT " +
+                cmd.CommandText = "SELECT 1 FROM  [tbl_short_time_loans;] S INNER JOIN (SELECT HB_DOC_Id,app_id from dbo.Tbl_HB_Products_Identity UNION SELECT doc_id, app_id FROM Tbl_Consume_Loan_Activation_Order_Details) IDENT " +
                                    "ON S.APP_ID = IDENT.App_ID INNER JOIN Tbl_HB_documents HB ON IDENT.HB_Doc_ID =HB.DOC_Id AND HB.quality = 20" +
                                    "  WHERE S.App_Id = @App_ID";
                 cmd.CommandType = CommandType.Text;
@@ -2329,14 +2342,18 @@ FROM [Tbl_Paid_factoring]  WHERE (Loan_type = 38
             return loan;
         }
 
-        internal static double GetLoanOrderAcknowledgement(long docId)
+        internal static double GetLoanOrderAcknowledgement(long docId, OrderType orderType)
         {
             double result = 0;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
+                string tableName = "Tbl_HB_loan_precontract_data";
+                if (orderType == OrderType.ConsumeLoanSettlementOrder)
+                {
+                    tableName = "Tbl_Consume_Loan_precontract_data";
+                }
                 string query = @"SELECT interest_rate_effective 
-                                    FROM Tbl_HB_loan_precontract_data 
-                                 WHERE doc_id=@docId ORDER BY registration_date DESC";
+                                    FROM " + tableName + @" WHERE doc_id=@docId ORDER BY registration_date DESC";
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     conn.Open();
@@ -2414,6 +2431,139 @@ FROM [Tbl_Paid_factoring]  WHERE (Loan_type = 38
                 }
             }
             return loanRepaymentFromCardDataChange;
+        }
+
+        internal static List<KeyValuePair<string, string>> GetLoanGrafikChangeDates(ulong productId)
+        {
+            List<KeyValuePair<string, string>> Dates = new List<KeyValuePair<string, string>>();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+
+                using (SqlCommand cmd = new SqlCommand(@"select distinct change_date  from [tbl_repayments_of_bl_changed] where app_id=@App_id", conn))
+                {
+                    conn.Open();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@App_id", SqlDbType.Float).Value = productId;
+                    DataTable dt = new DataTable();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        int i = 0;
+                        while (dr.Read())
+                        {
+                            ++i;
+                            Dates.Add(new KeyValuePair<string, string>(i.ToString(), string.Format($"{Convert.ToDateTime(dr["change_date"].ToString()):dd/MM/yyyy}")));
+                        }
+                    }
+                }
+            }
+            return Dates;
+        }
+
+        public static List<LoanRepaymentGrafik> GetLoanGrafikBeforeChange(ulong productId, DateTime changeDate)
+        {
+            List<LoanRepaymentGrafik> list = new List<LoanRepaymentGrafik>();
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = @"SELECT
+                                                date_of_repayment AS repayment_date,
+                                                capital_repayment,
+                                                rate_repayment AS interest_repayment,
+                                                interest_rate,
+                                                fee_repayment,
+                                                Subsidia_Rate_Repayment AS rest_of_capital,
+                                                capital_repayment + rate_repayment + Fee_repayment - Subsidia_rate_repayment AS total_repayment,
+                                                DATEDIFF(DAY, date_of_beginning, date_of_repayment) AS days,
+                                                rescheduled_amount  
+                                                FROM tbl_repayments_of_bl_changed
+                                        WHERE app_id=@app_id and change_date=@changeDate
+                                        ORDER BY date_of_repayment";
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
+                    cmd.Parameters.Add("@changeDate", SqlDbType.SmallDateTime).Value = changeDate.ToString("dd/MMM/yy");
+                    dt.Load(cmd.ExecuteReader());
+                    if (dt.Rows.Count != 0)
+                    {
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            DataRow row = dt.Rows[i];
+                            LoanRepaymentGrafik loanRepayment = SetLoanGrafikDetail(row);
+                            list.Add(loanRepayment);
+                        }
+                        list = list.OrderBy(o => o.RepaymentDate).ToList();
+                    }
+                    else
+                        list = null;
+
+                }
+                return list;
+            }
+
+        }
+
+
+        internal static float GetInterestRateEffective(double startCapital, string currency, DateTime dateOfBeginning, DateTime dateOfNormalEnd, DateTime firstRepaymentDate, float interestRate)
+        {
+            float InterestEffectiveRate = 0;
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "pr_get_loan_effective_interest_rate ";
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add("@StartCapital", SqlDbType.Float).Value = startCapital;
+                cmd.Parameters.Add("@Currency", SqlDbType.NVarChar).Value = currency;
+                cmd.Parameters.Add("@dateofbeginning", SqlDbType.SmallDateTime).Value = dateOfBeginning;
+                cmd.Parameters.Add("@DateOfNormalEnd", SqlDbType.SmallDateTime).Value = dateOfNormalEnd;
+                cmd.Parameters.Add("@FirstRepaymentDate", SqlDbType.SmallDateTime).Value = firstRepaymentDate;
+                cmd.Parameters.Add("@InterestRate", SqlDbType.Float).Value = interestRate;
+
+                SqlParameter param = new SqlParameter("@effRate", SqlDbType.Float)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                cmd.Parameters.Add(param);
+
+                cmd.ExecuteNonQuery();
+
+                InterestEffectiveRate = float.Parse(cmd.Parameters["@effRate"].Value.ToString());
+
+
+            }
+            return InterestEffectiveRate;
+        }
+
+        private static SourceType GetSourceWithProductId(long productId)
+        {
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = @"SELECT source_type FROM tbl_hb_documents hb
+                                            INNER JOIN [Tbl_Consume_Loan_Activation_Order_Details] P ON HB.doc_id = p.doc_id
+							                WHERE P.App_ID = @appId AND document_type = 258
+                                            ORDER BY HB.doc_id DESC";
+                    cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.Read())
+                        return dr["source_type"] == DBNull.Value ? SourceType.NotSpecified : (SourceType)Convert.ToInt32(dr["source_type"]);
+                    else
+                        return SourceType.NotSpecified;
+
+                }
+            }
         }
 
     }

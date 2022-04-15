@@ -1,9 +1,9 @@
-﻿using System;
-using System.Data;
+﻿using ExternalBanking.XBManagement;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using ExternalBanking.XBManagement;
 
 namespace ExternalBanking.DBManager
 {
@@ -16,7 +16,7 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static List<HBToken> GetHBTokens(int HBUSerID, ProductQualityFilter filter)
         {
-            List<HBToken> HBUserTokens = new List<HBToken> ();
+            List<HBToken> HBUserTokens = new List<HBToken>();
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
@@ -27,13 +27,13 @@ namespace ExternalBanking.DBManager
                                ON TQ.id=T.quality 
                                LEFT JOIN Tbl_SubType_Of_Tokens TS
                                ON TS.Id=T.token_sub_type 
-                               WHERE t.user_id = @userId"; 
-                               //and t.quality=@quality";
+                               WHERE t.user_id = @userId";
+                //and t.quality=@quality";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@userId", SqlDbType.Int).Value = HBUSerID;
-                    cmd.Parameters.Add("@quality", SqlDbType.TinyInt).Value =(short)filter;
+                    cmd.Parameters.Add("@quality", SqlDbType.TinyInt).Value = (short)filter;
                     conn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -81,10 +81,10 @@ namespace ExternalBanking.DBManager
                                 DayLimit = double.Parse(dr["limit_of_day"].ToString()),
                                 TransLimit = double.Parse(dr["limit_of_per_trans"].ToString()),
                                 ActivationDate = dr["date_of_activation"] != DBNull.Value ? Convert.ToDateTime(dr["date_of_activation"]) : default(DateTime?)
-                        });
+                            });
                         }
                     }
-                }     
+                }
             }
             return HBUserTokens;
         }
@@ -96,7 +96,7 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static HBToken GetHBToken(int TokenID)
         {
-            HBToken HBToken = new HBToken ();
+            HBToken HBToken = new HBToken();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 string sql = @"SELECT T.*, TT.token_type as token_type_description, TQ.qualityDescription as quality_description, TS.Description as token_sub_type_description
@@ -106,7 +106,7 @@ namespace ExternalBanking.DBManager
                                        ON TQ.id=T.quality 
                                        LEFT JOIN Tbl_SubType_Of_Tokens TS
                                        ON TS.Id=T.token_sub_type 
-                                       WHERE t.ID = @TokenID";                                      
+                                       WHERE t.ID = @TokenID";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.Text;
@@ -192,7 +192,7 @@ namespace ExternalBanking.DBManager
                 HBToken.TokenType = (HBTokenTypes)Convert.ToInt16(row["token_type"].ToString());
                 HBToken.TokenSubType = (HBTokenSubType)Convert.ToInt16(row["token_sub_type"].ToString());
 
-                HBToken.TokenTypeDescription =Utility.ConvertAnsiToUnicode(row["token_type_description"].ToString());
+                HBToken.TokenTypeDescription = Utility.ConvertAnsiToUnicode(row["token_type_description"].ToString());
                 HBToken.TokenSubTypeDescription = Utility.ConvertAnsiToUnicode(row["token_sub_type_description"].ToString());
 
                 HBToken.ActivationDate = row["date_of_activation"] != DBNull.Value ? Convert.ToDateTime(row["date_of_activation"]) : default(DateTime?);
@@ -201,13 +201,13 @@ namespace ExternalBanking.DBManager
                 HBToken.TransLimit = Double.Parse(row["limit_of_per_trans"].ToString());
                 HBToken.IsBlocked = Boolean.Parse(row["blocked"].ToString());
                 HBToken.BlockingDate = row["blocking_date"] != DBNull.Value ? Convert.ToDateTime(row["blocking_date"]) : default(DateTime?);
-                HBToken.ActivationSetID = row["activation_set_id"] != DBNull.Value ? Convert.ToInt32(row["activation_set_id"]) : default(int); 
+                HBToken.ActivationSetID = row["activation_set_id"] != DBNull.Value ? Convert.ToInt32(row["activation_set_id"]) : default(int);
                 HBToken.DeactivationSetID = row["deactivation_set_id"] != DBNull.Value ? Convert.ToInt32(row["deactivation_set_id"]) : default(int);
                 HBToken.Issuer = row["Issuer"].ToString();
                 HBToken.HBUser = HBUserDB.GetHBUser(HBToken.HBUserID);
-                HBToken.Quality = (HBTokenQuality)Convert.ToInt16(row["quality"]!=DBNull.Value?Convert.ToByte(row["quality"].ToString()):default(byte)); 
+                HBToken.Quality = (HBTokenQuality)Convert.ToInt16(row["quality"] != DBNull.Value ? Convert.ToByte(row["quality"].ToString()) : default(byte));
                 HBToken.QualityDescription = row["quality_description"].ToString();
-                HBToken.IsRestorable  = row["IsRestorable"] != DBNull.Value ? Boolean.Parse(row["IsRestorable"].ToString()) : default(Boolean);
+                HBToken.IsRestorable = row["IsRestorable"] != DBNull.Value ? Boolean.Parse(row["IsRestorable"].ToString()) : default(Boolean);
                 HBToken.HBUser = HBUser.GetHBUser(HBToken.HBUserID);
                 HBToken.GID = row["GID"] != DBNull.Value ? row["GID"].ToString() : default(String);
                 HBToken.DeviceTypeDescription = row["deviceTypeDescription"] != DBNull.Value ? row["DeviceTypeDescription"].ToString() : default(String);
@@ -246,14 +246,14 @@ namespace ExternalBanking.DBManager
                                             (SELECT token_serial FROM tbl_Tokens) AND token_serial NOT IN
                                             (SELECT token_serial FROM Tbl_HB_Token_Order_Details TD INNER JOIN Tbl_HB_documents D ON TD.doc_Id = D.doc_ID WHERE  D.quality in (3,50))
                                             ORDER BY[token_serial] DESC";
-                    }                    
+                    }
                     cmd.CommandType = CommandType.Text;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         dt.Load(dr);
                     }
-                    
+
                 }
                 foreach (DataRow row in dt.Rows)
                 {
@@ -261,7 +261,7 @@ namespace ExternalBanking.DBManager
                 }
             }
             return HBAvailableTokens;
-      }
+        }
 
         /// <summary>
         /// Թոկենի պահպանում
@@ -283,7 +283,7 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     cmd.CommandText = "pr_HBToken_order";
                     cmd.CommandType = CommandType.StoredProcedure;
-                    
+
                     cmd.Parameters.Add("@docID", SqlDbType.Int).Value = docId;
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = hbToken.ID;
                     cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = hbToken.HBUser.ID;
@@ -293,13 +293,13 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@action", SqlDbType.TinyInt).Value = action;
                     cmd.Parameters.Add("@day_limit", SqlDbType.Float).Value = hbToken.DayLimit;
                     cmd.Parameters.Add("@trans_limit", SqlDbType.Float).Value = hbToken.TransLimit;
-                    cmd.Parameters.Add("@GID", SqlDbType.VarChar,2).Value = hbToken.GID;
+                    cmd.Parameters.Add("@GID", SqlDbType.VarChar, 2).Value = hbToken.GID;
                     cmd.Parameters.Add("@blocked", SqlDbType.Bit).Value = hbToken.IsBlocked;
 
                     cmd.ExecuteNonQuery();
-                    
+
                 }
-                
+
             }
 
         }
@@ -307,22 +307,22 @@ namespace ExternalBanking.DBManager
         /// Ամրագրած տոկենների ազատում
         /// </summary>
         /// <param name="token"></param>
-        internal static void CancelTokenNumberReservation(HBToken token  )
-        { 
+        internal static void CancelTokenNumberReservation(HBToken token)
+        {
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    if (token.TokenType == HBTokenTypes.Token) 
+                    if (token.TokenType == HBTokenTypes.Token)
                         cmd.CommandText = "update [Tbl_Token_List] set used = 0 where token_Serial = @token_serial";
                     else
                         cmd.CommandText = "update [Tbl_Mobile_Token_List] set used = 0 where token_Serial = @token_serial";
 
                     cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@token_serial", SqlDbType.VarChar,20).Value = token.TokenNumber;
+                    cmd.Parameters.Add("@token_serial", SqlDbType.VarChar, 20).Value = token.TokenNumber;
 
                     cmd.ExecuteNonQuery();
 
@@ -344,11 +344,11 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
 
                     cmd.CommandText = "SELECT dbo.[fn_get_ACBA_OnLine_service_Fee](@customerNumber,@date,@requestType,@tokenType,@tokenSubType) as fee";
-                    
+
                     cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float ).Value = customerNumber;
-                    cmd.Parameters.Add("@date", SqlDbType.SmallDateTime).Value =date;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    cmd.Parameters.Add("@date", SqlDbType.SmallDateTime).Value = date;
                     cmd.Parameters.Add("@requestType", SqlDbType.SmallInt).Value = requestType;
                     cmd.Parameters.Add("@tokenType", SqlDbType.SmallInt).Value = tokenType;
                     cmd.Parameters.Add("@tokenSubType", SqlDbType.SmallInt).Value = tokenSubType;
@@ -359,9 +359,9 @@ namespace ExternalBanking.DBManager
             }
 
         }
-     public static string GetHBTokenGID(int hbuserID,HBTokenTypes  tokenType)
-     {
-         using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
+        public static string GetHBTokenGID(int hbuserID, HBTokenTypes tokenType)
+        {
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
                 {
@@ -369,17 +369,17 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
 
                     cmd.CommandText = "SELECT dbo.fn_get_HBToken_GID(@hbuserID,@tokenType)";
-                    
+
                     cmd.CommandType = CommandType.Text;
 
-                    cmd.Parameters.Add("@hbuserID", SqlDbType.Int ).Value = hbuserID; 
-                    cmd.Parameters.Add("@tokenType", SqlDbType.SmallInt).Value = tokenType; 
+                    cmd.Parameters.Add("@hbuserID", SqlDbType.Int).Value = hbuserID;
+                    cmd.Parameters.Add("@tokenType", SqlDbType.SmallInt).Value = tokenType;
 
                     return Convert.ToString(cmd.ExecuteScalar());
                 }
 
             }
-     }
+        }
 
         /// <summary>
         /// Ստուգվում է տոկենի համարի հասանելիությունը
@@ -399,14 +399,14 @@ namespace ExternalBanking.DBManager
 
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.Add("@token_serial", SqlDbType.NVarChar,16).Value = token.TokenNumber; 
+                    cmd.Parameters.Add("@token_serial", SqlDbType.NVarChar, 16).Value = token.TokenNumber;
 
                     bool result = Convert.ToBoolean(cmd.ExecuteScalar());
                     return result;
                 }
 
             }
-                      
+
         }
 
         /// <summary>
@@ -429,13 +429,13 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = token.HBUser.ID;
                     cmd.Parameters.Add("@token_type", SqlDbType.Int).Value = (int)token.TokenType;
-                    
+
                     bool result = Convert.ToBoolean(cmd.ExecuteScalar());
                     return result;
                 }
             }
         }
-        
+
         /// <summary>
         /// Մոբայլ տոկենի գրանցման կոդի վերաուղարկման հայտի պահպանում 
         /// </summary>
@@ -443,9 +443,9 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveHBRegistrationCodeResendOrder(HBRegistrationCodeResendOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            
-                using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
-                {
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+            {
                 using SqlCommand cmd = new SqlCommand();
                 conn.Open();
                 cmd.Connection = conn;
@@ -472,7 +472,7 @@ namespace ExternalBanking.DBManager
                 order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                 order.Quality = OrderQuality.Draft;
             }
-                 
+
             return result;
         }
 
@@ -497,7 +497,7 @@ namespace ExternalBanking.DBManager
             return cmd.ExecuteReader().Read();
         }
 
-         /// <summary>
+        /// <summary>
         /// Մոբայլ տոկենի ակտիվացման տվյալների գրանցում հաճախորդի տվյալների ռիսկային փոփոխությունների առկայության դեպքում
         /// </summary>
         /// <param name="TokenSerial"></param>

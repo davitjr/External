@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.ServiceModel;
-using System.ServiceModel.Description;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -168,7 +166,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand("SELECT [id],[description],[description_eng] FROM [dbo].[Tbl_Operations_by_period_duration_types]", conn);
+                using SqlCommand cmd = new SqlCommand("SELECT [id],[description],[description_eng] FROM [dbo].[Tbl_Operations_by_period_duration_types]", conn);
                 using SqlDataReader dr = cmd.ExecuteReader();
                 dt.Load(dr);
             }
@@ -3743,8 +3741,8 @@ namespace ExternalBanking.DBManager
             //Visa Virtual քարտերի համար՝ 174
             if (cardType == 11 || cardType == 39 || cardType == 16 || cardType == 14
                     || cardType == 47 || cardType == 49 || cardType == 29 || cardType == 46
-                    || cardType == 36 || cardType == 37 || cardType == 48 || cardType == 42 || cardType == (uint)PlasticCardType.VISA_VIRTUAL
-                    || cardType == 52)
+                    || cardType == 36 || cardType == 37 || cardType == 48 || cardType == 42 || cardType == (uint)PlasticCardType.VISA_DIGITAL
+                    || cardType == 52 || cardType == (uint)PlasticCardType.VISA_VIRTUAL || cardType == 54)
             {
                 relatedOfficeNumber = 174;
             }
@@ -3776,14 +3774,39 @@ namespace ExternalBanking.DBManager
                 else if (periodicityType == 12)
                     relatedOfficeNumber = 1665;
             }
-            //Business (Visa Business, Arca Business, Virtual)
-            else if (cardType == 22 || cardType == 45 || cardType == 51 || cardType == 45)
+            //Business (Visa Business, Arca Business, Virtual,digital)
+            else if (cardType == 22 || cardType == 45 || cardType == 53 || cardType == 45 || cardType == 51)
             {
                 relatedOfficeNumber = 174;
             }
 
 
 
+            return relatedOfficeNumber;
+        }
+
+        public static int? GetCardOfficeTypesForMarketingCampaign(ushort cardType, DateTime registrationDate, ulong customerNumber)
+        {
+            int? relatedOfficeNumber = null;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                string sqltext = "SELECT [dbo].[fnc_getRelatedOfficeNumberForMarketingCampaign](@cardType, @plasticCardOrderRegDate, @customerNumber) AS office_number";
+
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@cardType", SqlDbType.Int).Value = cardType;
+                    cmd.Parameters.Add("@plasticCardOrderRegDate", SqlDbType.DateTime).Value = registrationDate;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                            if (dr["office_number"] != DBNull.Value)
+                                relatedOfficeNumber = Convert.ToInt32(dr["office_number"].ToString());
+                    }
+                }
+            }
             return relatedOfficeNumber;
         }
 
@@ -4011,7 +4034,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT code,(cast(code as nvarchar(5)) + ' ' + description) as description FROM Tbl_type_of_banking_source WHERE code in (1,5,6,8,10)",
+                using (SqlCommand cmd = new SqlCommand("SELECT code,(cast(code as nvarchar(5)) + ' ' + description) as description FROM Tbl_type_of_banking_source WHERE code in (1,5,6,8,10,16)",
                         conn))
                 {
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -4143,6 +4166,9 @@ namespace ExternalBanking.DBManager
             }
             return dt;
         }
+
+
+
         public static DataTable GetTransferReceiverTypes()
         {
             DataTable dt = new DataTable();
@@ -4163,30 +4189,7 @@ namespace ExternalBanking.DBManager
 
         public static byte CommunicationTypeExistence(ulong customerNumber)
         {
-            byte hasCommunication = 0;
-            bool isTestVersion = bool.Parse(WebConfigurationManager.AppSettings["TestVersion"].ToString());
-            if (isTestVersion)
-            {
-                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-                {
-                    conn.Open();
-                    string sqltext = "SELECT dbo.fn_check_communication_type_existence(@customerNumber)";
-
-                    using (SqlCommand cmd = new SqlCommand(sqltext, conn))
-                    {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                        using (SqlDataReader dr = cmd.ExecuteReader())
-                        {
-                            if (dr.Read())
-                                hasCommunication = byte.Parse(dr[0].ToString());
-                        }
-                    }
-                }
-            }
-            //DIANA!!!! Remove
-            //hasCommunication = 0;
-            //*****
+            byte hasCommunication = 1;
             return hasCommunication;
         }
 
@@ -4545,7 +4548,7 @@ namespace ExternalBanking.DBManager
         /// Դիջիթալից մուտքագրվող հօգուտ 3-րդ անձի ավանդի համար վերադարձնում է հասանելի արժույթները։
         /// </summary>
         /// <returns></returns>
-        public static DataTable GetJointDepositAvailableCurrency(ulong customerNumber)
+        public static DataTable GetJointDepositAvailableCurrency(ulong customerNumber, ulong thirdPersonCustomerNumber)
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -4556,10 +4559,12 @@ namespace ExternalBanking.DBManager
                                                                                     WHERE type = 2 and acc.closing_date is null
 						                                                                                    and acc.account_currency IN ('AMD', 'USD')
                                                                                                             and c.customer_number =  @customer_number
+                                                                                                            and acc.third_person_Customer_number = @third_person_customer_number
                                                                                     GROUP BY acc.account_currency
                                                                                     ORDER BY acc.account_currency", conn);
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = customerNumber;
+                cmd.Parameters.Add("@third_person_customer_number", SqlDbType.BigInt).Value = thirdPersonCustomerNumber;
 
                 using SqlDataReader dr = cmd.ExecuteReader();
                 dt.Load(dr);
@@ -4601,5 +4606,216 @@ namespace ExternalBanking.DBManager
             }
             return dt;
         }
+
+        internal static DataTable GetTransactionTypes()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT id, description FROM tbl_transaction_types_according_to_AML", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+            }
+            return dt;
+        }
+
+
+        
+        internal static DataTable GetLeasingReportTypes()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["LeasingAccOperConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT [id],[name] FROM [dbo].[Tbl_leasing_reports] WHERE [is_active] = 1", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+            }
+            return dt;
+        }
+
+        public static DataTable GetLeasingCredentialClosingReasons()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["LeasingAccOperConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(@"SELECT [Id],[description] FROM dbo.[Tbl_type_of_credential_closing_reason] ORDER BY Id", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+
+            }
+            return dt;
+        }
+
+
+
+        public static byte CommunicationTypeExistenceFromSAP(ulong customerNumber)
+        {
+            byte hasCommunication = 1;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                string sqltext = "SELECT dbo.fn_check_communication_type_existence(@customerNumber)";
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                            hasCommunication = byte.Parse(dr[0].ToString());
+                    }
+                }
+            }
+            return hasCommunication;
+        }
+
+        internal static int GetBannerVersion()
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                string sqltext = @"SELECT TOP 1 version FROM tbl_banner_version
+                                    ORDER BY id DESC";
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                            return int.Parse(dr[0].ToString());
+                        else
+                            return 0;
+                    }
+                }
+            }
+        }
+
+        internal static string GenerateBrokerContractNumber()
+        {
+            string contractNumber = string.Empty;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand("pr_Generate_Stock_Broker_Contract_Number", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                contractNumber = cmd.ExecuteScalar().ToString();
+            }
+            return contractNumber;
+        }
+
+        /// <summary>
+        /// Վերադարձնում է արժեթղթերի տեսակները
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetSecuritiesTypes()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("Select id, description_arm, description_eng from Tbl_type_of_securities order by order_number asc", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+            }
+            return dt;
+        }
+
+        public static DataTable GetTradingOrderTypes()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("Select id, description_arm, description_eng from Tbl_type_of_trading_order_types order by order_number asc", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+            }
+            return dt;
+        }
+
+        public static DataTable GetTradingOrderExpirationTypes()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("Select id, description_arm, description_eng from Tbl_type_of_trading_order_expiration_types order by order_number asc", conn))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                }
+            }
+            return dt;
+        }
+
+        internal static bool IsACBAGroupEmployee(ulong customerNumber)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sqltext = @"SELECT employment_type FROM tbl_customers C
+							        INNER JOIN Tbl_person_employment PE
+							        on C.identityId=PE.identityId
+							        WHERE PE.employment_type=1 
+							        and PE.organisation_identityId in (1,4150,68525,1808086) and C.customer_number = @customer_number";
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    conn.Open();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                    return cmd.ExecuteReader().Read();
+                }
+            }
+        }
+
+        internal static DateTime? DateOfACBAGroupEmployee(ulong customerNumber)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sqltext = @"SELECT start_date
+									FROM Tbl_customers C
+									INNER JOIN Tbl_person_employment E ON C.identityID = E.identityID AND E.organisation_identityId IN (1,4150,68525, 1808086) AND e.employment_type=1
+									WHERE customer_number = @customer_number";
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    conn.Open();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                            return Convert.ToDateTime(dr["start_date"].ToString());
+                        else
+                            return null;
+                    }
+                }
+            }
+        }
+
     }
 }

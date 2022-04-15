@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -38,8 +34,6 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                Action action = this.Id == 0 ? Action.Add : Action.Update;
-
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
                     result = base.Approve(schemaType, userName);
@@ -70,17 +64,16 @@ namespace ExternalBanking
         public ActionResult ValidateForSend()
         {
             ActionResult result = new ActionResult();
-            DateTime nextOperDay = Utility.GetNextOperDay().Date;
             if (RegistrationDate.AddDays(30).Date < DateTime.Now.Date || this.RegistrationDate.Date > DateTime.Now.Date)
             {
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
                 result.Errors.Add(new ActionError(785));
             }
-            if(!(DateTime.Now.Day <= 10 && this.Card.EndDate.Month == DateTime.Now.Month && this.Card.EndDate.Year == DateTime.Now.Year))
+            if (!(DateTime.Now.Day <= 10 && this.Card.EndDate.Month == DateTime.Now.Month && this.Card.EndDate.Year == DateTime.Now.Year))
             {
-                
 
-                   string[] Params = new string[] { "01/" + this.Card.EndDate.Month + "/" + this.Card.EndDate.Year + " - 10/" + this.Card.EndDate.Month + "/" + this.Card.EndDate.Year};
+
+                string[] Params = new string[] { "01/" + this.Card.EndDate.Month + "/" + this.Card.EndDate.Year + " - 10/" + this.Card.EndDate.Month + "/" + this.Card.EndDate.Year };
 
                 result.Errors.Add(new ActionError(454, Params));
             }

@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -58,7 +55,7 @@ namespace ExternalBanking
         public static DepositaryAccount GetCustomerDepositaryAccount(ulong customerNumber, ref bool hasAccount)
         {
             DepositaryAccount account = DepositaryAccountDB.GetCustomerDepositaryAccount(customerNumber, ref hasAccount);
-            if(account.ID == 0)
+            if (account.ID == 0)
             {
                 account = null;
             }
@@ -85,7 +82,7 @@ namespace ExternalBanking
             bool hasAccount = false;
             DepositaryAccount account = GetCustomerDepositaryAccount(customerNumber, ref hasAccount);
             return hasAccount;
-          
+
         }
 
 
@@ -102,7 +99,7 @@ namespace ExternalBanking
 
         public static double GetDepositaryAccount(ulong customerNumber)
         {
-           return DepositaryAccountDB.GetDepositaryAccount(customerNumber);
+            return DepositaryAccountDB.GetDepositaryAccount(customerNumber);
         }
     }
 }

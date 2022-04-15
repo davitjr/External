@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -24,7 +20,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.AddWithValue("@customer_number", (double)order.CustomerNumber);//
                     cmd.Parameters.AddWithValue("@registration_date", order.RegistrationDate);//
-                    cmd.Parameters.AddWithValue("@document_type",OrderType.CardUnpayedPercentPayment);//
+                    cmd.Parameters.AddWithValue("@document_type", OrderType.CardUnpayedPercentPayment);//
                     cmd.Parameters.AddWithValue("@operation_filial_code", (short)order.FilialCode);//
                     cmd.Parameters.AddWithValue("@document_number", order.OrderNumber);//
                     if (order.Card.Currency.Equals("AMD"))
@@ -49,7 +45,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.ExecuteNonQuery();
 
-                    order.Id= Convert.ToInt64(cmd.Parameters["@ID"].Value);
+                    order.Id = Convert.ToInt64(cmd.Parameters["@ID"].Value);
                     order.Quality = OrderQuality.Draft;
                     result.Id = order.Id;
                     result.ResultCode = ResultCode.Normal;
@@ -62,7 +58,7 @@ namespace ExternalBanking.DBManager
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
-                using SqlCommand cmd = new SqlCommand("pr_get_unpaid_percent_payment_order", conn); 
+                using SqlCommand cmd = new SqlCommand("pr_get_unpaid_percent_payment_order", conn);
                 cmd.Parameters.AddWithValue("@ID", order.Id);
                 cmd.CommandType = CommandType.StoredProcedure;
 

@@ -1,17 +1,17 @@
-﻿using System;
-using System.Web;
-using System.Collections.Generic;
-using System.ServiceModel;
-using ExternalBanking;
-using System.Data;
-using NLog;
-using System.Collections;
-using ExternalBankingService.Interfaces;
-using System.Web.Configuration;
-using NLog.Targets;
-using System.Configuration;
-using System.Linq;
+﻿using ExternalBanking;
 using ExternalBanking.ServiceClient;
+using ExternalBankingService.Interfaces;
+using NLog;
+using NLog.Targets;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.ServiceModel;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Configuration;
 
 namespace ExternalBankingService
 {
@@ -105,78 +105,7 @@ namespace ExternalBankingService
             }
         }
 
-        public Dictionary<string, string> GetActiveDepositTypesForNewDepositOrder(int accountType, int customerType)
-        {
-            try
-            {
-                Dictionary<string, string> depositType = new Dictionary<string, string>();
-                //DataTable dt = default;
 
-                short allowableCustomerType = 0;
-                short allowableForThirdhPerson = 0;
-                short allowableForCooperative = 0;
-
-                //// DON'T DELETE
-                //DataTable dt_thirdPerson = Info.GetThirdPersonAccounts(AuthorizedCustomer.CustomerNumber);
-
-                //if ((Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline) &&
-                //            dt_thirdPerson.Rows.Count > 0 && dt_thirdPerson.Rows[0]["main_customer_type_of_client"].ToString() == ((ushort)CustomerTypes.physical).ToString())
-                //{
-                //    allowableCustomerType = 1;
-                //    allowableForCooperative = 1;
-                //    allowableForThirdhPerson = 1;
-
-                //    dt = Info.GetActiveDepositTypesForNewDepositOrderForDigitalBanking(allowableCustomerType, allowableForThirdhPerson, allowableForCooperative);
-                //}
-                //else
-                //{
-
-                if (accountType == 2)
-                {
-                    allowableCustomerType = 1;
-                    allowableForThirdhPerson = 1;
-                    allowableForCooperative = 0;
-                }
-                else
-                {
-                    if (customerType == 6)
-                    {
-                        allowableCustomerType = 1;
-                        allowableForCooperative = 1;
-                    }
-                    else
-                    {
-                        allowableCustomerType = 2;
-                        allowableForCooperative = 0;
-                    }
-                }
-
-                DataTable dt = Info.GetActiveDepositTypesForNewDepositOrder(allowableCustomerType, allowableForThirdhPerson, allowableForCooperative);
-                //}
-
-
-                DataRow[] dr = dt.Select("code=" + accountType.ToString());
-
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-
-                    string description = Language == (byte)Languages.hy ? dt.Rows[i]["description"].ToString() : dt.Rows[i]["description_Engl"].ToString();
-                    description = Utility.ConvertAnsiToUnicode(description);
-                    depositType.Add(dt.Rows[i]["code"].ToString(), description);
-                }
-                return depositType;
-            }
-            catch (Exception ex)
-            {
-                WriteLog(ex);
-                throw new FaultException(Resourse.InternalError);
-            }
-        }
-
-        /*
-         * COMMENT-ԻՑ ՀԱՆԵԼ, ԵՐԲ DIGITAL-ում ՆԵՐԴՐՎԻ <ՀՕԳՈՒՏ 3-ՐԴ ԱՆՁԻ ԱՎԱՆԴ>-Ը  
-         * ԵՂԱԾ GetActiveDepositTypesForNewDepositOrder()-ը ԱՆՀՐԱԺԵՇՏ Է ՀԵՌԱՑՆԵԼ
-         * 
         public Dictionary<string, string> GetActiveDepositTypesForNewDepositOrder(int accountType, int customerType)
         {
             try
@@ -247,7 +176,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        */
+        
 
         public Dictionary<string, string> GetEmbassyList(List<ushort> referenceTypes)
         {
@@ -1722,8 +1651,8 @@ namespace ExternalBankingService
                 {
                     //if (bool.Parse(WebConfigurationManager.AppSettings["TestVersion"].ToString()))
                     //{
-                        if (Convert.ToBoolean(dt.Rows[i]["activ"]))
-                            serviceTypes.Add(dt.Rows[i]["type"].ToString(), Utility.ConvertAnsiToUnicode(dt.Rows[i]["type_description"].ToString()));
+                    if (Convert.ToBoolean(dt.Rows[i]["activ"]))
+                        serviceTypes.Add(dt.Rows[i]["type"].ToString(), Utility.ConvertAnsiToUnicode(dt.Rows[i]["type_description"].ToString()));
                     //}
 
                     //else
@@ -2683,7 +2612,7 @@ namespace ExternalBankingService
                 var custType = ACBAOperationService.GetCustomerType(customerNumber);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if ((checkSocialSecurityAccount && Convert.ToInt32(dt.Rows[i]["code"]) == 118 && custType != 6) || (Convert.ToInt32(dt.Rows[i]["code"]) == 119 && custType == 6)) 
+                    if ((checkSocialSecurityAccount && Convert.ToInt32(dt.Rows[i]["code"]) == 118 && custType != 6) || (Convert.ToInt32(dt.Rows[i]["code"]) == 119 && custType == 6))
                         continue;
                     accountRestrictionGroups.Add(dt.Rows[i]["row"].ToString(), Utility.ConvertAnsiToUnicode(dt.Rows[i]["prod_descr"].ToString()));
                 }
@@ -4961,13 +4890,13 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        public List<Tuple<string,bool>> GetCardMobilePhones(ulong customerNumber, ulong curdNumber)
+        public List<Tuple<string, bool>> GetCardMobilePhones(ulong customerNumber, ulong curdNumber)
         {
             try
             {
                 return PlasticCardSMSServiceOrder.GetCardMobilePhones(customerNumber, curdNumber);
 
-        
+
             }
             catch (Exception ex)
             {
@@ -5001,7 +4930,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        
+
 
         public string SMSTypeAndValue(string curdNumber)
         {
@@ -5044,12 +4973,12 @@ namespace ExternalBankingService
             }
         }
 
-        public Dictionary<string, string> GetJointDepositAvailableCurrencies(ulong customerNumber)
+        public Dictionary<string, string> GetJointDepositAvailableCurrencies(ulong customerNumber, ulong thirdPersonCustomerNumber)
         {
             try
             {
                 Dictionary<string, string> jointDepositCurrencies = new Dictionary<string, string>();
-                DataTable dt = Info.GetJointDepositAvailableCurrency(customerNumber);
+                DataTable dt = Info.GetJointDepositAvailableCurrency(customerNumber, thirdPersonCustomerNumber);
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -5081,7 +5010,7 @@ namespace ExternalBankingService
             }
         }
 
-        public Tuple<bool,bool> GetCustomerTypeAndResidence(ulong customerNumber)
+        public Tuple<bool, bool> GetCustomerTypeAndResidence(ulong customerNumber)
         {
             return BondOrder.GetCustomerTypeAndResidence(customerNumber);
 
@@ -5109,7 +5038,222 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
+        public Dictionary<string, string> GetTransactionTypes()
+        {
+            try
+            {
+                Dictionary<string, string> transactionTypes = new Dictionary<string, string>();
+                DataTable infoTable = Info.GetTransactionTypes();
 
+                for (int i = 0; i < infoTable.Rows.Count; i++)
+                {
+                    string description = infoTable.Rows[i]["description"].ToString();
+                    description = Utility.ConvertAnsiToUnicode(description);
+
+                    transactionTypes.Add(infoTable.Rows[i]["id"].ToString(), description);
+                }
+
+                return transactionTypes;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public TransactionTypeByAML GetTransactionTypeByAML(long doc_ID)
+        {
+            try
+            {
+                return TransactionTypeByAML.GetTransactionTypeByAML(doc_ID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public List<CardDesign> GetCardDesignThemes()
+        {
+            try
+            {
+                return PlasticCardOrder.GetCardDesignThemes();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<CardDesign> GetCardDesignImagesByThemeId(int id)
+        {
+            try
+            {
+                return PlasticCardOrder.GetCardDesignImages(id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public string GetCardDesignImageByDesignId(int id)
+        {
+            try
+            {
+                return Card.GetCardDesignImageByDesignId(id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public int GetBannerVersion()
+        {
+            try
+            {
+                return Info.GetBannerVersion();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<KeyValuePair<short, string>> GetSecuritiesTypes()
+        {
+            try
+            {
+                return Info.GetSecuritiesTypes((Languages)Language);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<KeyValuePair<short, string>> GetTradingOrderTypes()
+        {
+            try
+            {
+                return Info.GetTradingOrderTypes((Languages)Language);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public string GenerateBrokerContractNumber()
+        {
+            try
+            {
+                return Info.GenerateBrokerContractNumber();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public  async Task<BrokerContractSurvey> GetBrokerContractSurvey()
+        {
+            try
+            {
+                return await BrokerContractOrder.GetBrokerContractSurvey((Languages)Language);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public async Task<bool> HasBrokerContract()
+        {
+            try
+            {
+                return await BrokerContractOrder.HasBrokerContract(AuthorizedCustomer.CustomerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public List<KeyValuePair<short, string>> GetTradingOrderExpirationTypes()
+        {
+            try
+            {
+                return Info.GetTradingOrderExpirationTypes((Languages)Language);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<string> GetLinkedCardWarnings(string cardNumber, bool renewWithCardNewType)
+        {
+            try
+            {
+                return CardRenewOrder.GetLinkedCardWarnings(cardNumber, renewWithCardNewType);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        
+        public Dictionary<string, string> GetLeasingReportTypes()
+        {
+            try
+            {
+                Dictionary<string, string> reportTypes = new Dictionary<string, string>();
+                DataTable dt = Info.GetLeasingReportTypes();
+
+                foreach (DataRow item in dt.Rows)
+                    reportTypes.Add(item["id"].ToString(), Utility.ConvertAnsiToUnicode(item["name"].ToString()));
+                
+                return reportTypes;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public Dictionary<string, string> GetLeasingCredentialClosingReasons()
+        {
+            try
+            {
+                Dictionary<string, string> credentialClosingReasons = new Dictionary<string, string>();
+                DataTable dt = Info.GetLeasingCredentialClosingReasons();
+                foreach (DataRow row in dt.Rows)
+                    credentialClosingReasons.Add(row["Id"].ToString(), row["description"].ToString());
+                
+                return credentialClosingReasons;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
 
     }
 }

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
-    public class FactoringTerminationOrder:Order
+    public class FactoringTerminationOrder : Order
     {
         /// <summary>
         /// Դադարեցվող ֆակտորինգի ունիկալ համար
@@ -38,8 +33,8 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result = FactoringDB.SaveFactoringTerminationOrder(this, userName, source,user.filialCode);
-              
+                result = FactoringDB.SaveFactoringTerminationOrder(this, userName, source, user.filialCode);
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -106,7 +101,7 @@ namespace ExternalBanking
             this.SubType = 1;
             if ((this.OrderNumber == null || this.OrderNumber == "") && this.Id == 0)
                 this.OrderNumber = GenerateNextOrderNumber(this.CustomerNumber);
-            
+
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
         }
@@ -127,7 +122,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result = FactoringDB.SaveFactoringTerminationOrder(this, userName, source,user.filialCode);
+                result = FactoringDB.SaveFactoringTerminationOrder(this, userName, source, user.filialCode);
                 LogOrderChange(user, action);
                 scope.Complete();
             }

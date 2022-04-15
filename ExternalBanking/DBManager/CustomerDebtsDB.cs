@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using System.Transactions;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
-   public class CustomerDebtsDB
+    public class CustomerDebtsDB
     {
-        public static List<CustomerDebts> GetCustomerDebts(ulong customerNumber,string accountNumber="")
+        public static List<CustomerDebts> GetCustomerDebts(ulong customerNumber, string accountNumber = "")
         {
             List<CustomerDebts> debts = new List<CustomerDebts>();
-            
 
-            using(SqlConnection conn=new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand("Sp_CustomerDebtCheckings", conn))
@@ -182,9 +180,9 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                       
+
                 }
-                  
+
             }
             return debts;
         }
@@ -205,7 +203,7 @@ namespace ExternalBanking.DBManager
                     double amount = Convert.ToDouble(cmd.ExecuteScalar());
                     return amount;
                 }
-                   
+
 
             }
         }

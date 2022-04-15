@@ -1,21 +1,14 @@
-﻿using System;
-using System.Web;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
-using ExternalBanking;
-using System.Data;
-using NLog;
-using System.Collections;
-using ExternalBankingService.Interfaces;
-using infsec = ExternalBankingService.InfSecServiceReference;
+﻿using ExternalBanking;
 using ExternalBanking.XBManagement;
-using System.Web.Configuration;
+using ExternalBankingService.Interfaces;
+using NLog;
 using NLog.Targets;
+using System;
+using System.Collections.Generic;
+using System.ServiceModel;
+using System.Web.Configuration;
 using acba = ExternalBanking.ACBAServiceReference;
-using ExternalBankingService.InfSecServiceReference;
+using infsec = ExternalBankingService.InfSecServiceReference;
 
 
 namespace ExternalBankingService

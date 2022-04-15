@@ -36,7 +36,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@service_amount", SqlDbType.Float).Value = template.UtilityPaymentOrder.ServiceAmount;
                     cmd.Parameters.Add("@cod", SqlDbType.NVarChar).Value = template.UtilityPaymentOrder.Code;
                     cmd.Parameters.Add("@comunal_type", SqlDbType.Int).Value = template.UtilityPaymentOrder.CommunalType;
-                    cmd.Parameters.Add("@branch", SqlDbType.Int).Value = template.UtilityPaymentOrder.Branch;
+                    cmd.Parameters.Add("@branch", SqlDbType.NVarChar).Value = template.UtilityPaymentOrder.Branch;
                     cmd.Parameters.Add("@abonent_type", SqlDbType.TinyInt).Value = template.UtilityPaymentOrder.AbonentType;
                     cmd.Parameters.Add("@isPrepaid", SqlDbType.Bit).Value = template.UtilityPaymentOrder.PrepaidSign;
                     if (template.UtilityPaymentOrder.CommunalType == CommunalTypes.COWater)

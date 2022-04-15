@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -16,7 +12,7 @@ namespace ExternalBanking
         /// <summary>
         /// Գումար ուղարկողի բնակության վայրը
         /// </summary>
-        public int SenderLivingPlace { get; set;}
+        public int SenderLivingPlace { get; set; }
         /// <summary>
         /// Գումարի ուղարկողի բնակության վայրի նկարագրությունը
         /// </summary>
@@ -28,11 +24,11 @@ namespace ExternalBanking
         /// <summary>
         ///  Գումարի ստացողի բնակության վայրի նկարագրությունը
         /// </summary>
-        public string ReceiverLivingPlaceDescription { get; set;}
+        public string ReceiverLivingPlaceDescription { get; set; }
         /// <summary>
         /// Փոխանցման գումարի բնույթը
         /// </summary>
-        public int TransferAmountType  { get; set; }
+        public int TransferAmountType { get; set; }
         /// <summary>
         /// Փոխանցման գումարի բնույթի նկարագրությունը
         /// </summary>
@@ -40,20 +36,23 @@ namespace ExternalBanking
         /// <summary>
         /// Փոխանցվող գումարի նպատակները (նպատակ, գումար)
         /// </summary>
-        public List<TransferAmountPurposeDetail> TransferAmountPurposes { get; set;}
+        public List<TransferAmountPurposeDetail> TransferAmountPurposes { get; set; }
         /// <summary>
         /// Պահպանում է փոխանցման լրացուցիչ տվյալները
         /// </summary>
         /// <param name="transferData"></param>
-        public static  void Save(TransferAdditionalData transferData) {
+        public static void Save(TransferAdditionalData transferData)
+        {
             TransferAdditionalDataDB.Save(transferData);
         }
 
-        public static TransferAdditionalData GetTransferAdditionalData(long orderId) {
-           return TransferAdditionalDataDB.GetTransferAdditionalData(orderId);
+        public static TransferAdditionalData GetTransferAdditionalData(long orderId)
+        {
+            return TransferAdditionalDataDB.GetTransferAdditionalData(orderId);
         }
     }
-    public class TransferAmountPurposeDetail {
+    public class TransferAmountPurposeDetail
+    {
         /// <summary>
         /// Նպատակ
         /// </summary>

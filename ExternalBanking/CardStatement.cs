@@ -17,7 +17,7 @@ namespace ExternalBanking
 
         //Ընդամենը ելքեր
         public double TotalDebitAmount { get; set; }
-        
+
         /// <summary>
         /// Հաշվետու ժամանակաշրջան
         /// </summary>
@@ -220,7 +220,7 @@ namespace ExternalBanking
             /// Արժեք
             /// </summary>
             public string Value { get; set; }
-            
+
 
             #endregion
         }
@@ -278,7 +278,7 @@ namespace ExternalBanking
 
         }
 
-        public void GetFullCardStatement(string cardNumber, DateTime dateFrom, DateTime dateTo, byte language )
+        public void GetFullCardStatement(string cardNumber, DateTime dateFrom, DateTime dateTo, byte language)
         {
             CardDB.GetFullCardStatement(this, cardNumber, dateFrom, dateTo, language);
         }

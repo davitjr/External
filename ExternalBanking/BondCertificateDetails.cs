@@ -13,7 +13,7 @@ public class BondCertificateDetails
     /// Գրանցման օր
     /// </summary>
     public DateTime RegistrationDate { get; set; }
-    
+
     public string FullName { get; set; }
 
     public int ClientType { get; set; }

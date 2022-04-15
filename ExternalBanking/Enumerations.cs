@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace ExternalBanking
@@ -1063,6 +1059,11 @@ namespace ExternalBanking
         /// Երրորդ անձի իրավունքի փոխանցման
         /// </summary>
         ThirdPersonAccountRightsTransfer = 251,
+
+        /// <summary>
+        /// Լիզինգի մարում
+        /// </summary>
+        LeasingPaymentOrder = 252,
         /// <summary>
         /// MR ծառայության տվյալների խմբագրման հայտ
         /// </summary>
@@ -1081,7 +1082,74 @@ namespace ExternalBanking
         /// <summary>
         /// Արժեթղթերի հաշվի բացման հայտ
         /// </summary>
-        DepositaryAccountOpeningOrder = 256
+        DepositaryAccountOpeningOrder = 256,
+
+        /// <summary>
+        /// Բանկոմատին փոխանցման չեղարկում
+        /// </summary>
+        CardlessCashoutCancellationOrder = 257,
+
+        /// <summary>
+        /// Սպառողական վարկի ձևակերպման հայտ
+        /// </summary>
+        ConsumeLoanSettlementOrder = 258,
+
+        /// <summary>
+        /// ԱՊՊԱ պայմանագրի հայտ
+        /// </summary>
+        VehicleInsuranceOrder = 259,
+
+        /// <summary>
+        /// Acbamat փոխարկման հայտ
+        /// </summary>
+        AcbamatOrder = 260,
+
+        /// <summary>
+        /// Արժեթղթի գնման հայտ
+        /// </summary>
+        SecuritiesBuyOrder = 261,
+
+        /// <summary>
+        /// Արժեթղթի վաճառքի հայտ
+        /// </summary>
+        SecuritiesSellOrder = 262,
+
+
+        /// <summary>
+        /// Բրոքերային պայմանագրի հայտ
+        /// </summary>
+        BrokerContractOrder = 263,
+
+        /// <summary>
+        /// Բորսայում կատարված գործարքին համապատասխան հայտի
+        /// </summary>
+        SecuritiesMarketTradingOrder = 264,
+
+        /// <summary>
+        /// Արժեթղթերի առուվաճառքի հայտի չեղարկում
+        /// </summary>
+        SecuritiesTradingOrderCancellationOrder = 265,
+
+        /// <summary>
+        /// POS տերմինալի մուտքագռման հայտ
+        /// </summary>
+        NewPosTerminalInsertOrder = 266
+    }
+
+    /// <summary>
+    /// Հանձնարարականի համար նախատեսված հաշիվների տեսակներ
+    /// </summary>
+    public enum AcbamatSubType : byte
+    {
+        /// <summary>
+        /// Acbamat փոխարկման հայտ
+        /// </summary>
+        AcbamatExchangeOrder = 1,
+
+        /// <summary>
+        /// Acbamat 3-րդ կողմ կազմակերպություններից կանխիկացում
+        /// </summary>
+        AcbamatThirdPartyWithdrawalOrder = 2
     }
 
     /// <summary>
@@ -1429,7 +1497,11 @@ namespace ExternalBanking
         /// <summary>
         /// Հղումով փոխանցման վճարման web տիրույթ
         /// </summary>
-        LinkPayment = 15
+        LinkPayment = 15,
+        /// <summary>
+        /// Տերմինալով exchange NCR
+        /// </summary>
+        AcbaMat = 16
     }
 
     /// <summary>
@@ -1563,7 +1635,11 @@ namespace ExternalBanking
         /// <summary>
         /// Կառուցապատողի հատուկ հաշիվներ
         /// </summary>
-        DevelopersAccount = 119
+        DevelopersAccount = 119,
+        /// <summary>
+        /// Վճարած երաշխիք
+        /// </summary>
+        AllTypeGuarantee = 53
 
     }
     /// <summary>
@@ -2908,7 +2984,8 @@ namespace ExternalBanking
         ARCA_PENSION = 21,
         AMEX_GOLD_CHP = 41,
         ACBA_FEDERATION = 43,
-        VISA_VIRTUAL = 51
+        VISA_VIRTUAL = 51,
+        VISA_DIGITAL = 53
 
     }
 
@@ -3448,4 +3525,76 @@ namespace ExternalBanking
         FromBank = 2
     }
 
+    public enum FeeTransferTypes
+    {
+        None = 0,
+        MobileNumber = 1,
+        HayastanFund = 2,
+        MilitaryFund = 3
+    }
+
+    public enum ThirdPartyOrganizationTypes
+    {
+        None = 0,
+        TellcellWallet = 1,
+        Adjarabet = 2
+    }
+
+    public enum TransactionTypesByAML
+    {
+        PaymentForProperty = 1,
+        PaymentForService = 2,
+        Loan = 3,
+        Securities = 4,
+        FinancialHelp = 5,
+        RealEstate = 6,
+        Other = 7
+    }
+
+    public enum SecuritiesTradingOrderTypes : short
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Շուկայական
+        /// </summary>
+        Market = 1,
+
+        /// <summary>
+        /// Լիմիտային
+        /// </summary>
+        Limit = 2,
+
+        /// <summary>
+        /// Ստոպ
+        /// </summary>
+        Stop = 3,
+
+        /// <summary>
+        /// Ստոպ լիմիտային
+        /// </summary>
+        StopLimit = 4
+    }
+
+    public enum SecuritiesTradingOrderExpirationType : short
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Մինչև առևտրային օրվա ավարտը
+        /// </summary>
+        MarketDayEnd = 1,
+
+        /// <summary>
+        /// Ուժի մեջ է մինչև հաճախորդի կողմից չեղարկումը
+        /// </summary>
+        CancellationByCustomer = 2
+
+    }
 }

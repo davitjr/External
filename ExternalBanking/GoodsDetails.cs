@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
     public class GoodsDetails
     {
@@ -22,7 +16,7 @@ namespace ExternalBanking
         /// <summary>
         /// Կանխավճար(%)
         /// </summary>
-        public float PrepaidPercent { get; set;}
+        public float PrepaidPercent { get; set; }
         /// <summary>
         /// Ապրանքի անվանում
         /// </summary>

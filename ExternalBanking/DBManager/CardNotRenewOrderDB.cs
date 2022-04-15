@@ -16,7 +16,7 @@ namespace ExternalBanking.DBManager
         /// <param name="userName"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        internal static ActionResult Save(CardNotRenewOrder order, SourceType source, string userName)
+        internal static ActionResult Save(CardNotRenewOrder order, SourceType source)
         {
             ActionResult result = new ActionResult();
 
@@ -32,14 +32,13 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@reason", SqlDbType.Int).Value = order.Reason;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (int)source;
-                    cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
                     cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = (int)order.Type;
                     cmd.Parameters.Add("@order_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
-                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Card.Currency;
+                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.PlasticCard.Currency;
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
-                    cmd.Parameters.Add("@product_id", SqlDbType.Float).Value = order.Card.ProductId;
+                    cmd.Parameters.Add("@product_id", SqlDbType.Float).Value = order.PlasticCard.ProductId;
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -81,7 +80,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-               using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id,                                                          
+                using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id,                                                          
                                                           H.customer_number,
                                                           H.document_number,
                                                           H.currency,
@@ -112,7 +111,7 @@ namespace ExternalBanking.DBManager
                     order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                     order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
-                    order.Card = Card.GetCard(productId, order.CustomerNumber);
+                    order.PlasticCard = PlasticCard.GetPlasticCard(productId, true);
                     order.Description = Utility.ConvertAnsiToUnicode(dt.Rows[0]["descriptionH"].ToString());
                     order.ReasonDesc = Utility.ConvertAnsiToUnicode(dt.Rows[0]["descriptionR"].ToString());
                 }
@@ -123,7 +122,7 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// Քարտի գարգավիճակը NORM է թե ոչ
         /// </summary>
-        internal static bool IsNormCardStatus(string cardNumber, long productId)
+        internal static bool IsNormCardStatus(string cardNumber, ulong productId)
         {
             bool isNorm = false;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -149,7 +148,7 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// Քարտն արդեն չվերաթողարկվել է։
         /// </summary>
-        internal static bool IsCardAlreadyNotRenewed(long productId)
+        internal static bool IsCardAlreadyNotRenewed(ulong productId)
         {
             bool isCardAlreadyNotRenewed = false;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))

@@ -1,13 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
@@ -50,7 +45,6 @@ namespace ExternalBanking
         {
             this.Complete();
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -121,11 +115,11 @@ namespace ExternalBanking
                 credentialId = Convert.ToUInt64(dt.Rows[0]["assign_id"].ToString());
                 assigneeCustomerNumber = Convert.ToUInt64(dt.Rows[0]["assignee_customer_number"].ToString());
             }
-                    
+
 
             this.Credential = credentials.Find(m => m.Id == credentialId);
 
-            this.Credential.AssigneeList[0].CustomerNumber = assigneeCustomerNumber;          
+            this.Credential.AssigneeList[0].CustomerNumber = assigneeCustomerNumber;
         }
 
     }

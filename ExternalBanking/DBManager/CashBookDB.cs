@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -60,7 +57,7 @@ namespace ExternalBanking.DBManager
                         sql = sql + " AND c.debit_credit = @debit_credit";
                         cmd.Parameters.AddWithValue("@debit_credit", searchParams.OperationType == 1 ? "d" : "c");
                     }
-             
+
 
                     sql = sql + " ORDER BY c.[date]  + c.[time] desc";
                     cmd.Parameters.AddWithValue("@date", new DateTime(searchParams.RegistrationDate.Year, searchParams.RegistrationDate.Month, searchParams.RegistrationDate.Day, 0, 0, 0));
@@ -94,7 +91,7 @@ namespace ExternalBanking.DBManager
                                 cashBook.MaturedAmount = Convert.ToDouble(dr["maturedAmount"]);
                             }
 
-							if (dr["cor_set_number"] != DBNull.Value)
+                            if (dr["cor_set_number"] != DBNull.Value)
                             {
                                 cashBook.CorrespondentSetNumber = Convert.ToInt32(dr["cor_set_number"]);
                             }
@@ -108,7 +105,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-                   
+
             }
 
             return cashBooks;
@@ -131,7 +128,7 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     linkedRowID = Convert.ToInt32(cmd.ExecuteScalar());
                 }
-                  
+
             }
             return linkedRowID;
         }
@@ -173,7 +170,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.AddWithValue("@ID", cashBookID);
                     cmd.ExecuteNonQuery();
                 }
-                   
+
             }
             result.ResultCode = ResultCode.Normal;
             return result;
@@ -220,7 +217,7 @@ namespace ExternalBanking.DBManager
                         cmd.ExecuteNonQuery();
                     }
                 }
-                   
+
             }
             result.ResultCode = ResultCode.Normal;
 
@@ -241,7 +238,7 @@ namespace ExternalBanking.DBManager
                 {
                     sql = @"SELECT TOP 1 new_id FROM v_cashers_list WHERE group_id=198  and filial_code=@filial_code and active_user=0";
                 }
-                
+
 
                 using (SqlCommand cmd = new SqlCommand())
                 {
@@ -259,7 +256,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-                   
+
             }
             return correspondentSetNumber;
         }
@@ -288,7 +285,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-                   
+
             }
             return filialCode;
         }
@@ -345,7 +342,7 @@ namespace ExternalBanking.DBManager
                         conn.Open();
                         restTransactions = Convert.ToDouble(cmd.ExecuteScalar());
                     }
-                        
+
                 }
             }
             return restTransactions;
@@ -385,13 +382,13 @@ namespace ExternalBanking.DBManager
                         conn.Open();
                         restCashBook = Math.Round(Convert.ToDouble(cmd.ExecuteScalar()), 2);
                     }
-                       
+
                 }
             }
             return restCashBook + GetRestTransactions(searchParams);
         }
 
-        internal static ActionResult ChangeCashBookStatus(int cashBookID,int setnumber,int newStatus,int oldStatus)
+        internal static ActionResult ChangeCashBookStatus(int cashBookID, int setnumber, int newStatus, int oldStatus)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -406,13 +403,13 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.AddWithValue("@old_status", oldStatus);
                     cmd.ExecuteNonQuery();
                 }
-                   
+
             }
             result.ResultCode = ResultCode.Normal;
             return result;
         }
 
-        
+
         public static int GetCashBookSetnumber(int cashBookID)
         {
             int setNumber = 0;
@@ -436,13 +433,13 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-                    
+
             }
             return setNumber;
         }
 
 
-		public static void DeleteCashBook(int Id)
+        public static void DeleteCashBook(int Id)
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
@@ -457,64 +454,64 @@ namespace ExternalBanking.DBManager
             }
         }
 
-		public static double GetCashBookAmount(int cashBookID)
-		{
-			double amount = 0;
-			using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-			{
-				string sql = @"select amount from tbl_Cash_book where ID=@cashBookID";
+        public static double GetCashBookAmount(int cashBookID)
+        {
+            double amount = 0;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"select amount from tbl_Cash_book where ID=@cashBookID";
 
-				using (SqlCommand cmd = new SqlCommand())
-				{
-					cmd.Connection = conn;
-					cmd.CommandText = sql;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = sql;
 
-					cmd.Parameters.AddWithValue("@cashBookID", cashBookID);
+                    cmd.Parameters.AddWithValue("@cashBookID", cashBookID);
 
-					conn.Open();
-					using (SqlDataReader dr = cmd.ExecuteReader())
-					{
-						while (dr.Read())
-						{
-							amount = Convert.ToDouble(dr["amount"]);
-						}
-					}
-				}
+                    conn.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            amount = Convert.ToDouble(dr["amount"]);
+                        }
+                    }
+                }
 
-			}
-			return amount;
-		}
+            }
+            return amount;
+        }
 
 
-		public static bool HasUnconfirmedOrder(int cashbookId)
-		{
-			bool flag = false;
-			using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-			{
-				string sql = @" select 1 from tbl_cash_book 
+        public static bool HasUnconfirmedOrder(int cashbookId)
+        {
+            bool flag = false;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @" select 1 from tbl_cash_book 
 										where linked_row_id =  @cashbookId and status = 0";
 
-				using (SqlCommand cmd = new SqlCommand())
-				{
-					cmd.Connection = conn;
-					cmd.CommandText = sql;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = sql;
 
-					cmd.Parameters.AddWithValue("@cashbookId", cashbookId);
+                    cmd.Parameters.AddWithValue("@cashbookId", cashbookId);
 
-					conn.Open();
-					using (SqlDataReader dr = cmd.ExecuteReader())
-					{
-						if (dr.HasRows)
-						{
-							flag = true;
-						}
-					}
-				}
+                    conn.Open();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.HasRows)
+                        {
+                            flag = true;
+                        }
+                    }
+                }
 
-			}
-			return flag;
-		}
+            }
+            return flag;
+        }
 
 
-	}
+    }
 }

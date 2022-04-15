@@ -3,14 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking;
-using System.IO;
-using xbs = ExternalBanking.ACBAServiceReference;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -186,7 +178,7 @@ namespace ExternalBanking.DBManager
                                             }
 
                                             string query = "SELECT d.doc_ID,customer_number,d.credit_bank_code,d.credit_account, cast(d.credit_bank_code as varchar)+d.credit_account as arm_number," +
-                                                    "CASE WHEN d.currency = 'RUR' THEN  d.receiver_name ELSE dbo.getascii(d.receiver_name) END as receiver_name,d.budj_transfer_reg_code,r.Reject_description,d.urgent " +
+                                                    "d.receiver_name,d.budj_transfer_reg_code,r.Reject_description,d.urgent " +
                                                     "FROM Tbl_HB_documents d  LEFT JOIN Tbl_types_of_HB_rejects r ON d.reject_ID = r.Reject_ID  WHERE d.doc_ID = @docId";
                                             using (SqlCommand _cmd = _con.CreateCommand())
                                             {
@@ -194,7 +186,7 @@ namespace ExternalBanking.DBManager
                                                 _cmd.CommandType = CommandType.Text;
                                                 _cmd.Parameters.Add("@docId", SqlDbType.Int).Value = doc.TransactionCode;
 
-                                                 SqlDataReader reader = _cmd.ExecuteReader();
+                                                SqlDataReader reader = _cmd.ExecuteReader();
 
                                                 if (reader.HasRows)
                                                 {
@@ -947,7 +939,7 @@ namespace ExternalBanking.DBManager
                     _con.Close();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 done = false;
             }
@@ -987,7 +979,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 done = false;
             }
@@ -1027,7 +1019,7 @@ namespace ExternalBanking.DBManager
                     _con.Close();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 done = false;
             }
@@ -1373,7 +1365,7 @@ namespace ExternalBanking.DBManager
                         _cmd.ExecuteNonQuery();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     result = "Տեղի ունեցավ սխալ";
                 }
@@ -1512,7 +1504,7 @@ namespace ExternalBanking.DBManager
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 done = false;
 
@@ -2007,7 +1999,7 @@ namespace ExternalBanking.DBManager
                     _cmd.Parameters.Add("@filalCode", SqlDbType.Int).Value = filalCode;
 
                     _cmd.CommandTimeout = 120;
-                     SqlDataReader reader = _cmd.ExecuteReader();
+                    SqlDataReader reader = _cmd.ExecuteReader();
 
                     int rowCount = 0;
 
@@ -2104,7 +2096,7 @@ namespace ExternalBanking.DBManager
                         _cmd.CommandType = CommandType.Text;
                         _cmd.Parameters.Add("@msgId", SqlDbType.Int).Value = msgId;
 
-                       using SqlDataReader reader = _cmd.ExecuteReader();
+                        using SqlDataReader reader = _cmd.ExecuteReader();
 
                         if (reader.HasRows)
                         {
@@ -2152,22 +2144,10 @@ namespace ExternalBanking.DBManager
         internal static string PostSentMessageToCustomer(HBMessages obj)
         {
             string json = string.Empty;
-            int receiverType = 0;
+
 
             if (obj != null)
             {
-                switch (obj.CustomerType)
-                {
-                    case 1:
-                        receiverType = 3;
-                        break;
-                    case 2:
-                        receiverType = 2;
-                        break;
-                    case 3:
-                        receiverType = 1;
-                        break;
-                }
 
                 switch (obj.OperationType)
                 {
@@ -2219,7 +2199,7 @@ namespace ExternalBanking.DBManager
                             {
                                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
                                 {
-                                    string query = "select * from dbo.[Tbl_HB_Users] where customer_number= @custNum ";
+                                    string query = "select 1 from dbo.[Tbl_HB_Users] WITH (NOLOCK) where customer_number= @custNum ";
 
                                     using (SqlCommand _cmd = new SqlCommand(query, _con))
                                     {
@@ -2240,8 +2220,8 @@ namespace ExternalBanking.DBManager
                                 }
                                 using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                                 {
-                                    string query = "Insert into dbo.Tbl_messages_with_bank(customer_number,[description],sent_date,reply_id,[status],set_number,sentrecieve,subject)" +
-                                        "values( @custNum, @msg, @datetime, 0, 1, @setNum, 2, @subject)";
+                                    string query = @"Insert into dbo.Tbl_messages_with_bank(customer_number,[description],sent_date,reply_id,[status],set_number,sentrecieve,subject)
+                                        values( @custNum, @msg, @datetime, 0, 1, @setNum, 2, @subject)";
 
                                     using (SqlCommand _cmd = new SqlCommand(query, _con))
                                     {
@@ -2299,11 +2279,11 @@ namespace ExternalBanking.DBManager
                             using (SqlConnection _con = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
                             {
 
-                                string query = "Insert into dbo.[Tbl_messages_with_bank](customer_number,[description],sent_date,reply_id,[status],set_number,sentrecieve,subject) " +
-                                    "select u.customer_number, @msg , @datetime ,0,1, @setNum ,2, @subject" +
-                                    " from [Tbl_HB_Users] u inner join Tbl_customers c on u.customer_number = c.customer_number" +
-                                    " where(@customerType = 2 and c.type_of_client = 6) or( @customerType = 1 and c.type_of_client <> 6)  " +
-                                    "or(@customerType = 0)";
+                                string query = @"Insert into dbo.[Tbl_messages_with_bank](customer_number,[description],sent_date,reply_id,[status],set_number,sentrecieve,subject) 
+                                    select u.customer_number, @msg , @datetime ,0,1, @setNum ,2, @subject
+                                    from [Tbl_HB_Users] u WITH (NOLOCK) inner join Tbl_customers c WITH (NOLOCK) on u.customer_number = c.customer_number
+                                    where(@customerType = 2 and c.type_of_client = 6) or( @customerType = 1 and c.type_of_client <> 6)  
+                                    or(@customerType = 0)";
 
 
                                 using (SqlCommand _cmd = new SqlCommand(query, _con))
@@ -2533,7 +2513,7 @@ namespace ExternalBanking.DBManager
 
                             if (reader.HasRows)
                             {
-                                int i = 0;
+
                                 while (reader.Read())
                                 {
                                     ulong customerNum = AccountDB.GetAccountCustomerNumber(Convert.ToString(reader["credit_account"]));
@@ -3041,7 +3021,7 @@ namespace ExternalBanking.DBManager
                 filter = " h.quality<>40 and h.quality<>1 ";
             }
 
-            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247, 254, 191) ";
+            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247, 254, 191, 255, 260, 250) ";
 
             if (obj.OnlyACBA == 1)
             {

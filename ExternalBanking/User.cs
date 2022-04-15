@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
+using System.Collections.Generic;
 
 namespace ExternalBanking.ACBAServiceReference
 {
@@ -169,7 +164,7 @@ namespace ExternalBanking.ACBAServiceReference
         public static bool CanSendToCashier(long UserID)
         {
             bool result;
-            
+
             ClientPermissionsInfo clientPermissions = new ClientPermissionsInfo();
             clientPermissions.userID = (short)UserID;
             clientPermissions.pageName = "-1";
@@ -178,7 +173,7 @@ namespace ExternalBanking.ACBAServiceReference
             ClientPermissions permissions = LoginOperationsService.GetVarPermissionForPage(clientPermissions);
 
             return bool.TryParse(permissions.valueOfPermission, out result);
-            
+
         }
     }
 }

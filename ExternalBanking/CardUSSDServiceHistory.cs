@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -30,12 +27,12 @@ namespace ExternalBanking
         /// 
         /// </summary>
         public string CardNumber { get; set; }
-       
+
         /// <summary>
         /// Հաճախորդի համար
         /// </summary>
         public ulong CustomerNumber { get; set; }
-        
+
         /// <summary>
         /// գործողության տեսակի նկարագրություն
         /// </summary>

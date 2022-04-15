@@ -1,13 +1,9 @@
 ﻿using ExternalBanking.DBManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
-    public class RejectedOrderMessage :UserMessage
+    public class RejectedOrderMessage : UserMessage
     {
         /// <summary>
         /// Հաղորդագրության ունիկալ համար
@@ -22,9 +18,10 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public static List<RejectedOrderMessage> GetRejectedMessages(int userId,int filter,int start,int end) {
+        public static List<RejectedOrderMessage> GetRejectedMessages(int userId, int filter, int start, int end)
+        {
 
-            return RejectedOrderMessageDB.GetRejectedMessages(userId,filter,start,end);
+            return RejectedOrderMessageDB.GetRejectedMessages(userId, filter, start, end);
         }
 
         /// <summary>
@@ -34,7 +31,7 @@ namespace ExternalBanking
         public static void CloseRejectedMessage(int messageId)
         {
 
-             RejectedOrderMessageDB.CloseRejectedMessage(messageId);
+            RejectedOrderMessageDB.CloseRejectedMessage(messageId);
         }
 
 
@@ -46,7 +43,7 @@ namespace ExternalBanking
         public static int GetTotalRejectedUserMessages(int userId)
         {
 
-           return RejectedOrderMessageDB.GetTotalRejectedUserMessages(userId);
+            return RejectedOrderMessageDB.GetTotalRejectedUserMessages(userId);
         }
     }
 }

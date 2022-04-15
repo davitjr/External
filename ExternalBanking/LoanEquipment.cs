@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions;
+﻿using ExternalBanking.DBManager;
+using System;
 
 namespace ExternalBanking
 {
@@ -250,6 +245,6 @@ namespace ExternalBanking
         }
 
 
-        
+
     }
 }

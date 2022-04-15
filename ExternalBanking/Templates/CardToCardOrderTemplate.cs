@@ -1,9 +1,4 @@
 ﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -24,7 +19,7 @@ namespace ExternalBanking
         public CardToCardOrder CardToCardOrder { get; set; }
 
 
-        
+
         /// <summary>
         /// Ձևանմուշի/խմբային ծառայության պահպանում
         /// </summary>
@@ -94,7 +89,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public static CardToCardOrderTemplate Get(int templateId, ulong customerNumber)
         {
-            var template =  CardToCardOrderTemplateDB.GetCardToCardOrderTemplate(templateId, customerNumber);
+            var template = CardToCardOrderTemplateDB.GetCardToCardOrderTemplate(templateId, customerNumber);
             template.CardToCardOrder.IsOurCard = Card.IsOurCard(template.CardToCardOrder.CreditCardNumber);
             if (template.CardToCardOrder.IsOurCard)
             {

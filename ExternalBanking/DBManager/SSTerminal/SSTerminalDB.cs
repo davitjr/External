@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -39,7 +36,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand())
                 {
-                    
+
                     cmd.Connection = conn;
                     cmd.CommandText = "pr_terminal_password_check_int";
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -56,7 +53,7 @@ namespace ExternalBanking.DBManager
 
         internal static ushort GetTerminalFilial(string terminalID)
         {
-            ushort filial = 0; 
+            ushort filial = 0;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();

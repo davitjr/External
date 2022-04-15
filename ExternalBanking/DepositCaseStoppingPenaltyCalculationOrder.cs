@@ -1,13 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
@@ -71,7 +65,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = DepositCaseStoppingPenaltyCalculationOrderDB.SaveDepositCaseStoppingPenaltyCalculationOrder(this, userName);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

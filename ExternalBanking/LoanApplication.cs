@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -33,7 +30,7 @@ namespace ExternalBanking
         /// Դիմումի ա/թ
         /// </summary>
         public DateTime ApplicationDate { get; set; }
-        
+
         /// <summary>
         /// Վարկային պրոդուկտի Տեսակ
         /// </summary>
@@ -53,7 +50,7 @@ namespace ExternalBanking
         /// Արժույթ
         /// </summary>
         public string Currency { get; set; }
-        
+
         /// <summary>
         /// Սկիզբ
         /// </summary>
@@ -137,7 +134,7 @@ namespace ExternalBanking
             List<LoanApplication> deposits = new List<LoanApplication>();
 
             deposits.AddRange(LoanApplicationDB.GetLoanApplications(customerNumber));
-           
+
             return deposits;
         }
 

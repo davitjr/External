@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
-   public class FondDB
+    public class FondDB
     {
-        internal static List <Fond> GetFonds()
+        internal static List<Fond> GetFonds()
         {
             List<Fond> fonds = new List<Fond>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -121,7 +121,7 @@ namespace ExternalBanking.DBManager
             return fond;
         }
 
-        private static List<FondProvidingDetail> GetFondProvidingDetails (int ID)
+        private static List<FondProvidingDetail> GetFondProvidingDetails(int ID)
         {
             List<FondProvidingDetail> providingDetails = new List<FondProvidingDetail>();
 
@@ -145,7 +145,7 @@ namespace ExternalBanking.DBManager
 
                         DataRow row = dt.Rows[i];
 
-                        FondProvidingDetail  providingDetail = SetFondProvidingDetail(row);
+                        FondProvidingDetail providingDetail = SetFondProvidingDetail(row);
 
                         providingDetails.Add(providingDetail);
                     }
@@ -169,7 +169,7 @@ namespace ExternalBanking.DBManager
                 if (row["filial_interest_rate"] != DBNull.Value)
                     providingDetail.InterestRate = float.Parse(row["filial_interest_rate"].ToString());
                 if (row["providing_termination_date"] != DBNull.Value)
-                    providingDetail.TerminationDate = Convert.ToDateTime(row["providing_termination_date"]);               
+                    providingDetail.TerminationDate = Convert.ToDateTime(row["providing_termination_date"]);
             }
 
             return providingDetail;
@@ -199,7 +199,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@fondDescription", SqlDbType.NVarChar, 250).Value = order.Fond.Description;
                     cmd.Parameters.Add("@isSubsidia", SqlDbType.Bit).Value = order.Fond.IsSubsidia;
                     cmd.Parameters.Add("@isActive", SqlDbType.Bit).Value = order.Fond.IsActive;
-                    
+
                     SqlParameter param = new SqlParameter("@ID", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
@@ -230,7 +230,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@DocID", SqlDbType.Float).Value = order.Id;
                         cmd.Parameters.Add("@fondID", SqlDbType.Int).Value = order.Fond.ID;
                         cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = m.Currency;
-                        cmd.Parameters.Add("@filialInterestRate", SqlDbType.Float).Value = Math.Round(m.InterestRate/100, 4);
+                        cmd.Parameters.Add("@filialInterestRate", SqlDbType.Float).Value = Math.Round(m.InterestRate / 100, 4);
                         cmd.Parameters.Add("@providingTerminationDate", SqlDbType.SmallDateTime).Value = m.TerminationDate != null ? (object)m.TerminationDate : DBNull.Value;
                         cmd.ExecuteNonQuery();
                     }

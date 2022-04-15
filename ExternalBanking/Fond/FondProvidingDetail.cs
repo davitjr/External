@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 { /// <summary>
@@ -34,7 +29,7 @@ namespace ExternalBanking
         /// <summary>
         /// Տրմադրման դադարեցում
         /// </summary>
-        public DateTime?  TerminationDate { get; set; }
+        public DateTime? TerminationDate { get; set; }
 
         public FondProvidingDetail()
         {

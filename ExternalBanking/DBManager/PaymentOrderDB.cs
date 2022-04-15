@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 
 namespace ExternalBanking.DBManager
@@ -63,7 +63,7 @@ namespace ExternalBanking.DBManager
                                     order.DebitAccount = Account.GetAccount(debitAccount);
                                 }
 
-                                if(order.DebitAccount != null)
+                                if (order.DebitAccount != null)
                                 {
                                     if (order.DebitAccount.IsIPayAccount())
                                     {
@@ -74,7 +74,7 @@ namespace ExternalBanking.DBManager
                                         order.CardFeeCurrency = "AMD";
                                     }
                                 }
-                               
+
                             }
 
 
@@ -209,7 +209,7 @@ namespace ExternalBanking.DBManager
                             }
                             if (dr["change_time"] != DBNull.Value)
                             {
-                                order.RegistrationTime =  dr["change_time"].ToString();
+                                order.RegistrationTime = dr["change_time"].ToString();
                             }
                             //if (dr["FeeAmount"] != DBNull.Value && Convert.ToInt16(dr["FeeType"]) == 1)
                             //{
@@ -235,37 +235,40 @@ namespace ExternalBanking.DBManager
                 }
             }
 
-            if ((order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking || order.Source == SourceType.AcbaOnlineXML
-                 || order.Source == SourceType.ArmSoft) && order.Type == OrderType.RATransfer && order.SubType == 1)
+            if (order != null)
             {
-                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+                if ((order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking || order.Source == SourceType.AcbaOnlineXML
+                     || order.Source == SourceType.ArmSoft) && order.Type == OrderType.RATransfer && order.SubType == 1)
                 {
-                    using (SqlCommand cmd = new SqlCommand())
+                    using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
                     {
-                        conn.Open();
-                        cmd.Connection = conn;
+                        using (SqlCommand cmd = new SqlCommand())
+                        {
+                            conn.Open();
+                            cmd.Connection = conn;
 
-                        cmd.CommandText = @"SELECT [dbo].[fnc_check_DAHK_availability] ((SELECT customer_number FROM [tbl_all_accounts;] WHERE Arm_number =
+                            cmd.CommandText = @"SELECT [dbo].[fnc_check_DAHK_availability] ((SELECT customer_number FROM [tbl_all_accounts;] WHERE Arm_number =
                         (SELECT CASE WHEN LEN(credit_account) > 10 THEN credit_account ELSE CAST(credit_bank_code AS varchar(10)) + credit_account END
                         FROM dbo.[Tbl_Hb_Documents]  WHERE Doc_Id = @id))) as hasDAHK";
-                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
-                        using (SqlDataReader dr = cmd.ExecuteReader())
-                        {
-                            if (dr.Read())
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
+                            using (SqlDataReader dr = cmd.ExecuteReader())
                             {
-                                order.CreditorHasDAHK = !Convert.ToBoolean(dr["hasDAHK"].ToString());
+                                if (dr.Read())
+                                {
+                                    order.CreditorHasDAHK = !Convert.ToBoolean(dr["hasDAHK"].ToString());
+                                }
+
                             }
 
-                        }
-
-                        cmd.CommandText = @"SELECT payment_Type FROM [dbo].[tbl_DAHK_bypass_of_HB_transfers] WHERE Doc_Id = @id";
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
-                        using (SqlDataReader dr = cmd.ExecuteReader())
-                        {
-                            if (dr.Read())
+                            cmd.CommandText = @"SELECT payment_Type FROM [dbo].[tbl_DAHK_bypass_of_HB_transfers] WHERE Doc_Id = @id";
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
+                            using (SqlDataReader dr = cmd.ExecuteReader())
                             {
-                                order.ArmPaymentType = Convert.ToInt32(dr["payment_Type"].ToString());
+                                if (dr.Read())
+                                {
+                                    order.ArmPaymentType = Convert.ToInt32(dr["payment_Type"].ToString());
+                                }
                             }
                         }
                     }
@@ -999,7 +1002,7 @@ namespace ExternalBanking.DBManager
 
                 string query = "select * from Tbl_HB_Transfers_Registry  where docID = @docId";
 
-                if((order.Source == SourceType.AcbaOnline || order.Source == SourceType.AcbaOnlineXML || order.Source == SourceType.ArmSoft || order.Source == SourceType.MobileBanking) 
+                if ((order.Source == SourceType.AcbaOnline || order.Source == SourceType.AcbaOnlineXML || order.Source == SourceType.ArmSoft || order.Source == SourceType.MobileBanking)
                     && (order.Quality == OrderQuality.Sent3 || order.Quality == OrderQuality.SBQprocessed))
                 {
                     query += " AND quality = 0";
@@ -1029,8 +1032,8 @@ namespace ExternalBanking.DBManager
                             reestrTransferAdditionalDetails.Description = Utility.ConvertAnsiToUnicode(row["reason"].ToString());
                         else
                             if (order.Type == OrderType.ReestrPaymentOrder || order.Type == OrderType.RosterTransfer)
-                                reestrTransferAdditionalDetails.Description = Utility.ConvertAnsiToUnicode(row["name_surname"].ToString());
-                        
+                            reestrTransferAdditionalDetails.Description = Utility.ConvertAnsiToUnicode(row["name_surname"].ToString());
+
 
                         if (order.Type == OrderType.RosterTransfer)
                         {
@@ -1042,7 +1045,7 @@ namespace ExternalBanking.DBManager
                         if (row["credit_account"] != DBNull.Value)
                             reestrTransferAdditionalDetails.CreditAccount = new Account(row["credit_account"].ToString());
 
-                        if(order.Type != OrderType.RosterTransfer)
+                        if (order.Type != OrderType.RosterTransfer)
                         {
                             reestrTransferAdditionalDetails.TransactionsGroupNumber = GetReestrTransferTransactionGroupNumber(order.Id, reestrTransferAdditionalDetails.Index);
                         }
@@ -1182,7 +1185,7 @@ namespace ExternalBanking.DBManager
 
 
 
-        public static ActionResult CheckExcelRows(List<ReestrTransferAdditionalDetails> reestrTransferAdditionalDetails, string debetAccount, Languages languages,long id)
+        public static ActionResult CheckExcelRows(List<ReestrTransferAdditionalDetails> reestrTransferAdditionalDetails, string debetAccount, Languages languages, long id)
         {
             ActionResult result = new ActionResult();
             DataTable dataTable = new DataTable();
@@ -1207,14 +1210,14 @@ namespace ExternalBanking.DBManager
                         cmd.CommandText = "sp_checkExcelRows";
                         cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.Add("@debit_acc", SqlDbType.VarChar, 50).Value = String.IsNullOrEmpty(debetAccount) ? "-1": debetAccount;
+                        cmd.Parameters.Add("@debit_acc", SqlDbType.VarChar, 50).Value = String.IsNullOrEmpty(debetAccount) ? "-1" : debetAccount;
                         cmd.Parameters.Add("@lang_id", SqlDbType.VarChar, 2).Value = languages;
 
 
 
                         SqlParameter prm = new SqlParameter("@dt", SqlDbType.Structured)
                         {
-                            Value = ReestrTransferAdditionalDetails.ConvertAdditionalReestrDetailsToDataTable(reestrTransferAdditionalDetails, languages,id),
+                            Value = ReestrTransferAdditionalDetails.ConvertAdditionalReestrDetailsToDataTable(reestrTransferAdditionalDetails, languages, id),
                             TypeName = "dbo.RegisterTransfersDetails"
                         };
                         cmd.Parameters.Add(prm);
@@ -1315,7 +1318,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
                     cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
                     cmd.Parameters.Add("@debit_acc", SqlDbType.VarChar).Value = order.DebitAccount.AccountNumber;
-                    cmd.Parameters.Add("@descr", SqlDbType.NVarChar).Value = order.Description == null?"":order.Description;
+                    cmd.Parameters.Add("@descr", SqlDbType.NVarChar).Value = order.Description == null ? "" : order.Description;
                     cmd.Parameters.Add("@lang_id", SqlDbType.SmallInt).Value = languages;
 
                     SqlParameter prm = new SqlParameter("@dt", SqlDbType.Structured)
@@ -1357,7 +1360,7 @@ namespace ExternalBanking.DBManager
                         result.ResultCode = ResultCode.Failed;
                         result.Id = -1;
                     }
-                  
+
                 }
             }
 
@@ -1574,7 +1577,7 @@ namespace ExternalBanking.DBManager
             return res;
         }
 
-        
+
 
     }
 }

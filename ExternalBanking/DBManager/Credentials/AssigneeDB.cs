@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
     internal static class AssigneeDB
-    {       
+    {
 
         /// <summary>
         /// GET CREDENTIAL ASIGNEE LIST
@@ -50,7 +50,7 @@ namespace ExternalBanking.DBManager
                     assigneeList.Add(oneAssignee);
                 }
 
-            }                        
+            }
 
             return assigneeList;
         }
@@ -65,17 +65,17 @@ namespace ExternalBanking.DBManager
                 oneAssignee.CustomerNumber = row["assignee_CustNumber"] != null ? ulong.Parse(row["assignee_CustNumber"].ToString()) : 0;
                 oneAssignee.SignatureType = ushort.Parse(row["signature_type"].ToString());
                 oneAssignee.IsEmployee = ushort.Parse(row["isemployee"].ToString());
-                oneAssignee.AssigneeFirstName =  row["Name"].ToString() ;
-                oneAssignee.AssigneeLastName = row["LastName"].ToString() ;
-                oneAssignee.AssigneeMiddleName = row["MiddleName"].ToString();                   
+                oneAssignee.AssigneeFirstName = row["Name"].ToString();
+                oneAssignee.AssigneeLastName = row["LastName"].ToString();
+                oneAssignee.AssigneeMiddleName = row["MiddleName"].ToString();
                 oneAssignee.AssigneeDocumentNumber = row["document_number"].ToString();
-                
+
                 oneAssignee.AssigneeDocumentType = (row["document_type"] != null && row["document_type"].ToString() != String.Empty) ? int.Parse(row["document_type"].ToString()) : 0;
                 oneAssignee.OperationList = AssigneeOperationDB.GetAssigneeOperationsList(oneAssignee.Id);
             }
             return oneAssignee;
         }
 
-        
+
     }
 }

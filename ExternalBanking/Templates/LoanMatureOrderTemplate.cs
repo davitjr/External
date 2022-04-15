@@ -53,8 +53,8 @@ namespace ExternalBanking
                     using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                     {
                         result = LoanMatureOrderTemplateDB.SaveLoanMatureOrderTemplate(this, action);
-                        if(result.ResultCode == ResultCode.Normal && TemplateType == TemplateType.CreatedAsGroupService)
-                            OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo,result.Id,action);
+                        if (result.ResultCode == ResultCode.Normal && TemplateType == TemplateType.CreatedAsGroupService)
+                            OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo, result.Id, action);
                         scope.Complete();
                     }
                 }

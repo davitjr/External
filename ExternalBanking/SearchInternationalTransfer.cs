@@ -1,10 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Data;
 
 namespace ExternalBanking
 {
@@ -163,7 +159,7 @@ namespace ExternalBanking
         /// <summary>
         /// Երկիր
         /// </summary>
-        public string Country{ get; set; }
+        public string Country { get; set; }
 
         /// <summary>
         ///  Փոխանցումների որոնում տրված պարամետրերով

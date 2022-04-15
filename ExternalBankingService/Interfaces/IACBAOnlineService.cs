@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-using xbs = ExternalBanking.ACBAServiceReference;
-using infsec = ExternalBankingService.InfSecServiceReference;
 
 namespace ExternalBankingService.Interfaces
 {

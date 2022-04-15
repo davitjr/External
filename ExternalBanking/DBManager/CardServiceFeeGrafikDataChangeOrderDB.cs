@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -89,7 +88,7 @@ namespace ExternalBanking.DBManager
                                             from Tbl_HB_documents hb 
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-                 SqlCommand cmd = new SqlCommand(sqlString, conn);
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 

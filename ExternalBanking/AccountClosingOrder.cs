@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -51,7 +51,7 @@ namespace ExternalBanking
             return result;
         }
 
-        
+
 
 
 
@@ -106,14 +106,13 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                Action action = this.Id == 0 ? Action.Add : Action.Update;
 
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
-                    
+
                     result = base.Approve(schemaType, userName);
 
-                  
+
                     if (result.ResultCode == ResultCode.Normal)
                     {
                         if ((Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking) && (this.ClosingReasonType == 8 || this.ClosingReasonType == 9 || this.ClosingReasonType == 10))
@@ -152,7 +151,7 @@ namespace ExternalBanking
             {
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
                 result.Errors.Add(new ActionError(451));
-            }            
+            }
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
@@ -225,7 +224,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = AccountClosingOrderDB.CloseAccountOrder(this, userName, source);
-               
+
                 base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
 
                 result = base.SaveOrderOPPerson();
@@ -248,7 +247,7 @@ namespace ExternalBanking
                 }
             }
 
-            result=base.Confirm(user);
+            result = base.Confirm(user);
 
             return result;
         }

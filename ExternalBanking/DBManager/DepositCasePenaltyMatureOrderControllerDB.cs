@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration; 
 
 namespace ExternalBanking.DBManager
 {
@@ -43,10 +43,10 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
                 cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.Description == null ? "" : order.Description;
-                
+
 
                 cmd.Parameters.Add("@username", SqlDbType.VarChar, 20).Value = userName;
-                
+
                 cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)order.Source;
                 cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
                 cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;

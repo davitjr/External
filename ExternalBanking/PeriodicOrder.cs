@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 
 namespace ExternalBanking
 {
@@ -211,7 +208,7 @@ namespace ExternalBanking
                     //Առաջին փոխանցման օրը պետք է մեծ լինի այօրվանից։
                     result.Add(new ActionError(1692));
                 }
-                else if(this.FirstTransferDate.Date <= Utility.GetNextOperDay())
+                else if (this.FirstTransferDate.Date <= Utility.GetNextOperDay())
                 {
                     //«Առաջին փոխանցման օրը» դաշտում ամսաթիվը սխալ է:
                     result.Add(new ActionError(246));
@@ -361,7 +358,7 @@ namespace ExternalBanking
                     //Սակագին նախատեսված չէ:Ստուգեք փոխանցման տվյալները:
                     result.Add(new ActionError(659));
                 }
-                else if(this.Fee!= 0)
+                else if (this.Fee != 0)
                     result.AddRange(Validation.ValidateFeeAccount(this.CustomerNumber, this.FeeAccount, this.Source));
             }
 
@@ -392,7 +389,7 @@ namespace ExternalBanking
                 //Պարբերական փոխանցումը հնարավոր չէ ուղարկել։ Անհրաժեշտ է խմբագրել գործարքը կամ մուտքագրել նոր պարբերական փոխանցում։
                 result.Errors.Add(new ActionError(1849));
             }
-            if(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
                 if (this.FirstTransferDate.Date <= Utility.GetNextOperDay())
                 {

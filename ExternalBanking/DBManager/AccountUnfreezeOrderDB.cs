@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {

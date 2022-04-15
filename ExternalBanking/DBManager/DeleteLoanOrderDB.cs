@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -43,7 +43,7 @@ namespace ExternalBanking.DBManager
                     result.ResultCode = ResultCode.Normal;
                     order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                     result.Id = order.Id;
-                    order.Quality = OrderQuality.Draft;                    
+                    order.Quality = OrderQuality.Draft;
                 }
             }
             return result;
@@ -75,7 +75,7 @@ namespace ExternalBanking.DBManager
         {
             DataTable dt = new DataTable();
             DeleteLoanOrderDetails order = new DeleteLoanOrderDetails();
-            
+
             string sql = @"SELECT H.doc_ID, registration_date, operation_date, D.general_number, 
 	                            dbo.fnc_convertAnsiToUnicode(T.description) delete_reason,
 	                            dbo.fnc_convertAnsiToUnicode(Q.description_arm) quality_description,
@@ -94,7 +94,7 @@ namespace ExternalBanking.DBManager
                     conn.Open();
 
                     cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = orderId;
-                    
+
                     dt.Load(cmd.ExecuteReader());
 
                     order.OrderId = dt.Rows[0]["doc_ID"] != DBNull.Value ? Convert.ToUInt32(dt.Rows[0]["doc_ID"]) : 0;
@@ -104,7 +104,7 @@ namespace ExternalBanking.DBManager
                     order.DeleteReason = dt.Rows[0]["delete_reason"].ToString();
                     order.DeleteReason = dt.Rows[0]["delete_reason"].ToString();
                     order.Quality = Convert.ToByte(dt.Rows[0]["quality"]);
-                    order.QualityDescription = dt.Rows[0]["quality_description"].ToString();                    
+                    order.QualityDescription = dt.Rows[0]["quality_description"].ToString();
                 }
             }
             return order;

@@ -1,12 +1,13 @@
-﻿using System;
+﻿using ExternalBanking;
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-using ExternalBanking;
+using System.Threading.Tasks;
 
 namespace ExternalBankingService.Interfaces
 {
     [ServiceContract]
-    [ServiceKnownType(typeof(Dictionary<string,string>))]
+    [ServiceKnownType(typeof(Dictionary<string, string>))]
     [ServiceKnownType(typeof(KeyValuePair<long, string>))]
     [ServiceKnownType(typeof(DepositOption))]
     [ServiceKnownType(typeof(CardTariffAdditionalInformation))]
@@ -108,7 +109,7 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         Dictionary<string, string> GetPeriodicUtilityTypes(Languages language);
-        
+
         [OperationContract]
         Dictionary<string, string> GetCountries();
 
@@ -250,7 +251,7 @@ namespace ExternalBankingService.Interfaces
         Dictionary<string, string> GetOpenCardsType();
 
         [OperationContract]
-        ulong GetLastKeyNumber(int keyId,ushort filialCode);
+        ulong GetLastKeyNumber(int keyId, ushort filialCode);
 
         [OperationContract]
         List<KeyValuePair<string, string>> GetCurNominals(string currency);
@@ -442,7 +443,7 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         Dictionary<string, string> GetArcaCardSMSServiceActionTypes();
-        
+
 
         [OperationContract]
         Dictionary<string, string> GetBondIssueQuality();
@@ -479,9 +480,9 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         Dictionary<string, string> GetTypeOf24_7Modes();
-        
+
         [OperationContract]
-        Dictionary<string,string> GetTypeOfCommunals();
+        Dictionary<string, string> GetTypeOfCommunals();
 
         [OperationContract]
         Dictionary<string, string> GetActionsForCardTransaction();
@@ -650,15 +651,15 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         Dictionary<string, string> GetCardApplicationAcceptanceTypes();
-  
-		[OperationContract]
-		Dictionary<string, string> GetVirtualCardStatusChangeReasons();
+
+        [OperationContract]
+        Dictionary<string, string> GetVirtualCardStatusChangeReasons();
 
         [OperationContract]
         byte CommunicationTypeExistence(ulong customerNumber);
-    
-		[OperationContract]
-		Dictionary<string, string> GetVirtualCardChangeActions(int status);
+
+        [OperationContract]
+        Dictionary<string, string> GetVirtualCardChangeActions(int status);
 
         [OperationContract]
         Dictionary<string, string> GetReasonsForCardTransactionAction();
@@ -751,12 +752,12 @@ namespace ExternalBankingService.Interfaces
         Dictionary<string, string> GetAllTypesOfPlasticCardsSMS();
 
         [OperationContract]
-        List<Tuple<string,bool>> GetCardMobilePhones(ulong customerNumber, ulong cardNumber);
+        List<Tuple<string, bool>> GetCardMobilePhones(ulong customerNumber, ulong cardNumber);
         [OperationContract]
         string GetCurrentPhone(ulong cardNumber);
         [OperationContract]
         string GetCustomerEmailByCardNumber(string cardNumber);
-        
+
         [OperationContract]
         string SMSTypeAndValue(string cardNumber);
 
@@ -767,7 +768,7 @@ namespace ExternalBankingService.Interfaces
         bool IsCardOpen(string cardNumber);
 
         [OperationContract]
-        Dictionary<string, string> GetJointDepositAvailableCurrencies(ulong customerNumber);
+        Dictionary<string, string> GetJointDepositAvailableCurrencies(ulong customerNumber, ulong thirdPersonCustomerNumber);
 
         [OperationContract]
         Dictionary<string, string> GetCommissionNonCollectionReasons();
@@ -778,6 +779,50 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         Dictionary<string, string> GetDepositoryAccountOperators();
+        [OperationContract]
+        Dictionary<string, string> GetTransactionTypes();
+        [OperationContract]
+        TransactionTypeByAML GetTransactionTypeByAML(long doc_ID);
+
+
+        [OperationContract]
+        List<CardDesign> GetCardDesignThemes();
+
+        [OperationContract]
+        List<CardDesign> GetCardDesignImagesByThemeId(int id);
+
+        [OperationContract]
+        string GetCardDesignImageByDesignId(int id);
+
+        [OperationContract]
+        int GetBannerVersion();
+
+        [OperationContract]
+        List<KeyValuePair<short, string>> GetSecuritiesTypes();
+
+        [OperationContract]
+        List<KeyValuePair<short, string>> GetTradingOrderTypes();
+
+        [OperationContract]
+        string GenerateBrokerContractNumber();
+
+        [OperationContract]
+        Task<BrokerContractSurvey> GetBrokerContractSurvey();
+
+        [OperationContract]
+        Task<bool> HasBrokerContract();
+
+        [OperationContract]
+        List<KeyValuePair<short, string>> GetTradingOrderExpirationTypes();
+
+        [OperationContract]
+        List<string> GetLinkedCardWarnings(string cardNumber, bool renewWithCardNewType);
+
+        [OperationContract]
+        Dictionary<string, string> GetLeasingReportTypes();
+
+        [OperationContract]
+        Dictionary<string, string> GetLeasingCredentialClosingReasons();
 
     }
 }

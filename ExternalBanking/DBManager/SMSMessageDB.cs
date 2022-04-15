@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
@@ -19,7 +16,7 @@ namespace ExternalBanking.DBManager
             uint messageID;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["SMSBaseConn"].ToString()))
             {
-                using (SqlCommand cmd = new SqlCommand ("pr_create_one_message",conn))
+                using (SqlCommand cmd = new SqlCommand("pr_create_one_message", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@identity_ID", SqlDbType.Int).Value = sms.IdentityID;
@@ -41,7 +38,7 @@ namespace ExternalBanking.DBManager
         /// Ուղարկելու համար տվյալ ID-ով SMS -ի ստատուսը դարձնում ենք 2 (Service-ը ուղարկում է 2 ստատուսով (ուղարկման ենթակա) SMS-ները) 
         /// </summary>
         internal static void SendSMSMessage(uint messageID)
-        { 
+        {
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["SMSBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -54,13 +51,13 @@ namespace ExternalBanking.DBManager
                     cmd.ExecuteNonQuery();
                 }
             }
-        
+
         }
 
         /// <summary>
         /// Վերադարձնում է հաճախորդին ուղարկված SMS-ների ցանկ ժամանակահատվածի համար
         /// </summary>
-        internal static List<SMSMessage> GetSentSMSMessages(ulong customerNumber,DateTime dateFrom,DateTime dateTo)
+        internal static List<SMSMessage> GetSentSMSMessages(ulong customerNumber, DateTime dateFrom, DateTime dateTo)
         {
             List<SMSMessage> smsMessages = new List<SMSMessage>();
             ulong identityID;
@@ -152,7 +149,7 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// Ստեղծում ենք խմբագրվող ստատուսով  SMS, ուղարկում MessageType = 1-ով (PhoneBanking-ի ավտորիզացիայի համար)
         /// </summary>
-        internal static ActionResult SendPhoneBankingAuthorizationSMSMessage(ulong customerNumber,string message, int user)
+        internal static ActionResult SendPhoneBankingAuthorizationSMSMessage(ulong customerNumber, string message, int user)
         {
             ActionResult result = new ActionResult();
             try
@@ -180,10 +177,10 @@ namespace ExternalBanking.DBManager
                 result.ResultCode = ResultCode.Failed;
                 result.Id = -1;
             }
-            return result; 
-            
+            return result;
+
         }
-        
+
 
     }
 

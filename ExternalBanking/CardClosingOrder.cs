@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -102,12 +102,9 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                Action action = this.Id == 0 ? Action.Add : Action.Update;
 
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
-
-
                     result = base.Approve(schemaType, userName);
                     if (result.ResultCode == ResultCode.Normal)
                     {
@@ -148,7 +145,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            DateTime nextOperDay = Utility.GetNextOperDay().Date;
             if (RegistrationDate.AddDays(30).Date < DateTime.Now.Date || this.RegistrationDate.Date > DateTime.Now.Date)
             {
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով

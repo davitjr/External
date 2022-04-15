@@ -1,17 +1,11 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
-    public class PeriodicBudgetPaymentOrder:PeriodicOrder
+    public class PeriodicBudgetPaymentOrder : PeriodicOrder
     {
 
         public BudgetPaymentOrder BudgetPaymentOrder { get; set; }
@@ -48,7 +42,7 @@ namespace ExternalBanking
                     fee.Type = 20;
                     this.Fees.Add(fee);
                 }
-                
+
                 base.SaveOrderFee();
 
                 LogOrderChange(user, action);
@@ -67,12 +61,12 @@ namespace ExternalBanking
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.BudgetPaymentOrder.OPPerson = this.OPPerson;
             this.DebitAccount = this.BudgetPaymentOrder.DebitAccount;
-            if(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
                 this.StartDate = Utility.GetCurrentOperDay();
             }
 
-            if(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking || Source == SourceType.AcbaOnlineXML || Source == SourceType.ArmSoft)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking || Source == SourceType.AcbaOnlineXML || Source == SourceType.ArmSoft)
             {
                 Customer customer = new Customer();
                 customer.CustomerNumber = this.CustomerNumber;
@@ -83,7 +77,7 @@ namespace ExternalBanking
                 this.Fee = customer.GetPaymentOrderFee(this.BudgetPaymentOrder);
             }
 
-            
+
 
         }
         /// <summary>
@@ -116,7 +110,7 @@ namespace ExternalBanking
             {
                 result.Errors.Remove(err1);
             }
-            ActionError err2= new ActionError();
+            ActionError err2 = new ActionError();
             err2 = result.Errors.Find(m => m.Code == 472);
             if (err2 != null)
             {
@@ -235,7 +229,7 @@ namespace ExternalBanking
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
-            
+
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
@@ -301,7 +295,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PeriodicTransferOrderDB.SavePeriodicBudgetPaymentOrder(this, userName, source);
-               
+
                 if (this.FeeAccount != null || (this.ChargeType == 2 && this.Fee == -1 && this.FeeAccount != null))
                 {
                     this.Fees = new List<OrderFee>();

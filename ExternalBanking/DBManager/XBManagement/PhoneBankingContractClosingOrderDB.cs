@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.XBManagement;
+using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.XBManagement;
 
 namespace ExternalBanking.DBManager.XBManagement
 {
@@ -81,9 +77,9 @@ namespace ExternalBanking.DBManager.XBManagement
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)
-                {                  
+                {
                     order.PhoneBankingContractId = Convert.ToInt32(dt.Rows[0]["contract_id"].ToString());
-               
+
                     order.OrderNumber = dt.Rows[0]["document_number"].ToString();
                     order.Type = (OrderType)dt.Rows[0]["document_type"];
                     order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);

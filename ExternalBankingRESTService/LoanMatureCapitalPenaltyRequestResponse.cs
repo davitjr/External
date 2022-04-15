@@ -1,8 +1,6 @@
-﻿using ExternalBankingRESTService.XBS;
-
-namespace ExternalBankingRESTService
+﻿namespace ExternalBankingRESTService
 {
-	public class LoanMatureCapitalPenaltyRequestResponse
+    public class LoanMatureCapitalPenaltyRequestResponse
     {
         public double LoanMatureCapitalPenalty { get; set; }
         public Result Result { get; set; }

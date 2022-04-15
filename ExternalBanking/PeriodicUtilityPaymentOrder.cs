@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
+using System.Transactions;
 
 
 namespace ExternalBanking
@@ -15,7 +9,7 @@ namespace ExternalBanking
     /// <summary>
     /// Պարբերական փոխանցման հայտ(Կոմունալ)
     /// </summary>
-    public class PeriodicUtilityPaymentOrder:PeriodicOrder
+    public class PeriodicUtilityPaymentOrder : PeriodicOrder
     {
 
         public UtilityPaymentOrder UtilityPaymentOrder { get; set; }
@@ -59,7 +53,7 @@ namespace ExternalBanking
 
             result.Errors.AddRange(base.ValidatePeriodicOrder());
             this.UtilityPaymentOrder.OrderNumber = this.OrderNumber;
-            this.UtilityPaymentOrder.CustomerNumber=this.CustomerNumber;
+            this.UtilityPaymentOrder.CustomerNumber = this.CustomerNumber;
             this.UtilityPaymentOrder.RegistrationDate = this.RegistrationDate;
             this.UtilityPaymentOrder.Amount = this.Amount;
             this.UtilityPaymentOrder.Id = this.Id;
@@ -84,20 +78,20 @@ namespace ExternalBanking
             }
 
 
-            if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.Gas )
+            if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.Gas)
             {
                 if (this.ServicePaymentType == -1)
                 {
                     //Կոմունալ պարբերական վճարման տեսակն ընտրված չէ:
                     result.Errors.Add(new ActionError(258));
                 }
-             
+
                 if (this.ServicePaymentType == 1 && this.AllDebt == false)
                 {
                     //Տվյալ ենթատեսակի համար պետք է ընտրել ամբողջ պարտքը
                     result.Errors.Add(new ActionError(407));
                 }
-                
+
             }
             if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.ArmenTel || this.UtilityPaymentOrder.CommunalType == CommunalTypes.BeelineInternet || this.UtilityPaymentOrder.CommunalType == CommunalTypes.Orange)
             {
@@ -134,35 +128,35 @@ namespace ExternalBanking
                 //}
             }
 
-             if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.UCom || this.UtilityPaymentOrder.CommunalType == CommunalTypes.Orange)
-             {
-                 DateTime operDay = Utility.GetNextOperDay();
-                 if (this.FirstTransferDate < operDay)
-                 {
-                     //Տվյալ տեսակի համար առաջին փոխանցման օրը պետք է մեծ լինի @var1-ից:
-                     result.Errors.Add(new ActionError(346, new string[] { operDay.ToString("dd/MM/yyyy") }));
-                 }
-                 else
-                 {
-                     if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.Orange)
-                     {
-                         if (this.FirstTransferDate.Day < 3)
-                         {
-                             //Տվյալ տեսակի համար առաջին փոխանցման օրը պետք է մեծ լինի @var1-ից:
-                             result.Errors.Add(new ActionError(346, new string[] { "03/" + this.FirstTransferDate.ToString("MM/yyyy") }));
-                         }
-                     }
-                     if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.UCom)
-                     {
-                         if (this.FirstTransferDate.Day < 5)
-                         {
-                             //Տվյալ տեսակի համար առաջին փոխանցման օրը պետք է մեծ լինի @var1-ից:
-                             result.Errors.Add(new ActionError(346, new string[] { "05/" + this.FirstTransferDate.ToString("MM/yyyy") }));
-                         }
-                     }
-                 }
+            if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.UCom || this.UtilityPaymentOrder.CommunalType == CommunalTypes.Orange)
+            {
+                DateTime operDay = Utility.GetNextOperDay();
+                if (this.FirstTransferDate < operDay)
+                {
+                    //Տվյալ տեսակի համար առաջին փոխանցման օրը պետք է մեծ լինի @var1-ից:
+                    result.Errors.Add(new ActionError(346, new string[] { operDay.ToString("dd/MM/yyyy") }));
+                }
+                else
+                {
+                    if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.Orange)
+                    {
+                        if (this.FirstTransferDate.Day < 3)
+                        {
+                            //Տվյալ տեսակի համար առաջին փոխանցման օրը պետք է մեծ լինի @var1-ից:
+                            result.Errors.Add(new ActionError(346, new string[] { "03/" + this.FirstTransferDate.ToString("MM/yyyy") }));
+                        }
+                    }
+                    if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.UCom)
+                    {
+                        if (this.FirstTransferDate.Day < 5)
+                        {
+                            //Տվյալ տեսակի համար առաջին փոխանցման օրը պետք է մեծ լինի @var1-ից:
+                            result.Errors.Add(new ActionError(346, new string[] { "05/" + this.FirstTransferDate.ToString("MM/yyyy") }));
+                        }
+                    }
+                }
 
-             }
+            }
 
             //if(string.IsNullOrEmpty(this.UtilityPaymentOrder.Code))
             //{
@@ -190,14 +184,14 @@ namespace ExternalBanking
             this.UtilityPaymentOrder.OPPerson = this.OPPerson;
             this.DebitAccount = this.UtilityPaymentOrder.DebitAccount;
 
-            if(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
-                if(ChargeType == 2)
+                if (ChargeType == 2)
                 {
                     this.AllDebt = true;
                 }
 
-                if(this.Amount != 0)
+                if (this.Amount != 0)
                 {
                     this.PayIfNoDebt = 1;
                 }
@@ -205,7 +199,7 @@ namespace ExternalBanking
                 {
                     this.PayIfNoDebt = 0;
                 }
-               
+
 
                 SearchCommunal searchCommunal = new SearchCommunal()
                 {
@@ -227,10 +221,10 @@ namespace ExternalBanking
                     else
                     {
                         int lastIdx = UtilityPaymentOrder.Description.IndexOf("\r\n");
-                        PeriodicDescription = searchCommunal.CommunalType != CommunalTypes.Trash ? (UtilityPaymentOrder.Description.Substring(0,lastIdx == -1? UtilityPaymentOrder.Description.IndexOf('/'):lastIdx)) : UtilityPaymentOrder.Description;
-                    } 
+                        PeriodicDescription = searchCommunal.CommunalType != CommunalTypes.Trash ? (UtilityPaymentOrder.Description.Substring(0, lastIdx == -1 ? UtilityPaymentOrder.Description.IndexOf('/') : lastIdx)) : UtilityPaymentOrder.Description;
+                    }
 
-                   
+
                 }
                 else
                 {
@@ -310,14 +304,14 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PeriodicTransferOrderDB.SavePeriodicUtilityPaymentOrder(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
                 }
                 else
                 {
-                    base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);                   
+                    base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
                 }
 
                 result = base.SaveOrderOPPerson();
@@ -362,7 +356,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public bool IsAlreadyExistsCommunalTransfersHBDocument()
         {
-            return PeriodicTransferOrderDB.IsAlreadyExistsCommunalTransfersHBDocument(this.CustomerNumber,(short)this.UtilityPaymentOrder.CommunalType, this.ServicePaymentType, this.UtilityPaymentOrder.Code, this.UtilityPaymentOrder.Branch);
+            return PeriodicTransferOrderDB.IsAlreadyExistsCommunalTransfersHBDocument(this.CustomerNumber, (short)this.UtilityPaymentOrder.CommunalType, this.ServicePaymentType, this.UtilityPaymentOrder.Code, this.UtilityPaymentOrder.Branch);
         }
         /// <summary>
         /// Հայտի հաստատման ստուգումներ
@@ -373,7 +367,7 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
 
             result.Errors.AddRange(base.ValidatePeriodicOrderForSend().Errors);
-            if (IsAlreadyExistsThisCommunal()==true)
+            if (IsAlreadyExistsThisCommunal() == true)
             {
                 if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.VivaCell || this.UtilityPaymentOrder.CommunalType == CommunalTypes.Orange || this.UtilityPaymentOrder.CommunalType == CommunalTypes.ArmenTel || this.UtilityPaymentOrder.CommunalType == CommunalTypes.BeelineInternet)
                 {
@@ -386,7 +380,7 @@ namespace ExternalBanking
                     result.Errors.Add(new ActionError(324));
                 }
             }
-            if (IsAlreadyExistsCommunalTransfersHBDocument()==true)
+            if (IsAlreadyExistsCommunalTransfersHBDocument() == true)
             {
                 if (this.UtilityPaymentOrder.CommunalType == CommunalTypes.VivaCell || this.UtilityPaymentOrder.CommunalType == CommunalTypes.Orange || this.UtilityPaymentOrder.CommunalType == CommunalTypes.ArmenTel || this.UtilityPaymentOrder.CommunalType == CommunalTypes.BeelineInternet)
                 {
@@ -398,7 +392,7 @@ namespace ExternalBanking
                     //Նշված բաժանորդային քարտի գծով առկա է ուղարկված,սակայն չհաստատված պարբերական փոխանցում: 
                     result.Errors.Add(new ActionError(326));
                 }
- 
+
             }
             return result;
         }

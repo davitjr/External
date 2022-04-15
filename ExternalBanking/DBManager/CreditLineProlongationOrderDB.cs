@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace ExternalBanking.DBManager
@@ -97,7 +93,7 @@ namespace ExternalBanking.DBManager
 
         }
 
-        
+
 
         internal static bool IsSecontCreditLineProlongationApplication(ulong productId, ushort orderType, long docId)
         {
@@ -153,5 +149,5 @@ namespace ExternalBanking.DBManager
         }
     }
 }
-    
+
 

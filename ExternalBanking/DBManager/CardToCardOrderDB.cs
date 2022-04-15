@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -40,7 +36,6 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
                     cmd.Parameters.Add("@debet_card_number", SqlDbType.NVarChar, 20).Value = order.DebitCard.CardNumber;
                     cmd.Parameters.Add("@credit_card_number", SqlDbType.NVarChar, 20).Value = order.CreditCardNumber;
-                    cmd.Parameters.Add("@embossing_name", SqlDbType.NVarChar, 20).Value = order.EmbossingName;
                     cmd.Parameters.Add("@fee_amount", SqlDbType.Float).Value = order.FeeAmount;
                     if (order.GroupId != 0)
                     {
@@ -86,7 +81,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT QH.change_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT QH.change_date,
                                                          HB.document_number,
                                                          HB.document_type,
                                                          HB.document_subtype,
@@ -222,7 +217,6 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Currency;
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
                     cmd.Parameters.Add("@fee_amount", SqlDbType.Float).Value = order.FeeAmount;
-                    cmd.Parameters.Add("@embossing_name", SqlDbType.NVarChar, 150).Value = order.EmbossingName;
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -240,9 +234,8 @@ namespace ExternalBanking.DBManager
                 return result;
             }
         }
-        public static ActionResult SaveAttachedCardToCardArcaResponseData(ulong orderId, ulong arcaExtID, ArcaDataServiceReference.CreditCardEcommerceResponse response)
+        public static void SaveAttachedCardToCardArcaResponseData(ulong orderId, ulong arcaExtID, ArcaDataServiceReference.CreditCardEcommerceResponse response)
         {
-            ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
@@ -258,7 +251,6 @@ namespace ExternalBanking.DBManager
                     cmd.ExecuteNonQuery();
                 }
             }
-            return result;
         }
         internal static CardToCardOrder GetAttachedCardOrder(CardToCardOrder order)
         {
@@ -321,6 +313,23 @@ namespace ExternalBanking.DBManager
             }
             return order;
         }
+        internal static string GetSourceCardholderName(int docId)
+        {
+            string attachedCardHolderName = string.Empty;
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            conn.Open();
+            string script = @"select b.carholder_name from tbl_other_bank_card_orders a 
+                                        inner join [tbl_other_bank_cards]  b on a.debit_card_number = b.card_number 
+                                        where a.doc_id = @doc_id ";
 
+            using SqlCommand cmd = new SqlCommand(script, conn);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = docId;
+            var result = cmd.ExecuteScalar();
+            if (result != null)
+                attachedCardHolderName = result.ToString();
+
+            return attachedCardHolderName;
+        }
     }
 }

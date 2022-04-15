@@ -1,17 +1,14 @@
-﻿using ExternalBanking.DBManager;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
+using ExternalBanking.UtilityPaymentsManagment;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.UtilityPaymentsManagment;
-using ExternalBanking.UtilityPaymentsServiceReference;
 
 namespace ExternalBanking
 {
-    public class UtilityPaymentOrder :Order
+    public class UtilityPaymentOrder : Order
     {
         /// <summary>
         /// Սպ. վճար (գազի դեպքում)
@@ -74,7 +71,7 @@ namespace ExternalBanking
         /// <summary>
         /// Պարտք
         /// </summary>
-        public decimal?  Debt { get; set; }
+        public decimal? Debt { get; set; }
 
         /// <summary>
         /// Օգտագործել վարկային գծերի միջոցները
@@ -104,7 +101,7 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1628));
             }
 
-            if(CommunalType == CommunalTypes.Orange)
+            if (CommunalType == CommunalTypes.Orange)
             {
                 if (string.IsNullOrEmpty(Code))
                 {
@@ -115,9 +112,10 @@ namespace ExternalBanking
 
             result.Errors.AddRange(Validation.ValidateCashOperationAvailability(this, user));
 
-            if(templateType == TemplateType.None)
+            if (templateType == TemplateType.None)
             {
-                result.Errors.AddRange(Validation.ValidateDocumentNumber(this, this.CustomerNumber));
+                if (this.GroupId == 0)
+                    result.Errors.AddRange(Validation.ValidateDocumentNumber(this, this.CustomerNumber));
                 result.Errors.AddRange(Validation.ValidateOPPerson(this, debitAccountNumber: this.DebitAccount.AccountNumber));
             }
 
@@ -155,7 +153,7 @@ namespace ExternalBanking
             if (!Utility.IsCorrectAmount(Amount, Currency))
                 result.Errors.Add(new ActionError(25));
 
-            if(ServiceAmount > 0)
+            if (ServiceAmount > 0)
             {
                 if (!Utility.IsCorrectAmount(ServiceAmount, Currency))
                     result.Errors.Add(new ActionError(1676));
@@ -274,7 +272,7 @@ namespace ExternalBanking
 
         }
 
-        public new ActionResult Approve(short schemaType, string userName,ACBAServiceReference.User user)
+        public new ActionResult Approve(short schemaType, string userName, ACBAServiceReference.User user)
         {
             ActionResult result = ValidateForSend();
 
@@ -316,11 +314,11 @@ namespace ExternalBanking
                 {
                     BeelineAbonentSearch beelineAbonentSearch = new BeelineAbonentSearch();
                     string debt = "";
-                    if(beelineAbonentSearch != null)
+                    if (beelineAbonentSearch != null)
                     {
                         debt = beelineAbonentSearch.GetBeelineAbonentBalance(this.Code)?.Balance?.ToString();
                     }
-                   
+
                     if (string.IsNullOrEmpty(debt))
                     {
                         result.Errors.Add(new ActionError(316));
@@ -364,7 +362,10 @@ namespace ExternalBanking
         public void Complete()
         {
             if (this.OrderNumber == null || this.OrderNumber == "")
-                this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+            {
+                if (this.GroupId == 0)
+                    this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+            }
 
             if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
@@ -408,12 +409,12 @@ namespace ExternalBanking
                 this.ReceiverAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.CreditAccount), "AMD", user.filialCode, abonentType, "0", this.Branch);
             }
 
-            if (this.Source == SourceType.MobileBanking || (this.Source == SourceType.Bank && this.OPPerson == null) || Source==SourceType.AcbaOnline)
+            if (this.Source == SourceType.MobileBanking || (this.Source == SourceType.Bank && this.OPPerson == null) || Source == SourceType.AcbaOnline)
             {
                 this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             }
 
-            if(this.Source == SourceType.MobileBanking || this.Source == SourceType.AcbaOnline)
+            if (this.Source == SourceType.MobileBanking || this.Source == SourceType.AcbaOnline)
             {
                 this.RegistrationDate = DateTime.Now.Date;
             }
@@ -462,6 +463,15 @@ namespace ExternalBanking
                 }
 
                 result = base.SaveOrderOPPerson();
+
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
 
                 if (result.ResultCode != ResultCode.Normal)
                 {

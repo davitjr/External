@@ -1,8 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -134,7 +132,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public static SafekeepingItem GetSafekeepingItem(ulong customerNumber, ulong productId)
         {
-            return SafekeepingItemDB.GetSafekeepingItem( customerNumber,productId);
+            return SafekeepingItemDB.GetSafekeepingItem(customerNumber, productId);
         }
     }
 }

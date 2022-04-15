@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Պարբերական SWIFT-ով ուղարկվող քաղվածք
     /// </summary>
-    public class PeriodicSwiftStatementOrder:PeriodicOrder
+    public class PeriodicSwiftStatementOrder : PeriodicOrder
     {
         /// <summary>
         /// SWIFT քաղվածքի պարբերական փոխանցման ստացող բանկի SWIFT կոդ
@@ -66,7 +61,7 @@ namespace ExternalBanking
                 //{0} արժույթով գործարք կատարել հնարավոր չէ:
                 result.Errors.Add(new ActionError(1478, new string[] { this.Currency }));
             }
-            if (!string.IsNullOrEmpty(this.ReceiverBankSwiftCode) && this.ReceiverBankSwiftCode.Length<12)
+            if (!string.IsNullOrEmpty(this.ReceiverBankSwiftCode) && this.ReceiverBankSwiftCode.Length < 12)
             {
                 //S.W.I.F.T . կոդը պետք է լինի առնվազն 12 նիշ:
                 result.Errors.Add(new ActionError(1419));
@@ -118,7 +113,7 @@ namespace ExternalBanking
                     this.Fees.Add(fee);
                 }
                 base.SaveOrderFee();
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -195,7 +190,7 @@ namespace ExternalBanking
                     scope.Complete();
                 }
             }
-            
+
 
             if (result.Errors.Count > 0)
             {

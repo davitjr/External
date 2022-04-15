@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking.DocFlowManagement.Interfaces
+﻿namespace ExternalBanking.DocFlowManagement.Interfaces
 {
-    public interface  IHBToDocFlow
+    public interface IHBToDocFlow
     {
         ActionResult LinkHBToDocFlow(long memoId, long hbDocId);
     }

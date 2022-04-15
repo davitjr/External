@@ -1,10 +1,7 @@
 ﻿using ExternalBanking;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
 using infsec = ExternalBankingService.InfSecServiceReference;
 
 namespace ExternalBankingService
@@ -17,7 +14,7 @@ namespace ExternalBankingService
         ActionResult GenerateAndMakeSwiftMessagesByPeriodicTransfer(DateTime statementDate, DateTime dateFrom, DateTime dateTo);
 
         [OperationContract]
-         void Init(string clientIp, ExternalBanking.ACBAServiceReference.User user);
+        void Init(string clientIp, ExternalBanking.ACBAServiceReference.User user);
 
         [OperationContract]
         infsec.AuthorizedUser AuthorizeUserBySessionToken(string authorizedUserSessionToken);
@@ -27,6 +24,10 @@ namespace ExternalBankingService
 
         [OperationContract]
         infsec.UserAccessForCustomer GetUserAccessForCustomer(string userSessiobToken, string customerSessionToken);
+
+        [OperationContract]
+        List<ActionResult> SaveAndApproveClassifiedLoanActionOrders(SearchClassifiedLoan searchParameters);
+
 
 
     }

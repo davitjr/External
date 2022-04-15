@@ -1,10 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Data;
+using System.Linq;
 
 
 namespace ExternalBanking
@@ -139,7 +137,7 @@ namespace ExternalBanking
             return cardAccount;
         }
 
-        public static  Dictionary<string, string> GetAccountsForBlockingAvailableAmount(ulong customerNumber)
+        public static Dictionary<string, string> GetAccountsForBlockingAvailableAmount(ulong customerNumber)
         {
             Dictionary<string, string> accounts = new Dictionary<string, string>();
 

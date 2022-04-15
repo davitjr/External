@@ -1,8 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -19,7 +17,7 @@ namespace ExternalBanking
         /// </summary>
         public Transfer Transfer { get; set; }
 
-        public new ActionResult Delete(string filialCode, DateTime setDate, SourceType source, short schemaType )
+        public new ActionResult Delete(string filialCode, DateTime setDate, SourceType source, short schemaType)
         {
             this.Complete();
 
@@ -28,8 +26,8 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
 
             List<short> errors = new List<short>();
-            errors = TransferDB.CheckForDelete(this.Transfer.Id, filialCode,  setDate, user, Convert.ToUInt16(isCallCenter));
-    
+            errors = TransferDB.CheckForDelete(this.Transfer.Id, filialCode, setDate, user, Convert.ToUInt16(isCallCenter));
+
             if (errors.Count != 0)
             {
                 //for (int i = 0; i < errors.Count; i++)
@@ -51,7 +49,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result = TransferDB.TransferDeleteOrder(this, user.userName, source , Convert.ToUInt16(isCallCenter));
+                result = TransferDB.TransferDeleteOrder(this, user.userName, source, Convert.ToUInt16(isCallCenter));
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -88,7 +86,7 @@ namespace ExternalBanking
 
                 LogOrderChange(user, action);
 
-                result = base.Approve(schemaType, user.userName );
+                result = base.Approve(schemaType, user.userName);
 
                 if (result.ResultCode == ResultCode.Normal)
                 {
@@ -119,7 +117,7 @@ namespace ExternalBanking
         }
 
 
- 
+
     }
 
 }

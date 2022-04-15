@@ -1,12 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -42,7 +37,7 @@ namespace ExternalBanking
         /// <summary>
         /// Մասնաճյուղ
         /// </summary>
-        public ushort FilialCode { get; set; } 
+        public ushort FilialCode { get; set; }
 
         /// <summary>
         /// Պահանջում է հաստատում հաշիվը թե ոչ
@@ -84,7 +79,7 @@ namespace ExternalBanking
         {
             if (this.IsCustomerTransitAccount)
             {
-                if(this.TransitAccount!=null && !string.IsNullOrEmpty(this.TransitAccount.AccountNumber))
+                if (this.TransitAccount != null && !string.IsNullOrEmpty(this.TransitAccount.AccountNumber))
                 {
                     Account account = Account.GetSystemAccount(this.TransitAccount.AccountNumber);
                     this.FilialCode = (ushort)account.FilialCode;
@@ -110,7 +105,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                TransitAccountForDebitTransactionsDB.SaveTransitAccountForDebitTransactions(this,user.userID);
+                TransitAccountForDebitTransactionsDB.SaveTransitAccountForDebitTransactions(this, user.userID);
                 scope.Complete();
                 result.ResultCode = ResultCode.Normal;
             }

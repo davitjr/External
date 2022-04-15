@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -24,7 +21,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = "pr_add_new_insurance_document";
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                    
+
 
                     if (order.Insurance.InsuranceContractType == 2)
                     {
@@ -49,12 +46,12 @@ namespace ExternalBanking.DBManager
                     else
                     {
                         cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = 0;
-                    }                    
+                    }
                     cmd.Parameters.Add("@credit_account", SqlDbType.VarChar, 20).Value = order.ReceiverAccount.AccountNumber;
                     cmd.Parameters.Add("@insurance_type", SqlDbType.TinyInt).Value = order.Insurance.InsuranceType;
                     cmd.Parameters.Add("@insurance_company", SqlDbType.TinyInt).Value = order.Insurance.Company;
                     cmd.Parameters.Add("@start_date", SqlDbType.SmallDateTime).Value = order.Insurance.StartDate;
-                    cmd.Parameters.Add("@end_date", SqlDbType.SmallDateTime).Value = order.Insurance.EndDate; 
+                    cmd.Parameters.Add("@end_date", SqlDbType.SmallDateTime).Value = order.Insurance.EndDate;
                     cmd.Parameters.Add("@involving_set_number", SqlDbType.Int).Value = order.Insurance.InvolvingSetNumber;
                     cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.Description;
                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Currency;
@@ -64,10 +61,10 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@IdPro", SqlDbType.Float).Value = order.Insurance.IdPro;
 
-                    
 
 
-                    if (order.Insurance.ConectedProductId!=0)
+
+                    if (order.Insurance.ConectedProductId != 0)
                         cmd.Parameters.Add("@conected_product_appID", SqlDbType.Float).Value = order.Insurance.ConectedProductId;
 
 
@@ -80,8 +77,8 @@ namespace ExternalBanking.DBManager
                     order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                     result.Id = order.Id;
 
-                  
-                    
+
+
 
                     return result;
                 }
@@ -162,6 +159,6 @@ namespace ExternalBanking.DBManager
 
 
 
-        
+
     }
 }

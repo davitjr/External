@@ -1,13 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-   public class PaidFactoring:Loan
+    public class PaidFactoring : Loan
     {
         public long FactoringCustomerNumber { get; set; }
         public static List<PaidFactoring> GetPaidFactorings(ulong customerNumber, ProductQualityFilter filter)

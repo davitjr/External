@@ -1,15 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ArcaDataServiceReference;
-using System.Configuration;
 using ExternalBanking.ServiceClient;
-using System.Transactions;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
-using ExternalBanking.Interfaces;
+using System.Transactions;
 
 namespace ExternalBanking
 {
+    public enum CardChangeType : short
+    {
+        /// <summary>
+        /// Նոր քարտ
+        /// </summary>
+        New = 0,
+
+        /// <summary>
+        /// Վերաթողարկում նույն տեսակով
+        /// </summary>
+        RenewWithSameType = 1,
+
+        /// <summary>
+        /// Վերաթողարկում այլ տեսակով
+        /// </summary>
+        RenewWithNewType = 2,
+
+        /// <summary>
+        /// Փոխարինում՝ նոր համար, նոր ժամկետ - առանց վ.գ.
+        /// </summary>
+        NonCreditLineCardReplace = 3,
+
+        /// <summary>
+        /// Փոխարինում՝ նոր համար, նոր ժամկետ - վ.գ.
+        /// </summary>
+        CreditLineCardReplace = 4,
+
+        /// <summary>
+        /// Տեղափոխում
+        /// </summary>
+        Move = 5
+    }
+
     public class Card
     {
         /// <summary>
@@ -207,6 +239,8 @@ namespace ExternalBanking
         /// </summary>
         public int CardApplicationAcceptanceType { get; set; }
 
+        public CardChangeType CardChangeType { get; set; }
+
         /// <summary>
         /// Քարտը կից է թէ ոչ
         /// </summary>
@@ -248,6 +282,18 @@ namespace ExternalBanking
         /// Կցված քարտի ID
         /// </summary>
         public int AttachedCardId { get; set; }
+
+        /// <summary>
+        /// Digital քարտի դիզայնի համար
+        /// </summary>
+        public int DesignID { get; set; }
+
+        /// <summary>
+        /// Digital քարտի դիզայնի նկար
+        /// </summary>
+        public string CardDesignImage { get; set; }
+
+
         public Card()
         {
             CardAccount = new Account();
@@ -489,37 +535,6 @@ namespace ExternalBanking
         }
 
         /// <summary>
-        /// Վերադարձնում է քարտի MR ծրագրին անդամակցության տվյալները
-        /// </summary>
-        /// <returns></returns>
-        public MembershipRewards GetCardMembershipRewards()
-        {
-            MembershipRewards mr = MembershipRewards.GetCardMembershipRewards(this.CardNumber);
-            return mr;
-        }
-
-
-        /// <summary>
-        /// Վերադարձնում է քարտի MR ծրագրի կարգավիճակի փոփոխման պատմությունը
-        /// </summary>
-        /// <returns></returns>
-        public List<MembershipRewardsStatusHistory> GetCardMembershipRewardsStatusHistory()
-        {
-            List<MembershipRewardsStatusHistory> mr = MembershipRewards.GetCardMembershipRewardsStatusHistory(this.CardNumber);
-            return mr;
-        }
-
-        /// <summary>
-        /// Վերադարձնում է քարտի MR բոնուսները
-        /// </summary>
-        /// <returns></returns>
-        public List<MembershipRewardsBonusHistory> GetCardMembershipRewardsBonusHistory(DateTime startDate, DateTime endDate)
-        {
-            List<MembershipRewardsBonusHistory> BonusHistory = MembershipRewards.GetCardMembershipRewardsBonusHistory(this.CardNumber, startDate, endDate);
-            return BonusHistory;
-        }
-
-        /// <summary>
         /// Ստուգում ենք քարտի պատկանելությունը
         /// </summary>
         /// <param name="cardNumber"></param>
@@ -621,7 +636,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            if (CardDB.IsCardChanged(cardNumber) == false)
+            if (!CardDB.IsCardChanged(cardNumber))
             {
                 result.Errors.Add(new ActionError(741));
             }
@@ -736,16 +751,15 @@ namespace ExternalBanking
         }
 
         /// <summary>
-        /// վերադարձնում է վերաթողարկվող քարտի նոր app_id-ն
+        /// վերադարձնում է քարտի հին app_id-ն
         /// </summary>
         /// <param name="productId">հին app_id</param>
         /// <param name="filialCode"></param>
         /// <returns></returns>
-        public static ulong GetReNewCardProductId(ulong productId, int filialCode)
+        public static ulong GetCardOldProductId(long productId, int changeType)
         {
-            return CardDB.GetReNewCardProductId(productId, filialCode);
+            return CardDB.GetCardOldProductId(productId, changeType);
         }
-
 
         /// <summary>
         /// Վերադարձնում է քարտի վրա եղած արգելանքի գումարը և հաշիվը
@@ -1099,6 +1113,45 @@ namespace ExternalBanking
         public static string GetCustomerEmailByCardNumber(string cardNumber)
         {
             return CardDB.GetCustomerEmailByCardNumber(cardNumber);
+        }
+        public static string GetCardDesignImageByDesignId(int id)
+        {
+            return CardDB.GetCardDesignImageByDesignId(id);
+        }
+
+        public static void UpdateCardDesign(ulong productID, int designId)
+        {
+            CardDB.UpdateCardDesign(productID, designId);
+            ChangeVirtualCardDesignInWallet(productID, designId);
+        }
+
+        public static short GetCardChangeType(long productId)
+        {
+            return CardDB.GetCardChangeType(productId);
+        }
+
+        public static int GetRelatedOfficeQuality(long productId, int officeID, short? cardNewType)
+        {
+            return CardDB.GetRelatedOfficeQuality(productId, officeID, cardNewType);
+        }
+
+        /// <summary>
+        /// change virtual card design in wallet if user has tokenisated card
+        /// </summary>
+        /// <param name="productID"></param>
+        /// <param name="designId"></param>
+        internal static void ChangeVirtualCardDesignInWallet(ulong productID, int designId)
+        {
+            CardDB.ChangeVirtualCardDesignInWallet(productID, designId);
+        }
+        /// <summary>
+        /// Վերադարձնում է կից/լրացուցիչ քարտի հիմնական քարտի ՎԵՐՋԻՆ app_id-ն
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        public static long GetMainAppId(long productId)
+        {
+            return CardDB.GetMainAppId(productId);
         }
     }
 }

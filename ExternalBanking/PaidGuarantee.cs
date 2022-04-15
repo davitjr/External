@@ -1,13 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-   public class PaidGuarantee:Loan
+    public class PaidGuarantee : Loan
     {
         /// <summary>
         /// Վճարված երաշխիքի կարգավիճակ

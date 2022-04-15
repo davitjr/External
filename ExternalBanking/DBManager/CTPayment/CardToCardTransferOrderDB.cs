@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -83,8 +80,6 @@ namespace ExternalBanking.DBManager
 
         internal static bool CheckOrderID(C2CTransferOrder order)
         {
-            CardIdentificationData card = new CardIdentificationData();
-
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();

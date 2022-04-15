@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -151,14 +147,14 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@customer_name", SqlDbType.NVarChar, 200).Value = Utility.ConvertUnicodeToAnsi(legalCustomerDescription) + Utility.ConvertUnicodeToAnsi(order.OPPerson.PersonName + " " + order.OPPerson.PersonLastName);
                     }
 
-                    cmd.Parameters.Add("@amount", SqlDbType.Money).Value = isCross==false?order.Amount:order.AmountInCrossCurrency;
+                    cmd.Parameters.Add("@amount", SqlDbType.Money).Value = isCross ? order.AmountInCrossCurrency : order.Amount;
                     cmd.Parameters.Add("@ask_or_bid", SqlDbType.TinyInt).Value = direction;
-                    cmd.Parameters.Add("@offered_currency", SqlDbType.NVarChar, 3).Value = isCross == false ? order.Currency : order.ReceiverAccount.Currency; 
+                    cmd.Parameters.Add("@offered_currency", SqlDbType.NVarChar, 3).Value = isCross ? order.ReceiverAccount.Currency : order.Currency;
                     cmd.Parameters.Add("@opposit_currency", SqlDbType.NVarChar, 3).Value = "AMD";
                     cmd.Parameters.Add("@status", SqlDbType.Int).Value = status;
-                    cmd.Parameters.Add("@offered_rate", SqlDbType.Money).Value =isCross==false?order.ConvertationRate:order.ConvertationRate1;
+                    cmd.Parameters.Add("@offered_rate", SqlDbType.Money).Value = isCross ? order.ConvertationRate1 : order.ConvertationRate;
                     cmd.Parameters.Add("@unique_number", SqlDbType.BigInt).Value = order.UniqueNumber;
-                    if (order.ForDillingApprovemnt == true)
+                    if (order.ForDillingApprovemnt)
                     {
                         cmd.Parameters.Add("@other", SqlDbType.NVarChar, 100).Value = Utility.ConvertUnicodeToAnsi("ՀԲ գործ. կոդ  ") + order.Id.ToString() + Utility.ConvertUnicodeToAnsi(", Մուտք. Ա/թ. ") + order.RegistrationDate.ToString("dd/MM/yyy") + " " + order.RegistrationTime;
                     }
@@ -183,26 +179,26 @@ namespace ExternalBanking.DBManager
                 using (SqlCommand cmd = new SqlCommand())
                 {
 
-                    conn.Open(); 
+                    conn.Open();
                     cmd.Connection = conn;
                     cmd.CommandText = "Insert_into_currency_market";
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@filial_code", SqlDbType.Int).Value = userFilialCode;
                     cmd.Parameters.Add("@customer_name", SqlDbType.NVarChar, 200).Value = Utility.ConvertUnicodeToAnsi(order.OPPerson.PersonName + " " + order.OPPerson.PersonLastName);
-                    if (order.IsDoulbeExchange )
-                        cmd.Parameters.Add("@amount", SqlDbType.Money).Value = isCross == false ? order.AmountInCrossCurrency : order.Amount;
+                    if (order.IsDoulbeExchange)
+                        cmd.Parameters.Add("@amount", SqlDbType.Money).Value = isCross ? order.Amount : order.AmountInCrossCurrency;
                     else
                         cmd.Parameters.Add("@amount", SqlDbType.Money).Value = order.Amount;
 
                     cmd.Parameters.Add("@ask_or_bid", SqlDbType.TinyInt).Value = direction;
                     if (order.IsDoulbeExchange)
-                        cmd.Parameters.Add("@offered_currency", SqlDbType.NVarChar, 3).Value = isCross == false ? order.DebitAccount.Currency : order.Currency;
+                        cmd.Parameters.Add("@offered_currency", SqlDbType.NVarChar, 3).Value = isCross ? order.Currency : order.DebitAccount.Currency;
                     else
-                        cmd.Parameters.Add("@offered_currency", SqlDbType.NVarChar, 3).Value =  order.Currency;
+                        cmd.Parameters.Add("@offered_currency", SqlDbType.NVarChar, 3).Value = order.Currency;
                     cmd.Parameters.Add("@opposit_currency", SqlDbType.NVarChar, 3).Value = "AMD";
                     cmd.Parameters.Add("@status", SqlDbType.Int).Value = status;
-                    cmd.Parameters.Add("@offered_rate", SqlDbType.Money).Value = isCross == false ? order.ConvertationRate : order.ConvertationRate1;
+                    cmd.Parameters.Add("@offered_rate", SqlDbType.Money).Value = isCross ? order.ConvertationRate1 : order.ConvertationRate;
                     cmd.Parameters.Add("@unique_number", SqlDbType.BigInt).Value = order.UniqueNumber;
                     cmd.Parameters.Add("@other", SqlDbType.NVarChar, 100).Value = "";
                     if (order.ConvertationCrossRate != 0)

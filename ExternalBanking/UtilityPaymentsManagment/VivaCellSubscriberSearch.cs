@@ -1,10 +1,6 @@
 ﻿using ExternalBanking.ServiceClient;
 using ExternalBanking.UtilityPaymentsServiceReference;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.UtilityPaymentsManagment
 {
@@ -47,7 +43,7 @@ namespace ExternalBanking.UtilityPaymentsManagment
         /// </summary>
         public float? BalanceSub { get; set; }
 
-        
+
         /// <summary>
         /// Հաշվառման ամսաթիվ
         /// Ավելացել է մեր պահանջով
@@ -63,23 +59,23 @@ namespace ExternalBanking.UtilityPaymentsManagment
 
             try
             {
-                    vivaCellPaymentCheckRequestResponse = UtilityOperationService.VivaCellSubscriberCheck(phoneNumber);
+                vivaCellPaymentCheckRequestResponse = UtilityOperationService.VivaCellSubscriberCheck(phoneNumber);
 
-                    if ((ResultCode)vivaCellPaymentCheckRequestResponse.ActionResult.ResultCode == ResultCode.Normal)
-                    {
-                        this.PhoneNumber = phoneNumber;
-                        this.BalanceContract = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.BalanceContract;
-                        this.BalanceSub = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.BalanceSub;
-                        this.BilledToDate = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.BilledToDate;
-                        this.MaxAmount = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.MaxAmount;
-                        this.MinAmount = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.MinAmount;
-                        this.SubscriberName = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.SubscriberName;
-                        this.SubscriberType = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.SubscriberType;
-                    }
-                    else
-                    {
-                        this.PhoneNumber = null;
-                    }
+                if ((ResultCode)vivaCellPaymentCheckRequestResponse.ActionResult.ResultCode == ResultCode.Normal)
+                {
+                    this.PhoneNumber = phoneNumber;
+                    this.BalanceContract = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.BalanceContract;
+                    this.BalanceSub = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.BalanceSub;
+                    this.BilledToDate = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.BilledToDate;
+                    this.MaxAmount = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.MaxAmount;
+                    this.MinAmount = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.MinAmount;
+                    this.SubscriberName = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.SubscriberName;
+                    this.SubscriberType = vivaCellPaymentCheckRequestResponse.VivaCellPaymentCheckOutput.SubscriberType;
+                }
+                else
+                {
+                    this.PhoneNumber = null;
+                }
             }
             catch (Exception ex)
             {
@@ -88,6 +84,6 @@ namespace ExternalBanking.UtilityPaymentsManagment
 
             return this;
         }
-        
+
     }
 }

@@ -1,7 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
 using System.Data;
 
 namespace ExternalBanking
@@ -120,7 +119,7 @@ namespace ExternalBanking
             AssigneeList = new List<Assignee>();
         }
 
-        public static List<Credential> GetCustomerCredentialsList(ulong customerNumber,ProductQualityFilter filter)
+        public static List<Credential> GetCustomerCredentialsList(ulong customerNumber, ProductQualityFilter filter)
         {
             List<Credential> credentialsList = new List<Credential>();
             if (filter == ProductQualityFilter.Opened || filter == ProductQualityFilter.NotSet)

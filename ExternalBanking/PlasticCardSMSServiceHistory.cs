@@ -1,10 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -23,7 +19,7 @@ namespace ExternalBanking
         /// <summary>
         /// SMS-ի նվազագույն գումար
         /// </summary>
-        public string SMSFilter{ get; set; }
+        public string SMSFilter { get; set; }
 
 
         /// <summary>

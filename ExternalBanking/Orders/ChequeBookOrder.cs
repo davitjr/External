@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using System.Threading.Tasks;
-using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -51,7 +48,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result =ChequeBookDB.Save(this, userName, source);
+                result = ChequeBookDB.Save(this, userName, source);
                 LogOrderChange(user, action);
                 scope.Complete();
             }
@@ -135,7 +132,7 @@ namespace ExternalBanking
 
         private void Complete()
         {
-            
+
             if ((this.OrderNumber == null || this.OrderNumber == "") && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
@@ -143,17 +140,17 @@ namespace ExternalBanking
             this.SubType = 1;
             byte customerType = Customer.GetCustomerType(this.CustomerNumber);
 
-                this.Fees.ForEach(m =>
-                {
+            this.Fees.ForEach(m =>
+            {
 
-                    m.CreditAccount = Account.GetOperationSystemAccount(3000, "AMD", this.FilialCode, Convert.ToUInt16(customerType==6?1:2));
-                    if (m.Type == 16)
-                    {
-                        m.Account = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.FeeAccount), "AMD", this.FilialCode);
-                        m.OrderNumber = this.OrderNumber;
-                    }
-                    
-                });
+                m.CreditAccount = Account.GetOperationSystemAccount(3000, "AMD", this.FilialCode, Convert.ToUInt16(customerType == 6 ? 1 : 2));
+                if (m.Type == 16)
+                {
+                    m.Account = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.FeeAccount), "AMD", this.FilialCode);
+                    m.OrderNumber = this.OrderNumber;
+                }
+
+            });
         }
         /// <summary>
         /// Վճարման հանձնարարականի պահպանում և ուղղարկում
@@ -241,13 +238,13 @@ namespace ExternalBanking
             {
 
             }
-           
+
 
             result.Errors = warnings;
             return result;
         }
 
-        public static double GetOrderServiceFee(ulong customerNumber,OrderType type,int urgent)
+        public static double GetOrderServiceFee(ulong customerNumber, OrderType type, int urgent)
         {
             double serviceFee = 0;
             int customerType = 0;
@@ -257,28 +254,28 @@ namespace ExternalBanking
 
             VipData vip = ACBAOperationService.GetCustomerVipData(customerNumber);
             vipType = vip.vipType.key;
-            
-            if (vipType<7 || vipType>9)
+
+            if (vipType < 7 || vipType > 9)
             {
-                if (type==OrderType.ChequeBookReceiveOrder)
+                if (type == OrderType.ChequeBookReceiveOrder)
                 {
                     if (customerType == 6)
-                      serviceFee = Utility.GetPriceInfoByIndex(201, "price");
+                        serviceFee = Utility.GetPriceInfoByIndex(201, "price");
                     else
-                      serviceFee = Utility.GetPriceInfoByIndex(202, "price");
+                        serviceFee = Utility.GetPriceInfoByIndex(202, "price");
                 }
-                else if (type==OrderType.ReferenceOrder)
+                else if (type == OrderType.ReferenceOrder)
                 {
-                    if (urgent==0)
+                    if (urgent == 0)
                     {
                         serviceFee = Utility.GetPriceInfoByIndex(205, "price");
                     }
-                    else if(urgent==1)
+                    else if (urgent == 1)
                     {
                         serviceFee = Utility.GetPriceInfoByIndex(214, "price");
                     }
                 }
-                else if (type== OrderType.SwiftCopyOrder)
+                else if (type == OrderType.SwiftCopyOrder)
                 {
                     serviceFee = Utility.GetPriceInfoByIndex(213, "price");
                 }

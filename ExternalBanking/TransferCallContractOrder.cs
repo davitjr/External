@@ -1,14 +1,11 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
 {
-   public class TransferCallContractOrder:Order
+    public class TransferCallContractOrder : Order
     {
 
         /// <summary>
@@ -83,7 +80,7 @@ namespace ExternalBanking
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
                 result.Errors.Add(new ActionError(451));
             }
-            
+
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
@@ -107,7 +104,7 @@ namespace ExternalBanking
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
-           
+
 
         }
 

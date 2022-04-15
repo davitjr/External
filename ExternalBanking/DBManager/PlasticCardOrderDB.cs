@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -54,15 +52,11 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@motherName", SqlDbType.NVarChar, 24).Value = order.MotherName;
                     cmd.Parameters.Add("@relatedOfficeNumber", SqlDbType.Int).Value = order.PlasticCard.RelatedOfficeNumber;
                     cmd.Parameters.Add("@cardType", SqlDbType.SmallInt).Value = order.PlasticCard.CardType;
-                    cmd.Parameters.Add("@cardChangeType", SqlDbType.SmallInt).Value = (short)order.PlasticCard.CardChangeType;
+                    cmd.Parameters.Add("@cardChangeType", SqlDbType.SmallInt).Value = (short)order.PlasticCard.PlasticCardChangeType;
                     cmd.Parameters.Add("@cardSystem", SqlDbType.Int).Value = order.PlasticCard.CardSystem;
                     cmd.Parameters.Add("@involvingSetNumber", SqlDbType.Int).Value = order.InvolvingSetNumber;
                     cmd.Parameters.Add("@servingSetNumber", SqlDbType.Int).Value = order.ServingSetNumber;
 
-                    if (InfoDB.CommunicationTypeExistence(order.CustomerNumber) == 1)
-                        cmd.Parameters.Add("@cardReportReceivingType", SqlDbType.Int).Value = DBNull.Value;
-                    else
-                        cmd.Parameters.Add("@cardReportReceivingType", SqlDbType.Int).Value = order.CardReportReceivingType;
 
 
 
@@ -89,6 +83,7 @@ namespace ExternalBanking.DBManager
                     }
                     cmd.Parameters.Add("@ProvidingFilialCode", SqlDbType.Int).Value = order.ProvidingFilialCode;
 
+                    cmd.Parameters.Add("@cardDesignId", SqlDbType.Int).Value = order.DesignID;
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -192,7 +187,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand(@"SELECT HB.document_number document_number, HB.document_type document_type, HB.document_subtype document_subtype, HB.doc_ID, 
-                                                  HB.operationFilialCode operationFilialCode, HB.quality quality, registration_date, operation_date, HB.description , CT.ApplicationsCardType ApplicationsCardType,
+                                                  HB.operationFilialCode operationFilialCode, HB.quality quality, registration_date, operation_date, HB.description , s.CardSystemType+' '+CT.CardType ApplicationsCardType,
                                                   VA.Cardnumber, OD.currency, OD.card_PIN_code_receiving_type,HB.source_type,OD.related_office_number,OD.mother_name, isnull(OD.card_report_receiving_type,-1) as card_report_receiving_type , ISNULL(RT.[description],'') AS report_type_description,
                                                   OD.ProvidingFilialCode, Od.card_type , Od.service_Fee_Periodicity_Type, OD.cardSMSPhone, OD.cardPINCodeReceivingPhone, OD.serving_set_number,OD.card_supplementary_type,
                                                   OD.main_card_number,T.armenian card_technology, od.linked_card_limit, HB.confirmation_date, ISNULL(F.fill_description_unicode,'') AS fill_description,HB.order_group_id,
@@ -201,7 +196,8 @@ namespace ExternalBanking.DBManager
                                                   INNER JOIN tbl_card_order_details OD on HB.doc_ID = OD.doc_ID
                                                   INNER JOIN dbo.tbl_type_of_card CT on OD.card_type = CT.id
                                                   INNER JOIN dbo.Tbl_type_of_Card_Technology T on T.abbreviation = CT.C_M	
-                                                 INNER JOIN dbo.tbl_types_of_card_PIN_code_receiving PIN on OD.card_PIN_code_receiving_type = PIN.[type_id]                                                  
+                                                 INNER JOIN dbo.tbl_types_of_card_PIN_code_receiving PIN on OD.card_PIN_code_receiving_type = PIN.[type_id]   
+                                                  INNER JOIN dbo.Tbl_type_of_CardSystem s on s.ID = CT.CardSystemID
                                                  LEFT JOIN dbo.Tbl_visa_applications VA on VA.app_id = OD.app_id
                                                   LEFT JOIN dbo.tbl_types_of_card_report_receiving RT on OD.card_report_receiving_type = RT.[type_id]
                                                   LEFT JOIN (
@@ -265,6 +261,7 @@ namespace ExternalBanking.DBManager
             return order;
         }
 
+
         internal static string GetCustomerLastMotherName(ulong customerNumber)
         {
             string lastMotherName = "";
@@ -296,9 +293,12 @@ namespace ExternalBanking.DBManager
             using DataTable dt = new DataTable();
             using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
             conn.Open();
-            using SqlCommand cmd = new SqlCommand(@"SELECT doc_id
-                                                  FROM Tbl_HB_documents
-                                                  WHERE document_type = 210 and quality = 3 and customer_number = @customer_number", conn);
+            using SqlCommand cmd = new SqlCommand(@"select  * from tbl_card_order_details  od
+                                                    inner join Tbl_HB_documents d
+                                                    on d.doc_ID = od.doc_ID
+                                                    WHERE d.document_type = 210 
+                                                    and d.quality = 3 
+                                                    and d.customer_number = @customer_number", conn);
 
             cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
             dt.Load(cmd.ExecuteReader());
@@ -638,6 +638,97 @@ namespace ExternalBanking.DBManager
             cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar, 50).Value = mainCardNumber;
             dt.Load(cmd.ExecuteReader());
             return Convert.ToInt32(dt.Rows[0]["summary"].ToString());
+        }
+        internal static List<CardDesign> GetCardDesignThemes()
+        {
+            List<CardDesign> themes = new List<CardDesign>();
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = @"select id, theme_name,banner from tbl_digital_card_themes";
+
+                    cmd.CommandType = CommandType.Text;
+                    dt.Load(cmd.ExecuteReader());
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            CardDesign theme = new CardDesign();
+                            theme.ThemeId = Convert.ToInt32(dt.Rows[i]["id"].ToString());
+                            theme.ThemeName = dt.Rows[i]["theme_name"].ToString();
+
+
+                            theme.ThemeBannerURL = ConfigurationManager.AppSettings["CardDesign"].ToString() + dt.Rows[i]["banner"].ToString();
+
+
+                            themes.Add(theme);
+                        }
+                    }
+                    return themes;
+                }
+            }
+        }
+
+        internal static List<CardDesign> GetCardDesignImages(int id)
+        {
+            List<CardDesign> images = new List<CardDesign>();
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = @"select t.id as theme_id, im.id as image_id, (path + file_name) as image_url, (path + thumb_name) as thumb_url, file_name, thumb_name
+                                            from tbl_digital_card_images im inner join tbl_digital_card_themes t on im.theme_id = t.id where t.id =  @id";
+                    cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = id;
+                    cmd.CommandType = CommandType.Text;
+                    dt.Load(cmd.ExecuteReader());
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            CardDesign image = new CardDesign();
+                            image.ThemeId = Convert.ToInt32(dt.Rows[i]["theme_id"].ToString());
+                            image.ImageId = Convert.ToInt32(dt.Rows[i]["image_id"].ToString());
+
+                            //bool isTestVersion = bool.Parse(ConfigurationManager.AppSettings["TestVersion"].ToString());
+                            //if (isTestVersion)
+                            //{
+                            image.ImageURL = ConfigurationManager.AppSettings["CardDesign"].ToString() + dt.Rows[i]["image_url"].ToString();
+                            image.ThumbURL = ConfigurationManager.AppSettings["CardDesign"].ToString() + dt.Rows[i]["thumb_url"].ToString();
+                            //}
+
+
+                            image.ThumbName = dt.Rows[i]["thumb_name"].ToString();
+                            image.ImageName = dt.Rows[i]["file_name"].ToString();
+
+                            images.Add(image);
+                        }
+                    }
+                    return images;
+                }
+            }
+        }
+
+        internal static bool IsCustomerUpdateExpired(ulong customerNumber)
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(@"SELECT dbo.fnc_isCustomerUpdateExpired(@customerNumber) as Expired", conn);
+
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                dt.Load(cmd.ExecuteReader());
+                return (bool)(dt.Rows[0]["Expired"]);
+            }
         }
     }
 }

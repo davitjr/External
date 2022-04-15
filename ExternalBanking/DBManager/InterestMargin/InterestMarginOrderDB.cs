@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -105,7 +102,7 @@ namespace ExternalBanking.DBManager
         {
             InterestMarginDetail marginDetail = new InterestMarginDetail();
 
-            if (row!=null)
+            if (row != null)
             {
                 marginDetail.Currency = row["currency"].ToString();
                 if (row["interest_rate"] != DBNull.Value)

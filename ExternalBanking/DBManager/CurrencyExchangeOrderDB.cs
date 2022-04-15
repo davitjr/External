@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -111,7 +108,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@shortChange", SqlDbType.Float).Value = order.ShortChange;
                     cmd.Parameters.Add("@roundingDirection", SqlDbType.TinyInt).Value = order.RoundingDirection;
                     cmd.Parameters.Add("@orderNumberForDebet", SqlDbType.NVarChar, 20).Value = order.OrderNumberForDebet == null ? "" : order.OrderNumberForDebet;
-                    cmd.Parameters.Add("@orderNumberForCredit", SqlDbType.NVarChar, 20).Value = order.OrderNumberForCredit==null?"":order.OrderNumberForCredit;
+                    cmd.Parameters.Add("@orderNumberForCredit", SqlDbType.NVarChar, 20).Value = order.OrderNumberForCredit == null ? "" : order.OrderNumberForCredit;
                     cmd.Parameters.Add("@orderNumberForShortChange", SqlDbType.NVarChar, 20).Value = order.OrderNumberForShortChange == null ? "" : order.OrderNumberForShortChange;
                     cmd.Parameters.Add("@isVariation", SqlDbType.TinyInt).Value = order.IsVariation;
                     cmd.Parameters.Add("@crossRateFull", SqlDbType.Float).Value = order.ConvertationCrossRate;
@@ -119,7 +116,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.ExecuteNonQuery();
                 }
-            } 
+            }
         }
 
         internal static ActionResult SaveCurrencyExchangeOrderDetails(CurrencyExchangeOrder currencyExchangeOrder, ulong orderId)
@@ -181,28 +178,28 @@ namespace ExternalBanking.DBManager
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                       
-                            if (dr.Read())
-                            {
-                                order.AmountInAmd = Convert.ToDouble(dr["amount"]) * Convert.ToDouble(dr["rate_sell_buy"]);
-                                if (!string.IsNullOrEmpty(dr["amount_cross"].ToString()))
-                                {
-                                    order.AmountInCrossCurrency = Convert.ToDouble(dr["amount_cross"].ToString());
-                                }
-                                order.ShortChange = 0;
-                                if (!string.IsNullOrEmpty(dr["is_variation"].ToString()))
-                                {
-                                    order.IsVariation = (ExchangeRateVariationType)(Convert.ToByte(dr["is_variation"].ToString()));
-                                }
 
-                                if (!string.IsNullOrEmpty(dr["rounding_direction"].ToString()))
-                                {
-                                    order.RoundingDirection = (ExchangeRoundingDirectionType)(Convert.ToByte(dr["rounding_direction"].ToString()));
-                                }
-                                else
-                                {
-                                    order.RoundingDirection = ExchangeRoundingDirectionType.ToAMD;
-                                }
+                        if (dr.Read())
+                        {
+                            order.AmountInAmd = Convert.ToDouble(dr["amount"]) * Convert.ToDouble(dr["rate_sell_buy"]);
+                            if (!string.IsNullOrEmpty(dr["amount_cross"].ToString()))
+                            {
+                                order.AmountInCrossCurrency = Convert.ToDouble(dr["amount_cross"].ToString());
+                            }
+                            order.ShortChange = 0;
+                            if (!string.IsNullOrEmpty(dr["is_variation"].ToString()))
+                            {
+                                order.IsVariation = (ExchangeRateVariationType)(Convert.ToByte(dr["is_variation"].ToString()));
+                            }
+
+                            if (!string.IsNullOrEmpty(dr["rounding_direction"].ToString()))
+                            {
+                                order.RoundingDirection = (ExchangeRoundingDirectionType)(Convert.ToByte(dr["rounding_direction"].ToString()));
+                            }
+                            else
+                            {
+                                order.RoundingDirection = ExchangeRoundingDirectionType.ToAMD;
+                            }
 
                             if (!string.IsNullOrEmpty(dr["cross_rate_full"].ToString()))
                             {
@@ -215,9 +212,9 @@ namespace ExternalBanking.DBManager
                                     order.ConvertationCrossRate = Convert.ToDouble(dr["rate_sell_buy_cross"]);
                                 }
                             }
-                            
+
                         }
-                        
+
                     }
 
                 }
@@ -258,7 +255,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 string sqltext = "sp_printExchange";
 
-               using SqlCommand cmd = new SqlCommand(sqltext, conn);
+                using SqlCommand cmd = new SqlCommand(sqltext, conn);
 
                 cmd.Parameters.Add("@doc_id", SqlDbType.Float).Value = orderId;
                 cmd.CommandType = CommandType.StoredProcedure;

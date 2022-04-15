@@ -1,11 +1,7 @@
 ﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions;
 using System.Data;
 
 namespace ExternalBanking.XBManagement
@@ -96,14 +92,14 @@ namespace ExternalBanking.XBManagement
         /// Հաճախորդի էլ. հասցե
         /// </summary>
         public CustomerEmail Email { get; set; }
-       
+
 
         /// <summary>
         /// Հաճախորդի հեռախոսահամար
         /// </summary>
         public CustomerPhone Phone { get; set; }
 
-     
+
         /// <summary>
         /// Հարցերի պատասխանների ցուցակ
         /// </summary>
@@ -117,25 +113,25 @@ namespace ExternalBanking.XBManagement
         public static PhoneBankingContract Get(ulong customerNumber)
         {
 
-                PhoneBankingContract phoneBankingContract = PhoneBankingContractDB.Get(customerNumber);
-                if (phoneBankingContract != null)
+            PhoneBankingContract phoneBankingContract = PhoneBankingContractDB.Get(customerNumber);
+            if (phoneBankingContract != null)
+            {
+                DataTable dt = PhoneBankingContractDB.GetQuestionAnswers(phoneBankingContract.Id);
+                phoneBankingContract.QuestionAnswers = new List<PhoneBankingContractQuestionAnswer>();
+
+                foreach (DataRow dr in dt.Rows)
                 {
-                    DataTable dt = PhoneBankingContractDB.GetQuestionAnswers(phoneBankingContract.Id);
-                    phoneBankingContract.QuestionAnswers = new List<PhoneBankingContractQuestionAnswer>();
-
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        PhoneBankingContractQuestionAnswer qa = new PhoneBankingContractQuestionAnswer();
-                        qa.Answer = Utility.ConvertAnsiToUnicode(dr["Question_Answer"].ToString());
-                        qa.QuestionId = Convert.ToInt32(dr["Question_ID"].ToString());
-                        qa.QuestionDescription = dr["Question"].ToString();
-                        phoneBankingContract.QuestionAnswers.Add(qa);
-                    }
-
-                    phoneBankingContract.Email = GetPhoneBankingContractEmail(customerNumber);
-                    phoneBankingContract.Phone = GetPhoneBankingContractPhone(customerNumber);
+                    PhoneBankingContractQuestionAnswer qa = new PhoneBankingContractQuestionAnswer();
+                    qa.Answer = Utility.ConvertAnsiToUnicode(dr["Question_Answer"].ToString());
+                    qa.QuestionId = Convert.ToInt32(dr["Question_ID"].ToString());
+                    qa.QuestionDescription = dr["Question"].ToString();
+                    phoneBankingContract.QuestionAnswers.Add(qa);
                 }
-                           
+
+                phoneBankingContract.Email = GetPhoneBankingContractEmail(customerNumber);
+                phoneBankingContract.Phone = GetPhoneBankingContractPhone(customerNumber);
+            }
+
             return phoneBankingContract;
         }
 
@@ -161,6 +157,6 @@ namespace ExternalBanking.XBManagement
         {
             return PhoneBankingContractDB.isExistsNotConfirmedPBOrder(customerNumber);
         }
-        
+
     }
 }

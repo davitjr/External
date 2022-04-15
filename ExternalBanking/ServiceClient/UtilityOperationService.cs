@@ -1,10 +1,6 @@
 ﻿using ExternalBanking.UtilityPaymentsServiceReference;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.ServiceClient
 {
@@ -17,7 +13,7 @@ namespace ExternalBanking.ServiceClient
 
             Use(client =>
             {
-                result = client.BeelineAbonentNumberCheck(abonentNumber,amount);
+                result = client.BeelineAbonentNumberCheck(abonentNumber, amount);
             });
 
             return result;
@@ -70,7 +66,7 @@ namespace ExternalBanking.ServiceClient
 
             Use(client =>
             {
-                result = client.VivaCellBTFCheck(transferNote,amount);
+                result = client.VivaCellBTFCheck(transferNote, amount);
             });
 
             return result;
@@ -113,17 +109,17 @@ namespace ExternalBanking.ServiceClient
                 ((IClientChannel)client).Close();
                 success = true;
             }
-            catch (FaultException ex)
+            catch (FaultException)
             {
                 ((IClientChannel)client).Close();
 
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
 

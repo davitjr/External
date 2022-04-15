@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.XBManagement;
+using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.XBManagement;
 
 namespace ExternalBanking.DBManager
 {
@@ -78,7 +74,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                          doc.document_number,
                                                          doc.document_type,
                                                          doc.debet_account,
@@ -100,7 +96,7 @@ namespace ExternalBanking.DBManager
 
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)
-                {                  
+                {
                     order.ContractNumber = dt.Rows[0]["contract_number"].ToString();
 
                     order.OrderNumber = dt.Rows[0]["document_number"].ToString();

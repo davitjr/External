@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Գործողության արդյունք
     /// </summary>
-    public  class ActionResult
+    public class ActionResult
     {
         /// <summary>
         /// Գործուղության արդյունքի կոդ
@@ -43,12 +39,12 @@ namespace ExternalBanking
         /// <summary>
         /// Սխալի նկարագրություն
         /// </summary>
-        public string Description { get; set; } 
-        
+        public string Description { get; set; }
+
         /// <summary>
         /// Սխալի պարամետրների ցուցակ
         /// </summary>
-        public string[] Params {get;set;}
+        public string[] Params { get; set; }
 
         public ActionError()
         {
@@ -57,7 +53,7 @@ namespace ExternalBanking
         {
             Code = code;
         }
-        public ActionError(short code,string[] paramsList)
+        public ActionError(short code, string[] paramsList)
         {
             Code = code;
             Params = paramsList;
@@ -87,8 +83,8 @@ namespace ExternalBanking
         /// <summary>
         /// Գործողության ենթարկվող օբեկտ
         /// </summary>
-        public T Content{ get; set; }
-    
+        public T Content { get; set; }
+
 
         public ContentResult()
         {

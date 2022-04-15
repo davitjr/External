@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.XBS;
+using System.Collections.Generic;
 
 namespace ExternalBankingRESTService
 {
     public class FactoringsRequestResponse
     {
-       public List<Factoring> Factorings { get; set; }
-       public Result Result { get; set; }
+        public List<Factoring> Factorings { get; set; }
+        public Result Result { get; set; }
 
-       public FactoringsRequestResponse()
+        public FactoringsRequestResponse()
         {
             Result = new Result();
         }

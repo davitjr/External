@@ -2,7 +2,7 @@
 
 namespace ExternalBankingRESTService
 {
-	public class LoanRequestResponse
+    public class LoanRequestResponse
     {
         public Loan Loan { get; set; }
         public Result Result { get; set; }

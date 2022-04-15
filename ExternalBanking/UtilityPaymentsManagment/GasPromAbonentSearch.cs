@@ -2,9 +2,6 @@
 using ExternalBanking.UtilityPaymentsServiceReference;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.UtilityPaymentsManagment
 {
@@ -185,7 +182,7 @@ namespace ExternalBanking.UtilityPaymentsManagment
                 gasSearch.Street = cmnl.Street;
                 gasSearch.House = cmnl.House;
                 gasSearch.Home = cmnl.Home;
-                    gasSearch.PhoneNumber = cmnl.PhoneNumber;
+                gasSearch.PhoneNumber = cmnl.PhoneNumber;
 
                 gasSearchRequest = UtilityOperationService.GasPromAbonentSearch(gasSearch);
 

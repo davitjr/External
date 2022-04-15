@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 using System.Web.Configuration;
 
 
@@ -47,7 +43,7 @@ namespace ExternalBanking.DBManager
 
                         if (row != null)
                         {
-                            card.CardChangeType = CardChangeType.New;
+                            card.PlasticCardChangeType = PlasticCardChangeType.New;
                             card.ProductId = ulong.Parse(row["app_id"].ToString());
                             card.CardNumber = row["Cardnumber"].ToString();
                             card.Currency = row["BillingCurrency"].ToString();
@@ -117,7 +113,7 @@ namespace ExternalBanking.DBManager
         internal static List<PlasticCard> GetSupplementaryPlasticCards(string mainCardNumber)
         {
             List<PlasticCard> cards = new List<PlasticCard>();
-            
+
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -149,7 +145,7 @@ namespace ExternalBanking.DBManager
                         dt.Load(dr);
                     }
 
-                    foreach(DataRow row in dt.Rows)
+                    foreach (DataRow row in dt.Rows)
                     {
                         PlasticCard card = SetPlasticCard(row);
                         cards.Add(card);
@@ -160,7 +156,7 @@ namespace ExternalBanking.DBManager
             return cards;
         }
 
-        internal static PlasticCard GetPlasticCard(ulong productId ,bool productidType)
+        internal static PlasticCard GetPlasticCard(ulong productId, bool productidType)
         {
             PlasticCard card = null;
 
@@ -238,21 +234,21 @@ namespace ExternalBanking.DBManager
                 card.CardSystem = int.Parse(row["CardSystemId"].ToString());
                 card.CardHolderName = Utility.ConvertAnsiToUnicode(row["name"].ToString());
                 card.CardHolderLastName = Utility.ConvertAnsiToUnicode(row["lastname"].ToString());
-                
+
                 if (row["typeID"] == DBNull.Value)
                 {
-                    card.CardChangeType = CardChangeType.New;
+                    card.PlasticCardChangeType = PlasticCardChangeType.New;
                 }
                 else
                 {
-                    card.CardChangeType = (CardChangeType)short.Parse(row["typeID"].ToString());
+                    card.PlasticCardChangeType = (PlasticCardChangeType)short.Parse(row["typeID"].ToString());
                 }
                 card.AddInf = Utility.ConvertAnsiToUnicode(row["add_inf"].ToString());
 
             }
             return card;
         }
-        
+
         internal static int UpdateCardStatusWithoutOrder(ulong productId)
         {
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -270,7 +266,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operDay", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
                     cmd.CommandType = CommandType.Text;
                     conn.Open();
-                    return cmd.ExecuteNonQuery();                    
+                    return cmd.ExecuteNonQuery();
                 }
             }
         }
@@ -513,7 +509,7 @@ namespace ExternalBanking.DBManager
 											FROM Tbl_additional_card_conditions_checking
 											WHERE  sub_type = 1
 											GROUP BY main_card_type ) acc on acc.main_card_type =t.ID
-                                WHERE  CardStatus = 'NORM' AND VA.customer_number=@customerNumber AND cardnumber = MaincardNumber";           
+                                WHERE  CardStatus = 'NORM' AND VA.customer_number=@customerNumber AND cardnumber = MaincardNumber";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -554,6 +550,27 @@ namespace ExternalBanking.DBManager
             }
 
             return cardList;
+        }
+
+        internal static ulong GetCardCustomerNumber(long productId)
+        {
+            ulong customerNumber = 0;
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT TOP 1 customer_number FROM tbl_visa_applications WHERE app_id = @productId";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@productId", SqlDbType.VarChar, 25).Value = productId;
+
+                    conn.Open();
+
+                    customerNumber = Convert.ToUInt64(cmd.ExecuteScalar());
+                }
+            }
+            return customerNumber;
         }
     }
 }

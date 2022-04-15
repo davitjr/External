@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Web.Configuration;
-using System.Globalization;
 
 namespace ExternalBanking.DBManager
 {
@@ -16,7 +10,6 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveProductNote(ProductNote productNote)
         {
             ActionResult result = new ActionResult();
-            int id = -1;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -35,10 +28,8 @@ namespace ExternalBanking.DBManager
 
                     cmd.ExecuteNonQuery();
 
-                    //byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
-                  
                     result.ResultCode = ResultCode.Normal;
-                    
+
                 }
             }
 

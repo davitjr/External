@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -90,7 +87,7 @@ namespace ExternalBanking.DBManager
 
         internal static DataTable GetDepositRateTariff(DepositType depositType)
         {
-            
+
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
@@ -99,11 +96,11 @@ namespace ExternalBanking.DBManager
                         rate_repayment_frequency from [Tbl_type_of_deposits;] a left  join Tbl_Type_of_deposit_repayment_frequency  b 
                                      on a.rate_repayment_frequency = b.id where code  = @depositType", conn);
 
-              
+
                 cmd.Parameters.Add("@depositType", SqlDbType.Float).Value = (short)depositType;
                 dt.Load(cmd.ExecuteReader());
 
-                
+
             }
             return dt;
         }

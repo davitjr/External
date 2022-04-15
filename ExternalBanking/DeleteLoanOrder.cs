@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -26,12 +25,12 @@ namespace ExternalBanking
         /// Պատ կատարող
         /// </summary>
         public uint ConfirmationSetNumber { get; set; }
-        
+
 
         public ActionResult SaveAndApprove(string userName, short schemaType, ACBAServiceReference.User user)
         {
             this.Complete();
-            ActionResult result = this.Validate();            
+            ActionResult result = this.Validate();
 
             if (result.Errors.Count > 0)
             {
@@ -44,13 +43,13 @@ namespace ExternalBanking
             {
                 result = DeleteLoanOrderDB.LoanDeleteOrder(this, user.userID);
 
-                base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);                
+                base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
                 }
-                
+
                 result = base.Approve(schemaType, user.userName);
 
                 if (result.ResultCode == ResultCode.Normal)
@@ -81,7 +80,7 @@ namespace ExternalBanking
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
             {
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-            }            
+            }
         }
 
         /// <summary>

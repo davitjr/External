@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -46,7 +43,7 @@ namespace ExternalBanking
         /// <summary>
         /// Կարգավիճակի նկարագրություն
         /// </summary>
-        public string QualityDescription { get;set; }
+        public string QualityDescription { get; set; }
 
         /// <summary>
         /// Փակման ա/թ
@@ -146,18 +143,18 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="customerNumber"></param>
         /// <returns></returns>
-        public static List<DepositCase> GetDepositCases(ulong customerNumber,ProductQualityFilter filter)
+        public static List<DepositCase> GetDepositCases(ulong customerNumber, ProductQualityFilter filter)
         {
             List<DepositCase> depositCases = new List<DepositCase>();
-            if (filter==ProductQualityFilter.Opened || filter==ProductQualityFilter.NotSet)
+            if (filter == ProductQualityFilter.Opened || filter == ProductQualityFilter.NotSet)
             {
                 depositCases.AddRange(DepositCaseDB.GetDepositCases(customerNumber));
             }
-            if (filter==ProductQualityFilter.Closed)
+            if (filter == ProductQualityFilter.Closed)
             {
                 depositCases.AddRange(DepositCaseDB.GetClosedDepositCases(customerNumber));
             }
-            if (filter==ProductQualityFilter.All)
+            if (filter == ProductQualityFilter.All)
             {
                 depositCases.AddRange(DepositCaseDB.GetDepositCases(customerNumber));
                 depositCases.AddRange(DepositCaseDB.GetClosedDepositCases(customerNumber));

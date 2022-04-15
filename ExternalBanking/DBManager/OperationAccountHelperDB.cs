@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -21,7 +15,7 @@ namespace ExternalBanking.DBManager
             {
                 ushort accountType = 0;
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"SELECT account_type FROM tbl_link_order_type_fee_account WHERE  product_type=@orderType AND  fee_type=@feeType",conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT account_type FROM tbl_link_order_type_fee_account WHERE  product_type=@orderType AND  fee_type=@feeType", conn))
                 {
                     cmd.CommandType = CommandType.Text;
 
@@ -33,7 +27,7 @@ namespace ExternalBanking.DBManager
 
                     return accountType;
                 }
-                   
+
             }
         }
 
@@ -70,7 +64,7 @@ namespace ExternalBanking.DBManager
 
                     accountNumber = cmd.Parameters["@account"].Value.ToString();
                 }
-                   
+
             }
 
             return Account.GetSystemAccount(accountNumber);

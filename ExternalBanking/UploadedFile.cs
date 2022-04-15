@@ -1,9 +1,4 @@
 ﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -11,7 +6,7 @@ namespace ExternalBanking
     {
         public string FileID { get; set; }
 
-        public string  FileName { get; set; }
+        public string FileName { get; set; }
         public string FileType { get; set; }
         public byte[] File { get; set; }
         public ulong FileSize { get; set; }
@@ -24,9 +19,9 @@ namespace ExternalBanking
             return UploadedFileDB.SaveUploadedFile(uploadedFile);
         }
 
-        public  static ReadXmlFileAndLog ReadXmlFile(string fileId, short filial, ulong customerNumber, string userName)
+        public static ReadXmlFileAndLog ReadXmlFile(string fileId, short filial, ulong customerNumber, string userName)
         {
-            return UploadedFileDB.ReadXmlFile(fileId,filial,customerNumber,userName);
+            return UploadedFileDB.ReadXmlFile(fileId, filial, customerNumber, userName);
         }
 
         public static byte[] GetAttachedFile(long docID, int type)

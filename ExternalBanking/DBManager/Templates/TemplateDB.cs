@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -21,7 +18,7 @@ namespace ExternalBanking.DBManager
         /// <param name="customerNumber"></param>
         /// <param name="templateName"></param>
         /// <returns></returns>
-        internal static bool ExistsTemplateByName(ulong customerNumber, string templateName,int id)
+        internal static bool ExistsTemplateByName(ulong customerNumber, string templateName, int id)
         {
             bool exists = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -146,7 +143,7 @@ namespace ExternalBanking.DBManager
             template.Status = (TemplateStatus)Convert.ToInt16(row["status"].ToString());
             template.TemplateType = (TemplateType)Convert.ToInt16(row["type"].ToString());
             template.ChangeUserId = Convert.ToInt32(row["user_id"].ToString());
-            
+
 
 
             template.TemplateSourceType = (SourceType)Convert.ToInt16(row["source_type"].ToString());
@@ -271,7 +268,7 @@ namespace ExternalBanking.DBManager
                         else
                             cmd.Parameters.Add("@fee_currency", SqlDbType.NVarChar, 20).Value = DBNull.Value;
 
-                        cmd.Parameters.Add("@fee_type", SqlDbType.NVarChar, 20).Value = m.Type;                    
+                        cmd.Parameters.Add("@fee_type", SqlDbType.NVarChar, 20).Value = m.Type;
 
                         cmd.ExecuteNonQuery();
                     }
@@ -296,7 +293,7 @@ namespace ExternalBanking.DBManager
 
                 using (SqlCommand cmd = new SqlCommand(@"select * from Tbl_Template_Fees  where template_id=@template_id", conn))
                 {
-                    cmd.Parameters.Add("@template_id", SqlDbType.Int).Value = templateId; 
+                    cmd.Parameters.Add("@template_id", SqlDbType.Int).Value = templateId;
                     DataTable dt = new DataTable();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())

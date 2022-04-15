@@ -106,16 +106,16 @@ namespace ExternalBanking.ServiceClient
                 ((IClientChannel)client).Close();
                 success = true;
             }
-            catch (FaultException ex)
+            catch (FaultException)
             {
                 ((IClientChannel)client).Close();
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
 

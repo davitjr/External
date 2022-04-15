@@ -1,10 +1,5 @@
 ﻿using ExternalBanking.DBManager;
 using ExternalBanking.DBManager.Templates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -32,7 +27,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             this.Complete(source);
-            
+
             this.CurrencyExchangeOrder.Complete();
 
             result = base.Validate();
@@ -66,7 +61,7 @@ namespace ExternalBanking
                         if (result.Errors.Count == 0)
                         {
                             if (TemplateType == TemplateType.CreatedAsGroupService)
-                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo,result.Id,action);
+                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo, result.Id, action);
                             ActionResult resultOrderFee = base.SaveTemplateFee(this.CurrencyExchangeOrder);
                         }
 

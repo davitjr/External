@@ -1,20 +1,14 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Պահատուփի ստացման հայտ
     /// </summary>
-    public class DepositCaseOrder:Order
+    public class DepositCaseOrder : Order
     {
         /// <summary>
         /// Պահատուփ
@@ -73,7 +67,7 @@ namespace ExternalBanking
                 return result;
             }
 
-            if(this.Type==OrderType.DepositCaseActivationOrder)
+            if (this.Type == OrderType.DepositCaseActivationOrder)
             {
                 result = this.ValidateForSend();
                 if (result.Errors.Count > 0)
@@ -88,7 +82,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = DepositCaseOrderDB.SaveDepositCaseOrder(this, userName, source);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -140,7 +134,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             result.Errors.AddRange(Validation.SetAmountsForCheckBalance(this));
-           
+
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;

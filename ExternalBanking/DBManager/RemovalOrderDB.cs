@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -32,6 +32,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)source;
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+                    cmd.Parameters.Add("@reject_id", SqlDbType.SmallInt).Value = order.RefuseReasonType;
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -42,7 +43,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add(param2);
 
                     cmd.ExecuteNonQuery();
-                    if(cmd.Parameters["@id"].Value != DBNull.Value && Convert.ToInt32(cmd.Parameters["@id"].Value) != -1)
+                    if (cmd.Parameters["@id"].Value != DBNull.Value && Convert.ToInt32(cmd.Parameters["@id"].Value) != -1)
                     {
                         order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                         result.ResultCode = ResultCode.Normal;
@@ -53,8 +54,8 @@ namespace ExternalBanking.DBManager
                         result.Errors.Add(new ActionError(Convert.ToInt16(cmd.Parameters["@result"].Value)));
                         result.ResultCode = ResultCode.ValidationError;
                     }
-                
-                   
+
+
                 }
             }
 

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ServiceClient;
+﻿using ExternalBanking.ServiceClient;
 using ExternalBanking.UtilityPaymentsServiceReference;
+using System;
 
 namespace ExternalBanking.UtilityPaymentsManagment
 {
@@ -21,10 +17,10 @@ namespace ExternalBanking.UtilityPaymentsManagment
             BeelineAbonentCheckRequestResponse beelineAbonentCheckRequestResponse = new BeelineAbonentCheckRequestResponse();
             try
             {
-                    beelineAbonentCheckRequestResponse = UtilityOperationService.BeelineAbonentNumberCheck(abonentNumber, amount);
-                    beelineAbonentSearch.Balance = beelineAbonentCheckRequestResponse.BeelineAbonentCheckOutput.Balancek__BackingField;
-                    beelineAbonentSearch.BeelineAbonentNumber = abonentNumber;
-                    beelineAbonentSearch.TimeStamp = beelineAbonentCheckRequestResponse.BeelineAbonentCheckOutput.TimeStampk__BackingField;
+                beelineAbonentCheckRequestResponse = UtilityOperationService.BeelineAbonentNumberCheck(abonentNumber, amount);
+                beelineAbonentSearch.Balance = beelineAbonentCheckRequestResponse.BeelineAbonentCheckOutput.Balancek__BackingField;
+                beelineAbonentSearch.BeelineAbonentNumber = abonentNumber;
+                beelineAbonentSearch.TimeStamp = beelineAbonentCheckRequestResponse.BeelineAbonentCheckOutput.TimeStampk__BackingField;
             }
             catch (Exception ex)
             {

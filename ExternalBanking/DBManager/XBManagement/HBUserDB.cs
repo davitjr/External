@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.XBManagement;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using ExternalBanking.XBManagement;
 
 namespace ExternalBanking.DBManager
 {
@@ -75,7 +75,7 @@ namespace ExternalBanking.DBManager
                             HBUser = new HBUser();
                             while (dr.Read())
                             {
-             
+
                                 HBUser.ID = Convert.ToInt32(dr["ID"].ToString());
                                 HBUser.CustomerNumber = Convert.ToUInt64(dr["customer_number"].ToString());
                                 HBUser.UserName = dr["user_name"].ToString();

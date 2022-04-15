@@ -1,17 +1,11 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
-   public class MatureOrder : Order
+    public class MatureOrder : Order
     {
         /// <summary>
         /// Մարման տեսակ
@@ -41,7 +35,7 @@ namespace ExternalBanking
         /// <summary>
         /// Պրոդուկտի ունիկալ համար
         /// </summary>
-        public ulong ProductId { get; set;}
+        public ulong ProductId { get; set; }
 
         /// <summary>
         /// Պրոդուկտի տեսակ
@@ -51,21 +45,21 @@ namespace ExternalBanking
         /// <summary>
         /// Պրոդուկտի հաշիվ
         /// </summary>
-        public Account ProductAccount { get; set;}
+        public Account ProductAccount { get; set; }
 
         /// <summary>
         /// Պրոդուկտի արժույթ
         /// </summary>
-        public string ProductCurrency { get; set;}
+        public string ProductCurrency { get; set; }
 
         /// <summary>
         /// Պրոդուկտի տոկոսագումարի հաշվարկի օր
         /// </summary>
-        public DateTime DayOfProductRateCalculation { get; set;}
+        public DateTime DayOfProductRateCalculation { get; set; }
 
-       /// <summary>
-       /// Խնդրահարույց վարկի մարում է թե ոչ
-       /// </summary>
+        /// <summary>
+        /// Խնդրահարույց վարկի մարում է թե ոչ
+        /// </summary>
         public bool IsProblematic { get; set; }
 
         /// <summary>
@@ -131,13 +125,13 @@ namespace ExternalBanking
             return result;
         }
 
-       /// <summary>
-       /// Մարման հայտի ուղարկում
-       /// </summary>
-       /// <param name="schemaType"></param>
-       /// <param name="userName"></param>
-       /// <param name="user"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// Մարման հայտի ուղարկում
+        /// </summary>
+        /// <param name="schemaType"></param>
+        /// <param name="userName"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public new ActionResult Approve(short schemaType, string userName, ACBAServiceReference.User user)
         {
             ActionResult result = ValidateForSend();
@@ -167,9 +161,9 @@ namespace ExternalBanking
             }
 
             return result;
-        }     
+        }
 
-  
+
         /// <summary>
         /// Մարման հայտի պահպանում և ուղարկում
         /// </summary>
@@ -201,7 +195,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = MatureOrderDB.Save(this, userName, source);
-                                               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -233,7 +227,7 @@ namespace ExternalBanking
             }
 
             result = base.Confirm(user);
-           
+
             return result;
         }
 
@@ -257,7 +251,7 @@ namespace ExternalBanking
         {
             this.RegistrationDate = DateTime.Now.Date;
 
-            if(source == SourceType.AcbaOnline || source == SourceType.MobileBanking)
+            if (source == SourceType.AcbaOnline || source == SourceType.MobileBanking)
             {
                 IsProblematic = false;
             }
@@ -270,7 +264,7 @@ namespace ExternalBanking
             if (this.IsProblematic)
             {
                 if (source != SourceType.SSTerminal)
-                { 
+                {
                     if (this.MatureType == MatureType.ClaimRepayment)
                     {
                         this.Account = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), this.ProductCurrency, user.filialCode);
@@ -308,20 +302,20 @@ namespace ExternalBanking
 
 
         }
-       /// <summary>
-       /// Հայտի ուղարկման ստուգումներ
-       /// </summary>
-       /// <returns></returns>
+        /// <summary>
+        /// Հայտի ուղարկման ստուգումներ
+        /// </summary>
+        /// <returns></returns>
         public ActionResult ValidateForSend()
         {
             ActionResult result = new ActionResult();
 
-            if (this.Source!=SourceType.Bank && Source != SourceType.MobileBanking && Source != SourceType.SSTerminal && Source != SourceType.CashInTerminal && this.DayOfProductRateCalculation < Utility.GetNextOperDay() )
+            if (this.Source != SourceType.Bank && Source != SourceType.MobileBanking && Source != SourceType.SSTerminal && Source != SourceType.CashInTerminal && this.DayOfProductRateCalculation < Utility.GetNextOperDay())
             {
                 result.ResultCode = ResultCode.ValidationError;
                 result.Errors.Add(new ActionError(157));
             }
-            
+
             if (this.SubType == 5)
             {
 
@@ -388,7 +382,7 @@ namespace ExternalBanking
             //    }
             //}
 
-            if (result.Errors.Count==0)
+            if (result.Errors.Count == 0)
             {
                 result.ResultCode = ResultCode.Normal;
             }
@@ -451,6 +445,6 @@ namespace ExternalBanking
             return MatureOrderDB.GetLoanMatureCapitalPenalty(order, user);
         }
 
-       
+
     }
 }

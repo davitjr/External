@@ -1,10 +1,4 @@
 ﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
 
 namespace ExternalBanking.XBManagement
 {
@@ -37,9 +31,9 @@ namespace ExternalBanking.XBManagement
         public static ApprovementSchemaStep Get(int id)
         {
             ApprovementSchemaStep step = new ApprovementSchemaStep();
-           
-                step = ApprovementSchemaStepDB.GetApprovementSchemaStep(id);
-            
+
+            step = ApprovementSchemaStepDB.GetApprovementSchemaStep(id);
+
             return step;
         }
 

@@ -1,13 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-    public class ClassifiedLoan:LoanProduct
+    public class ClassifiedLoan : LoanProduct
     {
         /// <summary>
         /// Մասնաճյուղ
@@ -45,15 +42,15 @@ namespace ExternalBanking
         {
             List<ClassifiedLoan> credits = new List<ClassifiedLoan>();
             credits = ClassifiedLoanDB.GetClassifiedLoans(searchParams, out RowCount);
-            
+
             return credits;
         }
         public static void CustomersClassification(ACBAServiceReference.User user, SourceType source)
-        { 
-             ClassifiedLoanDB.CustomersClassification(user, source);
-             
+        {
+            ClassifiedLoanDB.CustomersClassification(user, source);
+
         }
-        
+
 
     }
 

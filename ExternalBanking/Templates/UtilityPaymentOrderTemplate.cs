@@ -52,11 +52,11 @@ namespace ExternalBanking
                     }
                     using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                     {
-                        result = UtiilityPaymentOrderTemplateDB.SaveUtilityPaymentOrderTemplate(this, action);                      
-                        if(result.ResultCode == ResultCode.Normal )
+                        result = UtiilityPaymentOrderTemplateDB.SaveUtilityPaymentOrderTemplate(this, action);
+                        if (result.ResultCode == ResultCode.Normal)
                         {
                             if (TemplateType == TemplateType.CreatedAsGroupService)
-                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo,result.Id, action);
+                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo, result.Id, action);
                         }
                         scope.Complete();
                     }

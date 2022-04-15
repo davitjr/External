@@ -21,7 +21,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = "pr_submit_loan_mature_order_template";
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    
+
                     cmd.Parameters.Add("@tmpl_Name", SqlDbType.NVarChar).Value = template.TemplateName;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = template.TemplateCustomerNumber;
                     cmd.Parameters.Add("@type", SqlDbType.SmallInt).Value = template.TemplateType;

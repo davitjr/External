@@ -3,7 +3,6 @@ using ExternalBanking.DBManager;
 using ExternalBanking.DBManager.PreferredAccounts;
 using ExternalBanking.ServiceClient;
 using System;
-using System.Collections.Generic;
 using System.Transactions;
 
 namespace ExternalBanking.PreferredAccounts

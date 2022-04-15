@@ -87,7 +87,7 @@ namespace ExternalBanking.DBManager.PreferredAccounts
                     {
                         if (dr.Read())
                         {
-                            order.Id = long.Parse(dr["doc_id"].ToString());                
+                            order.Id = long.Parse(dr["doc_id"].ToString());
                             order.ConfirmationDate = dr["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dr["confirmation_date"]) : default(DateTime?);
                         }
                     }

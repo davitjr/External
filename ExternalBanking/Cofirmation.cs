@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
 
 namespace ExternalBanking
 {
@@ -299,7 +295,7 @@ namespace ExternalBanking
                 ApproveType = 1;
 
                 if (
-                    ((order.Type == OrderType.CashCreditConvertation || order.IsVariation == ExchangeRateVariationType.BranchVariation || order.Type == OrderType.CashConvertation) && Amount >= 6000000) 
+                    ((order.Type == OrderType.CashCreditConvertation || order.IsVariation == ExchangeRateVariationType.BranchVariation || order.Type == OrderType.CashConvertation) && Amount >= 6000000)
                     )
                     IsNeedBranchAccountantApprovement = true;
                 else

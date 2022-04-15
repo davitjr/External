@@ -1,16 +1,10 @@
 ﻿using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
+using ExternalBanking.ServiceClient;
 using ExternalBanking.XBManagement;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using ExternalBanking;
 
 namespace ExternalBanking.DocFlowManagement
 {
@@ -100,7 +94,7 @@ namespace ExternalBanking.DocFlowManagement
             return memoFields;
         }
 
-        public static DataTable ConvertMemoFieldsToDataTable(List<MemoField> memoFields)
+        public static DataTable ConvertMemoFieldsToDataTable(List<MemoField> memoFields, int memoType = 0)
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Position_id");
@@ -116,6 +110,12 @@ namespace ExternalBanking.DocFlowManagement
             {
                 foreach (MemoField mf in memoFields)
                 {
+
+                    if (memoType == 772 && (mf.PositionId == 10 || mf.PositionId == 11))
+                    {
+                        mf.ItemDescription = "";
+                    }
+
                     DataRow dr = dt.NewRow();
                     dr["Position_id"] = mf.PositionId;
                     dr["ItemDescr"] = mf.ItemDescription;
@@ -132,15 +132,7 @@ namespace ExternalBanking.DocFlowManagement
             return dt;
         }
 
-        public static byte GetCustomerType(ulong customerNumber)
-        {
-            byte customerType = 0;
-            using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-            {
-                customerType = proxy.GetCustomerType(customerNumber);
-            }
-            return customerType;
-        }
+       
 
         /// <summary>
         /// Քարտի փակման MemoDocument-ի մշակում
@@ -172,12 +164,7 @@ namespace ExternalBanking.DocFlowManagement
 
                         if (field.ControlName == "txt_name")
                         {
-                            CustomerMainData mainData;
-                            using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-                            {
-                                mainData = (CustomerMainData)proxy.GetCustomerMainData(order.CustomerNumber);
-                            }
-                            field.ItemDescription = mainData.CustomerDescription;
+                            field.ItemDescription = ACBAOperationService.GetCustomerDescription(order.CustomerNumber);
                         }
 
                         if (field.ControlName == "txt_closing_card_number")
@@ -209,14 +196,14 @@ namespace ExternalBanking.DocFlowManagement
                                     IPAddress = clientIp
                                 };
 
-                                var saveResult = arcaCards.Save(order.user.userName, order.Source, order.user,schemaType);
+                                var saveResult = arcaCards.Save(order.user.userName, order.Source, order.user, schemaType);
                                 var approveResult = arcaCards.Approve(order.user.userName, schemaType);
                                 if (approveResult.ResultCode == ResultCode.Normal)
                                     field.ItemDescription = "Այո";
                                 else
                                     field.ItemDescription = "Ոչ";
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 field.ItemDescription = "Ոչ";
                             }
@@ -383,7 +370,7 @@ namespace ExternalBanking.DocFlowManagement
 
                         if (field.ControlName == "txt_limit")
                         {
-                            field.ItemDescription = order.LinkedCardLimit == -1? "Հիմնական քարտի գումարի չափով":order.LinkedCardLimit.ToString();
+                            field.ItemDescription = order.LinkedCardLimit == -1 ? "Հիմնական քարտի գումարի չափով" : order.LinkedCardLimit.ToString();
                         }
 
                     }
@@ -426,12 +413,7 @@ namespace ExternalBanking.DocFlowManagement
 
                         if (field.ControlName == "txt_name")
                         {
-                            CustomerMainData mainData;
-                            using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-                            {
-                                mainData = (CustomerMainData)proxy.GetCustomerMainData(order.CustomerNumber);
-                            }
-                            field.ItemDescription = mainData.CustomerDescription;
+                            field.ItemDescription = ACBAOperationService.GetCustomerDescription(order.CustomerNumber);
                         }
 
                         if (field.ControlName == "txt_closing_account_number")

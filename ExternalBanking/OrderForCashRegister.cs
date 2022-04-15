@@ -1,13 +1,9 @@
 ﻿using ExternalBanking.DBManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
-   public class OrderForCashRegister
+    public class OrderForCashRegister
     {
         public Order Order { get; set; }
         /// <summary>

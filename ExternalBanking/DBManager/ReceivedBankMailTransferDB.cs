@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
+using System.Linq;
 
 namespace ExternalBanking.DBManager
 {
@@ -51,20 +50,20 @@ namespace ExternalBanking.DBManager
                     {
                         str += " and DateGet  <= '" + String.Format("{0:dd/MMM/yy}", filter.DateTo) + "' ";
                     }
-                                        
+
                     if (filter.Status == 1)
                     {
                         str += " and TransOK= " + filter.Status.ToString();
                     }
                     else
                         if (filter.Status == 2)
-                        {
-                            str += " and TransOK=0 " ;
-                        }
+                    {
+                        str += " and TransOK=0 ";
+                    }
 
- 
-           
-                    if (!String.IsNullOrEmpty(filter.Filial) )
+
+
+                    if (!String.IsNullOrEmpty(filter.Filial))
                     {
                         if (filter.Filial == "99")
                             str += " and ([card_filial]>22000 or left(cast (cast(AccCredit as bigint ) as nvarchar), 5)>22000)";
@@ -75,48 +74,48 @@ namespace ExternalBanking.DBManager
                     if (!String.IsNullOrEmpty(filter.Ident))
                         str += " and ident='" + filter.Ident + "' ";
 
-                    if (filter.Amount !=0)
+                    if (filter.Amount != 0)
                         str += " and amount>=" + filter.Amount;
 
                     if (filter.MaxAmount != 0)
                         str += " and amount<=" + filter.MaxAmount;
 
-                    if (!String.IsNullOrEmpty (filter.Currency ))
+                    if (!String.IsNullOrEmpty(filter.Currency))
                         str += " and Valuta='" + filter.Currency + "' ";
-                   
+
                     if (!String.IsNullOrEmpty(filter.DebetBank))
                         str += " and substring(cast(cast( AccDebetCB as bigint) as nvarchar),1,3)='" + filter.DebetBank + "' ";
 
-                    if (!String.IsNullOrEmpty(filter.DebetAccount ))
-                        str += " and IsNull(AccDebetCb,0)=" + filter.DebetAccount  ;
+                    if (!String.IsNullOrEmpty(filter.DebetAccount))
+                        str += " and IsNull(AccDebetCb,0)=" + filter.DebetAccount;
 
                     if (!String.IsNullOrEmpty(filter.CreditAccount))
-                        str += " and IsNull(AccCredit,0) =" + filter.CreditAccount  ;
+                        str += " and IsNull(AccCredit,0) =" + filter.CreditAccount;
 
                     if (!String.IsNullOrEmpty(filter.Description))
                         str += " and DescrPoxancym like '%" + filter.Description + "%' ";
 
-                    if (filter.Verified!=0)
+                    if (filter.Verified != 0)
                         str += " and isnull(verified,1)=" + filter.Verified.ToString();
 
-                    if (filter.UnknownTransfer  != 0)
+                    if (filter.UnknownTransfer != 0)
                         str += " and unknown_transfer<>0";
 
-                    if (!String.IsNullOrEmpty(filter.DescrOK ))
+                    if (!String.IsNullOrEmpty(filter.DescrOK))
                         str += " and file_for_branch='" + filter.DescrOK + "' ";
 
                     if (filter.AMLCheck != 0)
                         str += "and CASE WHEN isnull(aml_check,0)=0 THEN CASE isnull(Verified_AML,0) WHEN 2 THEN 1 WHEN 3 THEN 2 ELSE 0 END  ELSE aml_check END =" + filter.AMLCheck.ToString();
 
                     if (filter.IsChecked != 0)
-                        str += " and UserCode="+ filter.IsChecked.ToString();
+                        str += " and UserCode=" + filter.IsChecked.ToString();
                     cmd.CommandText = "[sp_get_out_transfer_list]";
                     cmd.CommandType = CommandType.StoredProcedure;
-          
+
                     cmd.Parameters.Add("@wherecond", SqlDbType.NVarChar).Value = str;
                     cmd.Parameters.Add("@archive", SqlDbType.Bit).Value = 0;
                     cmd.Parameters.Add("@transOK", SqlDbType.Bit).Value = 1;
-                   
+
                     conn.Open();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -132,11 +131,11 @@ namespace ExternalBanking.DBManager
                             transfer.TimeGet = Convert.ToDateTime(dr["TimeGet"]);
                             transfer.FName = dr["F_Name"].ToString();
                             transfer.AccDebetCB = dr["AccDebetCB"].ToString();
-                            transfer.DescrDebetCB =Utility.ConvertAnsiToUnicode (  dr["DescrDebetCB"].ToString());
+                            transfer.DescrDebetCB = Utility.ConvertAnsiToUnicode(dr["DescrDebetCB"].ToString());
                             transfer.AccDebet = dr["AccDebet"].ToString();
                             transfer.AccCredit = dr["AccCredit"].ToString();
-                            transfer.DescrCredit =Utility.ConvertAnsiToUnicode ( dr["DescrCredit"].ToString());
-                            transfer.DescrPoxancym =Utility.ConvertAnsiToUnicode (  dr["DescrPoxancym"].ToString());
+                            transfer.DescrCredit = Utility.ConvertAnsiToUnicode(dr["DescrCredit"].ToString());
+                            transfer.DescrPoxancym = Utility.ConvertAnsiToUnicode(dr["DescrPoxancym"].ToString());
                             transfer.DateTransfer = Convert.ToDateTime(dr["DatePoxancym"]);
                             transfer.Valuta = dr["Valuta"].ToString();
                             transfer.Amount = Convert.ToDouble(dr["amount"]);
@@ -152,10 +151,10 @@ namespace ExternalBanking.DBManager
                                 transfer.CardNumber = dr["card_number"].ToString();
                             }
 
-                            transfer.CardFilial =  Convert.ToInt16(dr["Card_Filial"]);
+                            transfer.CardFilial = Convert.ToInt16(dr["Card_Filial"]);
                             transfer.FileForBranch = dr["File_For_Branch"].ToString();
                             transfer.SocialNumber = dr["Social_Number"].ToString();
-                            transfer.DescrDebet = Utility.ConvertAnsiToUnicode ( dr["DescrDebet"].ToString());
+                            transfer.DescrDebet = Utility.ConvertAnsiToUnicode(dr["DescrDebet"].ToString());
                             transfer.Verified = Convert.ToInt16(dr["Verified"]);
                             if (dr["Verifier_Set_Number"] != DBNull.Value)
                             {
@@ -172,8 +171,8 @@ namespace ExternalBanking.DBManager
                             transfer.AmlCheck = Convert.ToInt16(dr["aml_check"]);
                             if (dr["aml_check_date"] != DBNull.Value)
                             {
-                                transfer.AmlCheckDate =  Convert.ToDateTime(dr["aml_check_date"]);
-                                  transfer.AmlCheckSetNumber =Convert.ToInt16(dr["aml_check_set_number"]);
+                                transfer.AmlCheckDate = Convert.ToDateTime(dr["aml_check_date"]);
+                                transfer.AmlCheckSetNumber = Convert.ToInt16(dr["aml_check_set_number"]);
                             }
 
                             transfer.VerifiedAML = Convert.ToInt16(dr["verified_AML"]);
@@ -209,9 +208,9 @@ namespace ExternalBanking.DBManager
                                 transfer.PaymentOrderReferenceNumber = dr["payment_order_reference_number"].ToString();
 
 
-                   
-                           
- 
+
+
+
 
                             transferList.Add(transfer);
                         }

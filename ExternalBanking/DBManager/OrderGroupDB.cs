@@ -1,12 +1,8 @@
-﻿using ExternalBanking.XBManagement;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -189,7 +185,7 @@ namespace ExternalBanking.DBManager
             return dr.Read();
         }
 
-        internal static void SaveGroupTemplateShortInfo(GroupTemplateShrotInfo info, long templateId , Action action)
+        internal static void SaveGroupTemplateShortInfo(GroupTemplateShrotInfo info, long templateId, Action action)
         {
             using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
             using SqlCommand cmd = new SqlCommand();
@@ -213,5 +209,34 @@ namespace ExternalBanking.DBManager
 
 
         }
+
+        public static OrderGroup GetOrderGroup(ulong customerNumber, int id)
+        {
+            OrderGroup group = new OrderGroup();
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM Tbl_Order_Groups WHERE customer_number = @customerNumber AND id = @id", conn))
+                {
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    DataTable dt = new DataTable();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+
+                    if (dt.Rows.Count > 0)
+                        group = SetOrderGroup(dt.Rows[0]);
+                }
+            }
+
+            return group;
+        }
+
+
     }
 }

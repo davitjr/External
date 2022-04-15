@@ -1,14 +1,9 @@
 ﻿using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
+using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking;
-using ExternalBanking.XBManagement;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking
 {
@@ -320,23 +315,23 @@ namespace ExternalBanking
                         TransactionStatusRequest req = new TransactionStatusRequest();
                         req.ExtensionID = orderId;
 
-                            TransactionDetailsBResponse r = ArcaDataService.Check(req);
+                        TransactionDetailsBResponse r = ArcaDataService.Check(req);
 
-                            //response.ResponseCode = r.ResponseCode;
-                            //response.ResponseCodeDescription = r.ResponseCodeDescription;
+                        //response.ResponseCode = r.ResponseCode;
+                        //response.ResponseCodeDescription = r.ResponseCodeDescription;
 
-                            if (r.ResponseCode != "-1")
-                            { 
-                                //Գործարքը մերժված է: Խնդրում ենք դիմել Բանկ:
-                                result.ResultCode = ResultCode.Failed;
-                                result.Errors.Add(new ActionError(1643));
-                                return result;
-                            }
-                            else
-                            {
-                                result.ResultCode = ResultCode.Normal;
-                                return result;
-                            }
+                        if (r.ResponseCode != "-1")
+                        {
+                            //Գործարքը մերժված է: Խնդրում ենք դիմել Բանկ:
+                            result.ResultCode = ResultCode.Failed;
+                            result.Errors.Add(new ActionError(1643));
+                            return result;
+                        }
+                        else
+                        {
+                            result.ResultCode = ResultCode.Normal;
+                            return result;
+                        }
                     }
                 }
                 else
@@ -345,7 +340,7 @@ namespace ExternalBanking
                     return result;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Գործարքը մերժված է: Խնդրում ենք փորձել մի փոքր ուշ:
                 result.ResultCode = ResultCode.Failed;

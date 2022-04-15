@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using System.Threading.Tasks;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
 namespace ExternalBanking
 {
     /// <summary>
     /// Գումարի ստացման կամ փոխանցման հայտ
     /// </summary>
-    public class CashOrder:Order
+    public class CashOrder : Order
     {
         /// <summary>
         /// Գումարի ստացման կամ փոխանցման մասնաճյուղ
@@ -31,7 +27,7 @@ namespace ExternalBanking
         /// <param name="userName"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public ActionResult Save(string userName, SourceType source,ACBAServiceReference.User user)
+        public ActionResult Save(string userName, SourceType source, ACBAServiceReference.User user)
         {
             this.Complete();
             ActionResult result = this.Validate();
@@ -88,7 +84,7 @@ namespace ExternalBanking
                 }
             }
 
-            
+
 
             return result;
         }
@@ -133,7 +129,7 @@ namespace ExternalBanking
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.SubType = 1;
-            if(this.Source == SourceType.AcbaOnline || this.Source ==SourceType.MobileBanking)
+            if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
             {
                 this.RegistrationDate = DateTime.Now;
             }
@@ -183,7 +179,7 @@ namespace ExternalBanking
 
                 if (result.ResultCode == ResultCode.Normal)
                 {
-                    this.Quality = OrderQuality.Sent3 ;
+                    this.Quality = OrderQuality.Sent3;
                     base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
                     base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
                     LogOrderChange(user, Action.Update);

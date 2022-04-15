@@ -29,5 +29,15 @@ namespace ExternalBanking.Leasing
         /// </summary>
         public DateTime DateOfRepayment { get; set; }
 
+        /// <summary>
+        /// Տոկոսադրույք
+        /// </summary>
+        public float InterestRate { get; set; }        
+
+        /// <summary>
+        /// Արժույթ
+        /// </summary>
+        public string Currency { get; set; }
+
     }
 }

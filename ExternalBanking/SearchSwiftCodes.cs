@@ -1,14 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
     public class SearchSwiftCodes
-    {   
+    {
         /// <summary>
         /// SWIFT կոդ
         /// </summary>
@@ -28,7 +24,7 @@ namespace ExternalBanking
         /// Երկիր
         /// </summary>
         public string Counry { get; set; }
- 
+
         /// <summary>
         /// Քարտի(երի) որոնում տրված պարամետրերով
         /// </summary>

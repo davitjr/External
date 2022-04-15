@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -26,7 +23,7 @@ namespace ExternalBanking.DBManager
                             ON o.option_number = T.Code";
 
 
-                    if (searchParams.SearchUserID  != 0)
+                    if (searchParams.SearchUserID != 0)
                     {
                         sql = sql + " and O.number_of_set = @numberOfSet";
                         cmd.Parameters.Add("@numberOfSet", SqlDbType.Int).Value = searchParams.SearchUserID;
@@ -73,10 +70,10 @@ namespace ExternalBanking.DBManager
                             OperDayOptions operDayChecking = new OperDayOptions();
                             operDayChecking.OperDay = Convert.ToDateTime((dr["oper_day"]));
                             operDayChecking.Code = (OperDayOptionsType)Convert.ToInt32(dr["option_number"].ToString());
-                            operDayChecking.CodeDescription  =Utility.ConvertAnsiToUnicode(dr["Description"].ToString());
-                            operDayChecking.NumberOfSet = Convert.ToInt32( dr["number_of_set"].ToString());
+                            operDayChecking.CodeDescription = Utility.ConvertAnsiToUnicode(dr["Description"].ToString());
+                            operDayChecking.NumberOfSet = Convert.ToInt32(dr["number_of_set"].ToString());
                             operDayChecking.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
-                            operDayChecking.IsEnabled =Convert.ToBoolean(dr["option_value"].ToString());
+                            operDayChecking.IsEnabled = Convert.ToBoolean(dr["option_value"].ToString());
                             operDayCheckingsList.Add(operDayChecking);
                         }
                     }

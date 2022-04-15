@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -23,7 +19,7 @@ namespace ExternalBanking
         /// Վարկի մարման վերսկսման ամսաթիվ
         /// </summary>
         public DateTime DelayDate { get; set; }
-        
+
         /// <summary>
         /// Փոփոխման հիմք
         /// </summary>
@@ -33,7 +29,7 @@ namespace ExternalBanking
         /// 
         /// </summary>
         public DateTime RegistrationDate { get; set; }
-        
+
         /// <summary>
         /// 
         /// </summary>

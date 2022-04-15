@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Linq;
 
 
 namespace ExternalBanking.DBManager
@@ -15,7 +14,7 @@ namespace ExternalBanking.DBManager
         {
             double penaltyRate = 0;
 
-            using(SqlConnection conn=new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand("SELECT penalty_rate FROM [tbl_penalty] WHERE with_date<=@date ORDER BY with_date DESC", conn);
@@ -25,7 +24,7 @@ namespace ExternalBanking.DBManager
                 {
                     penaltyRate = double.Parse(dr["penalty_rate"].ToString());
                 }
-                
+
 
             }
             return penaltyRate;
@@ -76,7 +75,7 @@ namespace ExternalBanking.DBManager
 
 
             return loanProductProlongations;
-            
+
         }
 
 
@@ -131,7 +130,7 @@ namespace ExternalBanking.DBManager
 
         }
 
-        internal static string GetCreditCode(long productId,short productType)
+        internal static string GetCreditCode(long productId, short productType)
         {
             string creditCode = "";
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
@@ -158,7 +157,7 @@ namespace ExternalBanking.DBManager
 
         internal static string GetApplicationIdByCreditCode(string creditCode)
         {
-            ulong  productId = 0;
+            ulong productId = 0;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT dbo.fn_get_application_id_by_credit_code(@creditCode) result";
@@ -181,7 +180,7 @@ namespace ExternalBanking.DBManager
 
         internal static ulong GetCustomerNumberByLoanApp(ulong productId)
         {
-            ulong customerNumber=0;
+            ulong customerNumber = 0;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"IF exists(SELECT 1 FROM V_ShortLoans_small WHERE app_id = @productId)
@@ -213,7 +212,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-            }            
+            }
             return customerNumber;
         }
 

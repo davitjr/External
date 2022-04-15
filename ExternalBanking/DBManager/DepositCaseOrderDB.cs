@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -34,7 +32,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
 
-                    cmd.Parameters.Add("@case_number", SqlDbType.NVarChar,50).Value = order.DepositCase.CaseNumber;
+                    cmd.Parameters.Add("@case_number", SqlDbType.NVarChar, 50).Value = order.DepositCase.CaseNumber;
                     cmd.Parameters.Add("@contract_number", SqlDbType.Int).Value = order.DepositCase.ContractNumber;
                     cmd.Parameters.Add("@date_of_beginning", SqlDbType.SmallDateTime).Value = order.DepositCase.StartDate;
                     cmd.Parameters.Add("@date_of_normal_end", SqlDbType.SmallDateTime).Value = order.DepositCase.EndDate;
@@ -48,9 +46,9 @@ namespace ExternalBanking.DBManager
                     }
                     if (order.Type == OrderType.DepositCaseActivationOrder)
                     {
-                        cmd.Parameters.Add("@conected_account", SqlDbType.VarChar,20).Value = order.DepositCase.ConnectAccount.AccountNumber;
+                        cmd.Parameters.Add("@conected_account", SqlDbType.VarChar, 20).Value = order.DepositCase.ConnectAccount.AccountNumber;
                         cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
-                        cmd.Parameters.Add("@currency", SqlDbType.NVarChar,3).Value = order.DepositCase.ConnectAccount.Currency;
+                        cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.DepositCase.ConnectAccount.Currency;
                     }
                     if (order.Type != OrderType.DepositCaseOrder)
                     {
@@ -72,8 +70,8 @@ namespace ExternalBanking.DBManager
 
                     if (order.DepositCase.JointType != 0)
                     {
-                        order.DepositCase.JointCustomers.ForEach(m=>
-                            Order.SaveOrderJointCustomer(order.Id,m.Key)
+                        order.DepositCase.JointCustomers.ForEach(m =>
+                            Order.SaveOrderJointCustomer(order.Id, m.Key)
                             );
                     }
 
@@ -92,8 +90,8 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static ulong GetContractNumber()
         {
-           return Utility.GetLastKeyNumber(71, 22000);
-           
+            return Utility.GetLastKeyNumber(71, 22000);
+
         }
 
         internal static DepositCaseOrder GetDepositCaseOrder(DepositCaseOrder order)
@@ -137,8 +135,8 @@ namespace ExternalBanking.DBManager
                     order.FilialCode = Convert.ToUInt16(dr["operationFilialCode"].ToString());
                     order.Amount = double.Parse(dr["amount"].ToString());
                     order.DepositCase = new DepositCase();
-                    if (dr["debet_account"]!=DBNull.Value)
-                         order.DepositCase.ConnectAccount = Account.GetAccount(dr["debet_account"].ToString());
+                    if (dr["debet_account"] != DBNull.Value)
+                        order.DepositCase.ConnectAccount = Account.GetAccount(dr["debet_account"].ToString());
                     order.DepositCase.CaseNumber = dr["case_number"].ToString();
                     order.DepositCase.ContractDuration = Convert.ToInt16(dr["contract_duration"].ToString());
                     order.DepositCase.ContractNumber = Convert.ToUInt64(dr["contract_number"].ToString());
@@ -169,7 +167,7 @@ namespace ExternalBanking.DBManager
 
                 string sql = "SELECT ISNULL(deposit_cases, 0)  FROM Name_Fill where Filialcode = @filialCode";
 
-               using SqlCommand cmd = new SqlCommand(sql, conn);
+                using SqlCommand cmd = new SqlCommand(sql, conn);
 
                 cmd.Parameters.Add("@filialCode", SqlDbType.Int).Value = filialCode;
 
@@ -177,7 +175,7 @@ namespace ExternalBanking.DBManager
                 {
                     hasDepositCase = true;
                 }
-               
+
             }
 
             return hasDepositCase;

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
-using opService=ExternalBanking.ACBAServiceReference;
+using System;
+using System.Collections.Generic;
+using opService = ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
@@ -28,12 +25,12 @@ namespace ExternalBanking
         /// Որոշման N
         /// </summary>
         public string ViolationNumber { get; set; }
-        
+
         /// <summary>
         /// Որոշման ա/թ
         /// </summary>
         public DateTime ViolationDate { get; set; }
-        
+
         /// <summary>
         /// Տույժի գումար
         /// </summary>
@@ -87,16 +84,16 @@ namespace ExternalBanking
         /// <returns></returns>
         internal static List<VehicleViolationResponse> GetVehicleViolationResponses(long responseId)
         {
-            
+
             return VehicleViolationResponseDB.GetVehicleViolationResponses(responseId);
         }
-               
+
         /// <summary>
         /// Վերադարձնում է ՃՈ խախտումները խախտման համարով
         /// </summary>
         /// <param name="violationId"></param>
         /// <returns></returns>
-        public static List<VehicleViolationResponse> GetVehicleViolationById(string violationId,ACBAServiceReference.User user)
+        public static List<VehicleViolationResponse> GetVehicleViolationById(string violationId, ACBAServiceReference.User user)
         {
             long responseId;
             opService.ViolationRequestResponse response = ACBAOperationService.GetVehicleViolationById(violationId, user);

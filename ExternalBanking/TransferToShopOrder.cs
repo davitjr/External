@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,7 +8,7 @@ namespace ExternalBanking
     /// <summary>
     /// Փոխանցում խանութի հաշվին
     /// </summary>
-    public class TransferToShopOrder:Order
+    public class TransferToShopOrder : Order
     {
         /// <summary>
         /// Ելքագրվող (դեբետ) հաշիվ
@@ -122,7 +119,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = TransferToShopOrderDB.SaveTransferToShopOrder(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

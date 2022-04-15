@@ -1,10 +1,5 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using ExternalBanking.ArcaDataServiceReference;
 
 namespace ExternalBanking
 {
@@ -53,29 +48,29 @@ namespace ExternalBanking
         {
             PaymentRegistrationResult result = new PaymentRegistrationResult();
             order.DebitAccount = GetCTDebitAccount();
-            order.CTCustomerDescription =Utility.ConvertAnsiToUnicode(Customer.GetCustomerDescription(this.CustomerNumber));
+            order.CTCustomerDescription = Utility.ConvertAnsiToUnicode(Customer.GetCustomerDescription(this.CustomerNumber));
             result = order.SaveCTPaymentOrder(UserName);
-           
-            
+
+
             if (result.ResultCode == 0)
-                
-            {                
-                CTOrderDB.ConfirmOrderOnline(result.PaymentID, this.UserID);                
+
+            {
+                CTOrderDB.ConfirmOrderOnline(result.PaymentID, this.UserID);
             }
             return result;
         }
 
         public PaymentRegistrationResult SaveCTLoanMatureOrder(CTLoanMatureOrder order)
         {
-            PaymentRegistrationResult result = new PaymentRegistrationResult(); 
-            
+            PaymentRegistrationResult result = new PaymentRegistrationResult();
+
             if (order.DebitAccount == null)
             {
                 order.DebitAccount = GetCTDebitAccount();
             }
             order.CTCustomerDescription = Utility.ConvertAnsiToUnicode(Customer.GetCustomerDescription(this.CustomerNumber));
             result = order.SaveCTLoanMatureOrder(UserName);
-           
+
             if (result.ResultCode == 0)
             {
                 try
@@ -119,8 +114,8 @@ namespace ExternalBanking
         public static CashTerminal CheckTerminalPassword(string userName, string password)
         {
             CashTerminal terminal = new CashTerminal();
-            terminal= CTPaymentDB.CheckTerminalPassword(userName, password);
-            if (terminal!=null && terminal.CustomerNumber!=0)
+            terminal = CTPaymentDB.CheckTerminalPassword(userName, password);
+            if (terminal != null && terminal.CustomerNumber != 0)
             {
                 terminal.ID = GetTerminalID(terminal.CustomerNumber);
                 //Implement you business logic here

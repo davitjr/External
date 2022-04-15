@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -17,7 +15,7 @@ namespace ExternalBanking.DBManager
         /// <param name="dateTo"></param>
         /// <param name="shopFilial"></param>
         /// <returns></returns>
-        internal static List<CreditHereAndNow> GetCreditsHereAndNowForActivate(SearchCreditHereAndNow searchParams, out int RowCount )
+        internal static List<CreditHereAndNow> GetCreditsHereAndNowForActivate(SearchCreditHereAndNow searchParams, out int RowCount)
         {
             List<CreditHereAndNow> credits = new List<CreditHereAndNow>();
             DataTable dt = new DataTable();
@@ -31,7 +29,7 @@ namespace ExternalBanking.DBManager
 
                     if (searchParams.QualityFilter == ProductQualityFilter.Contracts)
                         cmd.Parameters.Add("@contracts_only", SqlDbType.Bit).Value = 1;
-                    else if((searchParams.QualityFilter == ProductQualityFilter.AllExceptContracts))
+                    else if ((searchParams.QualityFilter == ProductQualityFilter.AllExceptContracts))
                         cmd.Parameters.Add("@contracts_only", SqlDbType.Bit).Value = 0;
 
                     cmd.Parameters.Add("@date_from", SqlDbType.SmallDateTime).Value = searchParams.DateFrom;
@@ -39,7 +37,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@shopFilial", SqlDbType.Int).Value = searchParams.ShopFilial;
                     cmd.Parameters.Add("@row_start", SqlDbType.Int).Value = searchParams.StartRow;
                     cmd.Parameters.Add("@row_end", SqlDbType.Int).Value = searchParams.EndRow;
-                    
+
                     conn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -89,7 +87,7 @@ namespace ExternalBanking.DBManager
             }
             return loan;
         }
-       
+
         /// <summary>
         /// Ապառիկ տեղում տեսակի վարկերի ակտիվացման հայտերի նախնական հայտի մուտքագրում
         /// </summary>
@@ -97,7 +95,7 @@ namespace ExternalBanking.DBManager
         /// <param name="userName"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static ActionResult SaveCreditHereAndNowActivationPreOrder(CreditHereAndNowActivationOrders preOrder, string userName,SourceType source)
+        public static ActionResult SaveCreditHereAndNowActivationPreOrder(CreditHereAndNowActivationOrders preOrder, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -108,25 +106,25 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     cmd.CommandText = "pr_CreditHereAndNow_Activation_PreOrder_Save";
                     cmd.CommandType = CommandType.StoredProcedure;
-                                            
-                    cmd.Parameters.Add("@registration_date", SqlDbType.DateTime).Value = preOrder.RegistrationDate.Date;  
-                    cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (int)source;  
+
+                    cmd.Parameters.Add("@registration_date", SqlDbType.DateTime).Value = preOrder.RegistrationDate.Date;
+                    cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (int)source;
                     cmd.Parameters.Add("@preOrder_type", SqlDbType.SmallInt).Value = preOrder.PreOrderType;
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = preOrder.OperationFilialCode;
-                    cmd.Parameters.Add("@set_user_name", SqlDbType.NVarChar,50 ).Value = userName;
+                    cmd.Parameters.Add("@set_user_name", SqlDbType.NVarChar, 50).Value = userName;
                     cmd.Parameters.Add("@preOrder_products", SqlDbType.Structured).Value = PreOrderDetails.ConvertToDataTable(preOrder.CreditHereAndNowActivationDetails);
-                     
+
 
                     SqlParameter param = new SqlParameter("@preOrder_ID", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
-                    
+
                     cmd.ExecuteNonQuery();
                     preOrder.PreOrderID = Convert.ToInt32(cmd.Parameters["@preOrder_ID"].Value);
 
                     if (preOrder.PreOrderID > 0)
                     {
-                        result.ResultCode = ResultCode.Normal;  
+                        result.ResultCode = ResultCode.Normal;
                         result.Id = preOrder.PreOrderID;
 
                     }
@@ -138,7 +136,7 @@ namespace ExternalBanking.DBManager
 
                 }
                 return result;
-            } 
+            }
         }
 
     }

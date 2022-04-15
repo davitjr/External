@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
@@ -23,9 +20,9 @@ namespace ExternalBanking.DBManager
                 {
                     if (!String.IsNullOrEmpty(searchParams.AccountNumber))
                     {
-                        sql = sql + " and code = '" + searchParams.AccountNumber+ "' ";
+                        sql = sql + " and code = '" + searchParams.AccountNumber + "' ";
                     }
-                   
+
                     if (!String.IsNullOrEmpty(searchParams.Description))
                     {
                         sql = sql + " and [name] like '%" + Utility.ConvertUnicodeToAnsi(searchParams.Description) + "%' ";
@@ -80,7 +77,7 @@ namespace ExternalBanking.DBManager
                                 oneResult.IsEntrepreneur = Utility.ConvertAnsiToUnicode(dr["isEntrepreneur"].ToString());
                                 oneResult.IsPhysical = Utility.ConvertAnsiToUnicode(dr["isPhysical"].ToString());
                                 oneResult.Soc = Utility.ConvertAnsiToUnicode(dr["soc"].ToString());
-                                
+
                                 budgetAccountsList.Add(oneResult);
                             }
 

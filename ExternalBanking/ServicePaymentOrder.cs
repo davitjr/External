@@ -1,8 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -67,7 +65,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = ServicePaymentOrderDB.Save(this, userName, source);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -167,7 +165,7 @@ namespace ExternalBanking
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
             if (this.Type == OrderType.AccountServicePaymentXnd || this.Type == OrderType.HBServicePaymentXnd)
-                this.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), "AMD", user.filialCode); 
+                this.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), "AMD", user.filialCode);
         }
         /// <summary>
         /// ստտուգում է հաճախորդի սպասարկման գծով պարտավորությունները
@@ -188,12 +186,12 @@ namespace ExternalBanking
             else
                 //Հաճախորդը չունի պարտավորություն ՀԲ սպասարկման գծով:
                 if (this.Type == OrderType.HBServicePayment || this.Type == OrderType.HBServicePaymentXnd)
-                {
-                    amount = CustomerDebts.GetCustomerServiceFeeDebt(this.CustomerNumber, DebtTypes.HomeBanking);
-                    if (amount == 0)
-                        result.Add(new ActionError(616));
-                    else this.Amount = amount;
-                }
+            {
+                amount = CustomerDebts.GetCustomerServiceFeeDebt(this.CustomerNumber, DebtTypes.HomeBanking);
+                if (amount == 0)
+                    result.Add(new ActionError(616));
+                else this.Amount = amount;
+            }
             return result;
         }
         /// <summary>
@@ -280,8 +278,8 @@ namespace ExternalBanking
             }
 
             DebitAccount.Balance = accountRest;
-            if(accountRest<=0)
-            result.Add(new ActionError(701));
+            if (accountRest <= 0)
+                result.Add(new ActionError(701));
             return result;
 
         }

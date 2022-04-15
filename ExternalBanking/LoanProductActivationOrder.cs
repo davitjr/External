@@ -1,13 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
-using System.Configuration;
-using ExternalBanking.CreditLineActivatorARCA;
-using System.Threading;
 
 namespace ExternalBanking
 {
@@ -372,7 +367,7 @@ namespace ExternalBanking
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             string cardNumber = null;
-            
+
             if (this.Type == OrderType.CreditLineActivation && source == SourceType.Bank)
             {
                 cardNumber = Card.GetCardNumberWithCreditLineAppId(this.ProductId, CredilLineActivatorType.ActivateCreditLine);
@@ -434,6 +429,11 @@ namespace ExternalBanking
         public bool IsSecondActivation()
         {
             return LoanProductActivationOrderDB.IsSecondActivation(this);
+        }
+
+        public static long? CheckPreviousActivationOrderId(LoanProductActivationOrder order)
+        {
+            return LoanProductActivationOrderDB.CheckPreviousActivationOrderId(order);
         }
 
         public static double GetLoanProductActivationFee(ulong productId, short withTax)

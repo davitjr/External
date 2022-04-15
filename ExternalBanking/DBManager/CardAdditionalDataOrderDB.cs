@@ -1,12 +1,8 @@
 ﻿using ExternalBanking.ACBAServiceReference;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -107,7 +103,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = order.Id;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-                   using SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
 
                     while (dr.Read())
                     {
@@ -128,6 +124,31 @@ namespace ExternalBanking.DBManager
                 }
             }
             return order;
+        }
+
+        /// <summary>
+        /// Նշված քարտի համար արդեն գոյություն ունի նշված լրացուցիչ տվյալը
+        /// </summary>
+        internal static bool IsExistAdditionalData(ulong appId, int additionId)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                string sql = @"SELECT 1 FROM Tbl_VisaAppAdditions 
+                                             WHERE app_id = @app_id                                             
+                                             AND AdditionID = @additionId";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = appId;
+                    cmd.Parameters.Add("@additionId", SqlDbType.Int).Value = additionId;
+                    conn.Open();
+
+                    var temp = cmd.ExecuteScalar();
+
+                    return temp != null;
+                }
+            }
         }
     }
 }

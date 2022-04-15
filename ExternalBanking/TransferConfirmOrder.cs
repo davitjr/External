@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Transactions;
-using ExternalBanking.ServiceClient;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ARUSDataService;
+using ExternalBanking.DBManager;
+using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -25,13 +24,13 @@ namespace ExternalBanking
         public new ActionResult Confirm(string filialCode, short allowTransferConfirm, DateTime setDate, short setNumber, string userName, SourceType source, short schemaType, string authorizedUserSessionToken, string clientIP)
         {
             this.Complete();
-           
+
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
 
             List<short> errors = new List<short>();
-            errors = TransferDB.CheckForConfirm(this.Transfer.Id, filialCode, allowTransferConfirm, setDate, user.userID );
-    
+            errors = TransferDB.CheckForConfirm(this.Transfer.Id, filialCode, allowTransferConfirm, setDate, user.userID);
+
             if (errors.Count != 0)
             {
                 //for (int i = 0; i < errors.Count; i++)
@@ -199,7 +198,7 @@ namespace ExternalBanking
                             information.Code = 0;
                             information.Description = infoDescription;
 
-                            if(result.ResultCode == ResultCode.Normal)
+                            if (result.ResultCode == ResultCode.Normal)
                             {
                                 result.ResultCode = ResultCode.NoneAutoConfirm;
                             }
@@ -234,27 +233,27 @@ namespace ExternalBanking
         }
 
 
-       public new ActionResult PolicePayment()
+        public new ActionResult PolicePayment()
         {
-           ActionResult result = new ActionResult();
+            ActionResult result = new ActionResult();
 
-            result.ResultCode = ResultCode.Normal ;
+            result.ResultCode = ResultCode.Normal;
             if (!TransferDB.CheckPolicePayment(this.Transfer.PoliceResponseDetailsID))
             {
                 CBViolationPayment policePayment = new CBViolationPayment();
                 policePayment = TransferDB.GetPolicePayment(this.Transfer.PoliceResponseDetailsID);
-                policePayment.PayedSum = Convert.ToDecimal (this.Transfer.Amount);
-                ViolationRequestResponse  paymentResult=new ViolationRequestResponse();
+                policePayment.PayedSum = Convert.ToDecimal(this.Transfer.Amount);
+                ViolationRequestResponse paymentResult = new ViolationRequestResponse();
 
                 paymentResult = ACBAOperationService.RegisterPayment(policePayment, user);
 
                 if (paymentResult.resultCode != 0)
                 {
-                    result.Errors.Add(new ActionError(955, new string[] { paymentResult.resultDescription}));
+                    result.Errors.Add(new ActionError(955, new string[] { paymentResult.resultDescription }));
                     result.ResultCode = ResultCode.ValidationError;
                 }
                 else
-                    result.ResultCode = ResultCode.Normal ;
+                    result.ResultCode = ResultCode.Normal;
             }
             return result;
 

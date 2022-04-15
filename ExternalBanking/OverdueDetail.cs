@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -100,7 +97,7 @@ namespace ExternalBanking
         /// <param name="endDate"></param>
         /// <param name="updateReason"></param>
         public static void GenerateLoanOverdueUpdate(long productId, DateTime startDate, DateTime? endDate, string updateReason, short setNumber) => OverdueDetailDB.GenerateLoanOverdueUpdate(productId, startDate, endDate, updateReason, setNumber);
-        
+
 
     }
 }

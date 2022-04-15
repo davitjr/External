@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -62,7 +59,7 @@ namespace ExternalBanking
         public string LanguageDescription { get; set; }
 
 
-        public DateTime RegistrationDate { get; set; } 
+        public DateTime RegistrationDate { get; set; }
         /// <summary>
         /// 
         /// </summary>

@@ -1,13 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-   public class PaidAccreditive:Loan
+    public class PaidAccreditive : Loan
     {
         public static List<PaidAccreditive> GetPaidAccreditives(ulong customerNumber, ProductQualityFilter filter)
         {

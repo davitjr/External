@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ExternalBanking.XBManagement;
+using ExternalBanking.XBManagement.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using ExternalBanking.XBManagement;
-using System.Configuration;
-using ExternalBanking.XBManagement.Interfaces;
 
 namespace ExternalBanking.DBManager
 {

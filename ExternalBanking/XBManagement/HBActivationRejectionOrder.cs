@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.XBManagement
 {
-    public class HBActivationRejectionOrder: HBActivationOrder
+    public class HBActivationRejectionOrder : HBActivationOrder
     {
         /// <summary>
         /// Հեռահար բանկինգի ծառայությունների ակտիվացումից հրաժարման հայտի պահպանում
@@ -35,7 +28,7 @@ namespace ExternalBanking.XBManagement
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
-            
+
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
@@ -81,7 +74,7 @@ namespace ExternalBanking.XBManagement
 
             return result;
         }
-        
+
         /// <summary>
         ///  Հայտի պահպանման ստուգումներ
         /// </summary>
@@ -104,7 +97,7 @@ namespace ExternalBanking.XBManagement
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
-           
+
         }
     }
 }

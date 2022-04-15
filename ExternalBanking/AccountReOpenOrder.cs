@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -103,7 +101,6 @@ namespace ExternalBanking
             {
                 if (result.ResultCode == ResultCode.Normal)
                 {
-                    Action action = this.Id == 0 ? Action.Add : Action.Update;
 
                     using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                     {
@@ -135,7 +132,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            DateTime nextOperDay = Utility.GetNextOperDay().Date;
             if (RegistrationDate.AddDays(30).Date < DateTime.Now.Date || this.RegistrationDate.Date > DateTime.Now.Date)
             {
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
@@ -169,7 +165,7 @@ namespace ExternalBanking
             //Հայտի համար   
             if (string.IsNullOrEmpty(this.OrderNumber))
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-            if(this.FeeChargeType!=1)
+            if (this.FeeChargeType != 1)
                 this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
             if (this.Fees != null)

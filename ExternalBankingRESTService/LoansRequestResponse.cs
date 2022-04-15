@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.XBS;
+using System.Collections.Generic;
 
 namespace ExternalBankingRESTService
 {
-	public class LoansRequestResponse
+    public class LoansRequestResponse
     {
         public List<Loan> Loans { get; set; }
         public Result Result { get; set; }

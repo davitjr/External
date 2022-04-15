@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using System.Transactions;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
     class ExchangeRateDB
     {
 
-        public static List<ExchangeRate> GetExchangeRates(int filial=22000)
+        public static List<ExchangeRate> GetExchangeRates(int filial = 22000)
         {
-            
+
             List<ExchangeRate> rateList = new List<ExchangeRate>();
 
-          
-             using(SqlConnection conn=new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-             {
-                 conn.Open();
-                 string sqlString = @"SELECT * FROM (select m.source_currency,r.buy_rate, r.sale_rate,m.m_date,
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                string sqlString = @"SELECT * FROM (select m.source_currency,r.buy_rate, r.sale_rate,m.m_date,
                                     r.buy_rate_ATM ,r.sale_rate_ATM ,
                                     r.buy_rate_cash ,r.sale_rate_Cash ,
                                     r.buy_rate_for_cross ,r.sale_rate_for_cross,r.buy_rate_ACBA_transfer,r.sale_rate_ACBA_transfer 
@@ -36,36 +34,36 @@ namespace ExternalBanking.DBManager
                                     on a.source_currency=cb.source_currency
 									ORDER BY Case when a.source_currency='USD' then 1 when a.source_currency='EUR' then 2 when a.source_currency='RUR' then 3
 									 when a.source_currency='GBP' then 4 when a.source_currency='CHF' then 5 when a.source_currency='GEL' then 6 end";
-                 using SqlCommand cmd = new SqlCommand(sqlString, conn);
-                 cmd.Parameters.Add("@filial", SqlDbType.Int).Value = filial;
-                 cmd.CommandType = CommandType.Text;
-                 using SqlDataReader dr = cmd.ExecuteReader();
-                 while (dr.Read())
-                 {
-                     ExchangeRate rate = new ExchangeRate();
-                     rate.SourceCurrency = dr["source_currency"].ToString();
-                     rate.BuyRate =float.Parse(dr["buy_rate"].ToString());
-                     rate.SaleRate = float.Parse(dr["sale_rate"].ToString());
-                     rate.BuyRateATM = float.Parse(dr["buy_rate_ATM"].ToString());
-                     rate.SaleRateATM = float.Parse(dr["sale_rate_ATM"].ToString());
-                     rate.BuyRateCash = float.Parse(dr["buy_rate_Cash"].ToString());
-                     rate.SaleRateCash = float.Parse(dr["sale_rate_Cash"].ToString());
-                     rate.BuyRateCross = float.Parse(dr["buy_rate_for_cross"].ToString());
-                     rate.SaleRateCross = float.Parse(dr["sale_rate_for_cross"].ToString());
-                     rate.BuyRateTransfer = float.Parse(dr["buy_rate_ACBA_transfer"].ToString());
-                     rate.SaleRateTransfer = float.Parse(dr["sale_rate_ACBA_transfer"].ToString());
-                     rate.RegistrationDate = DateTime.Parse(dr["m_date"].ToString());
-                     rate.RateCB = float.Parse(dr["exchange_rate"].ToString());
-                     rateList.Add(rate);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
+                cmd.Parameters.Add("@filial", SqlDbType.Int).Value = filial;
+                cmd.CommandType = CommandType.Text;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    ExchangeRate rate = new ExchangeRate();
+                    rate.SourceCurrency = dr["source_currency"].ToString();
+                    rate.BuyRate = float.Parse(dr["buy_rate"].ToString());
+                    rate.SaleRate = float.Parse(dr["sale_rate"].ToString());
+                    rate.BuyRateATM = float.Parse(dr["buy_rate_ATM"].ToString());
+                    rate.SaleRateATM = float.Parse(dr["sale_rate_ATM"].ToString());
+                    rate.BuyRateCash = float.Parse(dr["buy_rate_Cash"].ToString());
+                    rate.SaleRateCash = float.Parse(dr["sale_rate_Cash"].ToString());
+                    rate.BuyRateCross = float.Parse(dr["buy_rate_for_cross"].ToString());
+                    rate.SaleRateCross = float.Parse(dr["sale_rate_for_cross"].ToString());
+                    rate.BuyRateTransfer = float.Parse(dr["buy_rate_ACBA_transfer"].ToString());
+                    rate.SaleRateTransfer = float.Parse(dr["sale_rate_ACBA_transfer"].ToString());
+                    rate.RegistrationDate = DateTime.Parse(dr["m_date"].ToString());
+                    rate.RateCB = float.Parse(dr["exchange_rate"].ToString());
+                    rateList.Add(rate);
 
-                 }
-                 
-             }
+                }
+
+            }
             return rateList;
         }
 
 
-        public static List<ExchangeRate> GetExchangeRatesHistory(int filialCode,string currency,DateTime startDate)
+        public static List<ExchangeRate> GetExchangeRatesHistory(int filialCode, string currency, DateTime startDate)
         {
 
             List<ExchangeRate> rateList = new List<ExchangeRate>();
@@ -92,7 +90,7 @@ namespace ExternalBanking.DBManager
                                             ORDER BY with_date DESC";
                 using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@filial", SqlDbType.Int).Value = filialCode;
-                cmd.Parameters.Add("@currency", SqlDbType.NVarChar,3).Value = currency;
+                cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
                 cmd.Parameters.Add("@startDate", SqlDbType.NVarChar).Value = startDate.ToString("dd/MMM/yy");
                 cmd.CommandType = CommandType.Text;
                 using SqlDataReader dr = cmd.ExecuteReader();
@@ -121,12 +119,12 @@ namespace ExternalBanking.DBManager
 
 
 
-        public static List<CrossExchangeRate> GetCrossExchangeRatesHistory(int filialCode,DateTime startDate)
+        public static List<CrossExchangeRate> GetCrossExchangeRatesHistory(int filialCode, DateTime startDate)
         {
 
             List<CrossExchangeRate> rateList = new List<CrossExchangeRate>();
 
-           
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
@@ -179,7 +177,7 @@ namespace ExternalBanking.DBManager
 
             List<ExchangeRate> rateList = new List<ExchangeRate>();
 
-            
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();

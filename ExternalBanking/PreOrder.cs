@@ -1,14 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.Interfaces;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-    public class PreOrder 
+    public class PreOrder
     {
         /// <summary>
         /// Նախնական հայտի համար
@@ -48,9 +44,9 @@ namespace ExternalBanking
         /// <param name="customerNumber"></param>
         /// <param name="appID"></param>
         /// <param name="quality"></param>
-        public static void UpdatePreOrderDetailQuality(ulong customerNumber,ulong appID, PreOrderQuality quality)
+        public static void UpdatePreOrderDetailQuality(ulong customerNumber, ulong appID, PreOrderQuality quality)
         {
-             PreOrderDB.UpdatePreOrderDetailQuality(customerNumber, appID, quality);
+            PreOrderDB.UpdatePreOrderDetailQuality(customerNumber, appID, quality);
         }
         /// <summary>
         /// Հեռացնում է նախորդ խմբաքանակի չձևավորված բոլոր հայտերը

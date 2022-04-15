@@ -1,10 +1,6 @@
 ﻿using ExternalBanking.DBManager;
-using ExternalBanking.XBManagement;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -172,6 +168,12 @@ namespace ExternalBanking
         }
 
 
+        /// <summary>
+        /// Վերադարձնում է հաճախորդի՝ ծառայությունների խումբը
+        /// </summary>
+        /// <param name="status">Խմբի կարգավիճակ</param>
+        /// <returns></returns>
+        public static OrderGroup GetOrderGroup(ulong customerNumber, int id) => OrderGroupDB.GetOrderGroup(customerNumber, id);
 
     }
 }

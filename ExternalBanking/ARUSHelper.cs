@@ -1,14 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.ARUSDataService;
+using ExternalBanking.ServiceClient;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using ExternalBanking.ARUSDataService;
-using System.Net;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking
 {
@@ -25,7 +21,7 @@ namespace ExternalBanking
         /// <param name="userName"></param>
         /// <param name="clientIP"></param>
         public static void Use(Action<IARUSOperationService> action, string authorizedUserSessionToken, string userName, string clientIP)
-        {          
+        {
 
             bool success = false;
 
@@ -42,21 +38,21 @@ namespace ExternalBanking
                 success = true;
 
             }
-            catch (FaultException ex)
+            catch (FaultException)
             {
                 ((IClientChannel)client).Close();
 
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (WebException ex)
+            catch (WebException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
 
@@ -110,12 +106,12 @@ namespace ExternalBanking
         public static ActionResult ConvertARUSActionResultToXBActionResult(ARUSDataService.ActionResult ARUSActionResult)
         {
             ActionResult XBActionResult = new ActionResult();
-            if(ARUSActionResult != null)
+            if (ARUSActionResult != null)
             {
                 XBActionResult.ResultCode = (ResultCode)(short)ARUSActionResult.ResultCode;
                 List<ActionError> XBActionErrors = new List<ActionError>();
 
-                foreach(ARUSDataService.ActionError ARUSError in ARUSActionResult.Errors)
+                foreach (ARUSDataService.ActionError ARUSError in ARUSActionResult.Errors)
                 {
                     ActionError XBError = new ActionError();
                     ConvertObject(ARUSError, ref XBError);
@@ -150,7 +146,7 @@ namespace ExternalBanking
         {
             string dateString = "";
 
-            if(!String.IsNullOrEmpty(ARUSDateString))
+            if (!String.IsNullOrEmpty(ARUSDateString))
             {
                 dateString = ARUSDateString.Substring(6) + "/" + ARUSDateString.Substring(4, 2) + "/" + ARUSDateString.Substring(0, 4);
             }

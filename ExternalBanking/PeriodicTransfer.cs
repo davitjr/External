@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -373,7 +373,7 @@ namespace ExternalBanking
 
         public void AddPeriodicTransferLog(int operResult, string denyReason)
         {
-            PeriodicTransferDB.AddPeriodicTransferLog(this,operResult,denyReason);
+            PeriodicTransferDB.AddPeriodicTransferLog(this, operResult, denyReason);
 
         }
         public void SetCompleted(DateTime dateOfOperation, DateTime dayOfRateCalculation)

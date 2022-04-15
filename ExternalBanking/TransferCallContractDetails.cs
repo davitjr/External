@@ -1,19 +1,15 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions;
 
 namespace ExternalBanking
 {
-   public class TransferCallContractDetails
+    public class TransferCallContractDetails
     {
-       /// <summary>
-       /// Համարայնագրի ունիկալ համար
-       /// </summary>
-       public long ContractId { get; set; }
+        /// <summary>
+        /// Համարայնագրի ունիկալ համար
+        /// </summary>
+        public long ContractId { get; set; }
         /// <summary>
         /// Համաձայնագրի համար
         /// </summary>
@@ -61,9 +57,9 @@ namespace ExternalBanking
             return TransferCallContractDetailsDB.GetTransferCallContractsDetails(customerNumber);
         }
 
-        public static TransferCallContractDetails GetTransferCallContractDetails(long contractId,ulong customerNumber)
+        public static TransferCallContractDetails GetTransferCallContractDetails(long contractId, ulong customerNumber)
         {
-            return TransferCallContractDetailsDB.GetTransferCallContractDetails(contractId,customerNumber);
+            return TransferCallContractDetailsDB.GetTransferCallContractDetails(contractId, customerNumber);
         }
 
 

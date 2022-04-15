@@ -1,16 +1,16 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
 
 
-	/// <summary>
-	/// Ավանդ
-	/// </summary>
-	public class Deposit
+    /// <summary>
+    /// Ավանդ
+    /// </summary>
+    public class Deposit
     {
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace ExternalBanking
         /// Ավանդի դադարեցման տոկոսադրույք
         /// </summary>
         public double CancelRate { get; set; }
-        
+
         /// <summary>   
         /// Ավանդի վերաձևաերպման նշան: true - վերաձևակերպվող, false-չվերաձևակերպվող
         /// </summary>
@@ -113,7 +113,7 @@ namespace ExternalBanking
         /// Ավանդին կցված ընթացիկ հաշիվ
         /// </summary>
         public Account ConnectAccount { get; set; }
-                /// <summary>
+        /// <summary>
         /// Ընդամենը կուտակված տոկոսագումար
         /// </summary>
         public decimal TotalRateValue { get; set; }
@@ -230,42 +230,45 @@ namespace ExternalBanking
         /// Հաշվարկված տոկոսագումար առ այսօր
         /// </summary>
         public decimal TaxedProfit { get; set; }
-        
+
         /// <summary>
         /// Պրոդուկտի նշում
         /// </summary>
         public ProductNote ProductNote { get; set; }
-        
+
         /// <summary>
         /// Սակագնից շեղում առկա է, թե ոչ
         /// </summary>
         public byte? IsVariation { get; set; }
 
-
+        /// <summary>
+        /// Հաղորդակցման եղանակն ընտրված է Front-ից
+        /// </summary>
+        public byte HasCommunicationType { get; set; }
 
         public Deposit()
         {
-        
+
         }
 
-        public static Deposit GetDeposit(ulong productId,ulong customerNumber)
+        public static Deposit GetDeposit(ulong productId, ulong customerNumber)
         {
-            return DepositDB.GetDeposit(productId,customerNumber);
+            return DepositDB.GetDeposit(productId, customerNumber);
         }
-        
 
-        public static List<Deposit> GetDeposits(ulong customerNumber,ProductQualityFilter filter)
+
+        public static List<Deposit> GetDeposits(ulong customerNumber, ProductQualityFilter filter)
         {
             List<Deposit> deposits = new List<Deposit>();
-            if (filter==ProductQualityFilter.Opened || filter==ProductQualityFilter.NotSet)
+            if (filter == ProductQualityFilter.Opened || filter == ProductQualityFilter.NotSet)
             {
                 deposits.AddRange(DepositDB.GetDeposits(customerNumber));
             }
-            if (filter==ProductQualityFilter.Closed)
+            if (filter == ProductQualityFilter.Closed)
             {
                 deposits.AddRange(DepositDB.GetClosedDeposits(customerNumber));
             }
-            if (filter==ProductQualityFilter.All)
+            if (filter == ProductQualityFilter.All)
             {
                 deposits.AddRange(DepositDB.GetDeposits(customerNumber));
                 deposits.AddRange(DepositDB.GetClosedDeposits(customerNumber));
@@ -282,7 +285,7 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        public static DepositOrderCondition GetDepositOrderCondition(DepositOrder order, SourceType source,bool isEmployeeDeposit=false)
+        public static DepositOrderCondition GetDepositOrderCondition(DepositOrder order, SourceType source, bool isEmployeeDeposit = false)
         {
             return DepositDB.GetDepositOrderCondition(order, source, isEmployeeDeposit);
         }
@@ -381,7 +384,7 @@ namespace ExternalBanking
             {
                 DepositOption option = new DepositOption();
                 option.Type = Convert.ToUInt16(dt.Rows[i]["option_type"]);
-                option.TypeDescription = lang == (byte)Languages.hy ? Utility.ConvertAnsiToUnicode(dt.Rows[i]["description"].ToString()): dt.Rows[i]["description_eng"].ToString();
+                option.TypeDescription = lang == (byte)Languages.hy ? Utility.ConvertAnsiToUnicode(dt.Rows[i]["description"].ToString()) : dt.Rows[i]["description_eng"].ToString();
                 option.OptionGroup = Convert.ToUInt16(dt.Rows[i]["option_group"]);
                 depositOptions.Add(option);
             }
@@ -418,7 +421,7 @@ namespace ExternalBanking
                 order.Deposit.DepositOption.Add(new ExternalBanking.DepositOption { OptionGroup = 1, Type = 0 });
             }
 
-            
+
             bool recontractpossibility = Convert.ToBoolean(order.RecontractPossibility);
             if (recontractpossibility == true)
             {

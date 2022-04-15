@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -126,9 +123,9 @@ namespace ExternalBanking.DBManager
                     order.CountryCode = dt.Rows[0]["country_code"].ToString();
                     order.GroupId = dt.Rows[0]["order_group_id"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["order_group_id"]) : 0;
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
-                    order.ArcaExtensionID = dt.Rows[0]["arca_ext_id"]!=DBNull.Value? Convert.ToUInt64(dt.Rows[0]["arca_ext_id"].ToString()):0;
-                    order.RRN = dt.Rows[0]["rrn"].ToString() ;
-                    order.AuthId =dt.Rows[0]["auth_id"].ToString();
+                    order.ArcaExtensionID = dt.Rows[0]["arca_ext_id"] != DBNull.Value ? Convert.ToUInt64(dt.Rows[0]["arca_ext_id"].ToString()) : 0;
+                    order.RRN = dt.Rows[0]["rrn"].ToString();
+                    order.AuthId = dt.Rows[0]["auth_id"].ToString();
 
                     order.Fees = Order.GetOrderFees(order.Id);
                 }
@@ -237,7 +234,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"SELECT bin FROM [dbo].[Tbl_Countries]  C
                                                         inner join (select visa_bin bin,country_code from tbl_international_visa_card_bins
-                                                                    UNION ALL select master_bin bin,country_code from tbl_international_master_card_bins) B ON C.countrycode=B.country_code
+                                                                    UNION ALL select master_bin bin,country_code from tbl_international_master_card_bins) B ON C.CountryCodeA3=B.country_code
                                                         where under_sanction=1 and B.bin = @cardBin", conn))
                 {
                     cmd.Parameters.Add("@cardBin", SqlDbType.NVarChar, 50).Value = cardBin;
@@ -317,9 +314,8 @@ namespace ExternalBanking.DBManager
             return result;
         }
 
-        public static ActionResult SaveArcaResponseData(ulong orderId, ulong arcaExtID, ArcaDataServiceReference.CreditCardEcommerceResponse response)
+        public static void SaveArcaResponseData(ulong orderId, ulong arcaExtID, ArcaDataServiceReference.CreditCardEcommerceResponse response)
         {
-            ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
@@ -327,7 +323,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.Parameters.Add("@responseCode", SqlDbType.NVarChar, 50).Value = response.ResponseCode;
                     cmd.Parameters.Add("@arcaExtId", SqlDbType.BigInt).Value = arcaExtID;
-                    if (response.ProcessingCode==null)
+                    if (response.ProcessingCode == null)
                     {
                         cmd.Parameters.Add("@processingCode", SqlDbType.NVarChar, 20).Value = DBNull.Value;
                         cmd.Parameters.Add("@rrn", SqlDbType.NVarChar, 20).Value = DBNull.Value;
@@ -341,26 +337,24 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@authId", SqlDbType.NVarChar, 20).Value = response.AuthorizationIdResponse;
                     }
 
-					if (response.ResponseCode.Length==4)
-					{
+                    if (response.ResponseCode.Length == 4)
+                    {
                         cmd.Parameters.Add("@isChecked", SqlDbType.Bit).Value = 0;
                     }
                     else
-					{
+                    {
                         cmd.Parameters.Add("@isChecked", SqlDbType.Bit).Value = DBNull.Value;
                     }
-                    
+
                     cmd.Parameters.Add("@docId", SqlDbType.Int).Value = orderId;
                     cmd.ExecuteNonQuery();
-                    result.ResultCode = ResultCode.Normal;
                 }
 
             }
 
-            return result;
         }
 
-        public static double GetCardToOtherCardFee(double amount,string currency,SourceType sourceType)
+        public static double GetCardToOtherCardFee(double amount, string currency, SourceType sourceType)
         {
             double fee = 0;
             double feeAmount = 0;
@@ -377,12 +371,12 @@ namespace ExternalBanking.DBManager
                     if (dr.Read())
                     {
                         fee = Convert.ToDouble(dr["price"].ToString());
-                        minFee= Convert.ToDouble(dr["min_fee"].ToString());
+                        minFee = Convert.ToDouble(dr["min_fee"].ToString());
                     }
 
                 }
 
-                feeAmount = Utility.RoundAmount(fee * amount, currency,sourceType);
+                feeAmount = Utility.RoundAmount(fee * amount, currency, sourceType);
                 if (feeAmount < minFee)
                     feeAmount = minFee;
 
@@ -391,5 +385,33 @@ namespace ExternalBanking.DBManager
             return feeAmount;
         }
 
+        public static string GetCountryCodeByBin(string cardNumber)
+        {
+            string result = "";
+            string cardBin = cardNumber.Substring(0, 6);
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(@"SELECT visa_bin as bin,country_code  FROM [dbo].[tbl_international_visa_card_bins]
+                                                          WHERE visa_bin=@cardBin
+                                                         UNION 
+                                                         SELECT master_bin ,country_code  FROM [dbo].[tbl_international_master_card_bins]
+                                                          WHERE master_bin=@cardBin", conn))
+                {
+                    cmd.Parameters.Add("@cardBin", SqlDbType.NVarChar, 50).Value = cardBin;
+                    using SqlDataReader dr = cmd.ExecuteReader();
+                    if (dr.Read())
+                    {
+                        result = dr["country_code"].ToString();
+                    }
+                    else
+                    {
+                        result = "ARM";
+                    }
+                }
+
+            }
+            return result;
+        }
     }
 }

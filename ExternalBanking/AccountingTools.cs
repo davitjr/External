@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System;
 namespace ExternalBanking
 {
     public static class AccountingTools
@@ -13,17 +9,13 @@ namespace ExternalBanking
         /// </summary>
         internal static double GetFeeForLocalTransfer(PaymentOrder order)
         {
-            if (order?.ReceiverAccount?.AccountNumber == "103003240159" || order?.ReceiverAccount?.AccountNumber == "103003241157" 
-                || order?.ReceiverAccount?.AccountNumber == "103003249150"
-                || order?.ReceiverAccount?.AccountNumber == "103008661003"
-                || order?.ReceiverAccount?.AccountNumber == "103008661011" || order?.ReceiverAccount?.AccountNumber == "103008661490"
-                || order?.ReceiverAccount?.AccountNumber == "103008661581" || order?.ReceiverAccount?.AccountNumber == "103003248152" || order?.ReceiverAccount?.AccountNumber == "103003635671")
+            if (!string.IsNullOrEmpty(order?.ReceiverAccount?.AccountNumber) && Order.CheckAccountForNonFee(order?.ReceiverAccount?.AccountNumber))
             {
                 return 0;
             }
 
             if (order.Type == OrderType.CashForRATransfer)
-            order.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(order, OrderAccountType.DebitAccount), order.DebitAccount.Currency,order.FilialCode);
+                order.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(order, OrderAccountType.DebitAccount), order.DebitAccount.Currency, order.FilialCode);
 
             return AccountingToolsDB.GetFeeForLocalTransfer(order);
         }
@@ -31,9 +23,9 @@ namespace ExternalBanking
         /// Վերադարձնում է սեփական հաշիվների միջև կատարվող փոխանցման միջնորդավճարը
         /// </summary>
         /// <returns></returns>
-        public static double GetCashPaymentOrderFee(int index, string fieldName,string accountNumber)
+        public static double GetCashPaymentOrderFee(int index, string fieldName, string accountNumber)
         {
-            return AccountingToolsDB.GetCashPaymentOrderFee(index,fieldName,accountNumber);
+            return AccountingToolsDB.GetCashPaymentOrderFee(index, fieldName, accountNumber);
         }
 
         /// <summary>
@@ -53,9 +45,9 @@ namespace ExternalBanking
         /// <param name="tariffGroup">Սակագնային խումբ (Vip)</param>
         /// <param name="order">Միջազգային ոխանցում</param>
         /// <returns></returns>
-        internal static double GetFeeForInternationalTransfer( InternationalPaymentOrder order)
+        internal static double GetFeeForInternationalTransfer(InternationalPaymentOrder order)
         {
-            double trasferFee=0;
+            double trasferFee = 0;
             //double transfersTotal =order.Amount ;
             //TransferType transferType;
             //string countryCode = order.Country;
@@ -84,10 +76,10 @@ namespace ExternalBanking
             //}
 
 
- 
+
             //if (!(transferType == TransferType.Local || (transferType == TransferType.Our && order.Currency == "EUR" && (order.Country == "100" || order.Country == "792" || order.Country == "642"))))
             //    countryCode = "0";
-   
+
             //trasferFee= AccountingToolsDB.GetFeeForTransfer(transferType,
             //                                                     tariffGroup,
             //                                                     order.RegistrationDate,
@@ -100,7 +92,7 @@ namespace ExternalBanking
             trasferFee = AccountingToolsDB.GetFeeForInternationalTransfer(order.DebitAccount.AccountNumber, order.DetailsOfCharges, order.Currency, order.Amount, order.UrgentSign, Convert.ToInt16(order.Country), order.RegistrationDate);
 
 
-            return trasferFee !=-1 ? trasferFee :0 ;
+            return trasferFee != -1 ? trasferFee : 0;
         }
 
 
@@ -119,9 +111,9 @@ namespace ExternalBanking
         /// <param name="order"></param>
         /// <param name="feeType"></param>
         /// <returns></returns>
-        public static double GetCashoutOrderFee(PaymentOrder order,int feeType)
+        public static double GetCashoutOrderFee(PaymentOrder order, int feeType)
         {
-            return AccountingToolsDB.GetCashoutOrderFee(order,feeType);
+            return AccountingToolsDB.GetCashoutOrderFee(order, feeType);
         }
 
         /// <summary>

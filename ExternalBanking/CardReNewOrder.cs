@@ -79,9 +79,9 @@ namespace ExternalBanking
         public string CardNewTypeAndCurrency { get; set; }
 
         /// <summary>
-        ///Վարկային գծի ունիկալ համար
+        /// Նոր քարտի տեսակ(միայն նոր տեսակով վերաթողարկման դեպքում)
         /// </summary>
-        public long CreditLineProductId { get; set; }
+        public short? CardNewType { get; set; }
 
         private void Complete()
         {
@@ -90,7 +90,7 @@ namespace ExternalBanking
             if ((OrderNumber == null || OrderNumber == "") && Id == 0)
             {
                 OrderNumber = GenerateNextOrderNumber(CustomerNumber);
-            }              
+            }
 
             Type = OrderType.CardRenewOrder;
             OPPerson = SetOrderOPPerson(CustomerNumber);
@@ -119,7 +119,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
             {
-                result = CardRenewOrderDB.Save(this, source, user);
+                result = CardRenewOrderDB.Save(this, source);
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -318,12 +318,17 @@ namespace ExternalBanking
                 // Virtual տեսակի քարտը հնարավոր չէ վերաթողարկել:
                 result.Errors.Add(new ActionError(1808, new string[] { "վերաթողարկել" }));
             }
+            if (Card.Type == 53)
+            {
+                // Digital տեսակի քարտը հնարավոր չէ վերաթողարկել:
+                result.Errors.Add(new ActionError(1983, new string[] { "վերաթողարկել" }));
+            }
 
             string cardExpiryDate = Card.GetExDate(Card.CardNumber);
 
             if (!(Card.MainCardNumber is null || Card.MainCardNumber == ""))
             {
-                long mainAppID = Card.GetCardProductId(Card.MainCardNumber, customerNumber);
+                long mainAppID = Card.GetMainAppId(Card.ProductId);//Card.GetCardProductId(Card.MainCardNumber, customerNumber);
                 if (mainAppID != Card.ProductId && (Card.Type == 20 || Card.Type == 23 ||
                     (Card.Type == 21 && Card.CardNumber.Substring(0, 8) == "90513410")))
                 {
@@ -341,6 +346,11 @@ namespace ExternalBanking
                         {
                             //Տվյալ քարտի հիմնական քարտի տեսակը(համարը) փոխվել է (MainCardNumber->Cardnumber): Քարտի վերաթողակումը հնարավոր չէ:
                             result.Errors.Add(new ActionError(1927, new string[] { mainCardNumber + " >> " + Card.CardNumber }));
+                        }
+                        if (CardRenewOrderDB.IsCardRenewedWithNewType(mainAppID))
+                        {
+                            //Հիմնական քարտը վերաթողարկվել է այլ տեսակի քարտով։ Կից/լրացուցիչ քարտը անհրաժեշտ է փակել և պատվիրել նոր քարտ
+                            result.Errors.Add(new ActionError(1998));
                         }
                     }
                     else
@@ -368,24 +378,16 @@ namespace ExternalBanking
                     {
                         //Տվյալ քարտը չի կարող վերաթողարկվել:
                         result.Errors.Add(new ActionError(1929));
-                    }                   
+                    }
                 }
             }
 
-            ACBAServiceReference.Customer customer = Customer.GetCustomer(customerNumber);
 
-            if (customer.quality.value == "43")
+            var customerQuality = ACBAOperationService.GetCustomerQuality(customerNumber);
+            if (customerQuality == 43)
             {
                 //Ընտրված է կրկնակի հաճախորդ: Հնարավոր չէ քարտը վերաթողարկել կրկնակի հաճախորդի համար:
                 result.Errors.Add(new ActionError(1662, new string[] { "վերաթողարկել" }));
-            }
-
-            List<Card> supplementaryCards = new List<Card>();
-            supplementaryCards.AddRange(CardDB.GetLinkedCards(Card.CardNumber));
-            if (RenewWithCardNewType && supplementaryCards.Count > 0)
-            {
-                //Հնարավոր չէ իրականացնել գործողությունը, անհրաժեշտ է փակել կից քարտերը։
-                result.Errors.Add(new ActionError(1930));
             }
 
             int productType = Utility.GetCardProductType(Convert.ToUInt32(Card.Type));
@@ -396,8 +398,11 @@ namespace ExternalBanking
             }
 
             ulong cardHolderCustomerNumber;
-            if (customer is LegalCustomer)
+            short customerType = ACBAOperationService.GetCustomerType(customerNumber);
+
+            if (customerType != (short)CustomerTypes.physical)
             {
+
                 if (!Regex.IsMatch(OrganisationNameEng, "^[A-Za-z- ./\\d]+$") || OrganisationNameEng.Contains('<') || OrganisationNameEng.Contains('>'))
                 {
                     //«Հաստատության անվանումը» դաշտում առկա է անթույլատրելի նշան:
@@ -423,7 +428,7 @@ namespace ExternalBanking
             }
 
             string motherName = CardDB.GetCardMotherName((ulong)Card.ProductId);
-            if (motherName.Equals(""))
+            if (string.IsNullOrEmpty(motherName))
             {
                 if (!CardRenewOrderDB.CheckCustomerDocument(cardHolderCustomerNumber, 2))
                 {
@@ -449,7 +454,7 @@ namespace ExternalBanking
             {
                 RelatedOfficeNumber = 174;
             }
-            int quality = GetRelatedOfficeQuality(Card.ProductId, RelatedOfficeNumber, RenewWithCardNewType);
+            int quality = Card.GetRelatedOfficeQuality(Card.ProductId, RelatedOfficeNumber, CardNewType);
             if (quality == -1)
             {
                 //Տվյալ տեսակի և արժույթի վճարային քարտ աշխատավարձային ծրագրի տակ գրանցված չէ:
@@ -475,18 +480,6 @@ namespace ExternalBanking
             //    }
             //}
 
-            if (!RenewWithCardNewType)
-            {
-                ActionResult arCaResult = CheckArcaStatus();
-                if (arCaResult.Errors.Count > 0)
-                {
-                    foreach (ActionError error in arCaResult.Errors)
-                    {
-                        result.Errors.Add(error);
-                    }
-                }
-            }
-
             if (WithCreditLineClosing is true)
             {
                 CreditLine creditLine = CreditLine.GetCardCreditLine(Card.CardNumber);
@@ -510,6 +503,41 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1811, new string[] { "վերաթողարկման/փոխարինման" }));
             }
 
+            if (RenewWithCardNewType)
+            {
+                if (CardNewType == null)
+                {
+                    //Քարտի նոր տեսակը մուտքագրված չէ
+                    result.Errors.Add(new ActionError(1999));
+                }
+
+                if (customerType != (short)CustomerTypes.physical
+                    || Card.SupplementaryType != SupplementaryType.Main
+                    || (Card.CardSystem == 9 && !((Card.Type == 1 || Card.Type == 11 || Card.Type == 14 || Card.Type == 16) && (CardNewType == 36 || CardNewType == 46))))
+                {
+                    //Տվյալ տեսակի քարտի համար ընտրված տեսակով կամ այլ տեսակով վերաթողարկում թույլատրված չէ
+                    result.Errors.Add(new ActionError(2000));
+                }
+
+                if (customerType == (short)CustomerTypes.physical && (CardNewType == 3 || CardNewType == 22 || CardNewType == 45))
+                {
+                    //Բիզնես քարտերը  նախատեսված չեն  ֆիզիկական անձ հաճախորդի համար:
+                    result.Errors.Add(new ActionError(1839));
+                }
+
+            }
+            else
+            {
+                ActionResult arCaResult = CheckArcaStatus();
+                if (arCaResult.Errors.Count > 0)
+                {
+                    foreach (ActionError error in arCaResult.Errors)
+                    {
+                        result.Errors.Add(error);
+                    }
+                }
+            }
+
             return result;
         }
 
@@ -523,7 +551,7 @@ namespace ExternalBanking
                 TariffID = order.RelatedOfficeNumber
             };
             CardTariffContractDB.GetCardTariffContract(contract);
-            int quality = GetRelatedOfficeQuality(order.Card.ProductId, order.RelatedOfficeNumber, order.RenewWithCardNewType);
+            int quality = Card.GetRelatedOfficeQuality(order.Card.ProductId, order.RelatedOfficeNumber, order.CardNewType);
             if (order.Card.RelatedOfficeNumber != 1692 || quality != -1 || quality != 0)
             {
                 if (contract.Quality == 0)
@@ -603,10 +631,6 @@ namespace ExternalBanking
         {
             return CardRenewOrderDB.GetCardNewAppID(this);
         }
-        public static int GetRelatedOfficeQuality(long productId, int officeID, bool withNewType)
-        {
-            return CardRenewOrderDB.GetRelatedOfficeQuality(productId, officeID, withNewType);
-        }
 
         public static string GetPhoneForCardRenew(long productId)
         {
@@ -619,6 +643,18 @@ namespace ExternalBanking
                 cardHolder = customerNumber;
             }
             return CardRenewOrderDB.GetPhoneForCardRenew(cardHolder);
+        }
+
+        public static List<string> GetLinkedCardWarnings(string cardNumber, bool renewWithCardNewType)
+        {
+            var warnings = new List<string>();
+            List<Card> supplementaryCards = new List<Card>();
+            supplementaryCards.AddRange(CardDB.GetLinkedCards(cardNumber));
+            if (renewWithCardNewType && supplementaryCards.Count > 0)
+            {//Առկա է քարտին կցված կից կամ լրացուցիչ քարտեր, անհրաժեշտ է փակել այն և պատվիրել նոր քարտ
+                warnings.Add(Info.GetTerm(1997, new string[] { }, Languages.hy));
+            }
+            return warnings;
         }
     }
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using ExternalBanking.DBManager;
-using System.Data.SqlClient;
-using System.Data;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -22,7 +18,7 @@ namespace ExternalBanking
         /// Ապասառեցման ենթակա հաշվեհամար
         /// </summary>
         public Account FreezedAccount { get; set; }
-        
+
         /// <summary>
         /// Ապասառեցման պատճառ
         /// </summary>
@@ -73,7 +69,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = AccountUnfreezeOrderDB.Save(this, userName, source, filialCode);
-                
+
                 base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
 
                 result = base.SaveOrderOPPerson();

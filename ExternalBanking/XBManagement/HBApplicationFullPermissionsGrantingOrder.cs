@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.DBManager.XBManagement;
 using System.Transactions;
-using ExternalBanking.DBManager.XBManagement;
 
 
 namespace ExternalBanking.XBManagement

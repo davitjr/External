@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -21,10 +17,10 @@ namespace ExternalBanking.DBManager
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    
+
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@row_Id", SqlDbType.BigInt).Value = ID;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;                    
+                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                     cmd.Parameters.Add("@Language_ID", SqlDbType.Int).Value = langID == Languages.hy ? 0 : 1;
 
                     conn.Open();
@@ -51,9 +47,9 @@ namespace ExternalBanking.DBManager
                             employeeSalaryDetails.VacationFisrtsDay = dr["Holiday_beginning"] != DBNull.Value ? Convert.ToDateTime(dr["Holiday_beginning"]) : (DateTime?)null;
                             employeeSalaryDetails.VacationLastDay = dr["Holiday_end"] != DBNull.Value ? Convert.ToDateTime(dr["Holiday_end"]) : (DateTime?)null;
                             employeeSalaryDetails.VacationDays = dr["HolidayDays"] != DBNull.Value ? Convert.ToInt16(dr["HolidayDays"]) : default;
-                            employeeSalaryDetails.VacationAmount = dr["HolidayAmount"] != DBNull.Value ? double.Parse(dr["HolidayAmount"].ToString()) : default; 
+                            employeeSalaryDetails.VacationAmount = dr["HolidayAmount"] != DBNull.Value ? double.Parse(dr["HolidayAmount"].ToString()) : default;
                         }
-                    }                       
+                    }
                 }
             }
             return employeeSalaryDetails;

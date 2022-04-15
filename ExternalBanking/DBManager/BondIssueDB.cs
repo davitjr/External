@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -107,7 +104,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@nominal_price", SqlDbType.Money).Value = bondissue.NominalPrice;
                     cmd.Parameters.Add("@interest_rate", SqlDbType.Float).Value = bondissue.InterestRate / 100;
 
-                    if(bondissue.RepaymentDate != null)
+                    if (bondissue.RepaymentDate != null)
                         cmd.Parameters.Add("@repayment_date", SqlDbType.SmallDateTime).Value = bondissue.RepaymentDate;
                     else
                         cmd.Parameters.Add("@repayment_date", SqlDbType.SmallDateTime).Value = DBNull.Value;
@@ -172,7 +169,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                    if(bondissue.ShareType != SharesTypes.None)
+                    if (bondissue.ShareType != SharesTypes.None)
                         cmd.Parameters.Add("@share_type", SqlDbType.Int).Value = (int)bondissue.ShareType;
                     else
                         cmd.Parameters.Add("@share_type", SqlDbType.Int).Value = DBNull.Value;
@@ -217,7 +214,7 @@ namespace ExternalBanking.DBManager
                     else
                         cmd.Parameters.Add("@placement_factual_count", SqlDbType.Int).Value = DBNull.Value;
 
-                    if(bondissue.SetNumber != 0)
+                    if (bondissue.SetNumber != 0)
                         cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = bondissue.SetNumber;
                     else
                         cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = DBNull.Value;
@@ -366,12 +363,12 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM [dbo].[Tbl_bond_issue] WHERE [ISIN] = @isin AND [issue_seria] = @issue_seria", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM [dbo].[Tbl_bond_issue] WHERE [ISIN] = @isin AND [issue_seria] = @issue_seria", conn);
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@isin", SqlDbType.NVarChar).Value = isin;
                 cmd.Parameters.Add("@issue_seria", SqlDbType.Int).Value = seria;
-               using SqlDataReader reader = cmd.ExecuteReader();
+                using SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
                 {
@@ -396,15 +393,41 @@ namespace ExternalBanking.DBManager
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@id", SqlDbType.NVarChar).Value = bondIssueId;
-               using SqlDataReader reader = cmd.ExecuteReader();
+                using SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
                 {
                     while (reader.Read())
                     {
-                        if(dtNow <= Convert.ToDateTime(reader["replacement_end_date"]).AddHours(16).AddMinutes(30))
+                        if (dtNow <= Convert.ToDateTime(reader["replacement_end_date"]).AddHours(16).AddMinutes(30))
                             result = true;
-                    }                    
+                    }
+                }
+
+            }
+
+            return result;
+
+        }
+
+        internal static bool IsACBASecurity(string ISIN)
+        {
+            bool result = false;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(@"SELECT [id] FROM [dbo].[Tbl_bond_issue] WHERE [ISIN] = @ISIN", conn);
+
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@ISIN", SqlDbType.NVarChar).Value = ISIN;
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        result = true;
+                    }
                 }
 
             }

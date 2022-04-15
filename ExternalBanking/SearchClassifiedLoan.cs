@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions;
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
     public class SearchClassifiedLoan : SearchParams
     {
@@ -39,6 +31,11 @@ namespace ExternalBanking
         /// Դասակարգված վարկերի ցանկի տեսակ
         /// </summary>
         public ClassifiedLoanListType ListType { get; set; }
+
+        /// <summary>
+        /// Ամբողջ դատան
+        /// </summary>
+        public bool AllData { get; set; }
 
     }
 }

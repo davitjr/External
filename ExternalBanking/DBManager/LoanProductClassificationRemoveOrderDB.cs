@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using ExternalBanking.ACBAServiceReference;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
@@ -94,7 +92,7 @@ namespace ExternalBanking.DBManager
                 }
 
             }
-            
+
             return loanProductClassificationRemoveOrders;
         }
         /// <summary>
@@ -133,7 +131,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@productId", SqlDbType.Float).Value = order.ProductId;
 
-               using  SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -166,7 +164,7 @@ namespace ExternalBanking.DBManager
 												  BEGIN
 													SELECT 1
 												  END", conn);
-                    
+
 
                 cmd.Parameters.Add("@productApp_ID", SqlDbType.BigInt).Value = order.ProductId;
 

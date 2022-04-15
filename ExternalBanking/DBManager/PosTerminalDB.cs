@@ -77,7 +77,7 @@ namespace ExternalBanking.DBManager
                                                   FROM Tbl_Cashback_Rates R 
                                                   INNER JOIN  tbl_type_of_card T 
                                                   ON R.Card_type = T.ID
-                                                  WHERE  code = @code and deleted = 0 Order by applicationscardtype,  R.ID",conn))
+                                                  WHERE  code = @code and deleted = 0 Order by applicationscardtype,  R.ID", conn))
                 {
                     cmd.Parameters.AddWithValue("@code", terminalId);
                     conn.Open();
@@ -98,7 +98,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
 
-                    
+
             }
             return cashBackRates;
         }
@@ -123,7 +123,7 @@ namespace ExternalBanking.DBManager
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                   
+
                         while (dr.Read())
                         {
                             TransactionDetail trDetail = new TransactionDetail();

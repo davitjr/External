@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Linq;
 
 
 namespace ExternalBanking.DBManager
@@ -60,7 +59,7 @@ namespace ExternalBanking.DBManager
                 }
             }
 
-            return historyDetails;            
+            return historyDetails;
         }
 
 

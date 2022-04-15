@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-    public class MRDataChangeOrder: Order
+    public class MRDataChangeOrder : Order
     {
         /// <summary>
         /// MR ծառայության նույնականացման համար

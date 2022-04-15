@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Transactions;
+﻿using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -273,7 +272,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result = InternationalPaymentOrderDB.Save(this, userName, source); 
+                result = InternationalPaymentOrderDB.Save(this, userName, source);
                 LogOrderChange(user, action);
                 scope.Complete();
             }
@@ -319,6 +318,15 @@ namespace ExternalBanking
                     this.TransferAdditionalData.OrderId = result.Id;
                     TransferAdditionalDataDB.Save(this.TransferAdditionalData);
                 }
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
                 //if ((this.TransferFee > 0 || this.CardFee > 0) && this.FeeAccount != null)
                 //{
                 //    this.Fees = new List<OrderFee>();
@@ -343,7 +351,7 @@ namespace ExternalBanking
                 {
                     Order.SaveOrderLinkId(this.SwiftMessageID, this.Id, 1);
                 }
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -513,7 +521,7 @@ namespace ExternalBanking
             result.Errors.AddRange(ValidateData(templateType));
             result.Errors.AddRange(Validation.ValidateAttachmentDocument(this));
 
-            if(Source == SourceType.Bank)
+            if (Source == SourceType.Bank)
             {
                 if (this.UrgentSign)
                 {
@@ -576,8 +584,8 @@ namespace ExternalBanking
                     this.Receiver, this.ReceiverAccount.AccountNumber, this.ReceiverAddInf, this.ReceiverBankSwift, this.ReceiverBankCode));
                 }
             }
-               
-            
+
+
             return result;
         }
 
@@ -656,7 +664,7 @@ namespace ExternalBanking
                     result.Errors.AddRange(Validation.ValidateRate(this));
                 }
 
-                if(this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking || this.Source == SourceType.AcbaOnlineXML || this.Source == SourceType.ArmSoft)
+                if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking || this.Source == SourceType.AcbaOnlineXML || this.Source == SourceType.ArmSoft)
                 {
                     if (this.UrgentSign)
                     {
@@ -664,7 +672,7 @@ namespace ExternalBanking
                         result.Errors.Add(new ActionError(1536));
                     }
                 }
-              
+
                 double debitBalance = debitAccountBalance + Order.GetSentOrdersAmount(debitAccount.AccountNumber, this.Source);
                 double feeBalance = feeAccountBalance + Order.GetSentOrdersAmount(feeAccount.AccountNumber, this.Source);
 
@@ -763,8 +771,8 @@ namespace ExternalBanking
                     }
                 }
             }
-                
-            
+
+
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
@@ -898,7 +906,7 @@ namespace ExternalBanking
 
                 if (!string.IsNullOrEmpty(this.SwiftPurposeCode) && isArabianEmiratTransfer)
                 {
-                    if (this.SwiftPurposeCode == "999" &&  string.IsNullOrEmpty(this.PurposeCodeOther))
+                    if (this.SwiftPurposeCode == "999" && string.IsNullOrEmpty(this.PurposeCodeOther))
                     {
                         // ՈՒշադրություն: Այլ ընտրելու դեպքում նպատակի կոդ դաշտը պարտադիր է 
                         result.Add(new ActionError(1599));
@@ -921,8 +929,8 @@ namespace ExternalBanking
 
                     }
                 }
-              
-             
+
+
 
 
                 if (!string.IsNullOrEmpty(this.IntermediaryBankSwift) && this.IntermediaryBankSwift.Length != 11)
@@ -1511,10 +1519,10 @@ namespace ExternalBanking
                         result.Add(new ActionError(137));
                     }
 
-            }
-            else
-            {
-                var customer = ACBAOperationService.GetCustomer(this.CustomerNumber);
+                }
+                else
+                {
+                    var customer = ACBAOperationService.GetCustomer(this.CustomerNumber);
 
                     if (string.IsNullOrEmpty(this.SenderCodeOfTax))
                     {
@@ -1680,7 +1688,7 @@ namespace ExternalBanking
                     }
 
                     result = base.Approve(schemaType, userName);
-                                       
+
                     if (result.ResultCode == ResultCode.Normal)
                     {
                         LogOrderChange(user, Action.Update);
@@ -1714,11 +1722,11 @@ namespace ExternalBanking
 
         private void InitCustomer()
         {
-           
+
             short customerType = (short)Customer.GetCustomerType(CustomerNumber);
 
             this.SenderType = customerType;// customerData.customerType.key;
-            
+
             //List<CustomerAddress> addressList;
 
             //if (SenderType == 6)

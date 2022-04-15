@@ -790,6 +790,16 @@ namespace ExternalBanking.DBManager
                 case ProductType.Guarantee:
                     dbName = "[dbo].[Tbl_given_guarantee]";
                     break;
+                case ProductType.PaidGuarantee:
+                    dbName = "[dbo].[Tbl_paid_factoring]";
+                    break;
+                case ProductType.AllTypeGuarantee:
+                    dbName = "[dbo].[Tbl_given_guarantee]";
+                    dbName2 = "[dbo].[Tbl_paid_factoring]";
+                    break;
+                case ProductType.Accreditive:
+                    dbName = "[dbo].[Tbl_given_guarantee]";
+                    break;
                 default:
                     break;
             }
@@ -804,13 +814,13 @@ namespace ExternalBanking.DBManager
                         cmd.Connection = conn;
                         cmd.CommandText = @"select app_id from " + dbName +
                                             "where app_id = @ProductId and customer_number = @customerNumber";
-                        if (productType == ProductType.Loan)
+                        if (productType == ProductType.Loan || productType == ProductType.AllTypeGuarantee)
                         {
                             cmd.CommandText += @" union all
 									select app_id from" + dbName2 +
                                     "where app_id = @ProductId and customer_number = @customerNumber";
                         }
-                        if(productType == ProductType.Deposit)
+                        if (productType == ProductType.Deposit)
                         {
                             cmd.CommandText = @"select app_id from [dbo].[Tbl_deposits;] d INNER JOIN v_all_accounts A
                                                     on d.deposit_full_number = A.arm_number where app_id = @ProductId and 
@@ -886,7 +896,7 @@ namespace ExternalBanking.DBManager
                                         And a.customer_number<>acc.customer_number
                                         ";
 
-                    cmd.Parameters.Add("@accountNumber", SqlDbType.NVarChar,20).Value = accountNumber;
+                    cmd.Parameters.Add("@accountNumber", SqlDbType.NVarChar, 20).Value = accountNumber;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -910,7 +920,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = @"select cardnumber from [tbl_visa_applications] 
                                     where cardnumber = @cardNumber and customer_number = @customerNumber";
 
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar,20).Value = cardNumber;
+                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = cardNumber;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
                     using (SqlDataReader dr = cmd.ExecuteReader())

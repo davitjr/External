@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -27,11 +24,8 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = "pr_get_problem_loan_tax_list";
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@filialCode", SqlDbType.SmallInt).Value = problemLoanTaxFilter.FilialCode;
-                    if (problemLoanTaxFilter.Row != null)
-                    {
-                        cmd.Parameters.Add("@endRow", SqlDbType.SmallInt).Value = problemLoanTaxFilter.Row * 500;
-                        cmd.Parameters.Add("@startRow", SqlDbType.SmallInt).Value = (problemLoanTaxFilter.Row - 1) * 500;
-                    }
+                    cmd.Parameters.Add("@endRow", SqlDbType.SmallInt).Value = problemLoanTaxFilter.Row * 500;
+                    cmd.Parameters.Add("@startRow", SqlDbType.SmallInt).Value = (problemLoanTaxFilter.Row - 1) * 500;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = problemLoanTaxFilter.CustomerNumber;
                     cmd.Parameters.Add("@nameFull", SqlDbType.NVarChar).Value = problemLoanTaxFilter.FullName;
                     cmd.Parameters.Add("@loanFullNumber", SqlDbType.Float).Value = problemLoanTaxFilter.LoanFullNumber;

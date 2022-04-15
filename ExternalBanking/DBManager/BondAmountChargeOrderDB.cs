@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 
 namespace ExternalBanking.DBManager
@@ -34,7 +32,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@bond_id", SqlDbType.Float).Value = order.Bond.ID;
                     cmd.Parameters.Add("@charge_date", SqlDbType.SmallDateTime).Value = order.Bond.AmountChargeDate;
                     cmd.Parameters.Add("@charge_time", SqlDbType.Time, 7).Value = order.Bond.AmountChargeTime;
-                    cmd.Parameters.Add("@isCashInTransit", SqlDbType.Bit ).Value = Convert.ToBoolean(order.IsCashInTransit);
+                    cmd.Parameters.Add("@isCashInTransit", SqlDbType.Bit).Value = Convert.ToBoolean(order.IsCashInTransit);
 
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
@@ -42,13 +40,13 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add(param);
 
                     cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output });
-                    
+
                     cmd.ExecuteNonQuery();
 
-                    
+
                     int id = Convert.ToInt32(cmd.Parameters["@id"].Value);
                     byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
-                    
+
 
                     order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                     result.Id = order.Id;
@@ -73,7 +71,6 @@ namespace ExternalBanking.DBManager
 
         internal static bool ExistsNotConfirmedBondAmountChargeOrder(ulong customerNumber, byte subType, int bondId)
         {
-            ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ExternalBanking
 {
@@ -12,8 +8,8 @@ namespace ExternalBanking
         public string FullName { get; set; }
         public ulong CustomerNumber { get; set; }
         public int? CustomerType { get; set; }
-        
-        public string SendDate { get; set; }       
+
+        public string SendDate { get; set; }
 
         public int SetNumber { get; set; }
 

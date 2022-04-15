@@ -1,10 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 using System.Linq;
-using ExternalBanking.ACBAServiceReference;
 namespace ExternalBanking.DBManager
 {
     class TransferDB
@@ -1103,7 +1103,10 @@ namespace ExternalBanking.DBManager
                     {
                         str += " and  UETR = '" + filter.UETR + "'";
                     }
-
+                    if (filter.TransferSource == 1)
+                    {
+                        str += " and Add_tbl_name = 'Tbl_problem_loan_taxes'";
+                    }
                     cmd.CommandText = "sp_get_transfer_list";
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@bank_code", SqlDbType.Int).Value = user.filialCode;
@@ -1311,7 +1314,7 @@ namespace ExternalBanking.DBManager
         {
 
             DataTable dt = new DataTable();
-    
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
@@ -1364,7 +1367,7 @@ namespace ExternalBanking.DBManager
         internal static void UpdateTransferAfterARUSRequest(ulong id, string URN)
         {
 
-           using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString());
             conn.Open();
 
             string str = @"UPDATE Tbl_bank_mail_in_reestr 

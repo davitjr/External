@@ -1,16 +1,13 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 
 namespace ExternalBanking.XBManagement
 {
     public class PhoneBankingContractOrder : Order
-    {      
+    {
         /// <summary>
         /// Պայմանագրի համար
         /// </summary>
@@ -40,7 +37,7 @@ namespace ExternalBanking.XBManagement
         /// <summary>
         /// Օրական սահմանաչափ (փոխանցում այլ հաճախորդի հաշվին)
         /// </summary>
-        public double DayLimitToAnothersAccount { get; set; }   
+        public double DayLimitToAnothersAccount { get; set; }
 
         /// <summary>
         /// Հարցերի պատասխանների ցուցակ
@@ -65,7 +62,7 @@ namespace ExternalBanking.XBManagement
 
         public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
-           
+
             this.Complete();
             ActionResult result = this.Validate();
 
@@ -79,7 +76,7 @@ namespace ExternalBanking.XBManagement
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PhoneBankingContractOrderDB.Save(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

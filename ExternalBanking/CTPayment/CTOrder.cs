@@ -1,9 +1,4 @@
-﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ExternalBanking
 {
@@ -56,7 +51,7 @@ namespace ExternalBanking
                 ACBAServiceReference.User user = new ACBAServiceReference.User();
                 user.userID = 88;
                 result = base.Confirm(user);
-            } 
+            }
 
             return result;
         }

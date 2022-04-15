@@ -1,17 +1,13 @@
-﻿using NLog;
+﻿using ExternalBanking;
+using ExternalBanking.ServiceClient;
+using ExternalBankingService.AOService;
+using ExternalBankingService.Interfaces;
+using NLog;
+using NLog.Targets;
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-using ExternalBanking;
-using ExternalBankingService.Interfaces;
-using xbs = ExternalBanking.ACBAServiceReference;
-using infsec = ExternalBankingService.InfSecServiceReference;
-using ExternalBankingService.AOService;
-using ExternalBanking.XBManagement;
 using System.Web.Configuration;
-using NLog.Targets;
-using System.Data;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBankingService
 {
@@ -55,32 +51,32 @@ namespace ExternalBankingService
                 bool isOK = false;
                 if (authorizedCustomerSessionID != "")
                 {
-                        AcbaOnlineUserData customerData = null;
+                    AcbaOnlineUserData customerData = null;
 
-                        Use(client =>
-                        {
-                            customerData = client.CheckAuthorization(authorizedCustomerSessionID, language);
-                        });
+                    Use(client =>
+                    {
+                        customerData = client.CheckAuthorization(authorizedCustomerSessionID, language);
+                    });
 
-                        if (customerData != null && customerData.AuthorizationResult != null && customerData.AuthorizationResult.IsAuthorized)
-                        {
-                            AuthorizedCustomer = new AuthorizedCustomer();
-                            AuthorizedCustomer.ApprovementScheme = Convert.ToInt16(customerData.ApprovementScheme);
-                            AuthorizedCustomer.BranchCode = customerData.BranchCode;
-                            AuthorizedCustomer.CustomerNumber = Convert.ToUInt64(customerData.CustomerNumber);
-                            AuthorizedCustomer.DailyTransactionsLimit = customerData.DailyTransactionsLimit;
-                            AuthorizedCustomer.FullName = customerData.FullName;
-                            AuthorizedCustomer.OneTransactionLimit = customerData.OneTransactionLimit;
-                            AuthorizedCustomer.Permission = customerData.Permission;
-                            AuthorizedCustomer.SecondConfirm = customerData.SecondConfirm;
-                            AuthorizedCustomer.SessionID = customerData.SessionID;
-                            AuthorizedCustomer.TypeOfClient = customerData.TypeOfClient;
-                            AuthorizedCustomer.UserName = customerData.UserName;
+                    if (customerData != null && customerData.AuthorizationResult != null && customerData.AuthorizationResult.IsAuthorized)
+                    {
+                        AuthorizedCustomer = new AuthorizedCustomer();
+                        AuthorizedCustomer.ApprovementScheme = Convert.ToInt16(customerData.ApprovementScheme);
+                        AuthorizedCustomer.BranchCode = customerData.BranchCode;
+                        AuthorizedCustomer.CustomerNumber = Convert.ToUInt64(customerData.CustomerNumber);
+                        AuthorizedCustomer.DailyTransactionsLimit = customerData.DailyTransactionsLimit;
+                        AuthorizedCustomer.FullName = customerData.FullName;
+                        AuthorizedCustomer.OneTransactionLimit = customerData.OneTransactionLimit;
+                        AuthorizedCustomer.Permission = customerData.Permission;
+                        AuthorizedCustomer.SecondConfirm = customerData.SecondConfirm;
+                        AuthorizedCustomer.SessionID = customerData.SessionID;
+                        AuthorizedCustomer.TypeOfClient = customerData.TypeOfClient;
+                        AuthorizedCustomer.UserName = customerData.UserName;
 
-                            isOK = true;
-                        }
+                        isOK = true;
+                    }
                 }
-               
+
 
                 if (source == SourceType.Bank)
                 {
@@ -273,7 +269,7 @@ namespace ExternalBankingService
             }
 
         }
-        
+
         public string GetTerm(short id, string[] param, Languages language)
         {
             try
@@ -397,7 +393,7 @@ namespace ExternalBankingService
             {
                 XBService service = new XBService(ClientIp, Language, AuthorizedCustomer, User, Source);
                 List<int> list = new List<int>();
-                List<Order> orders= service.GetConfirmRequiredOrders(userName, subTypeId, startDate, endDate, langId, receiverName, account, period, groups, quality);
+                List<Order> orders = service.GetConfirmRequiredOrders(userName, subTypeId, startDate, endDate, langId, receiverName, account, period, groups, quality);
                 orders.ForEach(m =>
                 {
                     list.Add((int)m.Id);
@@ -601,7 +597,7 @@ namespace ExternalBankingService
             }
         }
 
-  
+
 
         public List<OrderHistory> GetOrderHistory(long orderId)
         {
@@ -735,7 +731,7 @@ namespace ExternalBankingService
 
 
 
-        public string GetInternationalTransferSentTime (int docId)
+        public string GetInternationalTransferSentTime(int docId)
         {
             try
             {
@@ -822,7 +818,7 @@ namespace ExternalBankingService
         {
             try
             {
-                return CommunalDetails.SearchFullCommunalGasOnline(abonentNumber,branchCode, num);
+                return CommunalDetails.SearchFullCommunalGasOnline(abonentNumber, branchCode, num);
             }
             catch (Exception ex)
             {
@@ -868,18 +864,18 @@ namespace ExternalBankingService
                 success = true;
             }
 
-            catch (FaultException ex)
+            catch (FaultException)
 
             {
                 ((IClientChannel)client).Close();
 
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
                 throw;

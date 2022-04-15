@@ -1,11 +1,7 @@
-﻿using ExternalBanking.DBManager;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
@@ -43,7 +39,7 @@ namespace ExternalBanking
                 return result;
             }
 
-            Action action = this.Id == 0 ? Action.Add : Action.Update; 
+            Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {

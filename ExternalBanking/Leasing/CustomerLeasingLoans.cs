@@ -7,7 +7,7 @@ namespace ExternalBanking.Leasing
         /// <summary>
         /// Պրոդուկտի ունիկալ համար
         /// </summary>
-        public long ProductId { get; set; }
+        public ulong ProductId { get; set; }
 
         /// <summary>
         /// Լիզինգի տեսակ
@@ -25,6 +25,11 @@ namespace ExternalBanking.Leasing
         public double CurrentCapital { get; set; }
 
         /// <summary>
+        /// Մնացորդ ՀՀ դրամ
+        /// </summary>
+        public double CurrentCapitalAMD { get; set; }
+
+        /// <summary>
         /// Արժույթ
         /// </summary>
         public string Currency { get; set; }
@@ -37,7 +42,7 @@ namespace ExternalBanking.Leasing
         /// <summary>
         /// Վերջ
         /// </summary>
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         /// <summary>
         /// Հերթական վճարում
@@ -48,5 +53,30 @@ namespace ExternalBanking.Leasing
         /// Հերթական վճարման ամսաթիվ
         /// </summary>
         public DateTime? NextRepaymentDate { get; set; }
+
+        /// <summary>
+        /// Վարկային կոդ
+        /// </summary>
+        public string CreditCode { get; set; }
+
+        /// <summary>
+        /// Լիզինգի ընթացիկ հաշիվ
+        /// </summary>
+        public ulong LoanFullNumber { get; set; }
+
+        /// <summary>
+        /// Կարգավիճակ
+        /// </summary>
+        public byte Quality { get; set; }
+
+        /// <summary>
+        /// Կարգավիճակի նկարագրություն
+        /// </summary>
+        public string QualityDescription { get; set; }
+
+        /// <summary>
+        /// Պայմանագրի համար
+        /// </summary>
+        public string GeneralNumber { get; set; }
     }
 }

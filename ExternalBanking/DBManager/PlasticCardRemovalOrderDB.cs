@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -79,29 +75,42 @@ namespace ExternalBanking.DBManager
 
             return result;
         }
-        internal static PlasticCardSentToArcaStatus PlasticCardSentToArca(long productId)
+
+        internal static PlasticCardSentToArcaStatus PlasticCardSentToArca(long productId, CardChangeType cardChangeTYpe)
         {
-            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());
-            using SqlCommand cmd = new SqlCommand();
-            conn.Open();
-            cmd.Connection = conn;
-            cmd.CommandText = @"SELECT ISNULL(fileID, 0) fileID
-                                        FROM  Tbl_ArcaRequestHeaders                                        
-                                        WHERE appId = @appId and commandType in (1, 2, 4)";
-            cmd.CommandType = CommandType.Text;
-
-            cmd.Parameters.Add("@appId", SqlDbType.BigInt).Value = productId;
-
-            using SqlDataReader rd = cmd.ExecuteReader();
-
-            if (rd.Read())
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                return int.Parse(rd["fileID"].ToString()) == 0 ? PlasticCardSentToArcaStatus.NoFiles : PlasticCardSentToArcaStatus.SentToArca;
+                string sql;
+                sql = @"SELECT ISNULL(fileID, 0) fileID
+                                        FROM  Tbl_ArcaRequestHeaders                                        
+                                        WHERE appId = @appId ";
+                if (cardChangeTYpe == CardChangeType.New)
+                {
+                    sql += " AND commandType IN (1, 2)";
+                }
+                else if (cardChangeTYpe == CardChangeType.RenewWithNewType || cardChangeTYpe == CardChangeType.RenewWithSameType)
+                {
+                    sql += " AND commandType IN (2, 4)";
+                }
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
+
+                    conn.Open();
+
+                    var temp = cmd.ExecuteScalar();
+
+                    if (temp != null)
+                    {
+                        return Convert.ToInt32(temp) == 0 ? PlasticCardSentToArcaStatus.NoFiles : PlasticCardSentToArcaStatus.SentToArca;
+                    }
+                    else return PlasticCardSentToArcaStatus.NoInfo;
+                }
             }
-            else return PlasticCardSentToArcaStatus.NoInfo;
-
-
         }
+
         internal static bool CheckForArcaFileGenerationProcess()
         {
             using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString());

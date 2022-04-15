@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -50,7 +50,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = LoanProductDataChangeOrderDB.SaveLoanProductDataChangeOrder(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

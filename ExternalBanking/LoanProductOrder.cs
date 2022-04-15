@@ -1,12 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions;
 using System.Data;
-using System.Configuration;
+using System.Linq;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -173,24 +170,28 @@ namespace ExternalBanking
                 {
                     result = LoanProductOrderDB.SaveLoanApplicationQualityChangeOrder(this, userName);
                 }
-                if ((this.Type == OrderType.FastOverdraftApplication || this.Type == OrderType.LoanApplicationAnalysis
-                    || this.Type == OrderType.CancelLoanApplication || this.Type == OrderType.DeleteLoanApplication
-                    || this.Type == OrderType.LoanApplicationConfirmation || this.Type == OrderType.CreditLineSecureDeposit) && action == Action.Add)
-                {
-                    Order.SaveOrderProductId(this.ProductId, this.Id);
-                }
 
-                if (action == Action.Add)
+                if (result.ResultCode != ResultCode.ValidationError)
                 {
-                    base.SaveOrderFee();
-                }
-                else
-                {
-                    base.UpdateOrderFee();
-                }
+                    if ((this.Type == OrderType.FastOverdraftApplication || this.Type == OrderType.LoanApplicationAnalysis
+                        || this.Type == OrderType.CancelLoanApplication || this.Type == OrderType.DeleteLoanApplication
+                        || this.Type == OrderType.LoanApplicationConfirmation || this.Type == OrderType.CreditLineSecureDeposit) && action == Action.Add)
+                    {
+                        Order.SaveOrderProductId(this.ProductId, this.Id);
+                    }
 
-                //**********
-                LogOrderChange(user, action);
+                    if (action == Action.Add)
+                    {
+                        base.SaveOrderFee();
+                    }
+                    else
+                    {
+                        base.UpdateOrderFee();
+                    }
+
+                    //**********
+                    LogOrderChange(user, action);
+                }
                 scope.Complete();
             }
 
@@ -516,9 +517,9 @@ namespace ExternalBanking
                         result.Errors.Add(new ActionError(307, new string[] { (InterestRate * 100).ToString() }));
                     }
                 }
-                if(Type == OrderType.CreditLineSecureDeposit || Type == OrderType.FastOverdraftApplication)
+                if (Type == OrderType.CreditLineSecureDeposit || Type == OrderType.FastOverdraftApplication)
                 {
-                    if (LoanProductOrderDB.IsSecondTime(ProductAccount.AccountNumber,StartDate))
+                    if (LoanProductOrderDB.IsSecondTime(ProductAccount.AccountNumber, StartDate))
                     {
                         result.Errors.Add(new ActionError(1887));
                     }

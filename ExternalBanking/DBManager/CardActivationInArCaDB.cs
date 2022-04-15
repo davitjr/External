@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace ExternalBanking.DBManager
 {
     static class CardActivationInArCaDB
     {
 
-        internal static List<CardActivationInArCa> GetCardActivationInArCaPaymentDetails(string cardNumber, DateTime startDate,DateTime endDate)
+        internal static List<CardActivationInArCa> GetCardActivationInArCaPaymentDetails(string cardNumber, DateTime startDate, DateTime endDate)
         {
 
             List<CardActivationInArCa> list = new List<CardActivationInArCa>();
@@ -82,7 +78,7 @@ namespace ExternalBanking.DBManager
                 {
                     detail.StatusDescription = "ԱրՔա ուղարկման ենթակա";
                 }
-                detail.SendDate= Convert.ToDateTime(row["Date_of_accounting"]);
+                detail.SendDate = Convert.ToDateTime(row["Date_of_accounting"]);
             }
 
             return detail;
@@ -188,12 +184,12 @@ namespace ExternalBanking.DBManager
                 if (row["change_date"] != DBNull.Value)
                 {
                     detail.CardActivationInArCaApigateDetails = new CardActivationInArCaApigateDetails();
-                    detail.CardActivationInArCaApigateDetails.ChangeDate= Convert.ToDateTime(row["change_date"]);
+                    detail.CardActivationInArCaApigateDetails.ChangeDate = Convert.ToDateTime(row["change_date"]);
                     detail.CardActivationInArCaApigateDetails.ResponseCode = row["responseCode"].ToString();
                     detail.Status = Convert.ToUInt16(row["status"]);
                     detail.StatusDescription = Info.GetTypeOfCardPaymentsToArcaDescription(detail.Status);
                 }
-                
+
             }
 
             return detail;
@@ -230,7 +226,7 @@ namespace ExternalBanking.DBManager
                             detail.Status = Convert.ToUInt16(dt.Rows[i]["status"]);
                             if (dt.Rows[i]["responseCode"] != DBNull.Value)
                                 detail.ResponseCode = dt.Rows[i]["responseCode"].ToString();
-                            detail.StatusDescription= Info.GetTypeOfCardPaymentsToArcaDescription(detail.Status);
+                            detail.StatusDescription = Info.GetTypeOfCardPaymentsToArcaDescription(detail.Status);
                             list.Add(detail);
                         }
                     }

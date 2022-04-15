@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.XBS;
+using System.Collections.Generic;
 
 namespace ExternalBankingRESTService
 {
-	public class PeriodicTransfersRequestResponse
+    public class PeriodicTransfersRequestResponse
     {
         public List<PeriodicTransfer> PeriodicTransfers { get; set; }
         public Result Result { get; set; }

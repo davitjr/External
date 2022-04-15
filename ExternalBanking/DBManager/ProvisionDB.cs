@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 
 namespace ExternalBanking.DBManager
@@ -11,13 +10,13 @@ namespace ExternalBanking.DBManager
     class ProvisionDB
     {
 
-        internal static List<Provision> GetProductProvisions(ulong productId,ulong customerNumber)
-        {           
+        internal static List<Provision> GetProductProvisions(ulong productId, ulong customerNumber)
+        {
             List<Provision> provisions = new List<Provision>();
 
             Loan loan = null;
             loan = LoanDB.GetAparikTexumLoan(productId, customerNumber);
-            if (loan!=null)
+            if (loan != null)
             {
                 productId = LoanDB.GetPaidFactoringMainProductId((long)productId);
             }
@@ -29,7 +28,7 @@ namespace ExternalBanking.DBManager
                                                     packet_number, packet_weight, provision_licence_number, property_licence_number, activated_date, matured_date, P.IdPro, LP.activated_set_number, LP.matured_set_number, LP.matured_reason,id_contract
                                                     From Tbl_Link_application_Provision LP Inner join Tbl_provision_of_clients P ON LP.IdPro=P.IdPro Inner join Tbl_type_of_all_provision ON P.[type]=Tbl_type_of_all_provision.[type_id]
                                                     Where LP.app_id=cast(cast(@app_Id as bigint) as nvarchar) and matured_date is null and customer_number=@customerNumber
-                                                    Order by matured_date, currency,out_balance, activated_date",conn))
+                                                    Order by matured_date, currency,out_balance, activated_date", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@app_Id", SqlDbType.Float).Value = productId;
@@ -52,7 +51,7 @@ namespace ExternalBanking.DBManager
                         provisions.Add(provision);
                     }
                 }
-                   
+
             }
             return provisions;
 
@@ -70,7 +69,7 @@ namespace ExternalBanking.DBManager
                 {
                     provision.ProvisionNumber = row["provision_number"].ToString();
                 }
-           
+
                 if (row.Table.Columns.Contains("id_contract") && row["id_contract"] != DBNull.Value)
                 {
                     provision.ContractId = Convert.ToInt32(row["id_contract"].ToString());
@@ -79,7 +78,7 @@ namespace ExternalBanking.DBManager
                 {
                     provision.OutBalance = row["out_balance"].ToString();
                 }
-               
+
                 provision.Currency = row["currency"].ToString();
                 provision.Amount = Convert.ToDouble(row["amount"].ToString());
                 provision.Type = Convert.ToInt16(row["Type"].ToString());
@@ -110,7 +109,7 @@ namespace ExternalBanking.DBManager
                 if (row["matured_date"] != DBNull.Value)
                 {
                     provision.ClosingDate = Convert.ToDateTime(row["matured_date"].ToString());
-                }                
+                }
                 if (row["matured_reason"] != DBNull.Value)
                 {
                     provision.ClosingReason = row["matured_reason"].ToString();
@@ -120,7 +119,7 @@ namespace ExternalBanking.DBManager
                     provision.MoveableIndex = Convert.ToInt16(row["Moveable_index"].ToString());
                 }
 
-                if ( row["pro_description"] != DBNull.Value)
+                if (row["pro_description"] != DBNull.Value)
                 {
                     provision.Description = Utility.ConvertAnsiToUnicode(row["pro_description"].ToString());
                 }
@@ -135,7 +134,7 @@ namespace ExternalBanking.DBManager
                 }
                 if (row.Table.Columns.Contains("status"))
                 {
-                    provision.QualityDescription =row["status"].ToString();
+                    provision.QualityDescription = row["status"].ToString();
                 }
 
                 if (provision.ClosingDate == null)
@@ -149,7 +148,7 @@ namespace ExternalBanking.DBManager
             }
             return provision;
         }
-        internal static List<Provision> GetCustomerProvisions(ulong customerNumber,string currency,ushort type,ushort quality=1)
+        internal static List<Provision> GetCustomerProvisions(ulong customerNumber, string currency, ushort type, ushort quality = 1)
         {
             List<Provision> provisions = new List<Provision>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
@@ -160,9 +159,9 @@ namespace ExternalBanking.DBManager
                                FROM tbl_Provision_Of_Clients PC INNER JOIN Tbl_Link_application_Provision L On     PC.idpro = L.idpro
                                INNER JOIN  Tbl_Provision_Owners PO On PO.IdPro = L.IdPro 
                                INNER JOIN  Tbl_type_of_all_provision TP
-                               ON PC.Type = TP.type_id";                                                   
+                               ON PC.Type = TP.type_id";
                 string whereCondition = " Where L.activated_Date Is Not Null and PO.owner_type in (1,2) And PO.customer_number = @customerNumber";
-                if (currency != null && currency!=string.Empty)
+                if (currency != null && currency != string.Empty)
                 {
                     whereCondition += " AND PC.Currency=@currency";
                 }
@@ -174,7 +173,7 @@ namespace ExternalBanking.DBManager
                 {
                     whereCondition += " AND matured_date is  null ";
                 }
-                else if(quality==2)
+                else if (quality == 2)
                 {
                     whereCondition += " AND matured_date is not  null ";
                 }
@@ -207,7 +206,7 @@ namespace ExternalBanking.DBManager
                         provisions.Add(provision);
                     }
                 }
-                   
+
             }
             return provisions;
         }
@@ -229,7 +228,7 @@ namespace ExternalBanking.DBManager
 							                      on  ll.number = un.quality 
 							                      LEFT JOIN V_CustomerDesription C 
                                                   On C.customer_number = un.customer_number  						 
-                                                  Where un.App_id in (Select App_Id from tbl_Link_application_Provision Where Idpro=@idProvision)",conn))
+                                                  Where un.App_id in (Select App_Id from tbl_Link_application_Provision Where Idpro=@idProvision)", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@idProvision", SqlDbType.Float).Value = idProvision;
@@ -249,7 +248,7 @@ namespace ExternalBanking.DBManager
                         provisonLoans.Add(loan);
                     }
                 }
-                    
+
             }
             return provisonLoans;
         }
@@ -262,12 +261,12 @@ namespace ExternalBanking.DBManager
 
                 if (row["fullName"] != DBNull.Value)
                 {
-                    loan.LoanCustomerDescription =Utility.ConvertAnsiToUnicode(row["fullName"].ToString());
+                    loan.LoanCustomerDescription = Utility.ConvertAnsiToUnicode(row["fullName"].ToString());
                 }
 
                 if (row["quality"] != DBNull.Value)
                 {
-                    loan.LoanQuality =Convert.ToInt16(row["quality"].ToString());
+                    loan.LoanQuality = Convert.ToInt16(row["quality"].ToString());
                 }
 
                 if (row["loan_full_number"] != DBNull.Value)
@@ -300,7 +299,7 @@ namespace ExternalBanking.DBManager
                 }
             }
             return loan;
-            
+
         }
 
         /// <summary>
@@ -338,7 +337,7 @@ namespace ExternalBanking.DBManager
 
         internal static bool HasPropertyProvision(ulong productId)
         {
-            bool result=false;
+            bool result = false;
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using ExternalBanking.DBManager;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -119,7 +118,7 @@ namespace ExternalBanking.DBManager
                     order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
                     order.Type = (OrderType)(dt.Rows[0]["document_type"]);
                     order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
-                    order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);                                       
+                    order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
                     order.GroupId = dt.Rows[0]["order_group_id"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["order_group_id"]) : 0;
@@ -131,7 +130,7 @@ namespace ExternalBanking.DBManager
                     }
                     if (dt.Rows.Count > 0)
                     {
-                       
+
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
                             DataRow row = dt.Rows[i];
@@ -147,6 +146,6 @@ namespace ExternalBanking.DBManager
         }
 
 
-    
-}
+
+    }
 }

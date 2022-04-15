@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Transactions;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -90,6 +89,16 @@ namespace ExternalBanking
         /// </summary>
         public string PoliceCodeDescription { get; set; }
 
+        /// <summary>
+        /// մուտքագրվելու են թվեր և տառեր, առավելագույնը 15 նիշ։
+        /// </summary>
+        public string BadgeNumber { get; set; }
+
+        /// <summary>
+        /// մուտքագրվելու են թվեր և տառեր, առավելագույնը 15 նիշ։
+        /// </summary>
+        public bool IsPoliceInspectorAct { get; set; }
+
         public new void Get()
         {
             BudgetPaymentOrderDB.GetPaymentOrder(this);
@@ -123,6 +132,15 @@ namespace ExternalBanking
         /// <returns></returns>
         public new ActionResult Save(string userName, SourceType source, ACBAServiceReference.User user)
         {
+            if (this.IsPoliceInspectorAct)
+            {
+                this.ReceiverAccount = new Account() { AccountNumber = Constants.POLICE_ACCOUNT_NUMBER_1 };
+                this.ReceiverBankCode = 90001;
+                string date = this.ViolationDate.HasValue ? this.ViolationDate.Value.ToString("dd/MM/yyyy") : string.Empty;
+                this.Description = "կրծքանշանի համար՝ " + this.BadgeNumber + ", որոշում` " + this.ViolationID + " " + date;
+                this.Receiver = "Կենտրոնական գանձապետարան";
+                this.LTACode = 99;
+            }
 
             base.Complete();
 
@@ -131,7 +149,7 @@ namespace ExternalBanking
                 this.SubType = 5;
             }
 
-            if (this.Exaction == true)
+            if (this.Exaction)
             {
                 this.TransferFee = 0;
                 this.CardFee = 0;
@@ -291,7 +309,7 @@ namespace ExternalBanking
                 }
 
 
-                if (this.Currency != "AMD" && this.UrgentSign == true)
+                if (this.Currency != "AMD" && this.UrgentSign)
                 {//Շտապ փոխանցումներ իրականացնել հնարավոր է միայն ՀՀ դրամով
 
                     result.Errors.Add(new ActionError(503));
@@ -514,7 +532,7 @@ namespace ExternalBanking
                         result.Errors.Add(new ActionError(402));
                     }
                 }
-                else if (this.CreditorStatus == 20 || ForThirdPerson == true)
+                else if (this.CreditorStatus == 20 || ForThirdPerson)
                 {
                     if (String.IsNullOrEmpty(this.CreditorDocumentNumber))
                     {//§Պարտատիրոջ անձնագիրը¦ դաշտը լրացված չէ
@@ -540,7 +558,7 @@ namespace ExternalBanking
             }
 
 
-            if (this.DebitAccount.AccountType == 115 && this.Exaction != true)
+            if (this.DebitAccount.AccountType == 115 && !this.Exaction)
             {
 
                 //ԴԱՀԿ արգելանքի տակ գտնվող քարտի տարանցիկ հաշիվից փոխանցում հնարավոր է կատարել միայն բռնագանձման համար
@@ -603,8 +621,6 @@ namespace ExternalBanking
                 {
                     var customer = (ACBAServiceReference.PhysicalCustomer)ACBAOperationService.GetCustomer(this.CustomerNumber);
 
-                    List<CustomerDocument> customerDocuments = (customer as PhysicalCustomer).person.documentList;
-
                     if (customer.residence.key == 1)
                     {
                         if (customer.person.documentList.Exists(cd => cd.documentType.key == 56))
@@ -650,6 +666,100 @@ namespace ExternalBanking
 
         }
 
+        /// <summary>
+        /// հանձնարարականի ուղղարկում
+        /// </summary>
+        /// <param name="userName">Օգտագործողի անուն (Հաճախորդ)</param>
+        /// <param name="source">Տվյալների աղբյուր(HB, Հայկական Ծրագրեր, Մոբայլ Բանկ)</param>
+        /// <param name="user">Օգտագործող</param>
+        /// <param name="schemaType"></param>
+        /// <returns></returns>
+        public new ActionResult Approve(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
+        {
+            this.ForPoliceTransferWithoutRequest();
+
+            ActionResult result = this.ValidateForSend(user);
+
+            //ԴԱՀԿ արգելանքի տակ գտնվող քարտի տարանցիկ հաշիվներից ելքի ժամանակ երբ ընտրված է բռնագանձումը
+            //հեռացնում ենք հաճախորդի պարտավորությունները
+            if (this.DebitAccount.AccountType == 115 && this.Exaction)
+            {
+                result.Errors.RemoveAll(m => m.Code == 744);
+                result.Errors.RemoveAll(m => m.Code == 745);
+            }
+
+            List<ActionError> warnings = new List<ActionError>();
+
+            if (result.Errors.Count > 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+
+            if (result.Errors.Count > 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+
+            Action action = this.Id == 0 ? Action.Add : Action.Update;
+
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            {
+                if (this.OPPerson != null)
+                {
+                    result = base.SaveOrderOPPerson();
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
+                result = base.SaveOrderAttachments();
+
+                if (result.ResultCode != ResultCode.Normal)
+                {
+                    return result;
+                }
+
+                LogOrderChange(user, action);
+
+                result = base.Approve(schemaType, userName);
+
+                if (result.ResultCode == ResultCode.Normal)
+                {
+                    warnings.AddRange(base.GetActionResultWarnings(result));
+
+                    this.Quality = OrderQuality.Sent3;
+                    base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
+                    base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
+                    LogOrderChange(user, Action.Update);
+                    scope.Complete();
+                }
+            }
+
+            result = base.Confirm(user);
+
+            try
+            {
+                warnings.AddRange(base.GetActionResultWarnings(result));
+
+                //Կանխիկ գործարքների դեպքում ստուգում է սպասարկողի դրամարկղում կանխիկի սահմանաչափը 
+                if (result.ResultCode == ResultCode.Normal && this.Type == OrderType.CashForRATransfer)
+                {
+                    warnings.AddRange(user.CheckForNextCashOperation(this));
+                }
+            }
+            catch
+            {
+
+            }
+
+            result.Errors = warnings;
+
+            return result;
+        }
+
 
         /// <summary>
         /// Վճարման հանձնարարականի պահպանում և ուղղարկում
@@ -667,7 +777,7 @@ namespace ExternalBanking
             {
                 this.SubType = 5;
             }
-            if (this.Exaction == true)
+            if (this.Exaction)
             {
                 this.TransferFee = 0;
                 this.CardFee = 0;
@@ -779,9 +889,9 @@ namespace ExternalBanking
             return result;
         }
 
-        public static int GetPoliceResponseDetailsIDWithoutRequest(string violationID, DateTime? violationDate, int responseDetailsID = 0)
+        public static int GetPoliceResponseDetailsIDWithoutRequest(string violationID, DateTime? violationDate, string badgeNumber, int responseDetailsID = 0)
         {
-            return BudgetPaymentOrderDB.GetPoliceResponseDetailsIDWithoutRequest(violationID, violationDate, responseDetailsID);
+            return BudgetPaymentOrderDB.GetPoliceResponseDetailsIDWithoutRequest(violationID, violationDate, badgeNumber, responseDetailsID);
         }
 
 
@@ -801,14 +911,14 @@ namespace ExternalBanking
                     if (violationResponse.ResponseId == -1)
                     {
                         this.SubType = 5;
-                        this.PoliceResponseDetailsId = Convert.ToInt64(GetPoliceResponseDetailsIDWithoutRequest(this.ViolationID, this.ViolationDate, Convert.ToInt32(this.PoliceResponseDetailsId)));
+                        this.PoliceResponseDetailsId = Convert.ToInt64(GetPoliceResponseDetailsIDWithoutRequest(this.ViolationID, this.ViolationDate, this.BadgeNumber, Convert.ToInt32(this.PoliceResponseDetailsId)));
                     }
 
                 }
             }
             else if (this.ReceiverAccount.AccountNumber == Constants.POLICE_ACCOUNT_NUMBER || this.ReceiverAccount.AccountNumber == Constants.POLICE_ACCOUNT_NUMBER_1)
             {
-                this.PoliceResponseDetailsId = Convert.ToInt64(GetPoliceResponseDetailsIDWithoutRequest(this.ViolationID, this.ViolationDate));
+                this.PoliceResponseDetailsId = Convert.ToInt64(GetPoliceResponseDetailsIDWithoutRequest(this.ViolationID, this.ViolationDate, this.BadgeNumber));
             }
 
 
@@ -816,7 +926,7 @@ namespace ExternalBanking
 
         public static string GetOrderViolationID(long policeResponseId)
         {
-            return BudgetPaymentOrderDB.GetOrderViolationId(policeResponseId);
+            return Utility.ConvertAnsiToUnicode(BudgetPaymentOrderDB.GetOrderViolationId(policeResponseId));
         }
     }
 

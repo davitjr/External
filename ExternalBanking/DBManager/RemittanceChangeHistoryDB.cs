@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -40,7 +37,7 @@ namespace ExternalBanking.DBManager
                 }
             }
 
-            if(history.Count == 0)
+            if (history.Count == 0)
             {
                 history = null;
             }

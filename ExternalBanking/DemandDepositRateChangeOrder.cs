@@ -1,13 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 
 namespace ExternalBanking
@@ -15,7 +9,7 @@ namespace ExternalBanking
     /// <summary>
     /// Ցպահանջ ավանդի տոկոսադրույքի փոփոխման հայտ
     /// </summary>
-    public class DemandDepositRateChangeOrder:Order
+    public class DemandDepositRateChangeOrder : Order
     {
         /// <summary>
         /// Ցպահանջ ավանդային հաշիվ
@@ -59,14 +53,14 @@ namespace ExternalBanking
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.Rate = this.Rate / 100;
             this.DemandDepositAccount = Account.GetAccount(this.DemandDepositAccount.AccountNumber);
-           
 
-            if (this.TariffGroup==3 || this.TariffGroup==1)
+
+            if (this.TariffGroup == 3 || this.TariffGroup == 1)
             {
                 KeyValuePair<string, DateTime>? document = new KeyValuePair<string, DateTime>();
                 if (this.TariffGroup == 3)
                 {
-                     document = DemandDepositRate.GetDemandDepositRateTariffDocument(1);
+                    document = DemandDepositRate.GetDemandDepositRateTariffDocument(1);
                 }
                 else
                 {
@@ -105,7 +99,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = DemandDepositRateChangeOrderDB.SaveDemandDepositRateChangeOrder(this, userName);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -116,7 +110,7 @@ namespace ExternalBanking
                 }
 
                 result = base.SaveOrderOPPerson();
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

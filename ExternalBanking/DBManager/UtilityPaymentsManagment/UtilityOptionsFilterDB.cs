@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -13,7 +10,7 @@ namespace ExternalBanking.DBManager
     {
         internal static List<UtilityOptions> SearchUtilityOptions(UtilityOptionsFilter searchParams)
         {
-            List<UtilityOptions> utilityOptions =  new List<UtilityOptions>();
+            List<UtilityOptions> utilityOptions = new List<UtilityOptions>();
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["PaymentsConn"].ToString()))
             {
@@ -61,7 +58,7 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.HasRows)
                         {
-                           utilityOptions = new List<UtilityOptions>();
+                            utilityOptions = new List<UtilityOptions>();
                         }
                         while (dr.Read())
                         {

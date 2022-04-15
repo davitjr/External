@@ -1,19 +1,20 @@
 ﻿using ExternalBanking;
+using ExternalBanking.ARUSDataService;
+using ExternalBanking.Leasing;
+using ExternalBanking.PreferredAccounts;
+using ExternalBanking.QrTransfers;
+using ExternalBanking.SecuritiesTrading;
+using ExternalBanking.UtilityPaymentsManagment;
+using ExternalBanking.XBManagement;
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-using xbs = ExternalBanking.ACBAServiceReference;
-using infsec = ExternalBankingService.InfSecServiceReference;
-using ExternalBanking.XBManagement;
 using System.Threading.Tasks;
-using System.Data;
-using ExternalBanking.UtilityPaymentsManagment;
-using ExternalBanking.ARUSDataService;
-using ActionResult = ExternalBanking.ActionResult;
-using ActionError = ExternalBanking.ActionError;
-using ExternalBanking.PreferredAccounts;
-using ExternalBanking.QrTransfers;
 using static ExternalBanking.ReceivedBillSplitRequest;
+using ActionError = ExternalBanking.ActionError;
+using ActionResult = ExternalBanking.ActionResult;
+using infsec = ExternalBankingService.InfSecServiceReference;
+using xbs = ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBankingService.Interfaces
 {
@@ -87,7 +88,9 @@ namespace ExternalBankingService.Interfaces
     [ServiceKnownType(typeof(RenewedCardAccountRegOrder))]
     [ServiceKnownType(typeof(VisaAliasOrder))]
     [ServiceKnownType(typeof(ConsumeLoanApplicationOrder))]
+    [ServiceKnownType(typeof(NewPosLocationOrder))]
 
+    
     public interface IXBService
     {
 
@@ -3331,8 +3334,10 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         DeleteLoanOrderDetails GetLoanDeleteOrderDetails(uint orderId);
+
         [OperationContract]
         ActionResult RemoveAccountOrder(AccountRemovingOrder order);
+
         [OperationContract]
         ActionResult SaveAndApproveAccountRemoving(AccountRemovingOrder order);
 
@@ -3356,6 +3361,7 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         bool GetRightsTransferVisibility(string accountNumber);
+
         [OperationContract]
         bool GetCheckCustomerIsThirdPerson(string accountNumber, ulong customerNumber);
 
@@ -3430,6 +3436,7 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         CardHolderAndCardType GetCardTypeAndCardHolder(string cardNumber);
+
         [OperationContract]
         int GetBondOrderIssueSeria(int bondIssueId);
 
@@ -3471,6 +3478,215 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         BondCertificateDetails GetBondCertificateDetailsByDocId(ulong docId);
+
+        [OperationContract]
+        ActionResult SaveConsumeLoanSettlementOrder(ConsumeLoanSettlementOrder order);
+
+        [OperationContract]
+        ConsumeLoanSettlementOrder GetConsumeLoanSettlementOrder(long ID);
+
+        [OperationContract]
+        ActionResult SaveAndApproveCardlessCashoutCancellationOrder(CardlessCashoutCancellationOrder order);
+
+        [OperationContract]
+        int UpdateCardDesign(ulong productID, int designId);
+
+        [OperationContract]
+        List<Account> GetAllCurrentAccounts();
+
+        [OperationContract]
+        string CheckCreditLineForRenewedCardAccountRegOrder(RenewedCardAccountRegOrder order);
+
+        [OperationContract]
+        ContentResult<string> ApproveConsumeLoanSettlementOrder(ConsumeLoanSettlementOrder order);
+
+        [OperationContract]
+        OrderGroup GetOrderGroup(int id);
+
+        [OperationContract]
+        float GetInterestRateEffective(double startCapital, string currency, DateTime dateOfBeginning, DateTime dateOfNormalEnd, DateTime firstRepaymentDate, float interestRate);
+        [OperationContract]
+        List<KeyValuePair<string, string>> GetLoanGrafikChangeDates(string productId);
+
+        [OperationContract]
+        List<LoanRepaymentGrafik> GetLoanGrafikBeforeChange(string productId, DateTime changeDate);
+
+        [OperationContract]
+        byte[] PrintConsumeLoanSettlement(long docId, ulong customerNumber, bool fromApprove = false);
+
+        [OperationContract]
+        ActionResult SaveVehicleInsuranceOrder(VehicleInsuranceOrder order);
+
+        [OperationContract]
+        ActionResult UpdateVehicleInsuranceOrder(VehicleInsuranceOrder order);
+
+        [OperationContract]
+        Dictionary<string, string> GetConsumeLoanSettlementSchedult(long docId);
+
+        [OperationContract]
+        ActionResult ApproveConsumeLoanSettlementOrderForApproveOrder(ConsumeLoanSettlementOrder order);
+
+        [OperationContract]
+        List<string> CheckPlasticCardRemovalOrder(PlasticCardRemovalOrder order);
+
+        [OperationContract]
+        short GetCardChangeType(long productId);
+
+        [OperationContract]
+        VehicleInsuranceOrder GetVehicleInsuranceOrder(long ID);
+
+        [OperationContract]
+        List<Borrower> GetLoanBorrowers(ulong productId);
+
+        [OperationContract]
+        ActionResult SaveTaxRefundAgreementDetails(ulong customerNumber, ulong productId, byte agreementExistence, int setNumber);
+
+        [OperationContract]
+        List<ChangeDetails> GetTaxRefundAgreementHistory(int agreementId);
+
+        [OperationContract]
+        ActionResult ApproveVehicleInsuranceOrder(VehicleInsuranceOrder vehicleInsuranceOrder);
+
+        [OperationContract]
+        ActionResult ValidateVehicleInusuranceOrderForSending(VehicleInsuranceOrder vehicleInsuranceOrder);
+
+        [OperationContract]
+        ActionResult ApproveSecuritiesTradingOrder(SecuritiesTradingOrder order);
+
+        [OperationContract]
+        ActionResult SaveSecuritiesTradingOrder(SecuritiesTradingOrder order);
+
+        [OperationContract]
+        SecuritiesTradingOrder GetSecuritiesTradingOrder(long ID);
+
+        [OperationContract]
+        ActionResult ApproveBudgetPaymentOrder(BudgetPaymentOrder order);
+
+        [OperationContract]
+        BrokerContractOrder GetBrokerContractOrder(long id);
+
+        [OperationContract]
+        ActionResult InsertASWAContractResponseDetails(long DocId, bool IsCompleted, short TypeOfFunction, string Description);
+
+        [OperationContract]
+        ActionResult SaveAswaSearchResponseDetails(VehicleInsuranceOrder Order);
+
+        [OperationContract]
+        VehicleInsuranceOrder GetAswaSearchResponseDetails(long Id);
+
+        [OperationContract]
+        ActionResult SaveBrokerContractOrder(BrokerContractOrder order);
+
+        [OperationContract]
+        ActionResult ApproveBrokerContractOrder(BrokerContractOrder order);
+
+        [OperationContract]
+        ActionResult SaveAndApproveBrokerContractOrder(BrokerContractOrder order);
+
+        [OperationContract]
+        Dictionary<int, List<SentSecuritiesTradingOrder>> GetSentSecuritiesTradingOrders(SecuritiesTradingFilter filter);
+
+        [OperationContract]
+        ActionResult SaveAndApproveSecuritiesMarketTradingOrder(SecuritiesMarketTradingOrder order);
+
+        [OperationContract]
+        SecuritiesTradingOrder GetSecuritiesTradingOrderById(long docId);
+
+        [OperationContract]
+        List<SecuritiesMarketTradingOrder> GetSecuritiesMarketTradingOrder(long orderId);
+
+        [OperationContract]
+        SecuritiesTradingOrderCancellationOrder GetSecuritiesTradingOrderCancellationOrder(long id);
+
+        [OperationContract]
+        List<SecuritiesTradingOrder> GetSecuritiesTradingOrders(short QualityType, DateTime StartDate, DateTime EndDate);
+
+        [OperationContract]
+        ActionResult SaveAndApproveSecuritiesTradingOrderCancellationOrder(SecuritiesTradingOrderCancellationOrder order);
+
+        [OperationContract]
+        ActionResult ConfirmSecuritiesTradingOrderCancellationOrder(SecuritiesTradingOrderCancellationOrder order);
+
+        [OperationContract]
+        ActionResult ConfirmSecuritiesTradingOrder(SecuritiesTradingOrder order);
+
+        [OperationContract]
+        bool IsACBASecurity(string ISIN);
+
+        [OperationContract]
+        ActionResult RejectSecuritiesTradingOrder(SecuritiesTradingOrder order);
+
+        [OperationContract]
+        ActionResult RejectSecuritiesTradingOrderCancellationOrder(SecuritiesTradingOrderCancellationOrder order);
+
+
+        [OperationContract]
+        List<CustomerLeasingLoans> GetLeasings();
+
+        [OperationContract]
+        LeasingLoanDetails GetLeasing(ulong productId);
+
+        [OperationContract]
+        List<LeasingLoanRepayments> GetLeasingRepayments(ulong productId, byte firstReschedule = 0);
+
+        [OperationContract]
+        List<LeasingLoanStatements> GetLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0);
+
+        [OperationContract]
+        List<LeasingPaymentsType> GetLeasingPaymentsType();
+
+        [OperationContract]
+        List<AdditionalDetails> GetLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0);
+
+        [OperationContract]
+        Account SetLeasingReceiver();
+
+        [OperationContract]
+        string GetLeasingPaymentDescription(short paymentType, short paymentSubType);
+
+        [OperationContract]
+        LeasingLoanRepayments GetLeasingPaymentDetails(ulong productId);
+
+        [OperationContract]
+        List<LeasingOverdueDetail> GetLeasingOverdueDetails(ulong productId);
+
+        [OperationContract]
+        ulong GetManagerCustomerNumber(ulong customerNumber);
+        [OperationContract]
+        List<LeasingInsurance> GetLeasingInsurances(ulong productId);
+
+        [OperationContract]
+        ActionResult SaveAndEditLeasingCredential(LeasingCredential credential);
+
+        [OperationContract]
+        List<LeasingCredential> GetLeasingCredentials(int customerNumber, ProductQualityFilter filter);
+
+        [OperationContract]
+        ActionResult SaveRemovedLeasingCredential(int credentialId);
+
+        [OperationContract]
+        ActionResult SaveClosedLeasingCredential(LeasingCredential credential);
+
+        [OperationContract]
+        Task<BrokerContract> GetBrokerContractProduct(ulong customerNumber);
+
+        [OperationContract]
+        Dictionary<string, string> GetLeasingCustomerCredentials(int customerNumber);
+
+        [OperationContract]
+        List<Bond> GetGovernmentBonds();
+
+        [OperationContract]
+        public void UpdateSecuritiesTradingOrderDeposited(ulong docId);
+
+        [OperationContract]
+        int GetCustomerSentSecuritiesTradingOrdersQuantity(string iSIN);
+
+        [OperationContract]
+        ActionResult SaveAndApproveNewPosLocationOrder(NewPosLocationOrder order);
+      
+        [OperationContract]
+        NewPosLocationOrder NewPosApplicationOrderDetails(long orderId);
 
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Web.Configuration;
 using System.Text.RegularExpressions;
-using System.Configuration;
+using System.Web.Configuration;
 
 
 namespace ExternalBanking.DBManager
@@ -462,7 +460,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-               using SqlCommand cmd = new SqlCommand(@"SELECT count(*) FROM Tbl_HB_documents HB left join Tbl_HB_Operations_by_period OD on OD.docID = HB.doc_ID
+                using SqlCommand cmd = new SqlCommand(@"SELECT count(*) FROM Tbl_HB_documents HB left join Tbl_HB_Operations_by_period OD on OD.docID = HB.doc_ID
                                                    where customer_number = @customer_number  and document_type = 10 and document_subtype = 2 and
                                                    isnull(FindField1,' ' ) = @code 
                                                    and ISNULL(OD.FindField2,'') = case when Transfer_Type < 6 then @branch else ISNULL(OD.FindField2,'') end 

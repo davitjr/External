@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
     class TaxDB
     {
-        internal static Tax GetTax(int claimNumber,int eventNumber)
+        internal static Tax GetTax(int claimNumber, int eventNumber)
         {
             DataTable dt = new DataTable();
             Tax tax = null;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"Select * From Tbl_problem_loan_taxes  Where Claim_Number=@claimNumber And Event_Number=@eventNumber",conn))
+                using (SqlCommand cmd = new SqlCommand(@"Select * From Tbl_problem_loan_taxes  Where Claim_Number=@claimNumber And Event_Number=@eventNumber", conn))
                 {
                     cmd.Parameters.Add("@claimNumber", SqlDbType.Int).Value = claimNumber;
                     cmd.Parameters.Add("@eventNumber", SqlDbType.Int).Value = eventNumber;
@@ -54,7 +53,7 @@ namespace ExternalBanking.DBManager
                             tax.OutLoanDate = Convert.ToDateTime(row["out_loan_date"]);
                     }
                 }
-                  
+
 
             }
             return tax;
@@ -73,7 +72,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd =new SqlCommand(@"Select * from tbl_Problem_loan_calculations Where Claim_number = @claimNumber And Event_number =@eventNumber",conn))
+                using (SqlCommand cmd = new SqlCommand(@"Select * from tbl_Problem_loan_calculations Where Claim_number = @claimNumber And Event_number =@eventNumber", conn))
                 {
                     cmd.Parameters.Add("@claimNumber", SqlDbType.Int).Value = claimNumber;
                     cmd.Parameters.Add("@eventNumber", SqlDbType.Int).Value = eventNumber;
@@ -100,11 +99,11 @@ namespace ExternalBanking.DBManager
                         problemLoanCalculationsDetail.PenaltyRate = Convert.ToDouble(row["penalty_rate"]);
                     }
                 }
-                    
+
             }
 
             return problemLoanCalculationsDetail;
- 
+
         }
 
 
@@ -123,7 +122,7 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
-                    fee =Convert.ToDouble(cmd.ExecuteScalar());
+                    fee = Convert.ToDouble(cmd.ExecuteScalar());
                     return fee;
                 }
             }

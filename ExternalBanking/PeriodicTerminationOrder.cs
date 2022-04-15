@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-   public class PeriodicTerminationOrder:Order
+    public class PeriodicTerminationOrder : Order
     {
         /// <summary>
         /// Դադարեցվող պարբերական փոխանցման ունիկալ համար
@@ -44,7 +40,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result =PeriodicTerminationOrderDB.SavePeriodicTerminationOrder(this, userName, source);
+                result = PeriodicTerminationOrderDB.SavePeriodicTerminationOrder(this, userName, source);
                 LogOrderChange(user, action);
                 scope.Complete();
             }
@@ -180,7 +176,7 @@ namespace ExternalBanking
                 else
                 {
                     base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
-                    
+
                 }
 
                 result = base.SaveOrderOPPerson();
@@ -204,7 +200,7 @@ namespace ExternalBanking
             }
 
             result = base.Confirm(user);
-           
+
 
             return result;
         }

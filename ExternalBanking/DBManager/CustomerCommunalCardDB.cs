@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
@@ -40,17 +37,17 @@ namespace ExternalBanking.DBManager
         {
             CustomerCommunalCard communalcard = new CustomerCommunalCard();
             communalcard.AbonentNumber = row["FindField1"] != DBNull.Value ? string.IsNullOrEmpty(row["FindField1"].ToString()) != true ? row["FindField1"].ToString() : null : null;
-            communalcard.BranchCode = row["FindField2"] != DBNull.Value ? string.IsNullOrEmpty(row["FindField2"].ToString())!=true? row["FindField2"].ToString():null : null;
+            communalcard.BranchCode = row["FindField2"] != DBNull.Value ? string.IsNullOrEmpty(row["FindField2"].ToString()) != true ? row["FindField2"].ToString() : null : null;
             communalcard.AbonentType = (AbonentTypes)Convert.ToUInt16(row["F_J"]);
             communalcard.CommunalType = Convert.ToUInt16(row["Communal_Type"]);
             communalcard.CustomerNumber = Convert.ToUInt64(row["customer_number"]);
             communalcard.EditingDate = row["Editing_Date"] != DBNull.Value ? Convert.ToDateTime(row["Editing_Date"]) : default(DateTime?);
-            communalcard.EditorSetNumber= row["Editor_Set_Number"] != DBNull.Value ? Convert.ToUInt16(row["Editor_Set_Number"]) : (ushort)0;
-            communalcard.Id= Convert.ToUInt64(row["ID"]);
+            communalcard.EditorSetNumber = row["Editor_Set_Number"] != DBNull.Value ? Convert.ToUInt16(row["Editor_Set_Number"]) : (ushort)0;
+            communalcard.Id = Convert.ToUInt64(row["ID"]);
             communalcard.OpenDate = Convert.ToDateTime(row["Open_Date"]);
-            communalcard.OpenerFilialCode= Convert.ToUInt16(row["Opener_FilialCode"]);
-            communalcard.OpenerSetNumber= Convert.ToUInt16(row["Opener_Set_Number"]);
-            communalcard.Quality= Convert.ToUInt16(row["Quality"]);
+            communalcard.OpenerFilialCode = Convert.ToUInt16(row["Opener_FilialCode"]);
+            communalcard.OpenerSetNumber = Convert.ToUInt16(row["Opener_Set_Number"]);
+            communalcard.Quality = Convert.ToUInt16(row["Quality"]);
             return communalcard;
         }
 
@@ -137,7 +134,7 @@ namespace ExternalBanking.DBManager
         internal static bool CheckCustomerCommunalCard(CustomerCommunalCard customerCommunalCard)
         {
             bool result = false;
-           
+
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();

@@ -1,17 +1,14 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Տարանցիկ հաշվին մուտք փոխարկումով
     /// </summary>
-    public class TransitCurrencyExchangeOrder:CurrencyExchangeOrder
+    public class TransitCurrencyExchangeOrder : CurrencyExchangeOrder
     {
         /// <summary>
         /// Հաշվի տեսակ
@@ -60,7 +57,7 @@ namespace ExternalBanking
                 {
                     accType = 279;
                 }
-                account= Account.GetProductAccount(order.ProductId, 18, accType);
+                account = Account.GetProductAccount(order.ProductId, 18, accType);
             }
             else
             {
@@ -98,7 +95,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                if (this.ValidateForCash==true)
+                if (this.ValidateForCash == true)
                 {
                     result = PaymentOrderDB.SaveCash(this, userName, source);
                 }
@@ -113,7 +110,16 @@ namespace ExternalBanking
                 {
                     LeasingDB.SaveLeasingPaymentDetails(this);
                 }
-               
+
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

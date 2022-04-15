@@ -1,9 +1,4 @@
 ﻿using ExternalBanking.SMSMessagingService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.CreditLineActivatorARCA
 {
@@ -12,7 +7,7 @@ namespace ExternalBanking.CreditLineActivatorARCA
         /// <summary>
         /// Հաղորդագրության մշակում և ուղարկում հաճախորդին
         /// </summary>
-        public static ActionError SendMessage(ulong customerNumber, CreditLine creditLine, string cardNumber, bool isActive,int creditLineType)
+        public static ActionError SendMessage(ulong customerNumber, CreditLine creditLine, string cardNumber, bool isActive, int creditLineType)
         {
             var actionError = new ActionError();
             var message = new OneMessage();
@@ -23,15 +18,15 @@ namespace ExternalBanking.CreditLineActivatorARCA
             else
                 creditLineReason = "varkayin gitsy";
             message.PhoneNumber = Customer.GetCustomerPhoneNumber(customerNumber);
-            
 
 
-            if(message.PhoneNumber != null)
+
+            if (message.PhoneNumber != null)
             {
                 message.MessageType = 39;
                 message.CustomerNumber = customerNumber;
                 message.ExternalId = "ExternalBanking";
-                if (isActive == true)
+                if (isActive)
                     message.Message = $"Hargeli hachakhord, Dzer {cardNumberMasked} hamari qartin {creditLine.StartCapital} {creditLine.Currency} {creditLineReason} aktivacel e, 010318888, acba.am";
                 else
                     message.Message = $"Hargeli hachakhord, Dzer {cardNumberMasked} hamari qartin {creditLine.StartCapital} {creditLine.Currency} {creditLineReason} kaktivana aravelaguyny 1 ashkhatanqayin orva yntacqum, 010318888, acba.am";
@@ -55,7 +50,7 @@ namespace ExternalBanking.CreditLineActivatorARCA
                 actionError.Description = "Հաճախորդին sms հաղորդագրություն չի ուղղարկվել";
             }
 
-            
+
             return actionError;
         }
     }

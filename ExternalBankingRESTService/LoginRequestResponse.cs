@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using ExternalBankingRESTService.XBS;
-
-namespace ExternalBankingRESTService
+﻿namespace ExternalBankingRESTService
 {
     public class LoginRequestResponse
     {
@@ -13,7 +7,7 @@ namespace ExternalBankingRESTService
         public int PasswordChangeRequirement { get; set; }
 
         public int UserPermission { get; set; }
-        
+
         public Result Result { get; set; }
 
         public string FullName { get; set; }
@@ -21,7 +15,7 @@ namespace ExternalBankingRESTService
         public string FullNameEnglish { get; set; }
 
         public bool IsLegal { get; set; }
-        
+
         public LoginRequestResponse()
         {
             Result = new Result();

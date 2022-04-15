@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -48,7 +44,6 @@ namespace ExternalBanking
 
             this.Complete();
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {

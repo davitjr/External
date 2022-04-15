@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -23,7 +19,7 @@ namespace ExternalBanking
         /// <summary>
         /// Հաղորդագրության տեսակ
         /// </summary>
-        public int MessageType { get; set;}
+        public int MessageType { get; set; }
         /// <summary>
         ///  Հաղորդագրության տեսակի նկարագրությունը
         /// </summary>

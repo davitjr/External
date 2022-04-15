@@ -1,6 +1,4 @@
-﻿using ExternalBankingRESTService.XBS;
-
-namespace ExternalBankingRESTService
+﻿namespace ExternalBankingRESTService
 {
     public class PaymentOrderFeeRequestResponse
     {

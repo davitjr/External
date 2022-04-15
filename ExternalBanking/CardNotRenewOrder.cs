@@ -12,7 +12,7 @@ namespace ExternalBanking
         /// <summary>
         /// Քարտ
         /// </summary>
-        public Card Card { get; set; }
+        public PlasticCard PlasticCard { get; set; }
 
         /// <summary>
         /// Քարտի չվերաթողարկման պատճառ
@@ -67,7 +67,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result = CardNotRenewOrderDB.Save(this, source, user.userName);
+                result = CardNotRenewOrderDB.Save(this, source);
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -110,14 +110,14 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
 
-            if (!IsNormCardStatus(this.Card.CardNumber, this.Card.ProductId))
+            if (!IsNormCardStatus(this.PlasticCard.CardNumber, this.PlasticCard.ProductId))
             {
                 //Հնարավոր չէ կատարել գործողությունը։ Քարտի կարգավիճակը NORM չէ:
                 result.Errors.Add(new ActionError(1810));
                 return result;
             }
 
-            if (IsCardAlreadyNotRenewed(this.Card.ProductId))
+            if (IsCardAlreadyNotRenewed(this.PlasticCard.ProductId))
             {
                 //Քարտն արդեն չվերաթողարկվել է։
                 result.Errors.Add(new ActionError(1833));
@@ -135,12 +135,12 @@ namespace ExternalBanking
             CardNotRenewOrderDB.GetCardNotRenewOrder(this);
         }
 
-        public static bool IsNormCardStatus(string cardNumber, long productID)
+        public static bool IsNormCardStatus(string cardNumber, ulong productID)
         {
             return CardNotRenewOrderDB.IsNormCardStatus(cardNumber, productID);
         }
 
-        public static bool IsCardAlreadyNotRenewed(long productID)
+        public static bool IsCardAlreadyNotRenewed(ulong productID)
         {
             return CardNotRenewOrderDB.IsCardAlreadyNotRenewed(productID);
         }

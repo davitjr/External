@@ -1,5 +1,5 @@
-﻿using System;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System;
 namespace ExternalBanking
 {
     /// <summary>

@@ -1,12 +1,7 @@
 ﻿using ExternalBanking.XBManagement;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -56,7 +51,7 @@ namespace ExternalBanking.DBManager
 
                 }
             }
-            return result ;
+            return result;
         }
 
         internal static ApprovementSchema GetApprovementSchema(ulong customerNumber)
@@ -103,7 +98,7 @@ namespace ExternalBanking.DBManager
                     return dr.HasRows;
                 }
             }
-            
+
         }
 
         internal static ActionResult RemoveApprovementSchemaDetails(ApprovementSchemaDetails schemaDetails, long orderId)
@@ -138,7 +133,7 @@ namespace ExternalBanking.DBManager
                 }
             }
 
-         
+
             return result;
         }
     }

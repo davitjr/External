@@ -1,16 +1,12 @@
 
+using ExternalBanking.ACBAServiceReference;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Web.Configuration;
-using ExternalBanking.ACBAServiceReference;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
 
 namespace ExternalBanking.DBManager
 {
@@ -190,7 +186,8 @@ namespace ExternalBanking.DBManager
                     }
                     else
                     {   //Եթե կատարվում է որոնում <Ոչ հաճախորդի սպասարկում> բաժնից, ապա միայն բանկում կատարված գործարքներ
-                        sql += " and source_type in (2,6,8) ";
+                        if (searchParams.Type != OrderType.CardLessCashOrder)
+                            sql += " and source_type in (2,6,8) ";
                     }
 
                     if (searchParams.Amount != 0)
@@ -476,7 +473,7 @@ namespace ExternalBanking.DBManager
             using (conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 if ((order.Source != SourceType.Bank && order.Source != SourceType.SSTerminal && order.Source != SourceType.EContract && order.Source != SourceType.STAK
-                    && order.Source != SourceType.SberBankTransfer) && order.Source != SourceType.CashInTerminal
+                    && order.Source != SourceType.SberBankTransfer) && order.Source != SourceType.CashInTerminal && order.Source != SourceType.AcbaMat
                     && order.Type != OrderType.ReceivedFastTransferPaymentOrder && order.Type != OrderType.CredentialOrder && order.Type != OrderType.PlasticCardOrder
                      && order.Type != OrderType.HBApplicationUpdateOrder && order.Type != OrderType.HBApplicationOrder && order.Type != OrderType.HBApplicationRestoreOrder
                      && order.Type != OrderType.HBActivation && order.Type != OrderType.HBApplicationTerminationOrder
@@ -484,7 +481,8 @@ namespace ExternalBanking.DBManager
                      && order.Type != OrderType.SberBankTransferOrder && order.Type != OrderType.BillSplitReminder && order.Type != OrderType.BillSplitSenderRejection && order.Type != OrderType.LinkTransferPaymentConfirmation
                      && order.Type != OrderType.DepositaryAccountOrder && order.Type != OrderType.CurrentAccountOpen && order.Type != OrderType.BondRegistrationOrder
                      && order.Type != OrderType.VisaAlias && !(confirmationSourceType == ConfirmationSourceType.FromACBADigital && order.Type == OrderType.CancelTransaction)
-                     && order.Type != OrderType.DepositaryAccountOpeningOrder)
+                     && order.Type != OrderType.DepositaryAccountOpeningOrder && order.Type != OrderType.CardlessCashoutCancellationOrder
+                     && order.Type != OrderType.BrokerContractOrder && order.Type != OrderType.SecuritiesTradingOrderCancellationOrder && order.Type != OrderType.SecuritiesBuyOrder && order.Type != OrderType.SecuritiesSellOrder && order.Type != OrderType.NewPosTerminalInsertOrder)  
                 {
 
                     using (SqlCommand cmd = new SqlCommand())
@@ -2276,7 +2274,7 @@ namespace ExternalBanking.DBManager
 
                     if (orderListFilter.GroupId > 0)
                     {
-                        groupIdFilter = " and order_group_id = @group_id";
+                        groupIdFilter = " and order_group_id = @group_id and quality <> 1";
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = orderListFilter.GroupId;
                     }
 
@@ -2376,7 +2374,7 @@ namespace ExternalBanking.DBManager
                                                        debet_account
 								                       FROM TBl_HB_documents 
                                                       WHERE doc_ID IN
-                        (select  H.doc_ID from Tbl_HB_documents H " + abonentNumberJoin + abonentNumberStr + receiverCardNumberJoin + receiverCardNumberStr + " WHERE H.quality <> 40 AND H.document_type NOT IN (132, 137, 69, 135, 116, 138, 191) AND H.customer_number=@customer_number " + groupIdFilter + receiverNameStr + dateStr + accountStr + sourceStr + qualityStr + orderTypeStr + receiverCardNumberStr + " ) order by doc_id desc";
+                        (select  H.doc_ID from Tbl_HB_documents H " + abonentNumberJoin + abonentNumberStr + receiverCardNumberJoin + receiverCardNumberStr + " WHERE H.quality <> 40 AND H.document_type NOT IN (132, 137, 69, 135, 116, 138, 191, 245) AND H.customer_number=@customer_number " + groupIdFilter + receiverNameStr + dateStr + accountStr + sourceStr + qualityStr + orderTypeStr + receiverCardNumberStr + "  and not (H.document_type = 259 and H.quality not in (3, 30, 20, 31)) ) order by doc_id desc";
                     cmd.CommandText = sqlString;
 
 
@@ -2412,7 +2410,7 @@ namespace ExternalBanking.DBManager
                     {
                         List<Order> cardToOtherCard = orders.Where(order => order.Type == OrderType.CardToOtherCardsOrder).ToList();
                         Dictionary<long, string> cards = GetCardToCardSenderCardNumber(cardToOtherCard.Select(a => a.Id));
-                        foreach (Order order in orders)
+                        foreach (Order order in cardToOtherCard)
                         {
                             order.DebitAccount.IsAttachedCard = true;
                             order.DebitAccount.AccountNumber = cards.ContainsKey(order.Id) ? cards[order.Id] : "-";
@@ -3068,6 +3066,32 @@ namespace ExternalBanking.DBManager
                 }
             }
             return AttachedCards;
+        }
+
+        /// <summary>
+        /// Ստուգում է՝ արդյոք տվյալ հաշվեհամարի դեպքում ՀՀ տարածքում փոխանցման միջնորդավճար սահմանված է, թե ոչ
+        /// </summary>
+        /// <param name="accountNumber"></param>
+        /// <returns></returns>
+        public static bool CheckAccountForNonFee(string accountNumber)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                string sqltext = "SELECT dbo.fn_check_account_for_non_fee(@account_number)";
+
+                using (SqlCommand cmd = new SqlCommand(sqltext, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@account_number", SqlDbType.NVarChar, 50).Value = accountNumber;
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                            return Convert.ToBoolean(dr[0]);
+                        else return false;
+                    }
+                }
+            }
         }
 
     }

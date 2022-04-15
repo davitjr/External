@@ -1,10 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
-using System.Linq;
 
 namespace ExternalBanking
 {
@@ -24,7 +21,7 @@ namespace ExternalBanking
         public string AccountAbility77B { get; set; }
 
 
-     
+
         public string UIP { get; set; }  //   8084
 
 
@@ -243,7 +240,7 @@ namespace ExternalBanking
                         }
 
                     }
-                   
+
 
                     if (string.IsNullOrEmpty(this.Transfer.VOCode) && this.Transfer.MT == "103")
                     {
@@ -303,7 +300,7 @@ namespace ExternalBanking
                 }
             }
 
-           
+
 
             if (!string.IsNullOrEmpty(this.TransactionType26))
             {
@@ -315,13 +312,13 @@ namespace ExternalBanking
 
             if (!string.IsNullOrEmpty(this.AccountAbility77B))
             {
-                if(this.AccountAbility77B.Length > 120)
+                if (this.AccountAbility77B.Length > 120)
                 {
                     result.Add(new ActionError(955, new string[] { "Հաշվետվողականության կոդ 77В դաշտը չպետք է լինի ավելին քան 120 նիշ։" }));
                 }
-    
+
             }
-           
+
             return result;
         }
     }

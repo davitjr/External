@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -127,7 +124,7 @@ namespace ExternalBanking
             {
                 if (creditCommitmentForgiveness.CurrentCapital != 0)
                 {
-                    creditCommitmentForgiveness.Tax = CreditCommitmentForgivenessOrderDB.GetTax(creditCommitmentForgiveness.CustomerNumber, creditCommitmentForgiveness.CurrentCapital, creditCommitmentForgiveness.RebateType,creditCommitmentForgiveness.Currency);
+                    creditCommitmentForgiveness.Tax = CreditCommitmentForgivenessOrderDB.GetTax(creditCommitmentForgiveness.CustomerNumber, creditCommitmentForgiveness.CurrentCapital, creditCommitmentForgiveness.RebateType, creditCommitmentForgiveness.Currency);
                 }
                 else
                 {
@@ -135,7 +132,7 @@ namespace ExternalBanking
                 }
 
                 result = CreditCommitmentForgivenessOrderDB.SaveForgivableLoanCommitment(creditCommitmentForgiveness, userName);
-               
+
                 result = base.SaveOrderOPPerson();
                 this.SaveOrderAttachments();
 
@@ -147,7 +144,7 @@ namespace ExternalBanking
                 {
                     base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
                 }
-                
+
                 LogOrderChange(user, action);
 
                 //creditCommitmentForgiveness.user = user;
@@ -186,13 +183,13 @@ namespace ExternalBanking
         /// Գումարի ստուգում
         /// </summary>
         /// <returns></returns>
-        public  ActionResult Validate()
+        public ActionResult Validate()
         {
             ActionResult result = new ActionResult();
             result.Errors.AddRange(Validation.ValidateCreditCommitmentForgivenes(this));
             return result;
 
-         
+
         }
 
 
@@ -209,7 +206,7 @@ namespace ExternalBanking
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
-            
+
         }
 
         public static List<ActionError> ValidateCreditCommitmentForgivenes(CreditCommitmentForgivenessOrder creditCommitmentForgiveness)
@@ -217,7 +214,7 @@ namespace ExternalBanking
             return CreditCommitmentForgivenessOrderDB.ValidateCreditCommitmentForgivenes(creditCommitmentForgiveness);
         }
 
-        public static double GetTax(ulong customerNumber, double? capital, string RebetType,string currency)
+        public static double GetTax(ulong customerNumber, double? capital, string RebetType, string currency)
         {
             return CreditCommitmentForgivenessOrderDB.GetTax(customerNumber, capital, RebetType, currency);
 

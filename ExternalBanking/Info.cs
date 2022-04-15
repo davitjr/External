@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using System.Data;
+using System;
 using System.Collections.Generic;
-using ExternalBanking.ACBAServiceReference;
+using System.Data;
 using System.Linq;
 
 namespace ExternalBanking
@@ -4612,6 +4612,18 @@ namespace ExternalBanking
             return InfoDB.GetCardOfficeTypesForIBanking(cardType, periodicityType);
         }
 
+        /// <summary>
+        /// Վերադարձնում է աշխատավարձային ծրագրի համարը տվյալ պահին առկա մարքեթինքային արշավից կախված
+        /// </summary>
+        /// <param name="cardType">Քարտի տեսակ</param>
+        /// <param name="registrationDate">Հայտի մուտքագրման ամսաթիվ</param>
+        /// <param name="customerNumber">Հաճախորդի համար</param>
+        /// <returns></returns>
+        public static int? GetCardOfficeTypesForMarketingCampaign(ushort cardType, DateTime registrationDate, ulong customerNumber)
+        {
+            return InfoDB.GetCardOfficeTypesForMarketingCampaign(cardType, registrationDate, customerNumber);
+        }
+
         public static double GetCardServiceFee(int cardType, int officeId, string currency)
         {
             return InfoDB.GetCardServiceFee(cardType, officeId, currency);
@@ -5339,9 +5351,9 @@ namespace ExternalBanking
         /// Դիջիթալից մուտքագրվող հօգուտ 3-րդ անձի ավանդի համար վերադարձնում է հասանելի արժույթները։
         /// </summary>
         /// <returns></returns>
-        public static DataTable GetJointDepositAvailableCurrency(ulong customerNumber)
+        public static DataTable GetJointDepositAvailableCurrency(ulong customerNumber, ulong thirdPersonCustomerNumber)
         {
-            DataTable dt = InfoDB.GetJointDepositAvailableCurrency(customerNumber);
+            DataTable dt = InfoDB.GetJointDepositAvailableCurrency(customerNumber, thirdPersonCustomerNumber);
             return dt;
         }
 
@@ -5380,6 +5392,163 @@ namespace ExternalBanking
             return dt;
         }
 
+        /// <summary>
+        /// Վերադարձնում է գործարքի տեսակները ըստ Ֆինանսական անվտանգության բաժնի
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetTransactionTypes()
+        {
+            string cacheKey = "Info_TransactionTypes";
+
+            DataTable dt = CacheHelper.Get(cacheKey);
+
+            if (dt == null)
+            {
+                dt = InfoDB.GetTransactionTypes();
+                CacheHelper.Add(dt, cacheKey);
+            }
+            return dt;
+        }
+
+        public static int GetBannerVersion() => InfoDB.GetBannerVersion();
+
+        /// <summary>
+        /// Վերադարձնում է արժեթղթերի տեսակները
+        /// </summary>
+        /// <returns></returns>
+        public static List<KeyValuePair<short, string>> GetSecuritiesTypes(Languages language)
+        {
+            string cacheKey = "Info_SecuritiesTypes_" + language.ToString();
+            DataTable dt = CacheHelper.Get(cacheKey);
+            if (dt == null)
+            {
+                dt = InfoDB.GetSecuritiesTypes();
+                CacheHelper.Add(dt, cacheKey);
+            }
+
+            List<KeyValuePair<short, string>> utilityTypes = new List<KeyValuePair<short, string>>();
+            if (language == Languages.hy)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string description = Utility.ConvertAnsiToUnicode(dt.Rows[i]["description_arm"].ToString());
+                    utilityTypes.Add(new KeyValuePair<short, string>(Convert.ToInt16(dt.Rows[i]["id"]), description));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    utilityTypes.Add(new KeyValuePair<short, string>(Convert.ToInt16(dt.Rows[i]["id"]), dt.Rows[i]["description_eng"].ToString()));
+                }
+            }
+
+            return utilityTypes;
+
+        }
+
+        public static List<KeyValuePair<short, string>> GetTradingOrderTypes(Languages language)
+        {
+            string cacheKey = "Info_TradingOrderTypes_" + language.ToString();
+            DataTable dt = CacheHelper.Get(cacheKey);
+            if (dt == null)
+            {
+                dt = InfoDB.GetTradingOrderTypes();
+                CacheHelper.Add(dt, cacheKey);
+            }
+
+            List<KeyValuePair<short, string>> utilityTypes = new List<KeyValuePair<short, string>>();
+            if (language == Languages.hy)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string description = Utility.ConvertAnsiToUnicode(dt.Rows[i]["description_arm"].ToString());
+                    utilityTypes.Add(new KeyValuePair<short, string>(Convert.ToInt16(dt.Rows[i]["id"]), description));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    utilityTypes.Add(new KeyValuePair<short, string>(Convert.ToInt16(dt.Rows[i]["id"]), dt.Rows[i]["description_eng"].ToString()));
+                }
+            }
+
+            return utilityTypes;
+
+        }
+
+        public static string GenerateBrokerContractNumber() => InfoDB.GenerateBrokerContractNumber();
+
+        public static List<KeyValuePair<short, string>> GetTradingOrderExpirationTypes(Languages language)
+        {
+            string cacheKey = "Info_TradingOrderExpirationTypes_" + language.ToString();
+            DataTable dt = CacheHelper.Get(cacheKey);
+            if (dt == null)
+            {
+                dt = InfoDB.GetTradingOrderExpirationTypes();
+                CacheHelper.Add(dt, cacheKey);
+            }
+
+            List<KeyValuePair<short, string>> utilityTypes = new List<KeyValuePair<short, string>>();
+            if (language == Languages.hy)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string description = Utility.ConvertAnsiToUnicode(dt.Rows[i]["description_arm"].ToString());
+                    utilityTypes.Add(new KeyValuePair<short, string>(Convert.ToInt16(dt.Rows[i]["id"]), description));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    utilityTypes.Add(new KeyValuePair<short, string>(Convert.ToInt16(dt.Rows[i]["id"]), dt.Rows[i]["description_eng"].ToString()));
+                }
+            }
+
+            return utilityTypes;
+
+        }
+
+        public static bool IsACBAGroupEmployee(ulong customerNumber) => InfoDB.IsACBAGroupEmployee(customerNumber);
+
+        public static DateTime? DateOfACBAGroupEmployee(ulong customerNumber) => InfoDB.DateOfACBAGroupEmployee(customerNumber);
+        
+        /// <summary>
+        /// Լիզինգի Ելքային ձևերի հաշվետվությունների տեսակները
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetLeasingReportTypes()
+        {
+            string cacheKey = "Info_LeasingReportTypes";
+
+            DataTable dt = CacheHelper.Get(cacheKey);
+
+            if (dt == null)
+            {
+                dt = InfoDB.GetLeasingReportTypes();
+                CacheHelper.Add(dt, cacheKey);
+            }
+
+            return dt;
+        }
+
+
+        public static DataTable GetLeasingCredentialClosingReasons()
+        {
+            string cacheKey = "Info_LeasingCredentialClosingReason";
+
+            DataTable dt = CacheHelper.Get(cacheKey);
+
+            if (dt == null)
+            {
+                dt = InfoDB.GetLeasingCredentialClosingReasons();
+                CacheHelper.Add(dt, cacheKey);
+            }
+
+            return dt;
+        }
 
     }
 }

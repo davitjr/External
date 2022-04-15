@@ -1,11 +1,8 @@
-﻿using ExternalBanking.DBManager;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
+using ExternalBanking.XBManagement.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.XBManagement.Interfaces;
 
 namespace ExternalBanking.XBManagement
 {
@@ -34,7 +31,7 @@ namespace ExternalBanking.XBManagement
         /// <summary>
         /// Հաճ. լրիվ Ա.Ա. անգլերեն
         /// </summary>
-        public String UserFullNameEng { get; set; }    
+        public String UserFullNameEng { get; set; }
         /// <summary>
         /// Մուտքագրման ա/թ
         /// </summary>
@@ -88,7 +85,7 @@ namespace ExternalBanking.XBManagement
         /// </summary>
         public string Password { get; set; }
 
-        public bool IsCas{ get; set; }
+        public bool IsCas { get; set; }
 
         public HBUser()
         {
@@ -147,7 +144,7 @@ namespace ExternalBanking.XBManagement
         /// <returns></returns>
         public static HBUser GetHBUserByUserName(string hbUserName)
         {
-           HBUser hbUser = HBUserDB.GetHBUserByUserName(hbUserName);
+            HBUser hbUser = HBUserDB.GetHBUserByUserName(hbUserName);
             //hbUser.GetHBUserProductsPermissions();
             return hbUser;
 
@@ -165,7 +162,7 @@ namespace ExternalBanking.XBManagement
         {
 
             ActionResult result = new ActionResult();
-            ActionResult retResult = new ActionResult(); 
+            ActionResult retResult = new ActionResult();
 
             result.Errors.AddRange(Validation.ValidateHBUserForSave(this, customerNumber));
 
@@ -203,9 +200,9 @@ namespace ExternalBanking.XBManagement
                 return result;
             }
 
-            HBUserDB.Save(userID, source, this, docId, Action.Add); 
+            HBUserDB.Save(userID, source, this, docId, Action.Add);
 
-            
+
             byte customerType = Customer.GetCustomerType(customerNumber);
 
             if (customerType == 6 && this.AllowDataEntry)
@@ -238,18 +235,17 @@ namespace ExternalBanking.XBManagement
         /// <returns ></returns>
         public ActionResult Update(int userID, SourceType source, long docId, ulong customerNumber = 0)
         {
-            ActionResult retResult = new ActionResult(); 
+            ActionResult retResult = new ActionResult();
 
             HBUserDB.Save(userID, source, this, docId, Action.Update);
 
-            //ACBAServiceReference.Customer customer = Customer.GetCustomer(customerNumber);
             byte customerType = Customer.GetCustomerType(customerNumber);
 
             if (customerType == 6)
             {
                 ActionResult resultXB = ApprovementSchema.CreateAutomaticApprovementSchema(this, customerNumber, docId, Action.Update);
                 retResult.Errors.AddRange(resultXB.Errors);
-                if(resultXB.ResultCode == ResultCode.Failed)
+                if (resultXB.ResultCode == ResultCode.Failed)
                 {
                     retResult.ResultCode = ResultCode.Failed;
                 }
@@ -272,7 +268,7 @@ namespace ExternalBanking.XBManagement
         /// <returns></returns>
         public ActionResult Deactivate(int userID, SourceType source, long docId, ulong customerNumber = 0)
         {
-            ActionResult retResult = new ActionResult(); 
+            ActionResult retResult = new ActionResult();
 
             HBUserDB.Save(userID, source, this, docId, Action.Deactivate);
 
@@ -280,7 +276,7 @@ namespace ExternalBanking.XBManagement
 
             if (customerType == 6)
             {
-                ActionResult resultXB = ApprovementSchema.CreateAutomaticApprovementSchema(this, customerNumber, docId, Action.Deactivate );
+                ActionResult resultXB = ApprovementSchema.CreateAutomaticApprovementSchema(this, customerNumber, docId, Action.Deactivate);
                 retResult.Errors.AddRange(resultXB.Errors);
                 if (resultXB.ResultCode == ResultCode.Failed)
                 {
@@ -304,9 +300,9 @@ namespace ExternalBanking.XBManagement
             return HBUserDB.GetHBUserLog(userName);
         }
 
-        public static ulong GetHBUserCustomerNumber(string  hbUser)
+        public static ulong GetHBUserCustomerNumber(string hbUser)
         {
-            return HBUserDB.GetHBUserCustomerNumber(hbUser );
+            return HBUserDB.GetHBUserCustomerNumber(hbUser);
         }
 
         /// <summary>

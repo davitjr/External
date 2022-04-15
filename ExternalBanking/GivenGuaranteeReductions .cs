@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -16,7 +12,7 @@ namespace ExternalBanking
         /// Պրոդուկտի ունիկալ համար
         /// </summary>
         public long ProductAppId { get; set; }
-        
+
         /// <summary>
         /// Նվազեցման ա/թ
         /// </summary>

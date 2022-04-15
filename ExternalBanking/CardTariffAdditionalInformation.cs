@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
     public class CardTariffAdditionalInformation
-    {   
+    {
         /// <summary>
         ///Միջնորդավճար կազմակերպությունից
         /// </summary>
@@ -48,7 +42,7 @@ namespace ExternalBanking
         /// </summary>
         public double ReNewFeeFromOrganization { get; set; }
 
-       public static CardTariffAdditionalInformation GetCardTariffAdditionalInformation (int officeID, int cardType)
+        public static CardTariffAdditionalInformation GetCardTariffAdditionalInformation(int officeID, int cardType)
         {
             return Info.GetCardTariffAdditionalInformation(officeID, cardType);
         }

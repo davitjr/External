@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Քարտի տվյալների փոփոխման հայտ
     /// </summary>
-    public class CardDataChangeOrder:Order
+    public class CardDataChangeOrder : Order
     {
 
         /// <summary>
@@ -57,12 +57,12 @@ namespace ExternalBanking
 
             if (this.ValueType == AdditionalValueType.Percent)
             {
-                this.FieldValue = (Convert.ToDouble(this.FieldValue)/100).ToString();
+                this.FieldValue = (Convert.ToDouble(this.FieldValue) / 100).ToString();
             }
-            if(this.FieldType==20 || this.FieldType == 21)
+            if (this.FieldType == 20 || this.FieldType == 21)
             {
                 Card card = Card.GetCardWithOutBallance((ulong)this.ProductAppId);
-                if(card.Type==23 || card.Type == 40 || card.Type == 34 || card.Type == 50)
+                if (card.Type == 23 || card.Type == 40 || card.Type == 34 || card.Type == 50)
                 {
                     double price = Utility.GetPriceInfoByIndex(218, "price");
                     this.FieldValue = price.ToString();
@@ -100,7 +100,6 @@ namespace ExternalBanking
 
             this.Complete();
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -114,7 +113,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = CardDataChangeOrderDB.SaveCardDataChangeOrder(this, userName, source);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

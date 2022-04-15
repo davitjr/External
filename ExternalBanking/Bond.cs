@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Excel.FinancialFunctions;
+using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions;
-using Excel.FinancialFunctions;
 
 namespace ExternalBanking
 {
@@ -66,7 +63,7 @@ namespace ExternalBanking
         /// Հաճախորդի համար
         /// </summary>
         public ulong CustomerNumber { get; set; }
-        
+
         /// <summary>
         /// Գրանցման օր
         /// </summary>
@@ -86,7 +83,7 @@ namespace ExternalBanking
         /// Կարգավիճակի նկարագրություն
         /// </summary>
         public string QualityDescription { get; set; }
-        
+
         /// <summary>
         /// HB-ի գործարքի համար
         /// </summary>
@@ -215,7 +212,7 @@ namespace ExternalBanking
                 firstCouponRepaymentDate = bondIssue.GetCouponRepaymentSchedule().Count > 0 ? bondIssue.GetCouponRepaymentSchedule().Min() : default(DateTime);
             }
 
-            double rate = bondIssue.InterestRate ;
+            double rate = bondIssue.InterestRate;
 
             double priceWithoutPercent = Financial.Price(DateTime.Now.Date, bondIssue.RepaymentDate.Value, rate, rate, 100, (Frequency)bondIssue.CouponPaymentPeriodicity, DayCountBasis.ActualActual);
             double roundPriceWithoutPercent = Math.Round(priceWithoutPercent, 8);
@@ -232,18 +229,18 @@ namespace ExternalBanking
             }
             double bondPriceFor100Nominal = roundPriceWithoutPercent + roundaccumulativeInterest;
 
-            double bondPrice = Math.Round((bondPriceFor100Nominal * bondIssue.NominalPrice/100),4);
+            double bondPrice = Math.Round((bondPriceFor100Nominal * bondIssue.NominalPrice / 100), 4);
 
             return bondPrice;
         }
 
-        public static List<Bond> GetBondsForDealing(BondFilter searchParams,string bondFilterType)
+        public static List<Bond> GetBondsForDealing(BondFilter searchParams, string bondFilterType)
         {
             List<Bond> list = new List<Bond>();
             if (bondFilterType == "1")
             {
                 list = GetBonds(searchParams);
-                list.RemoveAll(b => DepositaryAccount.HasCustomerDepositaryAccount(b.CustomerNumber) && b.Quality != BondQuality.Deleted && b.Quality != BondQuality.Closed && b.Quality != BondQuality.Rejected && b.Quality != BondQuality.AvailableForApproveDilingBackOffice 
+                list.RemoveAll(b => DepositaryAccount.HasCustomerDepositaryAccount(b.CustomerNumber) && b.Quality != BondQuality.Deleted && b.Quality != BondQuality.Closed && b.Quality != BondQuality.Rejected && b.Quality != BondQuality.AvailableForApproveDilingBackOffice
                 && b.Quality != BondQuality.Satisfied && b.Quality != BondQuality.PartiallySatisfied);
             }
             else if (bondFilterType == "2")
@@ -251,12 +248,23 @@ namespace ExternalBanking
                 list = GetBonds(searchParams);
                 list.RemoveAll(b => !DepositaryAccount.HasCustomerDepositaryAccount(b.CustomerNumber) && b.Quality != BondQuality.AvailableForApprove && b.Quality != BondQuality.AvailableForApproveDiling && b.Quality != BondQuality.Satisfied && b.Quality != BondQuality.PartiallySatisfied);
             }
-                return list;
+            return list;
         }
 
         public static BondCertificateDetails GetBondCertificateDetailsByDocId(ulong docId)
         {
             return BondDB.GetBondCertificateDetailsByDocId(docId);
+        }
+
+        internal static int GetDistributedBondCount(int bondIssueId, SharesTypes shareType)
+        {
+            int distrbondCount = BondDB.GetDistributedBondCount(bondIssueId, shareType);
+            return distrbondCount;
+        }
+
+        internal List<Bond> GetGovernmentBonds(ulong CustomerNumber)
+        {
+            return BondDB.GetGovernmentBonds(CustomerNumber);
         }
     }
 }

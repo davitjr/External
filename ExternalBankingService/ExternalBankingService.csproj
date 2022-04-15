@@ -101,6 +101,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AcbamatService.svc" />
     <Content Include="ACBAOnlineService.svc" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -207,6 +208,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcbamatService.svc.cs">
+      <DependentUpon>AcbamatService.svc</DependentUpon>
+    </Compile>
     <Compile Include="ACBAOnlineService.svc.cs">
       <DependentUpon>ACBAOnlineService.svc</DependentUpon>
     </Compile>
@@ -216,6 +220,7 @@
       <DependentUpon>CardXBService.svc</DependentUpon>
     </Compile>
     <Compile Include="Filters\InfSecServiceOperationHeadersMessageInspector.cs" />
+    <Compile Include="Interfaces\IAcbamatService.cs" />
     <Compile Include="Interfaces\ICardXBService.cs" />
     <Compile Include="Interfaces\ILoanXBService.cs" />
     <Compile Include="Interfaces\ILeasingXBService.cs" />
@@ -299,12 +304,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExternalBanking\ExternalBanking.csproj">
-      <Project>{c2f928ae-9bc3-468c-95a7-628406671596}</Project>
-      <Name>ExternalBanking</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resourse.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resourse.Designer.cs</LastGenOutput>
@@ -319,6 +318,12 @@
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\AOService\" />
     <WCFMetadataStorage Include="Service References\InfSecServiceReference\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExternalBanking\ExternalBanking.csproj">
+      <Project>{c2f928ae-9bc3-468c-95a7-628406671596}</Project>
+      <Name>ExternalBanking</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

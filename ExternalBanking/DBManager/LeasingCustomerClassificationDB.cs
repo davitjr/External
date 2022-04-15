@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -1126,7 +1123,7 @@ namespace ExternalBanking.DBManager
                                 cmdLeasholders.Parameters.Add("@appId", SqlDbType.Float).Value = customer.AppId;
                                 cmdLeasholders.Connection = conn;
 
-                               using SqlDataReader reader = cmdLeasholders.ExecuteReader();
+                                using SqlDataReader reader = cmdLeasholders.ExecuteReader();
                                 if (reader.HasRows)
                                 {
                                     while (reader.Read())
@@ -1217,7 +1214,7 @@ namespace ExternalBanking.DBManager
                             cmdLeasholders.Parameters.Add("@dateOfBeg", SqlDbType.SmallDateTime).Value = customer.DateOfBeginning;
                             cmdLeasholders.Connection = conn;
 
-                           using SqlDataReader reader = cmdLeasholders.ExecuteReader();
+                            using SqlDataReader reader = cmdLeasholders.ExecuteReader();
                             if (reader.HasRows)
                             {
                                 while (reader.Read())

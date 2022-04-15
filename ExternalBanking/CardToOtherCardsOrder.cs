@@ -5,9 +5,6 @@ using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -42,8 +39,8 @@ namespace ExternalBanking
         protected void Complete()
         {
             this.RegistrationDate = DateTime.Now.Date;
-            this.SubType =Convert.ToByte(TransferType);
-            
+            this.SubType = Convert.ToByte(TransferType);
+
             //Հայտի համար   
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
@@ -68,8 +65,8 @@ namespace ExternalBanking
                 result = CardToOtherCardsOrderDB.Save(this, userName, source);
                 if (result.ResultCode == ResultCode.Normal)
                 {
-                   ActionResult resultFee = base.SaveOrderFee();
-                    if (resultFee.ResultCode!=ResultCode.Normal)
+                    ActionResult resultFee = base.SaveOrderFee();
+                    if (resultFee.ResultCode != ResultCode.Normal)
                     {
                         return resultFee;
                     }
@@ -99,8 +96,6 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                Action action = this.Id == 0 ? Action.Add : Action.Update;
-
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
                     result = base.Approve(schemaType, userName);
@@ -112,20 +107,20 @@ namespace ExternalBanking
                     }
                 }
             }
-            if (result.ResultCode!=ResultCode.Normal)
+            if (result.ResultCode != ResultCode.Normal)
             {
                 return result;
             }
             var names = this.ReceiverName.Split(' ');
-            string name = names.Length > 0 ? names[0]:"";
+            string name = names.Length > 0 ? names[0] : "";
             string lastname = names.Length > 1 ? names[1] : "";
-            if (ACBAOperationService.CheckCriminal(name,lastname))
+            if (ACBAOperationService.CheckCriminal(name, lastname))
             {
                 this.Quality = OrderQuality.Declined;
                 base.Reject(47, user);
                 base.SetQualityHistoryUserId(this.Quality, user.userID);
                 result.ResultCode = ResultCode.ValidationError;
-                result.Errors.Add(new ActionError(1847, new string[] { TransferType==InternationalCardTransferTypes.MasterCardMoneySend? "MasterCard MoneySend":"Visa Direct", Info.GetOrderRejectTypeDescription((ushort)47, culture.Language) }));
+                result.Errors.Add(new ActionError(1847, new string[] { TransferType == InternationalCardTransferTypes.MasterCardMoneySend ? "MasterCard MoneySend" : "Visa Direct", Info.GetOrderRejectTypeDescription((ushort)47, culture.Language) }));
                 return result;
             }
 
@@ -152,12 +147,13 @@ namespace ExternalBanking
                 ecommerce.Sender = new PersonMoneySendType();
                 var address = customer.Addresses.Find(m => m.priority.key == 1);
                 ecommerce.Sender.City = address.address.TownVillage.value.Length > 25 ? Utility.TranslateToEnglish(address.address.TownVillage.value).Substring(0, 25) : Utility.TranslateToEnglish(address.address.TownVillage.value);
-                ecommerce.Sender.Country = address.address.Country.value;
+                ecommerce.Sender.Country = "ARM"; //address.address.Country.value;
                 ecommerce.Sender.PostalCode = address.address.PostCode;
                 ecommerce.Sender.Street = address.address.fullAddress.Length > 35 ? Utility.TranslateToEnglish(address.address.fullAddress).Substring(0, 35) : Utility.TranslateToEnglish(address.address.fullAddress);
                 ecommerce.Sender.Name = customer.CustomerDescriptionEng;
                 ecommerce.Recepient = new PersonMoneySendType();
 
+                ecommerce.Recepient.Country = GetCountryCodeByBin(ReceiverCardNumber);
 
                 ecommerce.Recepient.Name = receiverName.Length > 30 ? receiverName.Substring(0, 30) : receiverName;
                 ecommerce.TerminalId = ConfigurationManager.AppSettings["c2ocTerminalId"].ToString();
@@ -167,7 +163,7 @@ namespace ExternalBanking
                 if (response.ResponseCode == "00")
                 {
                     result.ResultCode = ResultCode.Normal;
-                    ActionResult res = OrderDB.UpdateHBdocumentQuality(Id,user);
+                    ActionResult res = OrderDB.UpdateHBdocumentQuality(Id, user);
                     if (res.ResultCode != ResultCode.Normal)
                     {
                         return res;
@@ -272,9 +268,9 @@ namespace ExternalBanking
             return CardToOtherCardsOrderDB.GetRejectIdFromResponse(responseCode);
         }
 
-        private ActionResult SaveArcaResponseData(CreditCardEcommerceResponse response)
+        private void SaveArcaResponseData(CreditCardEcommerceResponse response)
         {
-            return CardToOtherCardsOrderDB.SaveArcaResponseData((ulong)Id, ArcaExtensionID, response);
+            CardToOtherCardsOrderDB.SaveArcaResponseData((ulong)Id, ArcaExtensionID, response);
         }
 
         public void Get()
@@ -282,9 +278,15 @@ namespace ExternalBanking
             CardToOtherCardsOrderDB.Get(this);
         }
 
-        public static double GetCardToOtherCardTransferFee(double amount, string currency,SourceType sourceType)
+        public static double GetCardToOtherCardTransferFee(double amount, string currency, SourceType sourceType)
         {
-            return CardToOtherCardsOrderDB.GetCardToOtherCardFee(amount,currency,sourceType);
+            return CardToOtherCardsOrderDB.GetCardToOtherCardFee(amount, currency, sourceType);
         }
+
+        public static string GetCountryCodeByBin(string cardNumber)
+        {
+            return CardToOtherCardsOrderDB.GetCountryCodeByBin(cardNumber);
+        }
+
     }
 }

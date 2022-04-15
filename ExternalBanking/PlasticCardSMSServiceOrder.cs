@@ -1,11 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -201,10 +198,10 @@ namespace ExternalBanking
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
-            if(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
                 this.Type = OrderType.PlasticCardSMSServiceOrder;
-                if(this.OperationType == 2)
+                if (this.OperationType == 2)
                 {
                     this.SMSType = 5;
                 }
@@ -355,6 +352,6 @@ namespace ExternalBanking
             return PlasticCardSMSServiceOrderDB.SMSTypeAndValue(curdNumber);
         }
 
-        
+
     }
 }

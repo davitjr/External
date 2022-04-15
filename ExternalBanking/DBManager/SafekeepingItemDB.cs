@@ -16,7 +16,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
+                using SqlCommand cmd = new SqlCommand(@"SELECT    key_num,
                                                             currency,
                                                             amount,
                                                             date_of_beginning,
@@ -33,7 +33,7 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
-               using DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
 
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -64,8 +64,8 @@ namespace ExternalBanking.DBManager
                 item.StartDate = Convert.ToDateTime(row["date_of_beginning"]);
             item.Amount = Convert.ToDouble(row["amount"]);
 
-            if(row["packet_number"] != DBNull.Value)
-                item.PacketNumber=row["packet_number"].ToString();
+            if (row["packet_number"] != DBNull.Value)
+                item.PacketNumber = row["packet_number"].ToString();
 
             if (row["date_of_end"] != DBNull.Value)
                 item.EndDate = Convert.ToDateTime(row["date_of_end"]);
@@ -129,7 +129,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        public static SafekeepingItem GetSafekeepingItem(ulong customerNumber,ulong productId)
+        public static SafekeepingItem GetSafekeepingItem(ulong customerNumber, ulong productId)
         {
 
             SafekeepingItem item = new SafekeepingItem();
@@ -154,7 +154,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                 cmd.Parameters.Add("@product_id", SqlDbType.Float).Value = productId;
 
-               using DataTable dt = new DataTable();
+                using DataTable dt = new DataTable();
 
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -165,7 +165,7 @@ namespace ExternalBanking.DBManager
                 {
                     DataRow row = dt.Rows[0];
                     item = SetSafekeepingItem(row);
-                   
+
                 }
 
             }

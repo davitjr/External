@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -32,7 +29,7 @@ namespace ExternalBanking
 
     }
 
-    public enum CardChangeType : short
+    public enum PlasticCardChangeType : short
     {
         /// <summary>
         /// Նոր քարտ
@@ -109,6 +106,10 @@ namespace ExternalBanking
         public uint CardType { get; set; }
 
         /// <summary>
+        /// Հիմնական Քարտի տեսակ
+        /// </summary>
+        public uint MainCardType { get; set; }
+        /// <summary>
         /// Քարտի կարգավիճակ
         /// </summary>
         public uint Quality { get; set; }
@@ -175,7 +176,7 @@ namespace ExternalBanking
         /// </summary>
         public string CardHolderLastName { get; set; }
 
-        public CardChangeType CardChangeType { get; set; }
+        public PlasticCardChangeType PlasticCardChangeType { get; set; }
 
         public string AddInf { get; set; }
 
@@ -212,11 +213,11 @@ namespace ExternalBanking
         /// <param name="productId"></param>
         /// <param name="productidType">եթե true է , ապա productId - ն հասկանում է որպես նոր քարտի app_id, հակառակ դեպքում ՝ հին քարտի</param>
         /// <returns></returns>
-        public static PlasticCard GetPlasticCard(ulong productId,bool productidType)
+        public static PlasticCard GetPlasticCard(ulong productId, bool productidType)
         {
-            return PlasticCardDB.GetPlasticCard(productId,productidType);
+            return PlasticCardDB.GetPlasticCard(productId, productidType);
         }
-              
+
 
         /// <summary>
         /// վերադարձնում է պլաստիկ քարտը, որը դեռ գործող չէ, հաշիվներ կցված չեն
@@ -240,7 +241,7 @@ namespace ExternalBanking
 
         public static List<PlasticCard> GetCustomerMainCards(ulong customerNumber, bool getNew = false)
         {
-            return PlasticCardDB.GetCustomerMainCards(customerNumber, getNew:getNew);
+            return PlasticCardDB.GetCustomerMainCards(customerNumber, getNew: getNew);
         }
 
         public static List<PlasticCard> GetCustomerPlasticCards(ulong customerNumber)
@@ -255,20 +256,20 @@ namespace ExternalBanking
 
         public static ActionResult UpdateCardStatusWithoutOrder(ulong productId)
         {
-            ActionResult actionResult = new ActionResult() { ResultCode = ResultCode.Normal };         
+            ActionResult actionResult = new ActionResult() { ResultCode = ResultCode.Normal };
             try
             {
-                if( PlasticCardDB.UpdateCardStatusWithoutOrder(productId) != 1)                          
-                   actionResult.ResultCode = ResultCode.Failed;                
+                if (PlasticCardDB.UpdateCardStatusWithoutOrder(productId) != 1)
+                    actionResult.ResultCode = ResultCode.Failed;
             }
-            catch(Exception ex)
+            catch (Exception)
             {
-                actionResult.ResultCode = ResultCode.Failed;                
+                actionResult.ResultCode = ResultCode.Failed;
             }
             return actionResult;
         }
 
-    public static List<PlasticCard> GetCustomerPlasticCardsForAdditionalData(ulong customerNumber, bool IsClosed)
+        public static List<PlasticCard> GetCustomerPlasticCardsForAdditionalData(ulong customerNumber, bool IsClosed)
         {
             return PlasticCardDB.GetCustomerPlasticCardsForAdditionalData(customerNumber, IsClosed);
         }
@@ -281,6 +282,14 @@ namespace ExternalBanking
         public static List<PlasticCard> GetCustomerMainCardsForAttachedCardOrder(ulong customerNumber)
         {
             return PlasticCardDB.GetCustomerMainCardsForAttachedCardOrder(customerNumber);
+        }
+
+        /// <summary>
+        /// Վերադարձնում է քարտի customerNumber-ը
+        /// </summary>
+        public static ulong GetCardCustomerNumber(long productId)
+        {
+            return PlasticCardDB.GetCardCustomerNumber(productId);
         }
     }
 }

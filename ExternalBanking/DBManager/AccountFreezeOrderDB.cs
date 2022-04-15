@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -37,7 +35,7 @@ namespace ExternalBanking.DBManager
             return secondFreeze;
         }
 
-        
+
         /// <summary>
         /// Հաշվի սառեցման հայտի պահպանում
         /// </summary>
@@ -65,7 +63,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@freeze_amount_date", SqlDbType.SmallDateTime).Value = order.AmountFreezeDate;
                     cmd.Parameters.Add("@freeze_date", SqlDbType.SmallDateTime).Value = order.FreezeDate;
                     cmd.Parameters.Add("@freeze_reason", SqlDbType.Int).Value = order.FreezeReason;
-                    cmd.Parameters.Add("@freeze_reason_add", SqlDbType.NVarChar, 200).Value = !string.IsNullOrEmpty(order.FreezeReasonAddInf)? (object)order.FreezeReasonAddInf : DBNull.Value;
+                    cmd.Parameters.Add("@freeze_reason_add", SqlDbType.NVarChar, 200).Value = !string.IsNullOrEmpty(order.FreezeReasonAddInf) ? (object)order.FreezeReasonAddInf : DBNull.Value;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
                     cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
@@ -103,7 +101,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-               using SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -126,7 +124,7 @@ namespace ExternalBanking.DBManager
                         order.AmountFreezeDate = (DateTime)dr["freeze_amount_date"];
                     }
                     order.FreezeReasonAddInf = Utility.ConvertAnsiToUnicode(dr["freeze_reason_add"].ToString());
-                                        order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+                    order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
 
                 }
             }
@@ -164,7 +162,6 @@ namespace ExternalBanking.DBManager
 
         public static bool ValidateFreezing(string accountNumber)
         {
-            DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();

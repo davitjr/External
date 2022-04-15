@@ -39,6 +39,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     cmd.Parameters.Add("@productId", SqlDbType.Float).Value = order.Card.ProductId;
+                    cmd.Parameters.Add("@old_card_credit_line_app_id", SqlDbType.Float).Value = order.CreditLineProductId;
                     cmd.Parameters.Add("@cardAccount", SqlDbType.Float).Value = (order.CardAccount != null) ? double.Parse(order.CardAccount.AccountNumber) : 0;
                     cmd.Parameters.Add("@overdraftAccount", SqlDbType.Float).Value = (order.OverdraftAccount != null) ? double.Parse(order.OverdraftAccount.AccountNumber) : 0;
                     cmd.Parameters.Add("@addInf", SqlDbType.NVarChar, 50).Value = order.AddInf;
@@ -187,6 +188,7 @@ namespace ExternalBanking.DBManager
                                                                  D.card_account,
                                                                  D.overdraft_account,
                                                                  D.add_inf,
+                                                                 D.old_card_credit_line_app_id,
                                                                  H.customer_number,
                                                                  H.document_number,
                                                                  H.currency,
@@ -206,6 +208,7 @@ namespace ExternalBanking.DBManager
                         ulong productId = ulong.Parse(dt.Rows[0]["app_id"].ToString());
                         order.CustomerNumber = ulong.Parse(dt.Rows[0]["customer_number"].ToString());
                         order.Card = Card.GetCard(productId, order.CustomerNumber);
+                        order.CreditLineProductId = dt.Rows[0]["old_card_credit_line_app_id"] != DBNull.Value ? long.Parse(dt.Rows[0]["old_card_credit_line_app_id"].ToString()) : 0;
                         order.OrderNumber = dt.Rows[0]["document_number"].ToString();
                         order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
                         order.Currency = dt.Rows[0]["currency"].ToString();
@@ -223,7 +226,7 @@ namespace ExternalBanking.DBManager
             return order;
         }
 
-        internal static ulong GetRenewCardOldProductId(ulong productId, int filialCode)
+        internal static ulong GetRenewCardOldProductId(ulong productId)
         {
             ulong oldProductId = 0;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
@@ -234,15 +237,12 @@ namespace ExternalBanking.DBManager
                                         ON V.app_id =C.app_id 
                                         AND typeID = 1 
                                         WHERE CardStatus ='NORM' 
-                                        AND V.app_id NOT IN (SELECT app_id FROM Tbl_Visa_Numbers_Accounts)  
-                                        AND filial = @userFilial
                                         AND C.app_id = @app_id";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
-                    cmd.Parameters.Add("@userFilial", SqlDbType.Float).Value = filialCode;
                     conn.Open();
                     var temp = cmd.ExecuteScalar();
                     if (temp != null)
@@ -250,6 +250,36 @@ namespace ExternalBanking.DBManager
                 }
             }
             return oldProductId;
+        }
+        /// <summary>
+        /// Ցույց է տալիս, թե տվյալ հիմնական քարտն ունի արդյոք ՈՉ ՓԱԿ կից կամ լրացուցիչ քարտեր
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        internal static bool HasNotClosedAttachedLinkedCards(long productId)
+        {
+            bool result = false;
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT TOP 1 1 FROM Tbl_SupplementaryCards SC
+	                         OUTER APPLY (SELECT CD.doc_id FROM dbo.Tbl_card_closing_order_details CD 
+							             LEFT JOIN dbo.Tbl_HB_Documents D ON D.doc_id=CD.doc_id
+							             WHERE CD.app_id=sc.app_id AND D.quality = 30) Closed
+                             LEFT JOIN Tbl_Visa_Applications VA ON VA.app_id = SC.app_id
+                             WHERE SC.main_app_id = @app_id AND Closed.doc_id IS NULL AND VA.CardStatus <> 'CLSD'
+                             AND CONVERT(DATE,( '01/' + LEFT(VA.ExpiryDate, 2) + '/' + RIGHT(VA.ExpiryDate, 2)),3) >=  DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
+                    conn.Open();
+                    var temp = cmd.ExecuteScalar();
+                    if (temp != null)
+                        result = Convert.ToBoolean(temp);
+                }
+            }
+            return result;
         }
     }
 }

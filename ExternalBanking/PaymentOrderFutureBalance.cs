@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
-{   
+{
     /// <summary>
     ///Վճարման հանձնարարականում օգտագործվող հաշիվների ապագա մնացորդներ
     /// </summary>
@@ -32,15 +28,15 @@ namespace ExternalBanking
         {
 
 
-            if (paymentOrder.Type!=OrderType.Convertation)
+            if (paymentOrder.Type != OrderType.Convertation)
             {
-            
-                if(paymentOrder.Type == OrderType.CommunalPayment)
+
+                if (paymentOrder.Type == OrderType.CommunalPayment)
                 {
                     UtilityPaymentOrder order = new UtilityPaymentOrder();
                     order.Id = paymentOrder.Id;
                     order.Get();
-                    if(order.CommunalType == CommunalTypes.Gas)
+                    if (order.CommunalType == CommunalTypes.Gas)
                     {
                         double serviceAmount = order.ServiceAmount;
                         this.DebitAccountFutureBalance.BalanceBefore = Account.GetAccountBalance(paymentOrder.DebitAccount.AccountNumber);
@@ -97,7 +93,7 @@ namespace ExternalBanking
                 this.DebitAccountFutureBalance.BalanceBefore = Account.GetAccountBalance(paymentOrder.DebitAccount.AccountNumber);
                 this.CreditAccountFutureBalance.BalanceBefore = Account.GetAccountBalance(paymentOrder.ReceiverAccount.AccountNumber);
 
-                if (paymentOrder.DebitAccount.Currency=="AMD" && paymentOrder.ReceiverAccount.Currency!="AMD")
+                if (paymentOrder.DebitAccount.Currency == "AMD" && paymentOrder.ReceiverAccount.Currency != "AMD")
                 {
                     //Փոխարկման գումար
                     convAmount = paymentOrder.Amount * paymentOrder.ConvertationRate;
@@ -115,21 +111,21 @@ namespace ExternalBanking
 
                     this.CreditAccountFutureBalance.BalanceAfter = this.CreditAccountFutureBalance.BalanceBefore + convAmount;
                 }
-                else if  (paymentOrder.DebitAccount.Currency != "AMD" && paymentOrder.ReceiverAccount.Currency != "AMD")
+                else if (paymentOrder.DebitAccount.Currency != "AMD" && paymentOrder.ReceiverAccount.Currency != "AMD")
                 {
                     //Փոխարկման գումար Քրոս փոխարկման դեպքում
-                    convAmount = paymentOrder.Amount * Math.Round(paymentOrder.ConvertationRate / paymentOrder.ConvertationRate1,5);
+                    convAmount = paymentOrder.Amount * Math.Round(paymentOrder.ConvertationRate / paymentOrder.ConvertationRate1, 5);
 
                     this.DebitAccountFutureBalance.BalanceAfter = this.DebitAccountFutureBalance.BalanceBefore - paymentOrder.Amount;
 
                     this.CreditAccountFutureBalance.BalanceAfter = this.CreditAccountFutureBalance.BalanceBefore + convAmount;
                 }
 
-                this.DebitAccountFutureBalance.BalanceAfterFull = Order.GetSentOrdersAmount(paymentOrder.DebitAccount.AccountNumber,paymentOrder.Source) + this.DebitAccountFutureBalance.BalanceAfter;
-                this.CreditAccountFutureBalance.BalanceAfterFull = Order.GetSentOrdersAmount(paymentOrder.ReceiverAccount.AccountNumber,paymentOrder.Source) + this.CreditAccountFutureBalance.BalanceAfter;
+                this.DebitAccountFutureBalance.BalanceAfterFull = Order.GetSentOrdersAmount(paymentOrder.DebitAccount.AccountNumber, paymentOrder.Source) + this.DebitAccountFutureBalance.BalanceAfter;
+                this.CreditAccountFutureBalance.BalanceAfterFull = Order.GetSentOrdersAmount(paymentOrder.ReceiverAccount.AccountNumber, paymentOrder.Source) + this.CreditAccountFutureBalance.BalanceAfter;
             }
 
-           
+
         }
     }
 }

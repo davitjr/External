@@ -1,12 +1,7 @@
-﻿using ExternalBanking.DocFlowManagement;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -15,7 +10,7 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SendHBApplicationOrderToConfirm(long hbId, long memoId)
         {
             ActionResult result = new ActionResult();
-            
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
                 conn.Open();
@@ -46,7 +41,7 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static ActionResult SaveUploadedFiles(OrderAttachment order,long memoId)
+        internal static ActionResult SaveUploadedFiles(OrderAttachment order, long memoId)
         {
             ActionResult result = new ActionResult();
 
@@ -56,7 +51,7 @@ namespace ExternalBanking.DBManager
                 using SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_scaned_documents(image_content,image_date,registration_date,unic_number,document_type,[File_Name],set_number)
                                                   VALUES(@upload_content,GETDATE(),GETDATE(),@memo_id,2,@UploadFileName, @registration_set_number)", conn);
                 cmd.CommandType = CommandType.Text;
-                cmd.Parameters.Add("@upload_content", SqlDbType.VarBinary).Value = Convert.FromBase64String( order.AttachmentInBase64);
+                cmd.Parameters.Add("@upload_content", SqlDbType.VarBinary).Value = Convert.FromBase64String(order.AttachmentInBase64);
                 cmd.Parameters.Add("@memo_id", SqlDbType.BigInt).Value = memoId;
                 cmd.Parameters.Add("@UploadFileName", SqlDbType.NVarChar).Value = order.FileName + order.FileExtension;
                 cmd.Parameters.Add("@registration_set_number", SqlDbType.Int).Value = 88;

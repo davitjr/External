@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
 namespace ExternalBanking
 {
     public class RenewedCardAccountRegOrder : Order
@@ -12,9 +12,9 @@ namespace ExternalBanking
         public Card Card { get; set; }
 
         /// <summary>
-        /// Բանկի կողմից գործարք կատարող անձի համար
+        /// Վարկային գծի ունիկալ համար
         /// </summary>
-        public int? UserId { get; set; }
+        public long CreditLineProductId { get; set; }
 
         /// <summary>
         /// Գերածախսի հաշիվ
@@ -154,7 +154,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ulong GetRenewCardOldProductId()
         {
-            return RenewedCardAccountRegOrderDB.GetRenewCardOldProductId((ulong)Card.ProductId, Card.FilialCode);
+            return RenewedCardAccountRegOrderDB.GetRenewCardOldProductId((ulong)Card.ProductId);
         }
 
 
@@ -162,7 +162,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             PlasticCard plasticCard = PlasticCard.GetPlasticCard((ulong)oldCard.ProductId, false);
-            if (plasticCard.CardChangeType == CardChangeType.ReNew)
+            if (plasticCard.PlasticCardChangeType == PlasticCardChangeType.ReNew)
             {
                 if (oldCard != null)
                 {
@@ -217,13 +217,6 @@ namespace ExternalBanking
                 result.Add(new ActionError(1001, new string[] { "վերաթողարկված քարտի հաշվի կցման " }));
             }
 
-            CreditLine creditLineOverdraft = CreditLine.GetCardOverdraft(order.Card.CardNumber);
-            if (!(creditLineOverdraft is null) && Math.Abs(creditLineOverdraft.CurrentCapital) + Math.Abs(creditLineOverdraft.OutCapital) + Math.Abs(creditLineOverdraft.CurrentRateValue) != 0)
-            {
-                //Քարտային հաշվին առկա է գերածախս:Վերաթողարկված քարտի հաշվի կցման համար անհրաժեշտ է մարել գերածախսը: 
-                result.Add(new ActionError(1931, new string[] { "Վերաթողարկված քարտի հաշվի կցման " }));
-            }
-
             PlasticCard plasticCard = new PlasticCard();
             plasticCard = PlasticCard.GetPlasticCard((ulong)order.Card.ProductId, true);
 
@@ -269,12 +262,6 @@ namespace ExternalBanking
                 return result;
             }
 
-            if (oldCard.ClosingDate != null && (plasticCard.CardType == 23 || plasticCard.CardType == 40))
-            {
-                //Փակված Amex Blue քարտը հնարավոր չէ վերաթողարկել։
-                result.Add(new ActionError(1390));
-            }
-
             List<Card> attachedCards = Card.GetAttachedCards((ulong)oldCard.ProductId, order.CustomerNumber);
 
             if (attachedCards.Count > 0 && (oldCard.Type == 23 || oldCard.Type == 20 || (oldCard.Type == 21 && oldCard.CardNumber.Substring(0, 8) == "90513410")))
@@ -283,6 +270,12 @@ namespace ExternalBanking
                 result.Add(new ActionError(1273));
             }
 
+            CreditLine creditLineOverdraft = CreditLine.GetCardOverdraft(oldCard.CardNumber);
+            if (!(creditLineOverdraft is null) && Math.Abs(creditLineOverdraft.CurrentCapital) + Math.Abs(creditLineOverdraft.OutCapital) + Math.Abs(creditLineOverdraft.CurrentRateValue) != 0)
+            {
+                //Քարտային հաշվին առկա է գերածախս:Վերաթողարկված քարտի հաշվի կցման համար անհրաժեշտ է մարել գերածախսը: 
+                result.Add(new ActionError(1931, new string[] { "Վերաթողարկված քարտի հաշվի կցման " }));
+            }
 
             if (order.Card.SupplementaryType == SupplementaryType.Main && oldCard.Type != 23 && oldCard.Type != 40)
             {
@@ -368,6 +361,18 @@ namespace ExternalBanking
                     result.AddRange(Validation.ValidateCardProductAccounts(plasticCard, oldCard.CreditLine.LoanAccount,
                         accountType, order.CustomerNumber, user));
             }
+
+            var isCardRenewedWithNewType = CardRenewOrderDB.IsCardRenewedWithNewType(order.Card.ProductId);
+
+            if (order.Card.SupplementaryType == SupplementaryType.Main && isCardRenewedWithNewType)
+            {
+                if (RenewedCardAccountRegOrderDB.HasNotClosedAttachedLinkedCards(order.Card.ProductId))
+                {
+                    //Հնարավոր չէ իրականացնել գործողությունը, անհրաժեշտ է փակել կից/լրացուցիչ քարտերը
+                    result.Add(new ActionError(2059));
+                }
+            }
+
             return result;
         }
 
@@ -390,13 +395,29 @@ namespace ExternalBanking
                 Localization.SetCulture(result, culture);
             }
 
-            result.Errors.AddRange(GetCreditLineWarningForReNew(oldCard, culture));
+            //result.Errors.AddRange(GetCreditLineWarningForReNew(oldCard, culture));
             result.Errors.ForEach(m =>
             {
                 warnings.Add(m.Description);
             });
 
             return warnings;
+        }
+
+        public static string CheckCreditLineForRenewedCardAccountRegOrder(RenewedCardAccountRegOrder order, ulong customerNumber)
+        {
+            string message = "";
+            ulong oldProductId = order.GetRenewCardOldProductId();
+            Card oldCard = Card.GetCard(oldProductId, customerNumber);
+            if (!(oldCard.CreditLine is null))
+            {
+                List<LoanProductProlongation> list = LoanProduct.GetLoanProductProlongations((ulong)oldCard.CreditLine.ProductId);
+                if (list is null)
+                {
+                    message = "Վարկային գիծը երկարաձգված չէ: Շարունակելու դեպքում վարկային գիծն ավտոմատ կդադարի: Շարունակե՞լ:";
+                }
+            }
+            return message;
         }
     }
 }

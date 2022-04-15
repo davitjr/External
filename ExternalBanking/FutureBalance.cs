@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking
-{   
+﻿namespace ExternalBanking
+{
     /// <summary>
     /// Ապագա մնացորդ մեկ հաշվի վերաբերյալ
     /// </summary>
@@ -19,6 +13,6 @@ namespace ExternalBanking
 
         //Մնացորդ գործարքից հետո` ներառյալ չհաստատված գործարքները
         public double BalanceAfterFull { get; set; }
-        
+
     }
 }

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ExternalBanking.DBManager;
-using System.Data.SqlClient;
-using System.Data;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -12,7 +7,7 @@ namespace ExternalBanking
     /// <summary>
     /// Հաշվի սառեցման հայտ
     /// </summary>
-    public class AccountFreezeOrder:Order
+    public class AccountFreezeOrder : Order
     {
         /// <summary>
         /// Սառեցման ենթակա հաշվեհամար
@@ -56,7 +51,6 @@ namespace ExternalBanking
         protected void Complete()
         {
             this.SubType = 1;
-            Account FreezeAccount = AccountDB.GetAccount(this.FreezeAccount.AccountNumber, this.CustomerNumber);
             this.RegistrationDate = DateTime.Now.Date;
             this.FreezeAccount = Account.GetAccount(this.FreezeAccount.AccountNumber);
 
@@ -86,9 +80,9 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = AccountFreezeOrderDB.Save(this, userName, source, filialCode);
-               
+
                 base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
-               
+
                 result = base.SaveOrderOPPerson();
 
                 if (result.ResultCode != ResultCode.Normal)

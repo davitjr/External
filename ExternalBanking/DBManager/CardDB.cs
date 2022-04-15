@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Web.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Diagnostics;
+using System.Web.Configuration;
 using static ExternalBanking.CardStatement;
-using static ExternalBanking.CardAdditionalInfo;
-using ExternalBanking.ACBAServiceReference;
-using System.Security.Cryptography;
-using System.Text;
-using System.Configuration;
-using System.Text.RegularExpressions;
-using ExternalBanking.Helpers;
 
 namespace ExternalBanking.DBManager
 {
@@ -33,7 +26,7 @@ namespace ExternalBanking.DBManager
                                 loan_account,overdraft_account,SMSApplicationPresent,interest_rate_effective,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,
-                                related_office_number,end_date,open_date,add_inf,debt,attached_card
+                                related_office_number,end_date,open_date,add_inf,debt,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE closing_date is null and  customer_number=@customerNumber";
@@ -80,7 +73,7 @@ namespace ExternalBanking.DBManager
                                 loan_account,overdraft_account,SMSApplicationPresent,interest_rate_effective,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,
-                                related_office_number,end_date,open_date,add_inf,debt,attached_card
+                                related_office_number,end_date,open_date,add_inf,debt,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE closing_date is null and  customer_number=@customerNumber";
@@ -131,7 +124,7 @@ namespace ExternalBanking.DBManager
                                 cash_rate,loan_account,overdraft_account,SMSApplicationPresent,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,
-                                related_office_number,end_date,open_date,add_inf,debt,attached_card
+                                related_office_number,end_date,open_date,add_inf,debt,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE closing_date is not null and vn.customer_number=@customerNumber";
@@ -190,7 +183,7 @@ namespace ExternalBanking.DBManager
                                 cash_rate,loan_account,overdraft_account,SMSApplicationPresent,interest_rate_effective,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,
-                                related_office_number,end_date,open_date,add_inf,debt,attached_card
+                                related_office_number,end_date,open_date,add_inf,debt,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE vn.card_account=@accountNumber and vn.main_card_number is null order by vn.open_date desc ";
@@ -233,7 +226,7 @@ namespace ExternalBanking.DBManager
                                 cash_rate,loan_account,overdraft_account,SMSApplicationPresent,interest_rate_effective,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,
-                                related_office_number,end_date,open_date,add_inf,debt,VA.card_receiving_type,attached_card
+                                related_office_number,end_date,open_date,add_inf,debt,VA.card_receiving_type,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 INNER JOIN Tbl_VISA_applications VA ON VA.app_id = vn.app_id
@@ -375,12 +368,48 @@ namespace ExternalBanking.DBManager
                 bool hasAttachedCard = false;
                 if (row.Table.Columns.Contains("attached_card"))
                 {
-                    hasAttachedCard = byte.Parse(row["attached_card"].ToString()) == 1 ? true : false;
+                    hasAttachedCard = byte.Parse(row["attached_card"].ToString()) == 1;
                 }
                 if (hasAttachedCard)
                     card = CardDB.SetSupplementaryCard(card);
                 else
                     card.SupplementaryType = SupplementaryType.Main;
+
+                if (card.Type == 53)
+                {
+                    card.DesignID = row["design_id"] != DBNull.Value ? Convert.ToInt32(row["design_id"]) : 0;
+                    card.CardDesignImage = GetCardDesignImageByDesignId(card.DesignID);
+                    if (Convert.ToInt32(row["design_id"]) == 3 || Convert.ToInt32(row["design_id"]) == 13 || Convert.ToInt32(row["design_id"]) == 12 || Convert.ToInt32(row["design_id"])
+                        == 18 || Convert.ToInt32(row["design_id"]) == 19 || Convert.ToInt32(row["design_id"]) == 29 || Convert.ToInt32(row["design_id"]) == 27)
+                    {
+                        card.DesignID = 0;
+                        card.CardDesignImage = null;
+                    }
+                }
+                short cardChangeType = GetCardChangeType(card.ProductId);
+                switch (cardChangeType)
+                {
+                    case 0:
+                        card.CardChangeType = CardChangeType.New;
+                        break;
+                    case 1:
+                        card.CardChangeType = CardChangeType.RenewWithSameType;
+                        break;
+                    case 2:
+                        card.CardChangeType = CardChangeType.RenewWithNewType;
+                        break;
+                    case 3:
+                        card.CardChangeType = CardChangeType.NonCreditLineCardReplace;
+                        break;
+                    case 4:
+                        card.CardChangeType = CardChangeType.CreditLineCardReplace;
+                        break;
+                    case 5:
+                        card.CardChangeType = CardChangeType.Move;
+                        break;
+                    default:
+                        break;
+                }
             }
             return card;
         }
@@ -481,12 +510,18 @@ namespace ExternalBanking.DBManager
                 bool hasAttachedCard = false;
                 if (row.Table.Columns.Contains("attached_card"))
                 {
-                    hasAttachedCard = byte.Parse(row["attached_card"].ToString()) == 1 ? true : false;
+                    hasAttachedCard = byte.Parse(row["attached_card"].ToString()) == 1;
                 }
                 if (hasAttachedCard)
                     card = CardDB.SetSupplementaryCard(card);
                 else
                     card.SupplementaryType = SupplementaryType.Main;
+
+                if (card.Type == 53)
+                {
+                    card.DesignID = row["design_id"] != DBNull.Value ? Convert.ToInt32(row["design_id"]) : 0;
+                    card.CardDesignImage = GetCardDesignImageByDesignId(card.DesignID);
+                }
             }
             return card;
         }
@@ -611,7 +646,7 @@ namespace ExternalBanking.DBManager
                     }
                     if (dt.Rows.Count > 0)
                     {
-                        fee = double.Parse(dt.Rows[0]["ServiceFeeReal"].ToString()) + double.Parse(dt.Rows[0]["ServiceFeePayed"].ToString());
+                        fee = double.Parse(dt.Rows[0]["ServiceFeeReal"].ToString()) - double.Parse(dt.Rows[0]["ServiceFeePayed"].ToString());
                     }
                     else
                         fee = -1;
@@ -775,7 +810,7 @@ namespace ExternalBanking.DBManager
                                 cash_rate,loan_account,overdraft_account,interest_rate_effective,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,                                
-                                SMSApplicationPresent,related_office_number,end_date,open_date,add_inf,debt,attached_card
+                                SMSApplicationPresent,related_office_number,end_date,open_date,add_inf,debt,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE closing_date is null and visa_number=@cardNumber and customer_Number=@customerNumber ";
@@ -902,7 +937,7 @@ namespace ExternalBanking.DBManager
                                 cash_rate,loan_account,overdraft_account,interest_rate_effective,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,
-                                SMSApplicationPresent,related_office_number,end_date,open_date,add_inf,debt,attached_card
+                                SMSApplicationPresent,related_office_number,end_date,open_date,add_inf,debt,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE closing_date is null and visa_number=@cardNumber";
@@ -1057,6 +1092,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 string sql = @"SELECT
+                                Card_type,
                                 cash_rate,
                                 cash_rate_other,
                                 CashInFeeRate_ACBA, 
@@ -1097,6 +1133,7 @@ namespace ExternalBanking.DBManager
                     if (dt.Rows.Count > 0)
                     {
                         DataRow row = dt.Rows[0];
+                        cardTariff.CardType = int.Parse(row["Card_type"].ToString());
                         cardTariff.CashRateOur = double.Parse(row["cash_rate"].ToString());
                         cardTariff.CashRateOther = double.Parse(row["cash_rate_other"].ToString());
                         cardTariff.CashInFeeRateOur = double.Parse(row["CashInFeeRate_ACBA"].ToString());
@@ -1351,7 +1388,6 @@ namespace ExternalBanking.DBManager
 
                     conn.Open();
 
-                    DataTable dt = new DataTable();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -1461,8 +1497,6 @@ namespace ExternalBanking.DBManager
 
                     conn.Open();
 
-                    DataTable dt = new DataTable();
-
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.Read())
@@ -1525,29 +1559,28 @@ namespace ExternalBanking.DBManager
             return DAHK_Detail;
         }
 
-        internal static ulong GetReNewCardProductId(ulong productId, int filialCode)
+        internal static ulong GetCardOldProductId(long productId, int changeType)
         {
-            ulong newProductId = 0;
+            ulong oldProductId = 0;
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                string sql = @"SELECT C.app_id FROM Tbl_VISA_applications V INNER JOIN Tbl_CardChanges C 
-                                    ON V.app_id =C.app_id AND typeID = 1 WHERE CardStatus ='NORM' AND V.app_id NOT IN (SELECT app_id FROM Tbl_Visa_Numbers_Accounts)  
-                                    AND filial = @userFilial - 22000
-                                    AND C.old_app_id = @app_id";
+                string sql = @"SELECT old_app_id FROM Tbl_CardChanges 
+                                   WHERE app_id = @appId AND typeID = @changeType";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
-                    cmd.Parameters.Add("@userFilial", SqlDbType.Float).Value = filialCode;
+                    cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
+                    cmd.Parameters.Add("@changeType", SqlDbType.Int).Value = changeType;
                     conn.Open();
                     var temp = cmd.ExecuteScalar();
                     if (temp != null)
-                        newProductId = Convert.ToUInt64(temp);
+                        oldProductId = Convert.ToUInt64(temp);
                 }
             }
-            return newProductId;
+            return oldProductId;
         }
+
 
         internal static string GetCardMotherName(ulong productId)
         {
@@ -2410,9 +2443,9 @@ namespace ExternalBanking.DBManager
                     {
                         filialCode = Convert.ToInt32(cmd.ExecuteScalar());
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        throw;
+                        throw ex;
                     }
 
                 }
@@ -2577,7 +2610,7 @@ namespace ExternalBanking.DBManager
                     if (dt.Rows.Count > 0)
                     {
                         info.SMSPhone = dt.Rows[0]["mobile_home"].ToString();
-                        info.ReportReceivingType = (Languages)language == Languages.hy ? Utility.ConvertAnsiToUnicode(dt.Rows[0]["report_Receiving_Type"].ToString()) : Utility.ConvertAnsiToUnicode(dt.Rows[0]["report_Receiving_Type_ENG"].ToString());
+                        info.ReportReceivingType = language == Languages.hy ? Utility.ConvertAnsiToUnicode(dt.Rows[0]["report_Receiving_Type"].ToString()) : Utility.ConvertAnsiToUnicode(dt.Rows[0]["report_Receiving_Type_ENG"].ToString());
                         info.Email = dt.Rows[0]["Email"].ToString();
                     }
                 }
@@ -2685,7 +2718,7 @@ namespace ExternalBanking.DBManager
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE closing_date is null and  customer_number=@customerNumber and (main_card_number Is Null or attached_card = 2)
                                 and vn.visa_number not in (select visa_number from Tbl_credit_lines where  loan_type <> 9 and quality <> 10)
-                                and card_type not in (38,51)";
+                                and card_type not in (38,51,53)";
 
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {
@@ -2801,7 +2834,7 @@ namespace ExternalBanking.DBManager
 								INNER JOIN tbl_card_order_details D ON A.app_id = D.app_id 
 								INNER JOIN Tbl_HB_documents H on D.doc_id = H.doc_id
 								LEFT JOIN tbl_CVV2Infos cvv on cvv.app_ID = A.app_id
-                                WHERE A.cardtype = 51 AND A.givendate IS NULL AND CardStatus = 'NORM' 
+                                WHERE (A.cardtype = 51 OR A.cardtype = 53) AND A.givendate IS NULL AND CardStatus = 'NORM' 
 								AND H.quality = 30 AND A.customer_number = @customerNumber";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -2877,7 +2910,7 @@ namespace ExternalBanking.DBManager
                                 cash_rate,loan_account,overdraft_account,SMSApplicationPresent,
                                 CONVERT(float,ROUND(positive_rate,case when currency='AMD' then 1 else 2 end)) positive_rate, CONVERT(float,ROUND(total_positive_rate,2)) total_positive_rate, positive_interest, 
                                 last_day_of_pos_rate_calculation, last_day_of_pos_rate_repair, date_of_stopping_pos_rate_calculation,
-                                related_office_number,end_date,open_date,add_inf,debt,attached_card
+                                related_office_number,end_date,open_date,add_inf,debt,attached_card, vn.design_id
                                 FROM Tbl_Visa_Numbers_Accounts vn
                                 INNER JOIN tbl_type_of_card t on vn.card_type=t.id
                                 WHERE closing_date is not null and 
@@ -3288,7 +3321,7 @@ namespace ExternalBanking.DBManager
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
-               using SqlDataReader dr = await cmd.ExecuteReaderAsync();
+                using SqlDataReader dr = await cmd.ExecuteReaderAsync();
                 while (dr.Read())
                 {
                     cardList.Add(new Card
@@ -3441,8 +3474,6 @@ namespace ExternalBanking.DBManager
 
                     conn.Open();
 
-                    DataTable dt = new DataTable();
-
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.Read())
@@ -3478,7 +3509,7 @@ namespace ExternalBanking.DBManager
             List<string> BINs = new List<string>();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                string sql = @"SELECT card_Range FROM Tbl_armenian_banks_card_ranges WHERE bank_code <> 16000";
+                string sql = @"SELECT card_Range FROM Tbl_armenian_banks_card_ranges";
                 using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.CommandType = CommandType.Text;
                 conn.Open();
@@ -3607,7 +3638,6 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@card_number", SqlDbType.VarChar, 16).Value = cardNumber;
                     conn.Open();
-                    DataTable dt = new DataTable();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.HasRows)
@@ -3653,6 +3683,219 @@ namespace ExternalBanking.DBManager
                     return email == null ? null : email.ToString();
                 }
             }
+
+        }
+        internal static string GetCardDesignImageByDesignId(int id)
+        {
+            string url = string.Empty;
+
+            using (SqlConnection cnn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                cnn.Open();
+
+                if (id != 3 && id != 13 && id != 12 && id != 18 && id != 19 && id != 29 && id != 27 && id != 0)
+                {
+                    using (SqlCommand cmd = new SqlCommand())
+                    {
+                        cmd.Connection = cnn;
+                        cmd.CommandText = @"select (path + file_name) as image_url from tbl_digital_card_images im inner join tbl_digital_card_themes t 
+                                            on im.theme_id = t.id where im.id = @id";
+                        cmd.Parameters.Add("@id", SqlDbType.NVarChar).Value = id;
+                        url = cmd.ExecuteScalar().ToString();
+                        url = ConfigurationManager.AppSettings["CardDesign"].ToString() + url;
+                    }
+                }
+            }
+            return url;
+        }
+
+        internal static void UpdateCardDesign(ulong productID, int designId)
+        {
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand())
+                {
+                    cmd.CommandText = "update tbl_visa_numbers_accounts set design_id = @designId where app_id = @productId";
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Connection = conn;
+                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productID;
+                    cmd.Parameters.Add("@designId", SqlDbType.Float).Value = designId;
+
+                    cmd.ExecuteNonQuery();
+
+                }
+            }
+        }
+
+        internal static short GetCardChangeType(long productId)
+        {
+            short cardChangeType = -1;
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT CH.typeID,
+                                      R.doc_id AS docID_R,
+			                          R.is_new_card_type,
+			                          NR.doc_id AS docID_NR,
+			                          CR.doc_id AS docID_CR
+                              FROM Tbl_CardChanges CH
+                              LEFT JOIN tbl_card_renew_order_details R
+                              ON R.app_id = CH.old_app_id
+                              LEFT JOIN tbl_non_credit_Line_card_replace_order_details NR
+                              ON NR.app_id = CH.old_app_id
+                              LEFT JOIN tbl_credit_Line_card_replace_order_details CR
+                              ON CR.app_id = CH.old_app_id
+                              WHERE CH.app_id = @productId";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+                    conn.Open();
+
+                    DataTable dt = new DataTable();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        DataRow row = dt.Rows[0];
+                        if (row["typeID"] != DBNull.Value)
+                        {
+                            if (Convert.ToInt16(row["typeID"]) == 2)
+                            {
+                                cardChangeType = 5;
+                            }
+                            else
+                            {
+                                if (row["docID_R"] != DBNull.Value)
+                                {
+                                    cardChangeType = (short)((Convert.ToInt16(row["is_new_card_type"]) == 0) ? 1 : 2);
+                                }
+                                else if (row["docID_NR"] != DBNull.Value)
+                                {
+                                    cardChangeType = 3;
+                                }
+                                else if (row["docID_CR"] != DBNull.Value)
+                                {
+                                    cardChangeType = 4;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            cardChangeType = 0;
+                        }
+                    }
+                    else
+                    {
+                        cardChangeType = 0;
+                    }
+                }
+            }
+            return cardChangeType;
+        }
+
+        internal static int GetRelatedOfficeQuality(long productId, int officeID, short? cardNewType)
+        {
+            int quality = -1;
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                string sql;
+
+                sql = @"SELECT Quality FROM Tbl_VISA_applications V 
+                                       INNER JOIN  Tbl_cards_rates CR
+                                       ON CR.CardType = ";
+                if (cardNewType != null)
+                {
+                    sql += " @cardNewType ";
+                }
+                else
+                {
+                    sql += @"CASE WHEN V.cardType = 17 THEN 36
+                                  WHEN V.cardType = 19 THEN 37
+                                  WHEN V.cardType = 25 THEN 38
+                                  WHEN V.cardType = 20 THEN 41
+                                  WHEN V.cardType = 23 THEN 40
+                                  WHEN V.cardType = 18 THEN 45
+                                  WHEN V.cardType = 30 THEN 46
+                                  WHEN V.cardType = 13 THEN 47
+                                  WHEN V.cardType = 15 THEN 48
+                                  WHEN V.cardType = 34 THEN 50
+                                  WHEN V.cardType = 24 THEN 49
+                                  WHEN V.cardType = 42 THEN 54
+                                  ELSE V.cardType END ";
+                }
+                sql += @"AND V.BillingCurrency = CR.currency
+                         WHERE App_ID = @productId AND office_id = @officeId";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+                    cmd.Parameters.Add("@officeId", SqlDbType.Int).Value = officeID;
+                    if (cardNewType != null)
+                        cmd.Parameters.Add("@cardNewType", SqlDbType.SmallInt).Value = cardNewType;
+
+                    conn.Open();
+
+                    var temp = cmd.ExecuteScalar();
+
+                    if (temp != null)
+                    {
+                        quality = Convert.ToInt16(temp);
+                    }
+                }
+            }
+            return quality;
+        }
+
+        internal static void ChangeVirtualCardDesignInWallet(ulong productID, int designId)
+        {
+           
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                string sql = "pr_change_virtual_card_design";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@issuerCardRefId", SqlDbType.NVarChar, 48).Value = productID.ToString();
+                    cmd.Parameters.Add("@designId", SqlDbType.Int).Value = designId;
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            
+        }
+        public static long GetMainAppId(long productId)
+        {
+            long mainAppId = 0;
+
+            using (SqlConnection cnn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                cnn.Open();
+
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = cnn;
+                    cmd.CommandText = "SELECT main_app_id FROM Tbl_SupplementaryCards WHERE app_id = @productId";
+                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
+
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.Read())
+                    {
+                        mainAppId = Convert.ToInt64(dr["main_app_id"].ToString());
+                    }
+                }
+            }
+
+            return mainAppId;
 
         }
     }

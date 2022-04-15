@@ -1,9 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -84,12 +82,12 @@ namespace ExternalBanking
         /// <summary>
         /// Մեկ ներդրողի նկատմամբ կիրառվող ձեռք բերվող պարտատոմսերի ծավալի սահմանափակում՝ այն է նվազագույն ձեռք բերման քանակ
         /// </summary>
-        public int  MinSaleQuantity {get;set;}
+        public int MinSaleQuantity { get; set; }
 
         /// <summary>
         /// Մեկ ներդրողի նկատմամբ կիրառվող ձեռք բերվող պարտատոմսերի ծավալի սահմանափակում՝ այն է առավելագույն ձեռք բերման քանակ
         /// </summary>
-        public int  MaxSaleQuantity {get;set; }
+        public int MaxSaleQuantity { get; set; }
 
         /// <summary>
         /// Պարտատոմսի թողարկման կարգավիճակ
@@ -224,7 +222,7 @@ namespace ExternalBanking
             Localization.SetCulture(result, new Culture(Languages.hy));
             return result;
         }
-      
+
         /// <summary>
         /// Պարտատոմսի թողարկման հեռացում
         /// </summary>
@@ -239,13 +237,13 @@ namespace ExternalBanking
             else
             {
                 result = BondIssueDB.DeleteBondIssue(this);
-                if(result.ResultCode != ResultCode.Normal)
+                if (result.ResultCode != ResultCode.Normal)
                 {
                     result.ResultCode = ResultCode.Failed;
                 }
                 else
-                {                
-                   result.ResultCode = BondIssueDB.SaveBondIssueHistory(this.ID, Action.Delete, user.userID).ResultCode;                    
+                {
+                    result.ResultCode = BondIssueDB.SaveBondIssueHistory(this.ID, Action.Delete, user.userID).ResultCode;
                 }
             }
             Localization.SetCulture(result, new Culture(Languages.hy));
@@ -273,16 +271,16 @@ namespace ExternalBanking
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
                     result = BondIssueDB.SaveBondIssue(this, action);
-                    if(result.ResultCode == ResultCode.Normal)
+                    if (result.ResultCode == ResultCode.Normal)
                     {
                         result.ResultCode = BondIssueDB.SaveBondIssueHistory(this.ID, action, user.userID).ResultCode;
                     }
-                   
+
                     scope.Complete();
                 }
             }
             Localization.SetCulture(result, new Culture(Languages.hy));
-            return result;   
+            return result;
         }
 
         /// <summary>
@@ -337,8 +335,8 @@ namespace ExternalBanking
         /// </summary>
         public void Complete()
         {
-            
-            if(this.ID == 0)
+
+            if (this.ID == 0)
             {
                 this.RegistrationDate = DateTime.Now.Date;
 
@@ -346,7 +344,7 @@ namespace ExternalBanking
             }
 
             //Կորպորատիվ պարտատոմսեր
-            if(this.IssuerType == BondIssuerType.ACBA)
+            if (this.IssuerType == BondIssuerType.ACBA)
             {
                 if (this.ShareType == SharesTypes.Bonds)
                 {
@@ -363,8 +361,8 @@ namespace ExternalBanking
                     //this.CouponPaymentCount = this.EditionCirculation / 12 * this.CouponPaymentPeriodicity;
                     //this.PeriodType = BondIssuePeriod.LongTerm;
                 }
-            }                
-               
+            }
+
         }
 
         /// <summary>
@@ -373,9 +371,9 @@ namespace ExternalBanking
         /// <returns></returns>
         public List<DateTime> CalculateCouponRepaymentSchedule()
         {
-            
+
             List<DateTime> schedule = new List<DateTime>();
-            if (this != null && this.CouponPaymentPeriodicity > 0 && this.CouponPaymentPeriodicity <=12 && 12 % this.CouponPaymentPeriodicity == 0)
+            if (this != null && this.CouponPaymentPeriodicity > 0 && this.CouponPaymentPeriodicity <= 12 && 12 % this.CouponPaymentPeriodicity == 0)
             {
                 int monthsCount = 12 / this.CouponPaymentPeriodicity;
 
@@ -387,7 +385,7 @@ namespace ExternalBanking
                     startDate = startDate.AddMonths(monthsCount);
                 }
             }
-               
+
 
             return schedule;
         }
@@ -406,39 +404,18 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="ISIN">Պարտատոմսի ԱՄՏԾ</param>
         /// <returns></returns>
-        public static int  GetNonDistributedBondsCount(int bondIssueId)
+        public static int GetNonDistributedBondsCount(int bondIssueId)
         {
-            int nonDistributedBondsCount = 0;
-            BondIssueFilter bondIssueFilter = new BondIssueFilter();
-            bondIssueFilter.BondIssueId = bondIssueId;
+            BondIssueFilter bondIssueFilter = new BondIssueFilter
+            {
+                BondIssueId = bondIssueId
+            };
+
             BondIssue bondIssue = BondIssueFilter.SearchBondIssues(bondIssueFilter).First();
 
-            BondFilter bondFilter = new BondFilter();
-            bondFilter.BondIssueId = bondIssueId;
-            
-            List<Bond> bonds = Bond.GetBonds(bondFilter);
-           
+            int distributedBondsCount = Bond.GetDistributedBondCount(bondIssueId, bondIssue.ShareType);
 
-            int distributedBondsCount = 0;
-            if(bonds.Count > 0)
-            {
-                bonds.RemoveAll(m => m.Quality == BondQuality.Deleted);
-                bonds.RemoveAll(m => m.Quality == BondQuality.Rejected);
-
-                if (bondIssue.ShareType == SharesTypes.Stocks)
-                {
-                    bonds.RemoveAll(b => b.Quality == BondQuality.AvailableForApproveDiling || b.Quality == BondQuality.AvailableForApproveDilingBackOffice);
-                }
-
-                if (bonds != null)
-                {
-                    distributedBondsCount = bonds.Sum(m => m.BondCount);
-                }
-               
-            }
-
-
-            nonDistributedBondsCount = (bondIssue.TotalCount - distributedBondsCount) < 0 ? 0 : bondIssue.TotalCount - distributedBondsCount;
+            int nonDistributedBondsCount = bondIssue.TotalCount - distributedBondsCount < 0 ? 0 : bondIssue.TotalCount - distributedBondsCount;
 
             return nonDistributedBondsCount;
         }
@@ -450,6 +427,11 @@ namespace ExternalBanking
             BondIssue bondIssue = BondIssueFilter.SearchBondIssues(bondIssueFilter).First();
 
             return bondIssue.PlacementPrice.Value;
+        }
+
+        public static bool IsACBASecurity(string ISIN)
+        {
+            return BondIssueDB.IsACBASecurity(ISIN);
         }
 
     }

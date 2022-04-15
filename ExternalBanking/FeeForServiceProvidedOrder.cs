@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using System.Transactions;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -60,7 +57,7 @@ namespace ExternalBanking
         public ActionResult Validate(User user)
         {
             ActionResult result = new ActionResult();
-            result.Errors.AddRange(Validation.ValidateFeeForServiceProvidedOrder(this,user));
+            result.Errors.AddRange(Validation.ValidateFeeForServiceProvidedOrder(this, user));
             return result;
         }
 
@@ -81,19 +78,19 @@ namespace ExternalBanking
             {
                 this.DebitAccount = Account.GetAccount(this.DebitAccount.AccountNumber);
 
-                var customer = ACBAOperationService.GetCustomer(this.CustomerNumber);
+                var customer = ACBAOperationService.GetCustomerMainData(this.CustomerNumber);
 
-                this.CustomerResidence = customer.residence.key;
+                this.CustomerResidence = (short)customer.ResidenceType;
             }
             else
             {
-                this.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this,OrderAccountType.DebitAccount),this.DebitAccount.Currency,user.filialCode);
+                this.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), this.DebitAccount.Currency, user.filialCode);
             }
 
             this.ReceiverAccount = GetCreditAccount();
 
             this.Currency = this.DebitAccount.Currency;
-           
+
         }
 
         /// <summary>
@@ -188,7 +185,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = FeeForServiceProvidedOrderDB.Save(this, userName, source);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -246,7 +243,7 @@ namespace ExternalBanking
             {
 
             }
-           
+
             result.Errors = warnings;
             return result;
         }
@@ -261,6 +258,6 @@ namespace ExternalBanking
         {
             return FeeForServiceProvidedOrderDB.GetCreditAccount(this);
         }
-        
+
     }
 }

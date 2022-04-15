@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ExternalBanking
 {
@@ -10,7 +6,7 @@ namespace ExternalBanking
     {
         public string CustomerDescription { get; set; }
         public string PosOnlineDescription { get; set; }
-        public Dictionary<string,string> ExtractsReceivingTypeDescription { get; set; }
+        public Dictionary<string, string> ExtractsReceivingTypeDescription { get; set; }
         //public string ExtractsReceivingType { get; set; }
 
         public string ProvisionAMDDescription { get; set; }

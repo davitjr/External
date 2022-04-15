@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System;
 
 namespace ExternalBanking.XBManagement
 {
@@ -16,11 +12,11 @@ namespace ExternalBanking.XBManagement
         /// <summary>
         /// Հաճ.համար
         /// </summary>
-        public ulong CustomerNumber { get; set; } 
+        public ulong CustomerNumber { get; set; }
         /// <summary>
         /// Պայմանագրի համար
         /// </summary>
-        public String ContractNumber { get; set; } 
+        public String ContractNumber { get; set; }
         ///// <summary>
         ///// Հաճ.լրիվ անուն
         ///// </summary>
@@ -49,8 +45,8 @@ namespace ExternalBanking.XBManagement
         /// Պաշտոն
         /// </summary>
         public string Position { get; set; }/// <summary>
-        /// Տնօրենի Ա.Ա
-        /// </summary>
+                                            /// Տնօրենի Ա.Ա
+                                            /// </summary>
         public String Manager { get; set; }
         /// <summary>
         /// Գլխ.հաշվապահի Ա.Ա
@@ -90,13 +86,13 @@ namespace ExternalBanking.XBManagement
         /// </summary>
         public byte? PermissionType { get; set; }
 
-        public static  HBApplication  GetHBApplication(ulong customerNumber)
+        public static HBApplication GetHBApplication(ulong customerNumber)
         {
             HBApplication hbApplication = HBApplicationDB.GetHBApplication(customerNumber);
 
-             return hbApplication;
+            return hbApplication;
         }
- 
-        
+
+
     }
 }

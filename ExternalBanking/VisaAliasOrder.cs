@@ -15,7 +15,7 @@ namespace ExternalBanking
         /// CardHolder Full Name
         /// </summary>
         public string RecipientFullName { get; set; }
-        
+
         /// <summary>
         /// Visa Alias(հեռախոսահամար)
         /// </summary>
@@ -128,11 +128,11 @@ namespace ExternalBanking
             }
 
             result = Approve(schemaType, userName, user);
-            
+
             return result;
         }
 
-       public VisaAliasOrder GetVisaAliasOrder(long orderId)
+        public VisaAliasOrder GetVisaAliasOrder(long orderId)
         {
             return VisaAliasDB.GetVisaAliasOrder(orderId);
         }

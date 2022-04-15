@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -29,7 +25,7 @@ namespace ExternalBanking.DBManager
                 order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
                 order.Type = (OrderType)(dt.Rows[0]["document_type"]);
                 order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
-                order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);           
+                order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
                 order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                 order.Card = Card.GetCard(dt.Rows[0]["visa_number"].ToString(), Convert.ToUInt64(dt.Rows[0]["customer_number"].ToString()));
                 order.GroupId = dt.Rows[0]["order_group_id"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["order_group_id"]) : 0;

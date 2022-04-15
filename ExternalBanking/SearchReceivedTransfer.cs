@@ -1,10 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Data;
 
 namespace ExternalBanking
 {
@@ -20,7 +16,7 @@ namespace ExternalBanking
         /// </summary>
         public string SenderName { get; set; }
 
- 
+
         /// <summary>
         /// Ստացողի տվյալներ
         /// </summary>
@@ -53,13 +49,13 @@ namespace ExternalBanking
         public string Country { get; set; }
 
 
- 
+
         public double ChargeW { get; set; }
         public double RateW { get; set; }
         public double TotalAmount { get; set; }
         public double AcbaFee { get; set; }
         public double ProfitPercent { get; set; }
-       /// <summary>
+        /// <summary>
         /// Ուղարկողի հսացե
         /// </summary>
         public string SenderAddress { get; set; }
@@ -73,12 +69,12 @@ namespace ExternalBanking
         /// Ստացողի հասցե
         /// </summary>
         public string ReceiverAddress { get; set; }
-        
+
         /// <summary>
         /// Ստացողի հեռախոս
         /// </summary>
         public string ReceiverPhone { get; set; }
-        
+
         /// <summary>
         /// Ֆայլի անուն
         /// </summary>
@@ -100,9 +96,9 @@ namespace ExternalBanking
         /// Երկրի կոդ
         /// </summary>
         public string CountryCode { get; set; }
- 
- 
-         
+
+
+
 
         /// <summary>
         ///  Փոխանցումների որոնում տրված պարամետրերով

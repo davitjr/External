@@ -1,12 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using System.Transactions;
-using System.IO;
-using ExternalBanking.ACBAServiceReference;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -14,8 +11,8 @@ namespace ExternalBanking.DBManager
     {
         public static List<ProductDocument> GetProductDocuments(ulong productId)
         {
-             
-            List<ProductDocument> productDocumentList=new List<ProductDocument>();
+
+            List<ProductDocument> productDocumentList = new List<ProductDocument>();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -39,19 +36,19 @@ namespace ExternalBanking.DBManager
                     ProductDocument productDocument = new ProductDocument();
                     productDocument.Id = ulong.Parse(dr["document_id"].ToString());
                     productDocument.DocumentType = int.Parse(dr["document_type"].ToString());
-                    productDocument.DocumentTypeDescription =Utility.ConvertAnsiToUnicode(dr["Type_of_passport"].ToString());
+                    productDocument.DocumentTypeDescription = Utility.ConvertAnsiToUnicode(dr["Type_of_passport"].ToString());
                     productDocument.Source = 1;
                     productDocumentList.Add(productDocument);
                 }
-               
-            } 
-            
+
+            }
+
             return productDocumentList;
         }
 
         public static List<ProductDocument> GetHbProductDocuments(ulong productId)
         {
-            List<ProductDocument> productDocumentList=new List<ProductDocument>();
+            List<ProductDocument> productDocumentList = new List<ProductDocument>();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -67,16 +64,16 @@ namespace ExternalBanking.DBManager
                                      INNER JOIN Tbl_types_of_HB_Attached_Documents T on D.attachment_type=T.[type_id] 
 									 inner join
 									 (SELECT isNull(doc_ID,0) as doc_ID from tbl_hb_documents where debet_account=@productId and document_type in(7,12,13,14,17,28,29)) A on A.doc_ID=D.doc_ID";
-                    cmd = new SqlCommand(sqlString, conn); 
+                    cmd = new SqlCommand(sqlString, conn);
                     cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
                 }
                 else
                 {
-                     sqlString = @"SELECT id,attachment_type,type_description FROM tbl_HB_Attached_Documents D
+                    sqlString = @"SELECT id,attachment_type,type_description FROM tbl_HB_Attached_Documents D
                                      INNER JOIN Tbl_types_of_HB_Attached_Documents T on D.attachment_type=T.[type_id] 
                                      WHERE doc_ID=@docId";
-                     cmd = new SqlCommand(sqlString, conn);
-                     cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
+                    cmd = new SqlCommand(sqlString, conn);
+                    cmd.Parameters.Add("@docId", SqlDbType.Int).Value = docId;
                 }
 
                 using SqlDataReader dr = cmd.ExecuteReader();
@@ -85,14 +82,14 @@ namespace ExternalBanking.DBManager
                     ProductDocument productDocument = new ProductDocument();
                     productDocument.Id = ulong.Parse(dr["id"].ToString());
                     productDocument.DocumentType = int.Parse(dr["attachment_type"].ToString());
-                    productDocument.DocumentTypeDescription =Utility.ConvertAnsiToUnicode(dr["type_description"].ToString());
+                    productDocument.DocumentTypeDescription = Utility.ConvertAnsiToUnicode(dr["type_description"].ToString());
                     productDocument.Source = 2;
                     productDocumentList.Add(productDocument);
 
                 }
             }
             return productDocumentList;
-                
+
         }
         public static List<AttachmentDocument> GetHBAttachmentsInfo(ulong documentId)
         {
@@ -136,7 +133,7 @@ namespace ExternalBanking.DBManager
         }
         public static byte[] GetOneHBAttachment(ulong id)
         {
-            byte[] attachment=null;
+            byte[] attachment = null;
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -165,7 +162,7 @@ namespace ExternalBanking.DBManager
                                                     Union ALL SELECT isNull(HB_doc_ID,0) as HB_doc_ID FROM [tbl_short_time_loans;] WHERE App_Id=@appId
                                                     Union ALL SELECT isNull(HB_doc_ID,0) as HB_doc_ID FROM Tbl_credit_lines WHERE App_Id=@appId
                                                     Union ALL SELECT isNull(doc_ID,0) as HB_doc_ID FROM Tbl_bonds WHERE App_Id=@appId", conn);
-                 cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
+                cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
 
                 using SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())

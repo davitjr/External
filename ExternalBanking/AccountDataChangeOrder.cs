@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -158,7 +158,7 @@ namespace ExternalBanking
 
             foreach (var item in allAdditionalDetails)
             {
-                if (item.Key!="6" && item.Key != "7" && item.Key != "9" && item.Key != "10" && item.Key != "11" && item.Key != "12")
+                if (item.Key != "6" && item.Key != "7" && item.Key != "9" && item.Key != "10" && item.Key != "11" && item.Key != "12")
                 {
 
                     if (canChangeAllAccountAdditionsTypes == "1")
@@ -168,7 +168,7 @@ namespace ExternalBanking
                     else
                     {
                         //Բացառում ենք չօգտագործվող տեսակները և ոչ հասանելիները ((6,7,11,12  , 3,4,9,10,14)
-                        if (   Convert.ToUInt16(item.Key) == 1
+                        if (Convert.ToUInt16(item.Key) == 1
                             || Convert.ToUInt16(item.Key) == 2
                             || Convert.ToUInt16(item.Key) == 5
                             || Convert.ToUInt16(item.Key) == 8

@@ -90,7 +90,7 @@ namespace ExternalBanking.ServiceClient
 
             return result;
         }
-        
+
         public static TokenOperationsResult UnBlockUser(TokenOperationsInfo servletRequest)
         {
             var result = new TokenOperationsResult();
@@ -140,16 +140,16 @@ namespace ExternalBanking.ServiceClient
                 ((IClientChannel)client).Close();
                 success = true;
             }
-            catch (FaultException ex)
+            catch (FaultException)
             {
                 ((IClientChannel)client).Close();
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
 

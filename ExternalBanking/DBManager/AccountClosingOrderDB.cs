@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -36,7 +35,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@closing_account", SqlDbType.VarChar, 50).Value = order.ClosingAccounts[0].AccountNumber;
                     cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
                     cmd.Parameters.Add("@closing_reason_type", SqlDbType.Int).Value = order.ClosingReasonType;
-                    if(source == SourceType.AcbaOnline || source == SourceType.MobileBanking)
+                    if (source == SourceType.AcbaOnline || source == SourceType.MobileBanking)
                     {
                         if (order.ClosingReasonDescription == null) order.ClosingReasonDescription = "";
                         cmd.Parameters.Add("@closing_reason_description", SqlDbType.NVarChar, 200).Value = order.ClosingReasonDescription;
@@ -98,7 +97,7 @@ namespace ExternalBanking.DBManager
         {
             bool secondClosing;
             string sourceTypeCond = "";
-            if(sourceType == SourceType.Bank)
+            if (sourceType == SourceType.Bank)
             {
                 sourceTypeCond = " and source_type not in (1,5)";
             }
@@ -118,7 +117,7 @@ namespace ExternalBanking.DBManager
                     else
                         secondClosing = false;
                 }
-                    
+
             }
             return secondClosing;
         }

@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking.XBManagement
@@ -14,7 +10,7 @@ namespace ExternalBanking.XBManagement
         /// Խմբի ունիկալ համար (Id)
         /// </summary>
         public int Id { get; set; }
- 
+
         /// <summary>
         /// Խմբի անվանում
         /// </summary>
@@ -37,31 +33,31 @@ namespace ExternalBanking.XBManagement
                 return result;
             }
 
-                result = XBUserGroupDB.Save(this, orderId, Action.Add);
-                if (result.ResultCode == ResultCode.Normal && this.HBUsers != null && this.HBUsers.Count > 0)
+            result = XBUserGroupDB.Save(this, orderId, Action.Add);
+            if (result.ResultCode == ResultCode.Normal && this.HBUsers != null && this.HBUsers.Count > 0)
+            {
+                foreach (HBUser hbUser in this.HBUsers)
                 {
-                    foreach (HBUser hbUser in this.HBUsers)
+                    ActionResult resultXBUser = AddHBUserIntoGroup(hbUser, orderId, appId);
+                    if (resultXBUser.ResultCode != ResultCode.Normal)
                     {
-                        ActionResult resultXBUser = AddHBUserIntoGroup(hbUser, orderId, appId);
-                        if(resultXBUser.ResultCode != ResultCode.Normal)
+                        if (resultXBUser.ResultCode == ResultCode.Failed)
                         {
-                            if (resultXBUser.ResultCode == ResultCode.Failed)
-                            {
-                                result.ResultCode = resultXBUser.ResultCode;
-                                break;
-                            }
-                            result.Errors.AddRange(resultXBUser.Errors);
                             result.ResultCode = resultXBUser.ResultCode;
+                            break;
                         }
+                        result.Errors.AddRange(resultXBUser.Errors);
+                        result.ResultCode = resultXBUser.ResultCode;
                     }
                 }
-                if (result.Errors.Count < 1)
-                {
-                    result.ResultCode = ResultCode.Normal;
-                }
-              
-                       
-             return result;
+            }
+            if (result.Errors.Count < 1)
+            {
+                result.ResultCode = ResultCode.Normal;
+            }
+
+
+            return result;
         }
 
         /// <summary>
@@ -79,10 +75,10 @@ namespace ExternalBanking.XBManagement
             }
 
             result = XBUserGroupDB.AddHBUserIntoGroup(this, user, Action.Add, orderId);
-            
+
             return result;
         }
-        
+
         /// <summary>
         /// Խմբի հեռացում
         /// </summary>
@@ -101,7 +97,7 @@ namespace ExternalBanking.XBManagement
                 result = XBUserGroupDB.RemoveGroup(this, doc_id);
                 scope.Complete();
             }
-          
+
             return result;
         }
 
@@ -192,13 +188,13 @@ namespace ExternalBanking.XBManagement
         public static List<XBUserGroup> GetXBUserGroups(ulong customerNumber)
         {
             List<XBUserGroup> groups = new List<XBUserGroup>();
-           
-                groups = XBUserGroupDB.GetXBUserGroups(customerNumber);
-                foreach (XBUserGroup group in groups)
-                {
-                    group.HBUsers = GetHBUsersByGroup(group.Id);
-                }
-   
+
+            groups = XBUserGroupDB.GetXBUserGroups(customerNumber);
+            foreach (XBUserGroup group in groups)
+            {
+                group.HBUsers = GetHBUsersByGroup(group.Id);
+            }
+
             return groups;
         }
 
@@ -222,21 +218,21 @@ namespace ExternalBanking.XBManagement
         public static List<HBUser> GetHBUsersByGroup(int id)
         {
             List<HBUser> hbUsers = new List<HBUser>();
-           
-                hbUsers = XBUserGroupDB.GetHBUsersByGroup(id);
-              
-                if(hbUsers != null)
+
+            hbUsers = XBUserGroupDB.GetHBUsersByGroup(id);
+
+            if (hbUsers != null)
+            {
+                for (int i = 0; i < hbUsers.Count; i++)
                 {
-                    for (int i = 0; i < hbUsers.Count; i++)
-                    {
-                        hbUsers[i] = HBUser.GetHBUser(hbUsers[i].ID);
-                    }
+                    hbUsers[i] = HBUser.GetHBUser(hbUsers[i].ID);
                 }
-             
+            }
+
             return hbUsers;
         }
 
-       
+
         /// <summary>
         /// Վերադարձնում է հաճախորդի` տրված հասանելիության խումբը
         /// </summary>
@@ -245,11 +241,11 @@ namespace ExternalBanking.XBManagement
         public static XBUserGroup Get(int id)
         {
             XBUserGroup group = new XBUserGroup();
-           
-                group = XBUserGroupDB.GetXBUserGroup(id);
 
-                group.HBUsers = GetHBUsersByGroup(id);
-            
+            group = XBUserGroupDB.GetXBUserGroup(id);
+
+            group.HBUsers = GetHBUsersByGroup(id);
+
             return group;
         }
 
@@ -261,7 +257,7 @@ namespace ExternalBanking.XBManagement
         {
             HBApplication hbApplication = HBApplication.GetHBApplication(customerNumber);
 
-            if(hbApplication == null)
+            if (hbApplication == null)
             {
                 return false;
             }
@@ -270,7 +266,7 @@ namespace ExternalBanking.XBManagement
                 int HBApplicationId = HBApplication.GetHBApplication(customerNumber).ID;
                 return XBUserGroupDB.ExistsXBUserGroupWithName(HBApplicationId, this.GroupName);
             }
-           
+
         }
 
 
@@ -303,13 +299,13 @@ namespace ExternalBanking.XBManagement
         public static List<XBUserGroup> GetXBUserGroupsByOrder(long docId)
         {
             List<XBUserGroup> groups = new List<XBUserGroup>();
-           
-                groups = XBUserGroupDB.GetXBUserGroupsByOrder(docId);
-                foreach (XBUserGroup group in groups)
-                {
-                    group.HBUsers = GetHBUsersByGroupByOrder(group.Id, docId);
-                }
-                             
+
+            groups = XBUserGroupDB.GetXBUserGroupsByOrder(docId);
+            foreach (XBUserGroup group in groups)
+            {
+                group.HBUsers = GetHBUsersByGroupByOrder(group.Id, docId);
+            }
+
             return groups;
         }
 
@@ -321,18 +317,18 @@ namespace ExternalBanking.XBManagement
         public static List<HBUser> GetHBUsersByGroupByOrder(int groupId, long docId)
         {
             List<HBUser> hbUsers = new List<HBUser>();
-          
-                hbUsers = XBUserGroupDB.GetHBUsersByGroupByOrder(groupId, docId);
 
-                if (hbUsers != null)
+            hbUsers = XBUserGroupDB.GetHBUsersByGroupByOrder(groupId, docId);
+
+            if (hbUsers != null)
+            {
+                for (int i = 0; i < hbUsers.Count; i++)
                 {
-                    for (int i = 0; i < hbUsers.Count; i++)
-                    {
-                        hbUsers[i] = HBUser.GetHBUser(hbUsers[i].ID);
-                    }
+                    hbUsers[i] = HBUser.GetHBUser(hbUsers[i].ID);
                 }
+            }
 
-            
+
             return hbUsers;
         }
     }

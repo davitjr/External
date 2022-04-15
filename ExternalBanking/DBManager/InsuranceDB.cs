@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -264,7 +264,7 @@ namespace ExternalBanking.DBManager
                     insurance.IsManualDeleted = Convert.ToBoolean(row["manual_deleted"]);
                 }
                 insurance.Currency = row["currency"].ToString();
-                if (row["compensation_amount"]!=DBNull.Value)
+                if (row["compensation_amount"] != DBNull.Value)
                     insurance.CompensationAmount = double.Parse(row["compensation_amount"].ToString());
 
                 if (row["compensation_amount_currency"] != DBNull.Value)

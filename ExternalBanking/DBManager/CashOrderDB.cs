@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -97,9 +96,9 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 dt.Load(cmd.ExecuteReader());
-                if (dt.Rows.Count>0)
+                if (dt.Rows.Count > 0)
                 {
-                    order.CashDate =Convert.ToDateTime( dt.Rows[0]["cashTakeDate"]);
+                    order.CashDate = Convert.ToDateTime(dt.Rows[0]["cashTakeDate"]);
                     order.CashFillial = Convert.ToInt32(dt.Rows[0]["CashApp_filial"]);
                     order.Amount = Convert.ToDouble(dt.Rows[0]["CashAmount"]);
                     order.Currency = dt.Rows[0]["currency"].ToString();
@@ -114,7 +113,7 @@ namespace ExternalBanking.DBManager
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
 
                 }
-                
+
             }
             return order;
         }

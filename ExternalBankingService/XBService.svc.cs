@@ -1,7 +1,10 @@
 ﻿using ExternalBanking;
 using ExternalBanking.ARUSDataService;
+using ExternalBanking.DBManager;
+using ExternalBanking.Leasing;
 using ExternalBanking.PreferredAccounts;
 using ExternalBanking.QrTransfers;
+using ExternalBanking.SecuritiesTrading;
 using ExternalBanking.ServiceClient;
 using ExternalBanking.UtilityPaymentsManagment;
 using ExternalBanking.XBManagement;
@@ -11,20 +14,17 @@ using NLog;
 using NLog.Targets;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Web.Configuration;
 using System.Web.Script.Serialization;
+using static ExternalBanking.ReceivedBillSplitRequest;
 using ActionError = ExternalBanking.ActionError;
 using ActionResult = ExternalBanking.ActionResult;
 using infsec = ExternalBankingService.InfSecServiceReference;
 using ResultCode = ExternalBanking.ResultCode;
 using xbs = ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
-using static ExternalBanking.ReceivedBillSplitRequest;
 //using ExternalBankingService.Filters;
 
 
@@ -199,10 +199,8 @@ namespace ExternalBankingService
         {
             try
             {
-                List<Card> cards;
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cards = customer.GetCards(filter, includingAttachedCards);
-                return cards;
+                return customer.GetCards(filter, includingAttachedCards);
             }
             catch (Exception ex)
             {
@@ -217,8 +215,7 @@ namespace ExternalBankingService
             {
                 CardStatement result = null;
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                bool check = customer.CheckCardOwner(cardNumber);
-                if (check)
+                if (customer.CheckCardOwner(cardNumber))
                     result = Card.GetStatement(cardNumber, dateFrom, dateTo, Language, minAmount, maxAmount, debCred, transactionsCount, orderByAscDesc);
 
                 return result;
@@ -453,7 +450,7 @@ namespace ExternalBankingService
 
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
 
-                Card card = customer.GetCard(cardNumber);
+                Card card = customer.GetCardMainData(cardNumber);
 
                 if (card != null)
                     result = card.GetArCaBalance(User.userID, ClientIp);
@@ -471,7 +468,7 @@ namespace ExternalBankingService
             }
         }
 
-        public void WriteLog(Exception ex)
+        public void WriteLog(Exception ex, string json = "")
         {
             GlobalDiagnosticsContext.Set("ClientIp", ClientIp);
 
@@ -486,7 +483,7 @@ namespace ExternalBankingService
                 GlobalDiagnosticsContext.Set("Logger", "ExternalBankingService-TestRelease");
             }
 
-            string stackTrace = (ex.StackTrace != null ? ex.StackTrace : " ") + Environment.NewLine + " InnerException StackTrace:" + (ex.InnerException != null ? ex.InnerException.StackTrace : "");
+            string stackTrace = (ex.StackTrace != null ? ex.StackTrace : " ") + Environment.NewLine + " InnerException StackTrace:" + (ex.InnerException != null ? ex.InnerException.StackTrace : "") + " customer_number = " + AuthorizedCustomer?.CustomerNumber.ToString() + " //  json = " + json;
             GlobalDiagnosticsContext.Set("StackTrace", stackTrace);
             GlobalDiagnosticsContext.Set("ExceptionType", ex.GetType().ToString());
 
@@ -635,7 +632,7 @@ namespace ExternalBankingService
             }
             catch (Exception ex)
             {
-                WriteLog(ex);
+                WriteLog(ex, new JavaScriptSerializer().Serialize(order));
                 throw new FaultException(Resourse.InternalError);
             }
         }
@@ -651,7 +648,7 @@ namespace ExternalBankingService
             }
             catch (Exception ex)
             {
-                WriteLog(ex);
+                WriteLog(ex, new JavaScriptSerializer().Serialize(order));
                 throw new FaultException(Resourse.InternalError);
             }
         }
@@ -671,6 +668,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
+
         public ActionResult SaveAndApproveInternationalPaymentOrder(InternationalPaymentOrder order)
         {
             try
@@ -1131,6 +1129,7 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                InitOrder(order);
                 ActionResult result = customer.DeleteOrder(order, AuthorizedCustomer.UserName);
                 return result;
             }
@@ -1693,12 +1692,10 @@ namespace ExternalBankingService
         }
         public SwiftCopyOrder GetSwiftCopyOrder(long ID)
         {
-            SwiftCopyOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetSwiftCopyOrder(ID);
-                return order;
+                return customer.GetSwiftCopyOrder(ID);
             }
             catch (Exception ex)
             {
@@ -1757,12 +1754,10 @@ namespace ExternalBankingService
         }
         public CustomerDataOrder GetCustomerDataOrder(long ID)
         {
-            CustomerDataOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCustomerDataOrder(ID);
-                return order;
+                return customer.GetCustomerDataOrder(ID);
             }
             catch (Exception ex)
             {
@@ -1774,11 +1769,9 @@ namespace ExternalBankingService
         {
             try
             {
-                Dictionary<ulong, string> AllThirdPerson = new Dictionary<ulong, string>();
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
                 customer.Source = Source;
-                AllThirdPerson = customer.GetThirdPersons();
-                return AllThirdPerson;
+                return customer.GetThirdPersons();
             }
             catch (Exception ex)
             {
@@ -1815,7 +1808,6 @@ namespace ExternalBankingService
         {
             try
             {
-                DepositOrderCondition condition = new DepositOrderCondition();
                 order.CustomerNumber = AuthorizedCustomer.CustomerNumber;
                 bool isEmployeeDeposit = false;
 
@@ -1844,8 +1836,7 @@ namespace ExternalBankingService
                     isEmployeeDeposit = false;
                 }
 
-                condition = Deposit.GetDepositOrderCondition(order, Source, isEmployeeDeposit);
-                return condition;
+                return Deposit.GetDepositOrderCondition(order, Source, isEmployeeDeposit);
             }
             catch (Exception ex)
             {
@@ -1893,9 +1884,7 @@ namespace ExternalBankingService
         {
             try
             {
-                Boolean changeAccess = false;
-                changeAccess = Utility.ManuallyRateChangingAccess(amount, currency, convertationCurrency, sourceType);
-                return changeAccess;
+                return Utility.ManuallyRateChangingAccess(amount, currency, convertationCurrency, sourceType);
             }
             catch (Exception ex)
             {
@@ -1910,9 +1899,7 @@ namespace ExternalBankingService
         {
             try
             {
-                TransferByCallList list = new TransferByCallList();
-                list = filter.GetList();
-                return list;
+                return filter.GetList();
             }
             catch (Exception ex)
             {
@@ -1925,13 +1912,11 @@ namespace ExternalBankingService
         {
             try
             {
-                TransferByCallList list = new TransferByCallList();
                 string isCallCenter = null;
                 User.AdvancedOptions.TryGetValue("isCallCenter", out isCallCenter);
                 if (isCallCenter != "1")
                     filter.Filial = User.filialCode;
-                list = filter.GetList();
-                return list;
+                return filter.GetList();
             }
             catch (Exception ex)
             {
@@ -1944,10 +1929,8 @@ namespace ExternalBankingService
         {
             try
             {
-                List<Transfer> list = new List<Transfer>();
                 ulong CustomerNumber = GetAuthorizedCustomerNumber();
-                list = filter.GetList(User, CustomerNumber);
-                return list;
+                return filter.GetList(User, CustomerNumber);
             }
             catch (Exception ex)
             {
@@ -1960,9 +1943,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<Transfer> list = new List<Transfer>();
-                list = filter.GetList(User, CustomerNumber: 0);
-                return list;
+                return filter.GetList(User, CustomerNumber: 0);
             }
             catch (Exception ex)
             {
@@ -1975,10 +1956,8 @@ namespace ExternalBankingService
         {
             try
             {
-                List<ReceivedBankMailTransfer> list = new List<ReceivedBankMailTransfer>();
                 ulong CustomerNumber = GetAuthorizedCustomerNumber();
-                list = filter.GetReceivedBankMailTransfersList(User, CustomerNumber);
-                return list;
+                return filter.GetReceivedBankMailTransfersList(User, CustomerNumber);
             }
             catch (Exception ex)
             {
@@ -2038,7 +2017,7 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                return customer.GetDepositRepayments(productId);
+                return customer.GetDepositRepaymentsWithProductId(productId);
             }
             catch (Exception ex)
             {
@@ -2051,8 +2030,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<LoanRepaymentGrafik> loanGrafik = loan.GetLoanGrafik();
-                return loanGrafik;
+                return loan.GetLoanGrafik();
             }
             catch (Exception ex)
             {
@@ -2066,8 +2044,7 @@ namespace ExternalBankingService
         {
             try
             {
-                LoanRepaymentGrafik loanNextRepayment = loan.GetLoanNextRepayment();
-                return loanNextRepayment;
+                return loan.GetLoanNextRepayment();
             }
             catch (Exception ex)
             {
@@ -2082,7 +2059,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<LoanRepaymentGrafik> loanGrafik = new List<LoanRepaymentGrafik>();
+                List<LoanRepaymentGrafik> loanGrafik;
                 loan = Loan.GetLoan((ulong)loan.ProductId, AuthorizedCustomer.CustomerNumber);
                 if (loan == null)
                 {
@@ -2460,9 +2437,7 @@ namespace ExternalBankingService
             try
             {
                 SwiftMessage swiftMessage = SwiftMessage.GetSwiftMessage(messageUniqNumber);
-                ActionResult result = swiftMessage.MakeSwiftStatement(dateStatement, dateFrom, dateTo);
-                return result;
-
+                return swiftMessage.MakeSwiftStatement(dateStatement, dateFrom, dateTo);
             }
             catch (Exception ex)
             {
@@ -2536,8 +2511,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<TransferCallContract> list = TransferCallContract.GetTransferCallContracts(customerNumber, accountNumber, cardNumber);
-                return list;
+                return TransferCallContract.GetTransferCallContracts(customerNumber, accountNumber, cardNumber);
             }
             catch (Exception ex)
             {
@@ -2546,29 +2520,6 @@ namespace ExternalBankingService
             }
         }
 
-        //public List<Tuple<string, string>> GetCustomerAuthorizationData(ulong customerNumber)
-        //{
-        //    Dictionary<string, string> authorizationData = new Dictionary<string, string>();
-        //    List<Tuple<string, string>> result = new List<Tuple<string, string>>();
-        //    try
-        //    {
-        //        using (PhoneBankingSecurityServiceClient proxy = new PhoneBankingSecurityServiceClient())
-        //        {
-        //            authorizationData = proxy.GetCustomerAuthorizationData(customerNumber);
-        //        }
-        //        foreach (var item in authorizationData)
-        //        {
-        //            Tuple<string, string> listItem = new Tuple<string, string>(Utility.ConvertAnsiToUnicode(item.Key), Utility.ConvertAnsiToUnicode(item.Value));
-        //            result.Add(listItem);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        WriteLog(ex);
-        //        throw new FaultException(Resourse.InternalError);
-        //    }
-        //    return result;
-        //}
 
         public List<OverdueDetail> GetOverdueDetails()
         {
@@ -2626,7 +2577,7 @@ namespace ExternalBankingService
                     customerData = client.AuthorizeCustomer(customerNumber);
                 });
 
-                result.CustomerNumber = (ulong)customerNumber;
+                result.CustomerNumber = customerNumber;
                 result.SessionID = customerData.SessionID;
                 result.DailyTransactionsLimit = customerData.DailyTransactionsLimit;
                 customer.CustomerNumber = customerNumber;
@@ -2742,53 +2693,6 @@ namespace ExternalBankingService
             }
 
         }
-        //public bool InitNew(string authorizedCustomerSessionID, byte language, string clientIp, string authorizeduserSessionID, SourceType source, ServiceType customerServiceType = ServiceType.CustomerService)
-        //{
-        //    try
-        //    {
-
-        //        bool checkCustomerSession = true;
-
-
-        //        AuthorizedUser authorizedUser = AuthorizeUserBySessionToken(authorizeduserSessionID);
-
-        //        xbs.User authorizedXBSUser = AuthorizationService.InitXBSUser(authorizedUser);
-
-        //        if (customerServiceType == ServiceType.NonCustomerService)
-        //            authorizedCustomerSessionID = SESSIONID_NonCustomerService;
-
-        //        if (authorizedCustomerSessionID != "")
-        //        {
-        //            CheckCustomerAuthorization(authorizedCustomerSessionID);
-        //            if (AuthorizedCustomer.SessionID == Guid.Empty.ToString())
-        //            {
-        //                checkCustomerSession = false;
-        //            }
-        //        }
-
-        //        if (source == SourceType.Bank)
-        //        {
-        //            if (AuthorizedCustomer != null)
-        //            {
-        //                AuthorizedCustomer.OneTransactionLimit = 10000000000;
-        //                AuthorizedCustomer.DailyTransactionsLimit = 10000000000;
-        //            }
-        //        }
-
-        //        CustomerServiceType = customerServiceType;
-        //        User = authorizedXBSUser;
-        //        Source = source;
-        //        Language = language;
-        //        ClientIp = clientIp;
-        //        return checkCustomerSession;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        WriteLog(ex);
-        //        throw new FaultException(Resourse.InternalError);
-        //    }
-
-        //}
 
         public ulong GetAuthorizedCustomerNumber()
         {
@@ -2805,8 +2709,7 @@ namespace ExternalBankingService
         {
             try
             {
-                TransferCallContract contract = TransferCallContract.GetContractDetails(contractId);
-                return contract;
+                return TransferCallContract.GetContractDetails(contractId);
             }
             catch (Exception ex)
             {
@@ -2860,114 +2763,6 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        //pba delete
-        //public ActionResult SendAutorizationSMS()
-        //{
-        //    try
-        //    {
-        //        ActionResult result = new ActionResult();
-
-        //public ActionResult SendAutorizationSMS()
-        //{
-        //    try
-        //    {
-        //        ActionResult result = new ActionResult();
-
-        //        string smsCode = "";
-        //        bool isTestVersion = bool.Parse(WebConfigurationManager.AppSettings["TestVersion"].ToString());
-        //        if (isTestVersion)
-        //        {
-        //            result.ResultCode = ResultCode.Normal;
-        //            result.Id = 1;
-        //            return result;
-        //        }
-
-        //        using (PhoneBankingSecurityServiceClient proxy = new PhoneBankingSecurityServiceClient())
-        //        {
-        //            smsCode = proxy.GetCode(AuthorizedCustomer.SessionID);
-        //        }
-
-        //        using (PhoneBankingSecurityServiceClient proxy = new PhoneBankingSecurityServiceClient())
-        //        {
-        //            smsCode = proxy.GetCode(AuthorizedCustomer.SessionID);
-        //        }
-
-        //        if (smsCode == null || smsCode == "")
-        //        {
-        //            result.ResultCode = ResultCode.Failed;
-        //            result.Errors = new List<ActionError>();
-        //            ActionError error = new ActionError();
-        //            error.Description = "SMS կոդը հասանելի չէ";
-        //            result.Errors.Add(error);
-        //            return result;
-        //        }
-
-        //        if (smsCode == null || smsCode == "")
-        //        {
-        //            result.ResultCode = ResultCode.Failed;
-        //            result.Errors = new List<ActionError>();
-        //            ActionError error = new ActionError();
-        //            error.Description = "SMS կոդը հասանելի չէ";
-        //            result.Errors.Add(error);
-        //            return result;
-        //        }
-
-        //        result = SMSMessage.SendPhoneBankingAuthorizationSMSMessage(AuthorizedCustomer.CustomerNumber, smsCode, User);
-
-        //        result = SMSMessage.SendPhoneBankingAuthorizationSMSMessage(AuthorizedCustomer.CustomerNumber, smsCode, User);
-
-        //        if (result.ResultCode != ResultCode.Normal)
-        //        {
-        //            result.Errors = new List<ActionError>();
-        //            ActionError error = new ActionError();
-        //            error.Description = "Հնարավոր չէ ուղարկել:";
-        //            result.Errors.Add(error);
-        //        }
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        WriteLog(ex);
-        //        throw new FaultException(Resourse.InternalError);
-        //    }
-        //}
-
-        //public ActionResult VerifyAuthorizationSMS(string smsCode)
-        //{
-        //    try
-        //    {
-        //        ActionResult result = new ActionResult();
-        //        bool isTestVersion = bool.Parse(WebConfigurationManager.AppSettings["TestVersion"].ToString());
-        //        if (isTestVersion)
-        //        {
-        //            result.ResultCode = ResultCode.Normal;
-        //            return result;
-        //        }
-        //        bool isValid = false;
-        //        using (PhoneBankingSecurityServiceClient proxy = new PhoneBankingSecurityServiceClient())
-        //        {
-        //            isValid = proxy.VerifyCode(smsCode, AuthorizedCustomer.SessionID);
-        //        }
-
-        //        if (isValid)
-        //            result.ResultCode = ResultCode.Normal;
-        //        else
-        //        {
-        //            result.ResultCode = ResultCode.Failed;
-        //            result.Errors = new List<ActionError>();
-        //            ActionError error = new ActionError();
-        //            error.Description = "Մուտքագրված կոդը սխալ է:";
-        //            result.Errors.Add(error);
-        //        }
-
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        WriteLog(ex);
-        //        throw new FaultException(Resourse.InternalError);
-        //    }
-        //}
 
         public List<ExchangeRate> GetExchangeRates()
         {
@@ -3023,12 +2818,9 @@ namespace ExternalBankingService
 
         public CardServiceFee GetCardServiceFee(ulong productId)
         {
-            CardServiceFee cardServiceFee;
             try
             {
-                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cardServiceFee = Card.GetCardServiceFee(productId);
-                return cardServiceFee;
+                return Card.GetCardServiceFee(productId);
             }
             catch (Exception ex)
             {
@@ -3123,12 +2915,10 @@ namespace ExternalBankingService
         }
         public MatureOrder GetMatureOrder(long ID)
         {
-            MatureOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetMatureOrder(ID);
-                return order;
+                return customer.GetMatureOrder(ID);
             }
             catch (Exception ex)
             {
@@ -3175,12 +2965,10 @@ namespace ExternalBankingService
         }
         public AccountOrder GetAccountOrder(long ID)
         {
-            AccountOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetAccountOrder(ID);
-                return order;
+                return customer.GetAccountOrder(ID);
             }
             catch (Exception ex)
             {
@@ -3307,9 +3095,6 @@ namespace ExternalBankingService
 
         }
 
-
-
-
         public ActionResult SaveMatureOrder(MatureOrder order)
         {
             try
@@ -3386,21 +3171,10 @@ namespace ExternalBankingService
 
         public MembershipRewards GetCardMembershipRewards(string cardNumber)
         {
-            MembershipRewards mr;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                Card card = customer.GetCard(cardNumber);
-                if (card != null)
-                {
-                    mr = card.GetCardMembershipRewards();
-                }
-                else
-                {
-                    mr = null;
-                }
-
-
+                MembershipRewards mr = MembershipRewards.GetCardMembershipRewards(cardNumber);
                 return mr;
             }
             catch (Exception ex)
@@ -3430,22 +3204,10 @@ namespace ExternalBankingService
 
         public List<MembershipRewardsStatusHistory> GetCardMembershipRewardsStatusHistory(string cardNumber)
         {
-            List<MembershipRewardsStatusHistory> mr = new List<MembershipRewardsStatusHistory>();
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                Card card = customer.GetCard(cardNumber);
-                if (card != null)
-                {
-                    mr = card.GetCardMembershipRewardsStatusHistory();
-                }
-                else
-                {
-                    mr = null;
-                }
-
-
-                return mr;
+                return MembershipRewards.GetCardMembershipRewardsStatusHistory(cardNumber);
             }
             catch (Exception ex)
             {
@@ -3456,22 +3218,10 @@ namespace ExternalBankingService
 
         public List<MembershipRewardsBonusHistory> GetCardMembershipRewardsBonusHistory(string cardNumber, DateTime startDate, DateTime endDate)
         {
-            List<MembershipRewardsBonusHistory> mr = new List<MembershipRewardsBonusHistory>();
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                Card card = customer.GetCard(cardNumber);
-                if (card != null)
-                {
-                    mr = card.GetCardMembershipRewardsBonusHistory(startDate, endDate);
-                }
-                else
-                {
-                    mr = null;
-                }
-
-
-                return mr;
+                return MembershipRewards.GetCardMembershipRewardsBonusHistory(cardNumber, startDate, endDate);
             }
             catch (Exception ex)
             {
@@ -3745,7 +3495,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndAprovePeriodicBudgetPaymentOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -3754,7 +3503,6 @@ namespace ExternalBankingService
             {
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
-
             }
         }
 
@@ -3810,10 +3558,8 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
                 Customer customer = CreateCustomer();
-                result = customer.CloseAccountOrder(order, AuthorizedCustomer.UserName);
-                return result;
+                return customer.CloseAccountOrder(order, AuthorizedCustomer.UserName);
             }
             catch (Exception ex)
             {
@@ -3825,8 +3571,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<SearchAccountResult> GetSearchedAccountsList = SearchAccounts.GetSearchedAccounts(searchParams, User);
-                return GetSearchedAccountsList;
+                return SearchAccounts.GetSearchedAccounts(searchParams, User);
             }
             catch (Exception ex)
             {
@@ -3902,8 +3647,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<SearchCardResult> searchResult = SearchCards.Search(searchParams);
-                return searchResult;
+                return SearchCards.Search(searchParams);
             }
             catch (Exception ex)
             {
@@ -3916,8 +3660,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<SearchSwiftCodes> searchResult = SearchSwiftCodes.Search(searchParams);
-                return searchResult;
+                return SearchSwiftCodes.Search(searchParams);
             }
             catch (Exception ex)
             {
@@ -3945,12 +3688,10 @@ namespace ExternalBankingService
         }
         public CardClosingOrder GetCardClosingOrder(long ID)
         {
-            CardClosingOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardClosingOrder(ID);
-                return order;
+                return customer.GetCardClosingOrder(ID);
             }
             catch (Exception ex)
             {
@@ -4036,12 +3777,10 @@ namespace ExternalBankingService
         }
         public PeriodicBudgetPaymentOrder GetPeriodicBudgetPaymentOrder(long ID)
         {
-            PeriodicBudgetPaymentOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPeriodicBudgetPaymentOrder(ID);
-                return order;
+                return customer.GetPeriodicBudgetPaymentOrder(ID);
             }
             catch (Exception ex)
             {
@@ -4051,12 +3790,10 @@ namespace ExternalBankingService
         }
         public PeriodicUtilityPaymentOrder GetPeriodicUtilityPaymentOrder(long ID)
         {
-            PeriodicUtilityPaymentOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPeriodicUtilityPaymentOrder(ID);
-                return order;
+                return customer.GetPeriodicUtilityPaymentOrder(ID);
             }
             catch (Exception ex)
             {
@@ -4121,17 +3858,7 @@ namespace ExternalBankingService
             order.user = User;
             order.OperationDate = Utility.GetCurrentOperDay();
         }
-        /// <summary>
-        /// Լրացնում հայտի ավտոմատ լրացվող դաշտերը
-        /// </summary>
-        /// <param name="order">Հայտ</param>
-        private void InitOrderForLoanEquipment(Order order)
-        {
-            order.FilialCode = User.filialCode;
-            order.Source = Source;
-            order.user = User;
-            order.OperationDate = Utility.GetCurrentOperDay();
-        }
+
         public List<string> GetReceiverAccountWarnings(string accountNumber)
         {
             try
@@ -4166,12 +3893,10 @@ namespace ExternalBankingService
         }
         public PeriodicTerminationOrder GetPeriodicTerminationOrder(long ID)
         {
-            PeriodicTerminationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPeriodicTerminationOrder(ID);
-                return order;
+                return customer.GetPeriodicTerminationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -4260,12 +3985,10 @@ namespace ExternalBankingService
 
         public List<AdditionalDetails> GetAccountAdditionalDetails(string accountNumber)
         {
-            List<AdditionalDetails> additionalDetails;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                additionalDetails = customer.GetAccountAdditionalDetails(accountNumber);
-                return additionalDetails;
+                return customer.GetAccountAdditionalDetails(accountNumber);
             }
             catch (Exception ex)
             {
@@ -4375,7 +4098,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return searchCommunal.GetCommunalPaymentDescription();
             }
             catch (Exception ex)
@@ -4489,7 +4211,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Order.GetOrderAttachments(orderId);
             }
             catch (Exception ex)
@@ -4503,7 +4224,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Order.GetOrderAttachment(attachmentId);
             }
             catch (Exception ex)
@@ -4517,7 +4237,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Transfer.GetTransferAttachmentInfo(Id);
             }
             catch (Exception ex)
@@ -4531,7 +4250,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Transfer.GetTransferAttachment(attachmentId);
             }
             catch (Exception ex)
@@ -4543,12 +4261,10 @@ namespace ExternalBankingService
 
         public AccountDataChangeOrder GetAccountDataChangeOrder(long ID)
         {
-            AccountDataChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetAccountDataChageOrder(ID);
-                return order;
+                return customer.GetAccountDataChageOrder(ID);
             }
             catch (Exception ex)
             {
@@ -4647,7 +4363,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveTransitPaymentOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -4662,12 +4377,10 @@ namespace ExternalBankingService
 
         public TransitPaymentOrder GetTransitPaymentOrder(long ID)
         {
-            TransitPaymentOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetTransitPaymentOrder(ID);
-                return order;
+                return customer.GetTransitPaymentOrder(ID);
             }
             catch (Exception ex)
             {
@@ -4681,7 +4394,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Loan.GetLoanCalculatedRest(loan, customerNumber, (MatureType)matureType);
             }
             catch (Exception ex)
@@ -4707,7 +4419,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveServicePaymentOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -4749,7 +4460,7 @@ namespace ExternalBankingService
             }
             catch (Exception ex)
             {
-                WriteLog(ex);
+                WriteLog(ex, new JavaScriptSerializer().Serialize(order));
                 throw new FaultException(Resourse.InternalError);
             }
 
@@ -4771,12 +4482,10 @@ namespace ExternalBankingService
 
         public double GetCustomerCashOuts(string currency)
         {
-            double cashOut;
             try
             {
                 Customer customer = CreateCustomer();
-                cashOut = customer.GetCustomerCashOuts(currency);
-                return cashOut;
+                return customer.GetCustomerCashOuts(currency);
             }
             catch (Exception ex)
             {
@@ -4834,7 +4543,6 @@ namespace ExternalBankingService
             try
             {
                 return Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(order, accountType), operationCurrency, filialCode, customerType, "0", utilityBranch, customerNumber);
-
             }
             catch (Exception ex)
             {
@@ -4917,7 +4625,6 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = CreateCustomer();
-
                 return customer.GetCardType(cardNumber);
             }
             catch (Exception ex)
@@ -4963,12 +4670,10 @@ namespace ExternalBankingService
 
         public AccountFreezeOrder GetAccountFreezeOrder(long ID)
         {
-            AccountFreezeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetAccountFreezeOrder(ID);
-                return order;
+                return customer.GetAccountFreezeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5010,12 +4715,10 @@ namespace ExternalBankingService
         }
         public LoanProductOrder GetLoanOrder(long ID)
         {
-            LoanProductOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetLoanOrder(ID);
-                return order;
+                return customer.GetLoanOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5026,12 +4729,10 @@ namespace ExternalBankingService
 
         public LoanProductOrder GetCreditLineOrder(long ID)
         {
-            LoanProductOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCreditLineOrder(ID);
-                return order;
+                return customer.GetCreditLineOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5089,12 +4790,10 @@ namespace ExternalBankingService
 
         public double GetCustomerAvailableAmount(string currency)
         {
-            double availableAmount;
             try
             {
                 Customer customer = CreateCustomer();
-                availableAmount = Customer.GetCustomerAvailableAmount(customer.CustomerNumber, currency);
-                return availableAmount;
+                return Customer.GetCustomerAvailableAmount(customer.CustomerNumber, currency);
             }
             catch (Exception ex)
             {
@@ -5105,11 +4804,9 @@ namespace ExternalBankingService
 
         public double GetLoanProductInterestRate(LoanProductOrder order, string cardNumber)
         {
-            double interestRate;
             try
             {
-                interestRate = LoanProductOrder.GetInterestRate(order, cardNumber);
-                return interestRate;
+                return LoanProductOrder.GetInterestRate(order, cardNumber);
             }
             catch (Exception ex)
             {
@@ -5135,12 +4832,10 @@ namespace ExternalBankingService
 
         public AccountUnfreezeOrder GetAccountUnfreezeOrder(long ID)
         {
-            AccountUnfreezeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetAccountUnfreezeOrder(ID);
-                return order;
+                return customer.GetAccountUnfreezeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5167,12 +4862,10 @@ namespace ExternalBankingService
         }
         public LoanProductActivationOrder GetLoanProductActivationOrder(long ID)
         {
-            LoanProductActivationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetLoanProductActivationOrder(ID);
-                return order;
+                return customer.GetLoanProductActivationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5211,7 +4904,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-
+              
 
         public double GetServiceProvidedOrderFee(OrderType orderType, ushort serviceType)
         {
@@ -5290,12 +4983,10 @@ namespace ExternalBankingService
 
         public CardUnpaidPercentPaymentOrder GetCardUnpaidPercentPaymentOrder(long ID)
         {
-            CardUnpaidPercentPaymentOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardUnpaidPercentPaymentOrder(ID);
-                return order;
+                return customer.GetCardUnpaidPercentPaymentOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5600,12 +5291,10 @@ namespace ExternalBankingService
         }
         public ChequeBookReceiveOrder GetChequeBookReceiveOrder(long ID)
         {
-            ChequeBookReceiveOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetChequeBookReceiveOrder(ID);
-                return order;
+                return customer.GetChequeBookReceiveOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5888,9 +5577,6 @@ namespace ExternalBankingService
             }
         }
 
-
-
-
         public bool IsTransferFromBusinessmanToOwnerAccount(string debitAccountNumber, string creditAccountNumber)
         {
             try
@@ -5955,12 +5641,10 @@ namespace ExternalBankingService
 
         public CredentialOrder GetCredentialOrder(long ID)
         {
-            CredentialOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCredentialOrder(ID);
-                return order;
+                return customer.GetCredentialOrder(ID);
             }
             catch (Exception ex)
             {
@@ -5971,12 +5655,10 @@ namespace ExternalBankingService
 
         public List<AssigneeOperation> GetAllOperations()
         {
-            List<AssigneeOperation> operationList;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                operationList = customer.GetAllOperations();
-                return operationList;
+                return customer.GetAllOperations();
             }
             catch (Exception ex)
             {
@@ -6072,7 +5754,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Customer.GetCustomerSyntheticStatus(customerNumber);
             }
             catch (Exception ex)
@@ -6108,12 +5789,10 @@ namespace ExternalBankingService
         /// <returns></returns>
         public CreditLineTerminationOrder GetCreditLineTerminationOrder(long ID)
         {
-            CreditLineTerminationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCreditLineTerminationOrder(ID);
-                return order;
+                return customer.GetCreditLineTerminationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -6129,12 +5808,10 @@ namespace ExternalBankingService
         /// <returns></returns>
         public DepositTerminationOrder GetDepositTerminationOrder(long ID)
         {
-            DepositTerminationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetDepositTerminationOrder(ID);
-                return order;
+                return customer.GetDepositTerminationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -6570,6 +6247,30 @@ namespace ExternalBankingService
                             result = ApproveVisaAliasOrder(visaAlias);
                             break;
                         }
+                    case OrderType.ConsumeLoanSettlementOrder:
+                        {
+                            ConsumeLoanSettlementOrder consumeLoanSettlementOrder = GetConsumeLoanSettlementOrder(order.Id);
+                            result = ApproveConsumeLoanSettlementOrderForApproveOrder(consumeLoanSettlementOrder);
+                            break;
+                        }
+                    case OrderType.CardLessCashOrder:
+                        {
+                            CardlessCashoutOrder cardlessCashoutOrder = GetCardLessCashOutOrder(order.Id);
+                            result = ApproveCardLessCashOutOrderForApproveOrdes(cardlessCashoutOrder);
+                            break;
+                        }
+                    case OrderType.SecuritiesBuyOrder:
+                        {
+                            SecuritiesTradingOrder securitiesTradingOrder = GetSecuritiesTradingOrder(order.Id);
+                            result = ApproveSecuritiesTradingOrder(securitiesTradingOrder);
+                            break;
+                        }
+                    case OrderType.SecuritiesSellOrder:
+                        {
+                            SecuritiesTradingOrder securitiesTradingOrder = GetSecuritiesTradingOrder(order.Id);
+                            result = ApproveSecuritiesTradingOrder(securitiesTradingOrder);
+                            break;
+                        }
                     default:
                         break;
 
@@ -6648,12 +6349,10 @@ namespace ExternalBankingService
 
         public CardReReleaseOrder GetCardReReleaseOrder(long ID)
         {
-            CardReReleaseOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardReReleaseOrder(ID);
-                return order;
+                return customer.GetCardReReleaseOrder(ID);
             }
             catch (Exception ex)
             {
@@ -6910,10 +6609,7 @@ namespace ExternalBankingService
             try
             {
                 DateTime operationDate = Utility.GetCurrentOperDay();
-                ActionResult result = new ActionResult();
-                result = DahkDetails.BlockingAmountFromAvailableAccount(accountNumber, blockingAmount, inquestDetailsList, userID, operationDate);
-
-                return result;
+                return DahkDetails.BlockingAmountFromAvailableAccount(accountNumber, blockingAmount, inquestDetailsList, userID, operationDate);
             }
             catch (Exception ex)
             {
@@ -6928,10 +6624,7 @@ namespace ExternalBankingService
             try
             {
                 DateTime operationDate = Utility.GetCurrentOperDay();
-                ActionResult result = new ActionResult();
-                result = DahkDetails.MakeAvailable(freezeIdList, availableAmount, filialCode, userId, operationDate);
-
-                return result;
+                return DahkDetails.MakeAvailable(freezeIdList, availableAmount, filialCode, userId, operationDate);
             }
             catch (Exception ex)
             {
@@ -6986,10 +6679,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<DahkAmountTotals> amountTotals = DahkDetails.GetDahkAmountTotals(customerNumber);
-                return amountTotals;
-
-
+                return DahkDetails.GetDahkAmountTotals(customerNumber);
             }
             catch (Exception ex)
             {
@@ -7085,12 +6775,10 @@ namespace ExternalBankingService
 
         public ServicePaymentNoteOrder GetServicePaymentNoteOrder(long ID)
         {
-            ServicePaymentNoteOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetServicePaymentNoteOrder(ID);
-                return order;
+                return customer.GetServicePaymentNoteOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7116,12 +6804,10 @@ namespace ExternalBankingService
 
         public ServicePaymentNoteOrder GetDelatedServicePaymentNoteOrder(long ID)
         {
-            ServicePaymentNoteOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetDelatedServicePaymentNoteOrder(ID);
-                return order;
+                return customer.GetDelatedServicePaymentNoteOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7177,12 +6863,10 @@ namespace ExternalBankingService
 
         public PensionApplicationTerminationOrder GetPensionApplicationTerminationOrder(long ID)
         {
-            PensionApplicationTerminationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPensionApplicationTerminationOrder(ID);
-                return order;
+                return customer.GetPensionApplicationTerminationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7193,12 +6877,10 @@ namespace ExternalBankingService
 
         public PensionApplicationOrder GetPensionApplicationOrder(long ID)
         {
-            PensionApplicationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPensionApplicationOrder(ID);
-                return order;
+                return customer.GetPensionApplicationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7224,12 +6906,10 @@ namespace ExternalBankingService
 
         public TransferCallContractOrder GetTransferCallContractOrder(long ID)
         {
-            TransferCallContractOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetTransferCallContractOrder(ID);
-                return order;
+                return customer.GetTransferCallContractOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7351,12 +7031,10 @@ namespace ExternalBankingService
 
         public TransferCallContractTerminationOrder GetTransferCallContractTerminationOrder(long ID)
         {
-            TransferCallContractTerminationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetTransferCallContractTerminationOrder(ID);
-                return order;
+                return customer.GetTransferCallContractTerminationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7368,12 +7046,10 @@ namespace ExternalBankingService
 
         public Order GetOrder(long ID)
         {
-            Order order;
             try
             {
                 Customer customer = new Customer();
-                order = customer.GetOrder(ID);
-                return order;
+                return customer.GetOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7690,7 +7366,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 ReceivedFastTransferPaymentOrder.SetTransferByCallType(type, id);
             }
             catch (Exception ex)
@@ -7735,11 +7410,8 @@ namespace ExternalBankingService
         {
             try
             {
-
-                List<PlasticCard> cards;
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cards = customer.GetCardsForRegistration(User.filialCode);
-                return cards;
+                return customer.GetCardsForRegistration(User.filialCode);
             }
             catch (Exception ex)
             {
@@ -7796,12 +7468,11 @@ namespace ExternalBankingService
 
         public CardRegistrationOrder GetCardRegistrationOrder(long ID)
         {
-            CardRegistrationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardRegistrationOrder(ID);
-                return order;
+                return customer.GetCardRegistrationOrder(ID);
+
             }
             catch (Exception ex)
             {
@@ -7853,8 +7524,7 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 InitOrder(order);
-                ActionResult result = customer.ApprovePeriodicSwiftStatementOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
-                return result;
+                return customer.ApprovePeriodicSwiftStatementOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
             }
             catch (Exception ex)
             {
@@ -7879,12 +7549,10 @@ namespace ExternalBankingService
 
         public PeriodicSwiftStatementOrder GetPeriodicSwiftStatementOrder(long ID)
         {
-            PeriodicSwiftStatementOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPeriodicSwiftStatementOrder(ID);
-                return order;
+                return customer.GetPeriodicSwiftStatementOrder(ID);
             }
             catch (Exception ex)
             {
@@ -7927,7 +7595,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveTransferToShopOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -7957,9 +7624,7 @@ namespace ExternalBankingService
         {
             try
             {
-                Account account = null;
-                account = TransferToShopOrder.GetShopAccount(productId);
-                return account;
+                return TransferToShopOrder.GetShopAccount(productId);
             }
             catch (Exception ex)
             {
@@ -8063,12 +7728,10 @@ namespace ExternalBankingService
 
         public InsuranceOrder GetInsuranceOrder(long ID)
         {
-            InsuranceOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetInsuranceOrder(ID);
-                return order;
+                return customer.GetInsuranceOrder(ID);
             }
             catch (Exception ex)
             {
@@ -8083,7 +7746,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveInsuranceOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -8101,7 +7763,6 @@ namespace ExternalBankingService
             try
             {
                 return Insurance.GetInsuraceCompanySystemAccount(companyID, insuranceType);
-
             }
             catch (Exception ex)
             {
@@ -8117,7 +7778,6 @@ namespace ExternalBankingService
             try
             {
                 return Insurance.GetInsuranceCompanySystemAccountNumber(companyID, insuranceType);
-
             }
             catch (Exception ex)
             {
@@ -8131,7 +7791,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveCardServiceFeeDataChangeOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -8145,12 +7804,10 @@ namespace ExternalBankingService
 
         public CardDataChangeOrder GetCardDataChangeOrder(long ID)
         {
-            CardDataChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardDataChangeOrder(ID);
-                return order;
+                return customer.GetCardDataChangeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -8165,7 +7822,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return CardDataChangeOrder.CheckFieldTypeIsRequaried(fieldType);
             }
             catch (Exception ex)
@@ -8180,7 +7836,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveCardServiceFeeGrafikDataChangeOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -8194,12 +7849,10 @@ namespace ExternalBankingService
 
         public CardServiceFeeGrafikDataChangeOrder GetCardServiceFeeGrafikDataChangeOrder(long ID)
         {
-            CardServiceFeeGrafikDataChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardServiceFeeGrafikDataChangeOrder(ID);
-                return order;
+                return customer.GetCardServiceFeeGrafikDataChangeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -8255,7 +7908,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveReestrUtilityPaymentOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -8269,12 +7921,10 @@ namespace ExternalBankingService
 
         public ReestrUtilityPaymentOrder GetReestrUtilityPaymentOrder(long id)
         {
-            ReestrUtilityPaymentOrder utilityPaymentOrder;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                utilityPaymentOrder = customer.GetReestrUtilityPaymentOrder(id);
-                return utilityPaymentOrder;
+                return customer.GetReestrUtilityPaymentOrder(id);
             }
             catch (Exception ex)
             {
@@ -8344,7 +7994,7 @@ namespace ExternalBankingService
             try
             {
 
-                return BudgetPaymentOrder.GetPoliceResponseDetailsIDWithoutRequest(violationID, violationDate);
+                return BudgetPaymentOrder.GetPoliceResponseDetailsIDWithoutRequest(violationID, violationDate, "");
             }
             catch (Exception ex)
             {
@@ -8416,7 +8066,7 @@ namespace ExternalBankingService
 
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
 
-                Card card = customer.GetCard(cardNumber);
+                Card card = customer.GetCardMainData(cardNumber);
 
                 if (card != null)
                     result = card.GetArCaBalanceResponseData(User.userID, ClientIp);
@@ -8519,7 +8169,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Account.GetTransitAccountsForDebitTransactions(User.filialCode);
             }
             catch (Exception ex)
@@ -8586,12 +8235,10 @@ namespace ExternalBankingService
 
         public CardStatusChangeOrder GetCardStatusChangeOrder(long orderId)
         {
-            CardStatusChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardStatusChangeOrder(orderId);
-                return order;
+                return customer.GetCardStatusChangeOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -8620,13 +8267,12 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
                 if (account.IsCustomerTransitAccount)
                 {
                     account.CustomerNumber = AuthorizedCustomer.CustomerNumber;
                 }
 
-                result = account.SaveTransitAccountForDebitTransactions(User);
+                ActionResult result = account.SaveTransitAccountForDebitTransactions(User);
                 Localization.SetCulture(result, new Culture(Languages.hy));
                 return result;
             }
@@ -8641,8 +8287,7 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
-                result = account.UpdateTransitAccountForDebitTransactions();
+                ActionResult result = account.UpdateTransitAccountForDebitTransactions();
                 Localization.SetCulture(result, new Culture(Languages.hy));
                 return result;
             }
@@ -8657,8 +8302,7 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
-                result = account.CloseTransitAccountForDebitTransactions();
+                ActionResult result = account.CloseTransitAccountForDebitTransactions();
                 Localization.SetCulture(result, new Culture(Languages.hy));
                 return result;
             }
@@ -8673,8 +8317,7 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
-                result = account.ReopenTransitAccountForDebitTransactions();
+                ActionResult result = account.ReopenTransitAccountForDebitTransactions();
                 Localization.SetCulture(result, new Culture(Languages.hy));
                 return result;
             }
@@ -8689,7 +8332,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return TransitAccountForDebitTransactions.GetTransitAccountsForDebitTransactions(quality);
             }
             catch (Exception ex)
@@ -8757,11 +8399,8 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
-
                 Customer customer = CreateCustomer();
-                result = customer.SaveCustomerCommunalCard(customerCommunalCard);
-                return result;
+                return customer.SaveCustomerCommunalCard(customerCommunalCard);
             }
             catch (Exception ex)
             {
@@ -8774,11 +8413,8 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
-
                 Customer customer = CreateCustomer();
-                result = customer.ChangeCustomerCommunalCardQuality(customerCommunalCard);
-                return result;
+                return customer.ChangeCustomerCommunalCardQuality(customerCommunalCard);
             }
             catch (Exception ex)
             {
@@ -8836,12 +8472,10 @@ namespace ExternalBankingService
         }
         public FactoringTerminationOrder GetFactoringTerminationOrder(long ID)
         {
-            FactoringTerminationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetFactoringTerminationOrder(ID);
-                return order;
+                return customer.GetFactoringTerminationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -8857,8 +8491,7 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 InitOrder(order);
-                ActionResult result = customer.ApproveFactoringTerminationOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
-                return result;
+                return customer.ApproveFactoringTerminationOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
             }
             catch (Exception ex)
             {
@@ -8898,12 +8531,10 @@ namespace ExternalBankingService
         }
         public LoanProductTerminationOrder GetLoanProductTerminationOrder(long ID)
         {
-            LoanProductTerminationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetLoanProductTerminationOrder(ID);
-                return order;
+                return customer.GetLoanProductTerminationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -8919,8 +8550,7 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 InitOrder(order);
-                ActionResult result = customer.ApproveLoanProductTerminationOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
-                return result;
+                return customer.ApproveLoanProductTerminationOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
             }
             catch (Exception ex)
             {
@@ -8974,12 +8604,10 @@ namespace ExternalBankingService
         }
         public DepositDataChangeOrder GetDepositDataChangeOrder(long ID)
         {
-            DepositDataChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetDepositDataChangeOrder(ID);
-                return order;
+                return customer.GetDepositDataChangeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -8995,8 +8623,7 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 InitOrder(order);
-                ActionResult result = customer.ApproveDepositDataChangeOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
-                return result;
+                return customer.ApproveDepositDataChangeOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
             }
             catch (Exception ex)
             {
@@ -9038,7 +8665,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return LoanProductActivationOrder.GetLoanTotalInsuranceAmount(productId);
             }
             catch (Exception ex)
@@ -9080,7 +8706,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Account.GetProductAccount(productId, productType, accountType);
             }
             catch (Exception ex)
@@ -9094,7 +8719,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Account.GetProductAccountFromCreditCode(creditCode, productType, accountType);
             }
             catch (Exception ex)
@@ -9107,12 +8731,10 @@ namespace ExternalBankingService
 
         public CashBookOrder GetCashBookOrder(long ID)
         {
-            CashBookOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCashBookOrder(ID);
-                return order;
+                return customer.GetCashBookOrder(ID);
             }
             catch (Exception ex)
             {
@@ -9184,7 +8806,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
                 return customer.GetLoanApplicationFicoScoreResults(productId, requestDate);
             }
@@ -9215,8 +8836,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<CardTariffContract> cardTariffContracts = CardTariffContract.GetCustomerCardTariffContracts(customerNumber, filter);
-                return cardTariffContracts;
+                return CardTariffContract.GetCustomerCardTariffContracts(customerNumber, filter);
             }
             catch (Exception ex)
             {
@@ -9343,7 +8963,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveDepositCaseStoppingPenaltyCalculationOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -9357,12 +8976,10 @@ namespace ExternalBankingService
 
         public DepositCaseStoppingPenaltyCalculationOrder GetDepositCaseStoppingPenaltyCalculationOrder(long ID)
         {
-            DepositCaseStoppingPenaltyCalculationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetDepositCaseStoppingPenaltyCalculationOrder(ID);
-                return order;
+                return customer.GetDepositCaseStoppingPenaltyCalculationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -9375,11 +8992,9 @@ namespace ExternalBankingService
 
         public CTPaymentOrder GetCTPaymentOrder(long ID)
         {
-            CTPaymentOrder order;
             try
             {
-                order = CashTerminal.GetCTPaymentOrder(ID);
-                return order;
+                return CashTerminal.GetCTPaymentOrder(ID);
             }
             catch (Exception ex)
             {
@@ -9390,11 +9005,9 @@ namespace ExternalBankingService
         }
         public CTLoanMatureOrder GetCTLoanMatureOrder(long ID)
         {
-            CTLoanMatureOrder order;
             try
             {
-                order = CashTerminal.GetCTLoanMatureOrder(ID);
-                return order;
+                return CashTerminal.GetCTLoanMatureOrder(ID);
             }
             catch (Exception ex)
             {
@@ -9403,55 +9016,6 @@ namespace ExternalBankingService
             }
 
         }
-        //async version of SaveAndApproveAutomaticGenaratedPreOrders
-        //public async System.Threading.Tasks.Task<List<ActionResult>> SaveAndApproveAutomaticGenaratedPreOrders(long preOrderId)
-        //{
-        //    var watch = System.Diagnostics.Stopwatch.StartNew();
-        //    List<ActionResult> results = new List<ActionResult>();
-        //    try
-        //    {
-        //        List<LoanProductActivationOrder> orders = LoanProductActivationOrder.GenerateOrdersFromAutomaticGenaratedPreOrdersAsync(preOrderId).FindAll(o => (short)o.Quality == 10);
-        //        Customer customer = CreateCustomer();
-        //        System.Threading.Tasks.Task taskInit;
-        //        List<System.Threading.Tasks.Task> taskInits = new List<System.Threading.Tasks.Task>();
-        //        foreach (LoanProductActivationOrder order in orders)
-        //        {
-        //            // sync
-        //            //InitOrder(order);    
-        //            ///////////////////////// Async/////////////////////////////////////
-        //            taskInit = new System.Threading.Tasks.Task(() => { InitOrder(order); });
-        //            taskInits.Add(taskInit);
-        //            taskInit.Start();    
-        //        }
-        //        System.Threading.Tasks.Task.WaitAll(taskInits.ToArray());
-
-        //        System.Threading.Tasks.Task<ActionResult> taskSaveAndApprove;
-        //        List<System.Threading.Tasks.Task<ActionResult>> taskSaveAndApproves = new List<System.Threading.Tasks.Task<ActionResult>>();
-        //        foreach (LoanProductActivationOrder order in orders)
-        //        {
-        //            //sync
-        //            //customer.SaveAndApproveLoanProductActivationOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme); 
-
-        //            ////////////////async   /////////////////////////////////////////////////////////
-        //            taskSaveAndApprove = new System.Threading.Tasks.Task<ActionResult>(() => customer.SaveAndApproveLoanProductActivationOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme));
-        //            taskSaveAndApproves.Add(taskSaveAndApprove);
-        //            taskSaveAndApprove.Start();
-        //        }
-        //        foreach (var task in taskSaveAndApproves)
-        //        {
-        //            await task;
-        //            results.Add(task.Result);
-        //        }
-        //        watch.Stop();
-        //        var elapsedMs = watch.ElapsedMilliseconds;
-        //        return results;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        WriteLog(ex);
-        //        throw new FaultException(Resourse.InternalError);
-        //    }
-        //}
 
         public List<CreditHereAndNow> GetCreditsHereAndNow(SearchCreditHereAndNow searchParameters, out int RowCount)
         {
@@ -9641,12 +9205,10 @@ namespace ExternalBankingService
 
         public CredentialActivationOrder GetCredentialActivationOrder(long ID)
         {
-            CredentialActivationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCredentialActivationOrder(ID);
-                return order;
+                return customer.GetCredentialActivationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -9934,7 +9496,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveAssigneeIdentificationOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -9993,7 +9554,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveDemandDepositRateChangeOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -10007,12 +9567,10 @@ namespace ExternalBankingService
 
         public DemandDepositRateChangeOrder GetDemandDepositRateChangeOrder(long ID)
         {
-            DemandDepositRateChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetDemandDepositRateChangeOrder(ID);
-                return order;
+                return customer.GetDemandDepositRateChangeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -10026,7 +9584,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return Credential.GetCredentialDocId(credentialId);
             }
             catch (Exception ex)
@@ -10038,12 +9595,10 @@ namespace ExternalBankingService
 
         public AssigneeIdentificationOrder GetAssigneeIdentificationOrder(long ID)
         {
-            AssigneeIdentificationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetAssigneeIdentificationOrder(ID);
-                return order;
+                return customer.GetAssigneeIdentificationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -10057,9 +9612,7 @@ namespace ExternalBankingService
         {
             try
             {
-                CreditLinePrecontractData result = CreditLinePrecontractData.GetCreditLinePrecontractData(startDate, endDate, interestRate, repaymentPercent, cardNumber, currency, amount, loanType);
-
-                return result;
+                return CreditLinePrecontractData.GetCreditLinePrecontractData(startDate, endDate, interestRate, repaymentPercent, cardNumber, currency, amount, loanType);
             }
             catch (Exception ex)
             {
@@ -10072,8 +9625,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<AccountOpeningClosingDetail> list = AccountOpeningClosingDetail.GetAccountOpeningClosingDetails(accountNumber);
-                return list;
+                return AccountOpeningClosingDetail.GetAccountOpeningClosingDetails(accountNumber);
             }
             catch (Exception ex)
             {
@@ -10194,8 +9746,6 @@ namespace ExternalBankingService
 
                 if (order.CustomerNumber == 0)
                     order.CustomerNumber = customerNumber;
-
-
 
                 return customer.SaveReceivedFastTransferPaymentOrder(order, AuthorizedCustomer.UserName);
             }
@@ -10547,12 +10097,10 @@ namespace ExternalBankingService
 
         public CardUSSDServiceOrder GetCardUSSDServiceOrder(long orderId)
         {
-            CardUSSDServiceOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardUSSDServiceOrder(orderId);
-                return order;
+                return customer.GetCardUSSDServiceOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -10579,11 +10127,9 @@ namespace ExternalBankingService
 
         public List<float> GetPlasticCardSMSServiceTariff(ulong productID)
         {
-            List<float> list = new List<float>();
             try
             {
-                list = CardTariffContract.GetPlasticCardSMSServiceTariff(productID);
-                return list;
+                return CardTariffContract.GetPlasticCardSMSServiceTariff(productID);
             }
             catch (Exception ex)
             {
@@ -10626,27 +10172,6 @@ namespace ExternalBankingService
             }
         }
 
-        private ulong GetTestMobileCustomerNumber()
-        {
-            ulong customerNumber;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-
-                string txt = @"SELECT TOP 1 customer_number FROM tbl_api_test_customer_number";
-
-                using (SqlCommand cmd = new SqlCommand(txt, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-
-                    conn.Open();
-
-                    customerNumber = Convert.ToUInt64(cmd.ExecuteScalar());
-                }
-            }
-
-
-            return customerNumber;
-        }
 
         public AuthorizedCustomer GetTestMobileBankingUser()
         {
@@ -10696,10 +10221,6 @@ namespace ExternalBankingService
             }
         }
 
-
-
-
-
         public Account GetAccountInfo(string accountNumber)
         {
             try
@@ -10741,12 +10262,10 @@ namespace ExternalBankingService
 
         public TransactionSwiftConfirmOrder GetTransactionSwiftConfirmOrder(long orderId)
         {
-            TransactionSwiftConfirmOrder order;
             try
             {
                 Customer customer = CreateCustomer();
-                order = customer.GetTransactionSwiftConfirmOrder(orderId);
-                return order;
+                return customer.GetTransactionSwiftConfirmOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -10758,11 +10277,9 @@ namespace ExternalBankingService
 
         public string GetSwiftMessage940Statement(DateTime dateFrom, DateTime dateTo, string accountNumber, SourceType source)
         {
-            string statement = "";
             try
             {
-                statement = SwiftMessage.GetSwiftMessage940Statement(dateFrom, dateTo, accountNumber, source);
-                return statement;
+                return SwiftMessage.GetSwiftMessage940Statement(dateFrom, dateTo, accountNumber, source);
             }
             catch (Exception ex)
             {
@@ -10789,7 +10306,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveCard3DSecureServiceOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -10834,8 +10350,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<CardUSSDServiceHistory> result = CardUSSDServiceHistory.GetCardUSSDServiceHistory(productID);
-                return result;
+                return CardUSSDServiceHistory.GetCardUSSDServiceHistory(productID);
             }
             catch (Exception ex)
             {
@@ -10848,8 +10363,7 @@ namespace ExternalBankingService
         {
             try
             {
-                PlasticCardSMSServiceHistory result = PlasticCardSMSServiceHistory.GetPlasticCardSMSServiceHistory(cardNumber);
-                return result;
+                return PlasticCardSMSServiceHistory.GetPlasticCardSMSServiceHistory(cardNumber);
             }
             catch (Exception ex)
             {
@@ -10929,12 +10443,10 @@ namespace ExternalBankingService
 
         public ProductNotificationConfigurationsOrder GetProductNotificationConfigurationOrder(long ID)
         {
-            ProductNotificationConfigurationsOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetProductNotificationConfigurationOrder(ID);
-                return order;
+                return customer.GetProductNotificationConfigurationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -11034,8 +10546,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<BondIssue> result = BondIssueFilter.SearchBondIssues(searchParams);
-                return result;
+                return BondIssueFilter.SearchBondIssues(searchParams);
             }
             catch (Exception ex)
             {
@@ -11048,8 +10559,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<DateTime> result = bondissue.CalculateCouponRepaymentSchedule();
-                return result;
+                return bondissue.CalculateCouponRepaymentSchedule();
             }
             catch (Exception ex)
             {
@@ -11109,12 +10619,10 @@ namespace ExternalBankingService
 
         public BondOrder GetBondOrder(long ID)
         {
-            BondOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetBondOrder(ID);
-                return order;
+                return customer.GetBondOrder(ID);
             }
             catch (Exception ex)
             {
@@ -11170,8 +10678,7 @@ namespace ExternalBankingService
         {
             try
             {
-                double price = Bond.GetBondPrice(bondIssueId);
-                return price;
+                return Bond.GetBondPrice(bondIssueId);
             }
             catch (Exception ex)
             {
@@ -11224,12 +10731,10 @@ namespace ExternalBankingService
 
         public BondQualityUpdateOrder GetBondQualityUpdateOrder(long ID)
         {
-            BondQualityUpdateOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetBondQualityUpdateOrder(ID);
-                return order;
+                return customer.GetBondQualityUpdateOrder(ID);
             }
             catch (Exception ex)
             {
@@ -11283,8 +10788,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<Bond> bondDealingList = Bond.GetBondsForDealing(searchParams, bondFilterType);
-                return bondDealingList;
+                return Bond.GetBondsForDealing(searchParams, bondFilterType);
             }
             catch (Exception ex)
             {
@@ -11312,12 +10816,10 @@ namespace ExternalBankingService
 
         public BondAmountChargeOrder GetBondAmountChargeOrder(long ID)
         {
-            BondAmountChargeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetBondAmountChargeOrder(ID);
-                return order;
+                return customer.GetBondAmountChargeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -11374,12 +10876,10 @@ namespace ExternalBankingService
 
         public DepositaryAccountOrder GetDepositaryAccountOrder(long id)
         {
-            DepositaryAccountOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetDepositaryAccountOrder(id);
-                return order;
+                return customer.GetDepositaryAccountOrder(id);
             }
             catch (Exception ex)
             {
@@ -11392,8 +10892,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<DateTime> result = bondissue.GetCouponRepaymentSchedule();
-                return result;
+                return bondissue.GetCouponRepaymentSchedule();
             }
             catch (Exception ex)
             {
@@ -11403,9 +10902,8 @@ namespace ExternalBankingService
         }
         public ActionResult SaveAndApproveLoanProductMakeOutBalanceOrder(LoanProductMakeOutBalanceOrder order, bool includingSurcharge = false)
         {
-            ulong SurchargeAppId = 0;
             ActionResult result = new ActionResult();
-            ActionResult res = new ActionResult();
+            ActionResult res;
             try
             {
                 order.Type = OrderType.LoanProductMakeOutBalanceOrder;
@@ -11417,7 +10915,7 @@ namespace ExternalBankingService
 
                 if (includingSurcharge)
                 {
-                    SurchargeAppId = Loan.GetSurchargeAppId(order.ProductId);
+                    ulong SurchargeAppId = Loan.GetSurchargeAppId(order.ProductId);
                     if (SurchargeAppId != 0)
                     {
                         order.ProductId = SurchargeAppId;
@@ -11446,7 +10944,6 @@ namespace ExternalBankingService
         {
             try
             {
-                //Customer customer = CreateCustomer();
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
                 return customer.GetFonds(filter);
             }
@@ -11475,12 +10972,10 @@ namespace ExternalBankingService
         }
         public FondOrder GetFondOrder(long ID)
         {
-            FondOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetFondOrder(ID);
-                return order;
+                return customer.GetFondOrder(ID);
             }
             catch (Exception ex)
             {
@@ -11539,14 +11034,12 @@ namespace ExternalBankingService
         }
         public ActionResult SaveAndApproveCreditLineProlongationOrder(CreditLineProlongationOrder order)
         {
-            ActionResult result = new ActionResult();
             try
             {
 
                 Customer customer = CreateCustomer();
                 InitOrder(order);
-                result = customer.SaveAndApproveCreditLineProlongationOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
-                return result;
+                return customer.SaveAndApproveCreditLineProlongationOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
 
             }
             catch (Exception ex)
@@ -11558,12 +11051,10 @@ namespace ExternalBankingService
 
         public CreditLineProlongationOrder GetCreditLineProlongationOrder(int id)
         {
-            CreditLineProlongationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCreditLineProlongationOrder(id);
-                return order;
+                return customer.GetCreditLineProlongationOrder(id);
             }
             catch (Exception ex)
             {
@@ -11607,7 +11098,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 return customer.SaveAndApproveLoanProductDataChangeOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -11624,12 +11114,10 @@ namespace ExternalBankingService
 
         public LoanProductDataChangeOrder GetLoanProductDataChangeOrder(long ID)
         {
-            LoanProductDataChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetLoanProductDataChangeOrder(ID);
-                return order;
+                return customer.GetLoanProductDataChangeOrder(ID);
             }
             catch (Exception ex)
             {
@@ -11801,8 +11289,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<OperDayOptions> operDayOptions = OperDayOptionsFilter.SearchOperDayOptions(searchParams);
-                return operDayOptions;
+                return OperDayOptionsFilter.SearchOperDayOptions(searchParams);
             }
             catch (Exception ex)
             {
@@ -11826,12 +11313,10 @@ namespace ExternalBankingService
 
         public FTPRateOrder GetFTPRateOrder(long ID)
         {
-            FTPRateOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetFTPRateOrder(ID);
-                return order;
+                return customer.GetFTPRateOrder(ID);
             }
             catch (Exception ex)
             {
@@ -11883,8 +11368,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<OperDayMode> operDayMode = OperDayModeFilter.SearchOperDayMode(searchParams);
-                return operDayMode;
+                return OperDayModeFilter.SearchOperDayMode(searchParams);
             }
             catch (Exception ex)
             {
@@ -11936,8 +11420,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<UtilityOptions> utilityOptions = UtilityOptionsFilter.SearchOperDayOptions(searchParams);
-                return utilityOptions;
+                return UtilityOptionsFilter.SearchOperDayOptions(searchParams);
             }
             catch (Exception ex)
             {
@@ -11950,8 +11433,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<UtilityOptions> list = UtilityOptions.GetUtiltyForChange();
-                return list;
+                return UtilityOptions.GetUtiltyForChange();
             }
             catch (Exception ex)
             {
@@ -11991,8 +11473,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<string> list = UtilityOptions.GetExistsNotSentAndSettledRows(keyValues);
-                return list;
+                return UtilityOptions.GetExistsNotSentAndSettledRows(keyValues);
             }
             catch (Exception ex)
             {
@@ -12010,10 +11491,9 @@ namespace ExternalBankingService
             {
                 BeelineAbonentSearch beelineAbonentSearch = new BeelineAbonentSearch();
 
-                decimal? debt = null;
                 string str = beelineAbonentSearch.GetBeelineAbonentBalance(abonentNumber).Balance;
                 if (str != null)
-                    return debt = Convert.ToDecimal(str);
+                    return Convert.ToDecimal(str);
                 else
                     return null;
 
@@ -12061,13 +11541,10 @@ namespace ExternalBankingService
 
         public short GetBlockingReasonForBlockedCard(string cardNumber)
         {
-            short reasonId;
             try
             {
-
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                reasonId = customer.GetBlockingReasonForBlockedCard(cardNumber);
-                return reasonId;
+                return customer.GetBlockingReasonForBlockedCard(cardNumber);
             }
             catch (Exception ex)
             {
@@ -12078,11 +11555,9 @@ namespace ExternalBankingService
 
         public Dictionary<string, string> GetAccountFreezeReasonsTypesForOrder(bool isHb = false)
         {
-            Dictionary<string, string> reasonTypes;
             try
             {
-                reasonTypes = Info.GetAccountFreezeReasonsTypesForOrder(User, isHb);
-                return reasonTypes;
+                return Info.GetAccountFreezeReasonsTypesForOrder(User, isHb);
             }
             catch (Exception ex)
             {
@@ -12102,7 +11577,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(creditCommitmentForgiveness);
                 return customer.SaveForgivableLoanCommitment(creditCommitmentForgiveness, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
@@ -12132,13 +11606,10 @@ namespace ExternalBankingService
 
         public CreditCommitmentForgivenessOrder GetCreditCommitmentForgiveness(long ID)
         {
-
-            CreditCommitmentForgivenessOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCreditCommitmentForgiveness(ID);
-                return order;
+                return customer.GetCreditCommitmentForgiveness(ID);
             }
             catch (Exception ex)
             {
@@ -12212,12 +11683,10 @@ namespace ExternalBankingService
 
         public InterestMarginOrder GetInterestMarginOrder(long ID)
         {
-            InterestMarginOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetInterestMarginOrder(ID);
-                return order;
+                return customer.GetInterestMarginOrder(ID);
             }
             catch (Exception ex)
             {
@@ -12243,12 +11712,10 @@ namespace ExternalBankingService
 
         public PlasticCardOrder GetPlasticCardOrder(long orderID)
         {
-            PlasticCardOrder plasticCardOrder;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                plasticCardOrder = customer.GetPlasticCardOrder(orderID);
-                return plasticCardOrder;
+                return customer.GetPlasticCardOrder(orderID);
             }
             catch (Exception ex)
             {
@@ -12260,11 +11727,8 @@ namespace ExternalBankingService
         {
             try
             {
-
-                List<PlasticCard> cards;
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cards = customer.GetCustomerMainCards();
-                return cards;
+                return customer.GetCustomerMainCards();
             }
             catch (Exception ex)
             {
@@ -12275,12 +11739,10 @@ namespace ExternalBankingService
 
         public PlasticCardRemovalOrder GetPlasticCardRemovalOrder(long orderID)
         {
-            PlasticCardRemovalOrder plasticCardRemovalOrder;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                plasticCardRemovalOrder = customer.GetPlasticCardRemovalOrder(orderID);
-                return plasticCardRemovalOrder;
+                return customer.GetPlasticCardRemovalOrder(orderID);
             }
             catch (Exception ex)
             {
@@ -12315,10 +11777,8 @@ namespace ExternalBankingService
         {
             try
             {
-                List<PlasticCard> cards;
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cards = customer.GetCustomerPlasticCards();
-                return cards;
+                return customer.GetCustomerPlasticCards();
             }
             catch (Exception ex)
             {
@@ -12386,12 +11846,10 @@ namespace ExternalBankingService
 
         public CardAccountRemovalOrder GetCardAccountRemovalOrder(long orderID)
         {
-            CardAccountRemovalOrder cardAccountRemovalOrder;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cardAccountRemovalOrder = customer.GetCardAccountRemovalOrder(orderID);
-                return cardAccountRemovalOrder;
+                return customer.GetCardAccountRemovalOrder(orderID);
             }
             catch (Exception ex)
             {
@@ -12412,7 +11870,6 @@ namespace ExternalBankingService
             try
             {
                 return ArrestTypes.GetArrestTypesList();
-
             }
             catch (Exception ex)
             {
@@ -12426,7 +11883,6 @@ namespace ExternalBankingService
             try
             {
                 return ArrestsReasonTypes.GetArrestsReasonTypesList();
-
             }
             catch (Exception ex)
             {
@@ -12440,7 +11896,6 @@ namespace ExternalBankingService
             try
             {
                 return CustomerArrestInfo.PostNewAddedCustomerArrestInfo(obj);
-
             }
             catch (Exception ex)
             {
@@ -12454,7 +11909,6 @@ namespace ExternalBankingService
             try
             {
                 return CustomerArrestInfo.RemoveCustomerArrestInfo(obj);
-
             }
             catch (Exception ex)
             {
@@ -12467,9 +11921,7 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return CustomerArrestInfo.GetCustomerArrestsInfo(customerNumber);
-
             }
             catch (Exception ex)
             {
@@ -12499,7 +11951,6 @@ namespace ExternalBankingService
                 ulong customerNumber = customer.CustomerNumber;
 
                 return customerNumber;
-
             }
             catch (Exception ex)
             {
@@ -12559,9 +12010,6 @@ namespace ExternalBankingService
             {
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
-
-
-
             }
         }
 
@@ -12606,12 +12054,10 @@ namespace ExternalBankingService
 
         public VirtualCardStatusChangeOrder GetVirtualCardStatusChangeOrder(long orderId)
         {
-            VirtualCardStatusChangeOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetVirtualCardStatusChangeOrder(orderId);
-                return order;
+                return customer.GetVirtualCardStatusChangeOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -12623,11 +12069,9 @@ namespace ExternalBankingService
 
         public ActionResult ReSendVirtualCardRequest(int requestId)
         {
-            ActionResult result = new ActionResult();
             try
             {
-                result = Card.ReSendVirtualCardrequest(requestId, User.userID);
-                return result;
+                return Card.ReSendVirtualCardrequest(requestId, User.userID);
             }
             catch (Exception ex)
             {
@@ -12637,8 +12081,6 @@ namespace ExternalBankingService
 
         }
 
-
-        //HB 
 
         public List<string> GetTreansactionConfirmationDetails(long docId, long debitAccount)
         {
@@ -13008,7 +12450,7 @@ namespace ExternalBankingService
         {
             try
             {
-                return ExternalBanking.CardDeliveryOrder.DownloadOrderXMLs(DateTo, DateFrom, this.User);
+                return CardDeliveryOrder.DownloadOrderXMLs(DateTo, DateFrom, this.User);
             }
             catch (Exception ex)
             {
@@ -13296,8 +12738,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<DAHKFreezing> freezings = DAHKFreezing.GetDahkFreezings(AuthorizedCustomer.CustomerNumber);
-                return freezings;
+                return DAHKFreezing.GetDahkFreezings(AuthorizedCustomer.CustomerNumber);
             }
             catch (Exception ex)
             {
@@ -13309,13 +12750,9 @@ namespace ExternalBankingService
 
         public string GetSwiftMessage950Statement(DateTime dateFrom, DateTime dateTo, string accountNumber, SourceType source)
         {
-            string statement = "";
-
             try
             {
-                statement = SwiftMessage.GetSwiftMessageStatement(dateFrom, dateTo, accountNumber, source);
-                return statement;
-
+                return SwiftMessage.GetSwiftMessageStatement(dateFrom, dateTo, accountNumber, source);
             }
             catch (Exception ex)
             {
@@ -13442,13 +12879,10 @@ namespace ExternalBankingService
 
         public ArcaCardsTransactionOrder GetArcaCardsTransactionOrder(long orderId)
         {
-            ArcaCardsTransactionOrder order;
             try
             {
-
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetArcaCardsTransactionOrder(orderId);
-                return order;
+                return customer.GetArcaCardsTransactionOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -13478,7 +12912,6 @@ namespace ExternalBankingService
             try
             {
                 return DepositRateTariff.GetDepositRateTariff(depositType, Language);
-
             }
             catch (Exception ex)
             {
@@ -13494,8 +12927,7 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = CreateCustomer();
-                string result = customer.GetPasswordForCustomerDataOrder();
-                return result;
+                return customer.GetPasswordForCustomerDataOrder();
             }
             catch (Exception ex)
             {
@@ -13549,13 +12981,11 @@ namespace ExternalBankingService
 
         public CardToCardOrder GetCardToCardOrder(long orderId)
         {
-            CardToCardOrder order;
             try
             {
 
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardToCardOrder(orderId);
-                return order;
+                return customer.GetCardToCardOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -13566,13 +12996,11 @@ namespace ExternalBankingService
         }
         public AttachedCardTransactionReceipt GetAttachedCardTransactionDetails(long orderId)
         {
-            AttachedCardTransactionReceipt details;
             try
             {
 
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                details = customer.GetAttachedCardTransactionDetails(orderId);
-                return details;
+                return customer.GetAttachedCardTransactionDetails(orderId);
             }
             catch (Exception ex)
             {
@@ -13653,13 +13081,11 @@ namespace ExternalBankingService
 
         public Dictionary<string, string> GetCardLimits(long productId)
         {
-            Dictionary<string, string> cardLimits = new Dictionary<string, string>();
             try
             {
 
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cardLimits = customer.GetCardLimits(productId);
-                return cardLimits;
+                return customer.GetCardLimits(productId);
             }
             catch (Exception ex)
             {
@@ -13687,13 +13113,10 @@ namespace ExternalBankingService
 
         public CardLimitChangeOrder GetCardLimitChangeOrder(long orderId)
         {
-            CardLimitChangeOrder order;
             try
             {
-
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardLimitChangeOrder(orderId);
-                return order;
+                return customer.GetCardLimitChangeOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -13727,7 +13150,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(template.PaymentOrder);
                 template.TemplateCustomerNumber = template.PaymentOrder.CustomerNumber;
@@ -13747,8 +13169,6 @@ namespace ExternalBankingService
             }
             catch (Exception ex)
             {
-
-
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
             }
@@ -13763,8 +13183,6 @@ namespace ExternalBankingService
             }
             catch (Exception ex)
             {
-
-
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
             }
@@ -13802,12 +13220,10 @@ namespace ExternalBankingService
 
         public HBServletRequestOrder GetHBServletRequestOrder(long ID)
         {
-            HBServletRequestOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetHBServletRequestOrder(ID);
-                return order;
+                return customer.GetHBServletRequestOrder(ID);
             }
             catch (Exception ex)
             {
@@ -13823,8 +13239,7 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                ReadXmlFileAndLog readXmlFileAndLog = customer.ReadXmlFile(fileId, filial, AuthorizedCustomer.CustomerNumber, AuthorizedCustomer.UserName);
-                return readXmlFileAndLog;
+                return customer.ReadXmlFile(fileId, filial, AuthorizedCustomer.CustomerNumber, AuthorizedCustomer.UserName);
             }
             catch (Exception ex)
             {
@@ -13853,11 +13268,9 @@ namespace ExternalBankingService
         {
             try
             {
-                List<HBActivationRequest> list = new List<HBActivationRequest>();
                 Customer customer = new Customer(User, AuthorizedCustomer.CustomerNumber, (Languages)Language);
                 customer.Source = Source;
-                list = customer.GetHBRequests();
-                return list;
+                return customer.GetHBRequests();
             }
             catch (Exception ex)
             {
@@ -14005,12 +13418,10 @@ namespace ExternalBankingService
         }
         public HBApplicationOrder GetHBApplicationOrder(long ID)
         {
-            HBApplicationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetHBApplicationOrder(ID);
-                return order;
+                return customer.GetHBApplicationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -14021,12 +13432,10 @@ namespace ExternalBankingService
 
         public HBActivationOrder GetHBActivationOrder(long ID)
         {
-            HBActivationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetHBActivationOrder(ID);
-                return order;
+                return customer.GetHBActivationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -14168,7 +13577,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
                 return customer.GetOrderGroups(status, groupType);
             }
@@ -14377,9 +13785,6 @@ namespace ExternalBankingService
             return Card.GetCard(acc);
         }
 
-
-
-
         public ActionResult SaveInternationalOrderTemplate(InternationalOrderTemplate template)
         {
             try
@@ -14495,9 +13900,8 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                result = customer.CheckExcelRows(reestrTransferAdditionalDetails, debetAccount, (Languages)Language, orderId);
+                ActionResult result = customer.CheckExcelRows(reestrTransferAdditionalDetails, debetAccount, (Languages)Language, orderId);
                 if (result.ResultCode == ResultCode.ValidationError)
                 {
                     Localization.SetCulture(result, new Culture(Languages.hy));
@@ -14611,17 +14015,12 @@ namespace ExternalBankingService
             }
 
         }
-
-
-
         public Dictionary<string, string> GetDepositLoanContractInfo(int docId)
         {
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            DataTable dt = new DataTable();
             try
             {
-
-                dt = LoanProductOrder.GetDepositLoanContractInfo(docId);
+                DataTable dt = LoanProductOrder.GetDepositLoanContractInfo(docId);
                 if (dt.Rows.Count > 0)
                 {
                     dictionary.Add("security_code_2", dt.Rows[0][0].ToString());
@@ -14888,8 +14287,8 @@ namespace ExternalBankingService
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
             }
-
         }
+
         public bool ValidateDocId(long docId)
         {
             try
@@ -14903,6 +14302,7 @@ namespace ExternalBankingService
             }
 
         }
+
         public bool ValidateAccountNumber(string accountNumber)
         {
             try
@@ -15066,7 +14466,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 Customer customer = CreateCustomer();
                 InitOrder(template.BudgetPaymentOrder);
                 template.TemplateCustomerNumber = template.BudgetPaymentOrder.CustomerNumber;
@@ -15088,10 +14487,8 @@ namespace ExternalBankingService
         {
             try
             {
-                List<Card> cards;
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cards = customer.GetCardsForNewCreditLine(orderType);
-                return cards;
+                return customer.GetCardsForNewCreditLine(orderType);
             }
             catch (Exception ex)
             {
@@ -15174,7 +14571,6 @@ namespace ExternalBankingService
             try
             {
                 return Message.GetMessageAttachmentById(Id);
-
             }
             catch (Exception ex)
             {
@@ -15587,12 +14983,10 @@ namespace ExternalBankingService
 
         public PlasticCardSMSServiceOrder GetPlasticCardSMSServiceOrder(long orderId)
         {
-            PlasticCardSMSServiceOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPlasticCardSMSServiceOrder(orderId);
-                return order;
+                return customer.GetPlasticCardSMSServiceOrder(orderId);
             }
             catch (Exception ex)
             {
@@ -15632,12 +15026,10 @@ namespace ExternalBankingService
         }
         public LoanDelayOrder GetLoanDelayOrder(long ID)
         {
-            LoanDelayOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetLoanDelayOrder(ID);
-                return order;
+                return customer.GetLoanDelayOrder(ID);
             }
             catch (Exception ex)
             {
@@ -15686,19 +15078,16 @@ namespace ExternalBankingService
 
         public xbs.Customer GetCustomer(ulong customerNumber)
         {
-            var customer = ACBAOperationService.GetCustomer(customerNumber);
-            return customer;
+            return ACBAOperationService.GetCustomer(customerNumber);
         }
 
         public Dictionary<string, string> GetOrderDetailsForReport(long orderId)
         {
-            Dictionary<string, string> details = new Dictionary<string, string>();
             try
             {
 
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                details = customer.GetOrderDetailsForReport(orderId, AuthorizedCustomer.CustomerNumber);
-                return details;
+                return customer.GetOrderDetailsForReport(orderId, AuthorizedCustomer.CustomerNumber);
             }
             catch (Exception ex)
             {
@@ -15962,7 +15351,7 @@ namespace ExternalBankingService
                 xbs.VipData vip = ACBAOperationService.GetCustomerVipData(AuthorizedCustomer.CustomerNumber);
                 int vipType = vip.vipType.key;
 
-                if ((vipType < 7 || vipType > 9) || indexID == 925)
+                if (vipType < 7 || vipType > 9 || indexID == 925)
                     return Utility.GetPriceInfoByIndex(indexID, "price");
 
                 return 0;
@@ -16017,12 +15406,10 @@ namespace ExternalBankingService
 
         public CancelDelayOrder GetCancelLoanDelayOrder(long ID)
         {
-            CancelDelayOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCancelLoanDelayOrder(ID);
-                return order;
+                return customer.GetCancelLoanDelayOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16064,12 +15451,10 @@ namespace ExternalBankingService
 
         public CardToOtherCardsOrder GetCardToOtherCardsOrder(long ID)
         {
-            CardToOtherCardsOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardToOtherCardsOrder(ID);
-                return order;
+                return customer.GetCardToOtherCardsOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16187,12 +15572,10 @@ namespace ExternalBankingService
         }
         public NonCreditLineCardReplaceOrder GetNonCreditLineCardReplaceOrder(long ID)
         {
-            NonCreditLineCardReplaceOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetNonCreditLineCardReplaceOrder(ID);
-                return order;
+                return customer.GetNonCreditLineCardReplaceOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16217,12 +15600,10 @@ namespace ExternalBankingService
         }
         public CreditLineCardReplaceOrder GetCreditLineCardReplaceOrder(long ID)
         {
-            CreditLineCardReplaceOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCreditLineCardReplaceOrder(ID);
-                return order;
+                return customer.GetCreditLineCardReplaceOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16233,12 +15614,10 @@ namespace ExternalBankingService
 
         public ReplacedCardAccountRegOrder GetReplacedCardAccountRegOrder(long ID)
         {
-            ReplacedCardAccountRegOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetReplacedCardAccountRegOrder(ID);
-                return order;
+                return customer.GetReplacedCardAccountRegOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16278,10 +15657,8 @@ namespace ExternalBankingService
         {
             try
             {
-                List<PlasticCard> cards;
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cards = customer.GetCustomerPlasticCardsForAdditionalData(IsClosed);
-                return cards;
+                return customer.GetCustomerPlasticCardsForAdditionalData(IsClosed);
             }
             catch (Exception ex)
             {
@@ -16294,10 +15671,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<CardAdditionalData> cardAdditionalDatas;
-
-                cardAdditionalDatas = CardAdditionalData.GetCardAdditionalDatas(cardnumber, expirydate);
-                return cardAdditionalDatas;
+                return CardAdditionalData.GetCardAdditionalDatas(cardnumber, expirydate);
             }
             catch (Exception ex)
             {
@@ -16323,12 +15697,10 @@ namespace ExternalBankingService
 
         public CardAdditionalDataOrder GetCardAdditionalDataOrder(long orderID)
         {
-            CardAdditionalDataOrder cardAdditionalDataOrder;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cardAdditionalDataOrder = customer.GetCardAdditionalDataOrder(orderID);
-                return cardAdditionalDataOrder;
+                return customer.GetCardAdditionalDataOrder(orderID);
             }
             catch (Exception ex)
             {
@@ -16353,12 +15725,10 @@ namespace ExternalBankingService
         }
         public PINRegenerationOrder GetPINRegenerationOrder(long ID)
         {
-            PINRegenerationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetPINRegenerationOrder(ID);
-                return order;
+                return customer.GetPINRegenerationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16398,8 +15768,7 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                string orderComment = customer.GetPreviousBlockUnblockOrderComment(cardNumber);
-                return orderComment;
+                return customer.GetPreviousBlockUnblockOrderComment(cardNumber);
             }
             catch (Exception ex)
             {
@@ -16412,8 +15781,7 @@ namespace ExternalBankingService
         {
             try
             {
-                List<LoanInterestRateChangeHistory> loanInterestRateChangeHistoryDetails = LoanInterestRateChangeHistory.GetLoanInterestRateChangeHistoryDetails(productID);
-                return loanInterestRateChangeHistoryDetails;
+                return LoanInterestRateChangeHistory.GetLoanInterestRateChangeHistoryDetails(productID);
             }
             catch (Exception ex)
             {
@@ -16437,12 +15805,10 @@ namespace ExternalBankingService
 
         public ChangeBranchOrder GetChangeBranchOrder(long ID)
         {
-            ChangeBranchOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetChangeBranchOrder(ID);
-                return order;
+                return customer.GetChangeBranchOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16453,12 +15819,10 @@ namespace ExternalBankingService
 
         public ChangeBranchOrder GetFilialCode(long cardNumber)
         {
-            ChangeBranchOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetFilialCode(cardNumber);
-                return order;
+                return customer.GetFilialCode(cardNumber);
             }
             catch (Exception ex)
             {
@@ -16508,8 +15872,7 @@ namespace ExternalBankingService
         {
             try
             {
-                DateTime sentDateTime = Order.GetTransferSentDateTime(docID);
-                return sentDateTime;
+                return Order.GetTransferSentDateTime(docID);
             }
             catch (Exception ex)
             {
@@ -16562,12 +15925,10 @@ namespace ExternalBankingService
         }
         public CardNotRenewOrder GetCardNotRenewOrder(long ID)
         {
-            CardNotRenewOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardNotRenewOrder(ID);
-                return order;
+                return customer.GetCardNotRenewOrder(ID);
             }
             catch (Exception ex)
             {
@@ -16583,10 +15944,9 @@ namespace ExternalBankingService
             {
                 UcomFixAbonentSearch ucomFixAbonentSearch = new UcomFixAbonentSearch();
 
-                decimal? debt = null;
                 string str = ucomFixAbonentSearch.GetUcomFixAbonentSearch(abonentNumber).TotalBalance;
                 if (str != null)
-                    return debt = Convert.ToDecimal(str);
+                    return Convert.ToDecimal(str);
                 else
                     return null;
 
@@ -16658,12 +16018,10 @@ namespace ExternalBankingService
 
         public CardAccountClosingOrder GetCardAccountClosingOrder(long orderID)
         {
-            CardAccountClosingOrder cardAccountClosingOrder;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                cardAccountClosingOrder = customer.GetCardAccountClosingOrder(orderID);
-                return cardAccountClosingOrder;
+                return customer.GetCardAccountClosingOrder(orderID);
             }
             catch (Exception ex)
             {
@@ -17089,16 +16447,13 @@ namespace ExternalBankingService
         public ActionResult EditLeasingCustomerSubjectiveClassificationGrounds(LeasingCustomerClassification obj)
         {
             DateTime registrationDate = GetCurrentOperDay();
-            int overdueDays = ((new DateTime(registrationDate.Date.Year, registrationDate.Date.Month, 1).AddMonths(1).AddDays(-1)).Date - obj.ClassificationDate.Date).Days + 1;
+            int overdueDays = (new DateTime(registrationDate.Date.Year, registrationDate.Date.Month, 1).AddMonths(1).AddDays(-1).Date - obj.ClassificationDate.Date).Days + 1;
 
             Tuple<int, string> tuple = LeasingCustomerClassification.GetLeasingRiskDaysCountAndName(Convert.ToInt32(obj.RiskClassName));
 
-            int daysCountMin = tuple.Item1;
-            string RiskClassName = tuple.Item2;
-
-            if (obj.CalcByDays == false)
+            if (!obj.CalcByDays)
             {
-                obj.ClassificationDate = registrationDate.AddDays(-daysCountMin);
+                obj.ClassificationDate = registrationDate.AddDays(-tuple.Item1);
             }
 
             if ((registrationDate - obj.ClassificationDate).Days < 0)
@@ -17283,11 +16638,6 @@ namespace ExternalBankingService
         {
             try
             {
-                //TODO Remove next 3 lines after going to production
-                (bool isTestVersion, ContentResult<string> testResult) = TestCardlessCashoutOrderApproveForTestEnvironment(order.Id);
-                if (isTestVersion && (order.Id == 333333 || order.Id == 444444))
-                    return testResult;
-
                 Customer customer = CreateCustomer();
                 InitOrder(order);
                 ContentResult<string> result = customer.ApproveCardLessCashOutOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
@@ -17357,22 +16707,6 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        private static (bool isTestVersion, ContentResult<string> result) TestCardlessCashoutOrderApproveForTestEnvironment(long docId)
-        {
-            ContentResult<string> result = new ContentResult<string>();
-
-            bool isTestVersion = bool.Parse(WebConfigurationManager.AppSettings["TestVersion"].ToString());
-
-            if (!isTestVersion)
-                return (isTestVersion: false, result);
-
-            if (docId == 333333)
-                result.ResultCode = ResultCode.Normal;
-            else if (docId == 444444)
-                result.ResultCode = ResultCode.Failed;
-
-            return (isTestVersion: true, result);
-        }
 
         public List<DahkDetails> GetDahkDetailsForDigital(ulong customerNumber)
         {
@@ -17387,18 +16721,12 @@ namespace ExternalBankingService
             }
         }
 
-
-
-
-
         public LoanInterestRateConcessionOrder GetLoanInterestRateConcessionOrder(long OrderId)
         {
-            LoanInterestRateConcessionOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetLoanInterestRateConcessionOrder(OrderId);
-                return order;
+                return customer.GetLoanInterestRateConcessionOrder(OrderId);
             }
             catch (Exception ex)
             {
@@ -17445,7 +16773,9 @@ namespace ExternalBankingService
         {
             try
             {
-                return CardlessCashoutOrder.Confirm(docID, TransactionId, AtmId, Source);
+                Customer customer = new Customer();
+                CardlessCashoutOrder Order = customer.GetCardLessCashOutOrder((long)docID);
+                return Order.Confirm(docID, TransactionId, AtmId, Source);
             }
             catch (Exception ex)
             {
@@ -17514,7 +16844,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return SearchLeasingLoan.GetLeasingDetailedInformation(loanFullName, dateOfBeginning);
             }
             catch (Exception ex)
@@ -17541,7 +16870,6 @@ namespace ExternalBankingService
         {
             try
             {
-
                 return SearchLeasingLoan.GetPartlyMatureAmount(contractNumber);
             }
             catch (Exception ex)
@@ -17645,11 +16973,7 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = responseConfirm.ResponseConfirm(authorizedUserSessionToken, User.userName, ClientIp);
-                //Culture Culture = new Culture((Languages)Language);
-
-                //Localization.SetCulture(result, Culture);
-                return result;
+                return responseConfirm.ResponseConfirm(authorizedUserSessionToken, User.userName, ClientIp);
             }
             catch (Exception ex)
             {
@@ -17705,7 +17029,7 @@ namespace ExternalBankingService
         {
             try
             {
-                ContentResult<string> result = new ContentResult<string>();
+                ContentResult<string> result;
 
                 Customer customer = CreateCustomer();
                 InitOrder(order);
@@ -17744,6 +17068,21 @@ namespace ExternalBankingService
             {
                 Customer customer = new Customer();
                 ActionResult result = customer.SaveAndApprovePayerLinkPaymentOrder(order);
+                try
+                {
+                    if (result.ResultCode == ResultCode.Normal)
+                    { 
+                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                        if (quality != OrderQuality.Approved)
+                            ConfirmOrderOnline(order.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    WriteLog(ex);
+                    //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                }
+
                 return result;
             }
             catch (Exception ex)
@@ -17820,12 +17159,10 @@ namespace ExternalBankingService
 
         public BillSplitSenderRejectionOrder GetBillSplitSenderRejectionOrder(long ID)
         {
-            BillSplitSenderRejectionOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetBillSplitSenderRejectionOrder(ID);
-                return order;
+                return customer.GetBillSplitSenderRejectionOrder(ID);
             }
             catch (Exception ex)
             {
@@ -17895,12 +17232,10 @@ namespace ExternalBankingService
 
         public BillSplitReminderOrder GetBillSplitReminderOrder(long ID)
         {
-            BillSplitReminderOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetBillSplitReminderOrder(ID);
-                return order;
+                return customer.GetBillSplitReminderOrder(ID);
             }
             catch (Exception ex)
             {
@@ -17945,12 +17280,10 @@ namespace ExternalBankingService
 
         public CardReOpenOrder GetCardReOpenOrder(long ID)
         {
-            CardReOpenOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardReOpenOrder(ID);
-                return order;
+                return customer.GetCardReOpenOrder(ID);
             }
             catch (Exception ex)
             {
@@ -18008,12 +17341,10 @@ namespace ExternalBankingService
         }
         public CardRenewOrder GetCardRenewOrder(long ID)
         {
-            CardRenewOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetCardRenewOrder(ID);
-                return order;
+                return customer.GetCardRenewOrder(ID);
             }
             catch (Exception ex)
             {
@@ -18024,12 +17355,10 @@ namespace ExternalBankingService
 
         public List<string> CheckCardRenewOrder(CardRenewOrder order)
         {
-            List<string> messages = new List<string>();
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                messages = customer.CheckCardRenewOrder(order);
-                return messages;
+                return customer.CheckCardRenewOrder(order);
             }
             catch (Exception ex)
             {
@@ -18106,11 +17435,9 @@ namespace ExternalBankingService
         }
         public List<CardRetainHistory> GetCardRetainHistory(string cardNumber)
         {
-            List<CardRetainHistory> historyList = new List<CardRetainHistory>();
             try
             {
-                historyList = Card.GetCardRetainHistory(cardNumber);
-                return historyList;
+                return Card.GetCardRetainHistory(cardNumber);
             }
             catch (Exception ex)
             {
@@ -18125,9 +17452,7 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 InitOrder(deleteLoanOrder);
-
-                ActionResult result = customer.SaveAndApproveDeleteLoan(deleteLoanOrder, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
-                return result;
+                return customer.SaveAndApproveDeleteLoan(deleteLoanOrder, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
             }
             catch (Exception ex)
             {
@@ -18170,10 +17495,8 @@ namespace ExternalBankingService
         {
             try
             {
-                ActionResult result = new ActionResult();
                 Customer customer = CreateCustomer();
-                result = customer.RemoveAccountOrder(order, AuthorizedCustomer.UserName);
-                return result;
+                return customer.RemoveAccountOrder(order, AuthorizedCustomer.UserName);
             }
             catch (Exception ex)
             {
@@ -18419,8 +17742,7 @@ namespace ExternalBankingService
             try
             {
                 PreferredAccount preferredAccount = new PreferredAccount();
-                bool isDisabled = preferredAccount.IsDisabledPreferredAccountService(customerNumber, preferredAccountServiceType);
-                return isDisabled;
+                return preferredAccount.IsDisabledPreferredAccountService(customerNumber, preferredAccountServiceType);
             }
             catch (Exception ex)
             {
@@ -18535,12 +17857,10 @@ namespace ExternalBankingService
 
         public VisaAliasOrder GetVisaAliasOrder(long ID)
         {
-            VisaAliasOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetVisaAliasOrder(ID);
-                return order;
+                return customer.GetVisaAliasOrder(ID);
             }
             catch (Exception ex)
             {
@@ -18553,7 +17873,6 @@ namespace ExternalBankingService
             try
             {
                 Customer customer = CreateCustomer();
-
                 return customer.VisaAliasOrderDetails(orderId);
             }
             catch (Exception ex)
@@ -18614,7 +17933,7 @@ namespace ExternalBankingService
             }
         }
 
-        public  void DeleteDepoAccounts(ulong customerNumber)
+        public void DeleteDepoAccounts(ulong customerNumber)
         {
             try
             {
@@ -18626,11 +17945,11 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        public  double GetDepositaryAccount(ulong customerNumber)
+        public double GetDepositaryAccount(ulong customerNumber)
         {
             try
             {
-              return   DepositaryAccount.GetDepositaryAccount(customerNumber);
+                return DepositaryAccount.GetDepositaryAccount(customerNumber);
             }
             catch (Exception ex)
             {
@@ -18770,12 +18089,10 @@ namespace ExternalBankingService
 
         public ConsumeLoanApplicationOrder GetConsumeLoanApplicationOrder(long ID)
         {
-            ConsumeLoanApplicationOrder order;
             try
             {
                 Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
-                order = customer.GetConsumeLoanApplicationOrder(ID);
-                return order;
+                return customer.GetConsumeLoanApplicationOrder(ID);
             }
             catch (Exception ex)
             {
@@ -18784,7 +18101,7 @@ namespace ExternalBankingService
             }
         }
 
-        public BondCertificateDetails  GetBondCertificateDetailsByDocId(ulong docId)
+        public BondCertificateDetails GetBondCertificateDetailsByDocId(ulong docId)
         {
             try
             {
@@ -18801,7 +18118,1167 @@ namespace ExternalBankingService
         {
             try
             {
-                return ConsumeLoanApplicationOrder.ExistsConsumeLoanApplicationOrder(AuthorizedCustomer.CustomerNumber,  qualities);
+                return ConsumeLoanApplicationOrder.ExistsConsumeLoanApplicationOrder(AuthorizedCustomer.CustomerNumber, qualities);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveConsumeLoanSettlementOrder(ConsumeLoanSettlementOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveConsumeLoanSettlementOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+
+        public ConsumeLoanSettlementOrder GetConsumeLoanSettlementOrder(long ID)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetConsumeLoanSettlementOrder(ID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public void RegisterExchange(AcbamatExchangeOrder acbamatExchangeOrder)
+        {
+            try
+            {
+                acbamatExchangeOrder.SaveAcbamatExchangeDetails();
+                acbamatExchangeOrder.FinalizeExchange(AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                if (!(ex is AcbamatFeeTransactionException))
+                {
+                    throw new FaultException(Resourse.InternalError);
+                }
+            }
+
+        }
+
+        public void RegisterThirdPartyWithdrawal(AcbamatThirdPartyWithdrawalOrder acbamatThirdPartyWithdrawalOrder)
+        {
+            try
+            {
+                acbamatThirdPartyWithdrawalOrder.SaveAcbamatThirdPartyWithdrawalDetails();
+                acbamatThirdPartyWithdrawalOrder.FinalizeThirdPartyWithdrawal(AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                if (!(ex is AcbamatFeeTransactionException))
+                {
+                    throw new FaultException(Resourse.InternalError);
+                }
+            }
+
+        }
+
+        public ActionResult SaveAndApproveCardlessCashoutCancellationOrder(CardlessCashoutCancellationOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                if (string.IsNullOrEmpty(order.CardlessCashoutCode))
+                    InitOrder(order);
+                ActionResult result = customer.SaveAndApproveCardlessCashoutCancellationOrder(order);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw;
+            }
+        }
+
+        public int UpdateCardDesign(ulong productID, int designId)
+        {
+            Card.UpdateCardDesign(productID, designId);
+            return 1;
+        }
+
+        public List<Account> GetAllCurrentAccounts()
+        {
+            try
+            {
+
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetAllCurrentAccounts();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public string CheckCreditLineForRenewedCardAccountRegOrder(RenewedCardAccountRegOrder order)
+        {
+            try
+            {
+                return RenewedCardAccountRegOrder.CheckCreditLineForRenewedCardAccountRegOrder(order, AuthorizedCustomer.CustomerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public ContentResult<string> ApproveConsumeLoanSettlementOrder(ConsumeLoanSettlementOrder order)
+        {
+            try
+            {
+                ContentResult<string> result = new ContentResult<string>();
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                ActionResult secondResult = customer.ApproveConsumeLoanSettlementOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+                if ((order.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (secondResult.ResultCode == ResultCode.Normal || secondResult.ResultCode == ResultCode.DoneAndReturnedValues || secondResult.ResultCode == ResultCode.PartiallyCompleted || secondResult.ResultCode == ResultCode.SaveAndSendToConfirm))
+                {
+                    try
+                    {
+                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                        if (quality != OrderQuality.Approved)
+                        {
+                            ConfirmOrderOnline(order.Id);
+                            quality = GetOrderQualityByDocID(order.Id);
+                            if (quality == OrderQuality.Completed || quality == OrderQuality.SBQprocessed)
+                            {
+                                result.ResultCode = ResultCode.Normal;
+                                result.Content = order.CurrentAccount.AccountNumber;
+                            }
+                            else
+                            {
+                                result.ResultCode = ResultCode.Warning;
+                                result.Content = Info.GetTerm(2054, null, (Languages)Language);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex);
+                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                    }
+                }
+                else if (secondResult.ResultCode == ResultCode.ValidationError)
+                {
+                    result.ResultCode = ResultCode.ValidationError;
+                    result.Content = "";
+                    result.Errors = secondResult.Errors;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public OrderGroup GetOrderGroup(int id)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetOrderGroup(id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public List<KeyValuePair<string, string>> GetLoanGrafikChangeDates(string productId)
+        {
+            try
+            {
+                List<KeyValuePair<string, string>> Dates = Loan.GetLoanGrafikChangeDates(Convert.ToUInt64(productId));
+                return Dates;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LoanRepaymentGrafik> GetLoanGrafikBeforeChange(string productId, DateTime changeDate)
+        {
+            try
+            {
+                List<LoanRepaymentGrafik> loanGrafik = null;
+                loanGrafik = Loan.GetLoanGrafikBeforeChange(Convert.ToUInt64(productId), changeDate);
+                return loanGrafik;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public float GetInterestRateEffective(double startCapital, string currency, DateTime dateOfBeginning, DateTime dateOfNormalEnd, DateTime firstRepaymentDate, float interestRate)
+        {
+            try
+            {
+
+                return Loan.GetInterestRateEffective(startCapital, currency, dateOfBeginning, dateOfNormalEnd, firstRepaymentDate, interestRate);
+            }
+            catch (Exception ex)
+            {
+
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public byte[] PrintConsumeLoanSettlement(long docId, ulong customerNumber, bool fromApprove = false)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                return ConsumeLoanSettlementOrder.PrintConsumeLoanSettlement(docId, AuthorizedCustomer.CustomerNumber, fromApprove);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public ActionResult SaveVehicleInsuranceOrder(VehicleInsuranceOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveVehicleInsuranceOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+
+        public ActionResult UpdateVehicleInsuranceOrder(VehicleInsuranceOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.UpdateVehicleInsuranceOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+
+        public Dictionary<string, string> GetConsumeLoanSettlementSchedult(long docId)
+        {
+            try
+            {
+                return ConsumeLoanSettlementOrder.GetConsumeLoanSettlementSchedult(docId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ApproveConsumeLoanSettlementOrderForApproveOrder(ConsumeLoanSettlementOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                ActionResult result = customer.ApproveConsumeLoanSettlementOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+                if ((order.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
+                {
+                    try
+                    {
+                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                        if (quality != OrderQuality.Approved)
+                        {
+                            ConfirmOrderOnline(order.Id);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex);
+                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public List<string> CheckPlasticCardRemovalOrder(PlasticCardRemovalOrder order)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.CheckPlasticCardRemovalOrder(order, User);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public short GetCardChangeType(long productId)
+        {
+            try
+            {
+                return Card.GetCardChangeType(productId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public VehicleInsuranceOrder GetVehicleInsuranceOrder(long ID)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetVehicleInsuranceOrder(ID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<Borrower> GetLoanBorrowers(ulong productId)
+        {
+            try
+            {
+                var borrowers = Borrower.GetLoanBorrowers(productId);
+                return borrowers;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public ActionResult SaveTaxRefundAgreementDetails(ulong customerNumber, ulong productId, byte agreementExistence, int setNumber)
+        {
+            try
+            {
+                return Borrower.SaveTaxRefundAgreementDetails(customerNumber, productId, agreementExistence, setNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<ChangeDetails> GetTaxRefundAgreementHistory(int agreementId)
+        {
+            try
+            {
+                var history = Borrower.GetTaxRefundAgreementHistory(agreementId);
+                return history;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public ActionResult ApproveVehicleInsuranceOrder(VehicleInsuranceOrder vehicleInsuranceOrder)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(vehicleInsuranceOrder);
+                ActionResult result = customer.ApproveVehicleInsuranceOrder(vehicleInsuranceOrder, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+
+                //Գործարքի կատարում
+                if ((vehicleInsuranceOrder.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
+                {
+                    try
+                    {
+                        OrderQuality quality = GetOrderQualityByDocID(vehicleInsuranceOrder.Id);
+                        if (quality != OrderQuality.Approved)
+                        {
+                            ConfirmOrderOnline(vehicleInsuranceOrder.Id);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex);
+                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ValidateVehicleInusuranceOrderForSending(VehicleInsuranceOrder vehicleInsuranceOrder)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(vehicleInsuranceOrder);
+                return customer.ValidateVehicleInusuranceOrderForSending(vehicleInsuranceOrder);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveSecuritiesTradingOrder(SecuritiesTradingOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveSecuritiesTradingOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+
+        public SecuritiesTradingOrder GetSecuritiesTradingOrder(long ID)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetSecuritiesTradingOrder(ID, (Languages)Language);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public ActionResult ApproveSecuritiesTradingOrder(SecuritiesTradingOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                ActionResult result = customer.ApproveSecuritiesTradingOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+                //Գործարքի կատարում
+                if ((order.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
+                {
+                    try
+                    {
+                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                        if (quality != OrderQuality.Approved)
+                        {
+                            ConfirmOrderOnline(order.Id);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex);
+                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                    }
+                }
+                result.Id = order.Id;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+
+        public ActionResult ApproveBudgetPaymentOrder(BudgetPaymentOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.ApproveBudgetPaymentOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public BrokerContractOrder GetBrokerContractOrder(long id)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetBrokerContractOrder(id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAndApproveBrokerContractOrder(BrokerContractOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveAndApproveBrokerContractOrder(order, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveBrokerContractOrder(BrokerContractOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveBrokerContractOrder(order, AuthorizedCustomer.UserName);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult InsertASWAContractResponseDetails(long DocId, bool IsCompleted, short TypeOfFunction, string Description)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                return customer.InsertASWAContractResponseDetails(DocId, IsCompleted, TypeOfFunction, Description);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAswaSearchResponseDetails(VehicleInsuranceOrder Order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                return customer.SaveAswaSearchResponseDetails(Order);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public VehicleInsuranceOrder GetAswaSearchResponseDetails(long Id)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetAswaSearchResponseDetails(Id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public ActionResult ApproveBrokerContractOrder(BrokerContractOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.ApproveBrokerContractOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ApproveCardLessCashOutOrderForApproveOrdes(CardlessCashoutOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                ActionResult result = customer.ApproveCardLessCashOutOrderForApproveOrdes(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+                //Գործարքի կատարում
+                if ((order.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
+                {
+                    try
+                    {
+                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                        if (quality != OrderQuality.Approved)
+                        {
+                            ConfirmOrderOnline(order.Id);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex);
+                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+
+
+        public Dictionary<int, List<SentSecuritiesTradingOrder>> GetSentSecuritiesTradingOrders(SecuritiesTradingFilter filter)
+        {
+            try
+            {
+                return SecuritiesTrading.GetSentSecuritiesTradingOrders(filter);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAndApproveSecuritiesMarketTradingOrder(SecuritiesMarketTradingOrder order)
+        {
+            try
+            {
+                Customer customer = new Customer(order.CustomerNumber, (Languages)Language);
+                order.FilialCode = User.filialCode;
+                order.Source = Source;
+                order.user = User;
+                order.OperationDate = Utility.GetCurrentOperDay();
+                return customer.SaveAndApproveSecuritiesMarketTradingOrder(order);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public SecuritiesTradingOrder GetSecuritiesTradingOrderById(long docId)
+        {
+            try
+            {
+                return SecuritiesTradingOrder.GetSecuritiesTradingOrderById(docId, (Languages)Language);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<SecuritiesMarketTradingOrder> GetSecuritiesMarketTradingOrder(long orderId)
+        {
+            try
+            {
+                return SecuritiesMarketTradingOrder.Get(orderId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public SecuritiesTradingOrderCancellationOrder GetSecuritiesTradingOrderCancellationOrder(long id)
+        {
+            try
+            {
+                return SecuritiesTradingOrderCancellationOrder.Get(id);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAndApproveSecuritiesTradingOrderCancellationOrder(SecuritiesTradingOrderCancellationOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                order.user.userName = AuthorizedCustomer.UserName;
+                return customer.SaveAndApproveSecuritiesTradingOrderCancellationOrder(order);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ConfirmSecuritiesTradingOrderCancellationOrder(SecuritiesTradingOrderCancellationOrder order)
+        {
+            try
+            {
+                var desciption = order.Description;
+                order = GetSecuritiesTradingOrderCancellationOrder(order.Id);
+                order.Description = desciption;
+                order.user = User;
+                return order.Confirm();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public List<SecuritiesTradingOrder> GetSecuritiesTradingOrders(short QualityType, DateTime StartDate, DateTime EndDate)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetSecuritiesTradingOrders(QualityType, StartDate, EndDate, (Languages)Language);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public  async Task<BrokerContract> GetBrokerContractProduct(ulong customerNumber)
+        {
+            try
+            {
+                return await BrokerContract.GetBrokerContractProduct(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ConfirmSecuritiesTradingOrder(SecuritiesTradingOrder order)
+        {
+            try
+            {
+                var desciption = order.RejectReasonDescription;
+                order = GetSecuritiesTradingOrderById(order.Id);
+                order.RejectReasonDescription = desciption;
+                order.user = User;
+                return order.Confirm();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public bool IsACBASecurity(string ISIN)
+        {
+            try
+            {
+                return BondIssue.IsACBASecurity(ISIN);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public ActionResult RejectSecuritiesTradingOrder(SecuritiesTradingOrder order)
+        {
+            try
+            {
+                var desciption = order.RejectReasonDescription;
+                order = GetSecuritiesTradingOrderById(order.Id);
+                order.RejectReasonDescription = desciption;
+                order.user = User;
+                return order.Reject();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult RejectSecuritiesTradingOrderCancellationOrder(SecuritiesTradingOrderCancellationOrder order)
+        {
+            try
+            {
+                var desciption = order.Description;
+                order = GetSecuritiesTradingOrderCancellationOrder(order.Id);
+                order.Description = desciption;
+                order.user = User;
+                return order.Reject();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public List<CustomerLeasingLoans> GetLeasings()
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return SearchLeasingLoan.GetLeasings(customer.CustomerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public LeasingLoanDetails GetLeasing(ulong productId)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasing(productId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingLoanRepayments> GetLeasingRepayments(ulong productId, byte firstReschedule = 0)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasingRepayments(productId, firstReschedule);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingLoanStatements> GetLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasingLoanStatements(productId, dateFrom, dateTo, minAmount, maxAmount, pageNumber, pageRowCount, orderByAscDesc);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingPaymentsType> GetLeasingPaymentsType()
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasingPaymentsType();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<AdditionalDetails> GetLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0)
+        {
+            try
+            {
+
+                return SearchLeasingLoan.GetLeasingDetailsByAppID(productId, leasingInsuranceId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public ActionResult SaveAndEditLeasingCredential(LeasingCredential credential)
+        {
+            try
+            {
+
+                return LeasingCredential.SaveAndEditLeasingCredential(credential, User.userID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public Account SetLeasingReceiver()
+        {
+            try
+            {
+                return SearchLeasingLoan.SetLeasingReceiver();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingCredential> GetLeasingCredentials(int customerNumber, ProductQualityFilter filter)
+        {
+            try
+            {
+
+                return LeasingCredential.GetLeasingCredentials(customerNumber, filter);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public string GetLeasingPaymentDescription(short paymentType, short paymentSubType)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasingPaymentDescription(paymentType, paymentSubType);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public LeasingLoanRepayments GetLeasingPaymentDetails(ulong productId)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasingPaymentDetails(productId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveRemovedLeasingCredential(int credentialId)
+        {
+            try
+            {
+
+                return LeasingCredential.SaveRemovedLeasingCredential(credentialId, User.userID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingOverdueDetail> GetLeasingOverdueDetails(ulong productId)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasingOverdueDetails(productId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public ActionResult SaveClosedLeasingCredential(LeasingCredential credential)
+        {
+            try
+            {
+
+                return LeasingCredential.SaveClosedLeasingCredential(credential, User.userID);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public Dictionary<string, string> GetLeasingCustomerCredentials(int customerNumber)
+        {
+            try
+            {
+                return LeasingCredential.GetLeasingCustomerCredentials(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ulong GetManagerCustomerNumber(ulong customerNumber)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetManagerCustomerNumber(customerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<LeasingInsurance> GetLeasingInsurances(ulong productId)
+        {
+            try
+            {
+                return SearchLeasingLoan.GetLeasingInsurances(productId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        public List<Bond> GetGovernmentBonds()
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                return customer.GetGovernmentBonds(AuthorizedCustomer.CustomerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public void UpdateSecuritiesTradingOrderDeposited(ulong docId)
+        {
+            try
+            {
+                 SecuritiesTradingOrder.UpdateDeposited(docId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public int GetCustomerSentSecuritiesTradingOrdersQuantity(string iSIN)
+        {
+            try
+            {
+                return SecuritiesTradingOrder.GetCustomerSentSecuritiesTradingOrdersQuantity(iSIN, AuthorizedCustomer.CustomerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }  
+
+
+        //Davit Pos
+        public ActionResult SaveAndApproveNewPosLocationOrder(NewPosLocationOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+
+                return customer.SaveAndApproveNewPosLocationOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        //Davit Pos
+        public NewPosLocationOrder NewPosApplicationOrderDetails(long orderId)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+
+                return customer.NewPosApplicationOrderDetails(orderId);
             }
             catch (Exception ex)
             {

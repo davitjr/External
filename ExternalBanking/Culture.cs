@@ -1,23 +1,23 @@
 ﻿namespace ExternalBanking
 {
-    
-	public class Culture
-	{
-		internal Languages Language { get; set;}
 
-		//internal bool IsUnicode { get; set;}
+    public class Culture
+    {
+        internal Languages Language { get; set; }
 
-		//public Culture()
-		//{
-		//	IsUnicode = true;
-		//}
+        //internal bool IsUnicode { get; set;}
 
-		public Culture(Languages language) //:base()
-		{
-			Language = language;
-		}
+        //public Culture()
+        //{
+        //	IsUnicode = true;
+        //}
 
-	}
+        public Culture(Languages language) //:base()
+        {
+            Language = language;
+        }
+
+    }
 
 }
 

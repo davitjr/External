@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -32,7 +30,7 @@ namespace ExternalBanking
         /// <summary>
         /// Հասցե
         /// </summary>
-        public string Address{ get; set; }
+        public string Address { get; set; }
 
         /// <summary>
         /// Սակագներ
@@ -85,7 +83,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public static bool HasCardTariffContract(ulong customerNumber)
         {
-           return CardTariffContractDB.HasCardTariffContract(customerNumber);
+            return CardTariffContractDB.HasCardTariffContract(customerNumber);
         }
         /// <summary>
         /// Վերադարձնում է աշխատավարձային ծրագրերը
@@ -94,7 +92,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public static List<CardTariffContract> GetCustomerCardTariffContracts(ulong customerNumber, ProductQualityFilter filter)
         {
-           return CardTariffContractDB.GetCustomerCardTariffContracts(customerNumber,filter);
+            return CardTariffContractDB.GetCustomerCardTariffContracts(customerNumber, filter);
         }
 
         /// <summary>
@@ -146,7 +144,7 @@ namespace ExternalBanking
         {
             int officeNumber = Info.GetCardOfficeTypesForIBanking(cardType, periodicityType);
             CardTariffContract contract = GetCardTariffs(officeNumber);
-            if(contract.CardTariffs != null)
+            if (contract.CardTariffs != null)
             {
                 contract.CardTariffs.RemoveAll(c => c.CardType != cardType);
             }

@@ -3,8 +3,8 @@ using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.ARUSDataService;
 using ExternalBanking.CreditLineActivatorARCA;
 using ExternalBanking.DBManager;
+using ExternalBanking.DBManager.Acbamat;
 using ExternalBanking.ServiceClient;
-using ExternalBanking.UtilityPaymentsServiceReference;
 using ExternalBanking.XBManagement;
 using System;
 using System.Collections.Generic;
@@ -271,16 +271,12 @@ namespace ExternalBanking
 
 
 
-            if (order.Deposit.StatementDeliveryType == -1)
+            if (InfoDB.CommunicationTypeExistenceFromSAP(order.CustomerNumber) == 0 && order.Source != SourceType.AcbaOnline && order.Source != SourceType.MobileBanking)
             {
-                //Քաղվածքի ստացման տարբերակը ընրտրված չէ
-                result.Add(new ActionError(222));
+                //SAP CRM ծրագրում հաճախորդի հետ հաղորդակցման եղանակը ընտրված չէ։
+                result.Add(new ActionError(2034));
             }
-            else if ((order.Deposit.StatementDeliveryType == 1 || order.Deposit.StatementDeliveryType == 3 || order.Deposit.StatementDeliveryType == 4) && !customerEmails.Exists(item => item.emailType.key == 5))
-            {
-                //Էլ. հասցե առկա չէ
-                result.Add(new ActionError(226));
-            }
+
 
 
 
@@ -505,28 +501,9 @@ namespace ExternalBanking
                 //Նշված խումբը գոյություն չունի։
                 result.Add(new ActionError(1628));
             }
-            if (order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking)
-            {
-                if (InfoDB.CommunicationTypeExistence(order.CustomerNumber) == 1)
-                {
-                    if (order.Deposit.StatementDeliveryType != null)
-                    {
-                        //Դիմումը հնարավոր չէ ուղարկել, քանի որ հաղորդակցման եղանակը սխալ է ընտրված։ Անհրաժեշտ է մուտքագրել նոր դիմում։
-                        result.Add(new ActionError(1732));
-                    }
 
-                }
-                else
-                {
-                    if (order.Deposit.StatementDeliveryType == null)
-                    {
-                        //Հաղորդակցման եղանակն ընտրված չէ։
-                        result.Add(new ActionError(1785));
-                    }
-                }
-            }
 
-            if (CheckCustomerPhoneNumber(order.CustomerNumber) )
+            if (CheckCustomerPhoneNumber(order.CustomerNumber))
             {
                 //Հաճախորդի համար չկա մուտքագրված հեռախոսահամար:
                 result.Add(new ActionError(1904));
@@ -536,6 +513,36 @@ namespace ExternalBanking
             return result;
         }
 
+        internal static IEnumerable<ActionError> ValidateAcbamatThirdPartyWithdrawalOrder(AcbamatThirdPartyWithdrawalOrder acbamatThirdPartyWithdrawalOrder)
+        {
+            List<ActionError> result = new List<ActionError>();
+            Math.DivRem((int)(decimal)acbamatThirdPartyWithdrawalOrder.Amount, 1000, out int remainder);
+            if (acbamatThirdPartyWithdrawalOrder.Amount < 1000 || acbamatThirdPartyWithdrawalOrder.Amount > 399000 || remainder != 0)
+            {
+                //Հաճախորդին տրամադրվող գումարը փոքր է 1000 ՀՀ դրամից, կամ մեծ է 399 000 ՀՀ դրամից, կամ չի հանդիսանում 1000 դրամի բազմապատիկ։
+                result.Add(new ActionError(2060));
+            }
+            return result;
+        }
+
+        internal static IEnumerable<ActionError> ValidateAcbamatExchangeOrder(AcbamatExchangeOrder acbamatExchangeOrder)
+        {
+            List<ActionError> result = new List<ActionError>();
+            ExchangeRate rate = ExchangeRate.GetExchangeRates().Where(x => x.SourceCurrency == acbamatExchangeOrder.Currency).FirstOrDefault();
+
+            int quotient = Math.DivRem((int)((decimal)acbamatExchangeOrder.Amount * (decimal)rate.BuyRateCash), 1000, out int remainder);
+            if ((quotient * 1000) != acbamatExchangeOrder.Dispened || remainder != acbamatExchangeOrder.Fee)
+            {
+                //Գումարը սխալ է հաշվարկված։
+                result.Add(new ActionError(2047));
+            }
+            if (acbamatExchangeOrder.Dispened + acbamatExchangeOrder.Fee > 400000)
+            {
+                //Փոխարկման մեկ գործարքի գումարը չի կարող գերազանցել 400.000 ՀՀ դրամը։
+                result.Add(new ActionError(2048));
+            }
+            return result;
+        }
 
         internal static List<ActionError> ValidateArcaCardsTransactionOrder(ArcaCardsTransactionOrder order)
         {
@@ -586,7 +593,7 @@ namespace ExternalBanking
                 //Քարտի փակում և քարտի փոխարինում  պատճառներով բլոկավորված քարտերն ապաբլոկավորելու համար անհրաժեշտ է զանգահարել Քարտային գործառնություների բաժին:
                 result.Add(new ActionError(1539));
             }
-           
+
 
             int[] cardTransactionActionReasons = { 15, 16, 17, 18, 19, 20, 21, 22 };
 
@@ -615,7 +622,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(1540));
             }
 
-            
+
 
 
             if ((order.GroupId != 0) ? !OrderGroup.CheckGroupId(order.GroupId) : false)
@@ -624,7 +631,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(1628));
             }
 
-            if((order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking) && order.ActionType == 2)//ապաբլոկավորում 
+            if ((order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking) && order.ActionType == 2)//ապաբլոկավորում 
             {
                 Card card = Card.GetCardMainData((ulong)order.Card.ProductId, order.CustomerNumber);
                 CardIdentification cardIdentification = new CardIdentification
@@ -720,7 +727,8 @@ namespace ExternalBanking
                                 result.AddRange(Validation.CheckCustomerDebtsAndDahk(order.CustomerNumber, account));
                             }
                         }
-                        if (debitAccount.IsAttachedCard != true)
+
+                        if (debitAccount.IsAttachedCard != true && order.Source != SourceType.AcbaMat)
                             account = permittedAccounts.Find(m => m.AccountNumber == debitAccount.AccountNumber);
 
                     }
@@ -1656,13 +1664,13 @@ namespace ExternalBanking
             List<CustomerPhone> HomePhone;
             List<CustomerPhone> MobilePhone;
 
-            var customer = ACBAOperationService.GetCustomer(order.CustomerNumber);
-            customerType = customer.customerType.key;
+            var customer = ACBAOperationService.GetCustomerMainData(order.CustomerNumber);
+            customerType = (short)customer.CustomerType;
 
             if (customerType == (short)CustomerTypes.physical)
             {
-                customerPhone = (customer as PhysicalCustomer).person.PhoneList;
-                customerEmails = (customer as PhysicalCustomer).person.emailList;
+                customerPhone = customer.Phones;
+                customerEmails = customer.Emails;
                 HomePhone = customerPhone.FindAll(m => m.phoneType.key == 2);
                 MobilePhone = customerPhone.FindAll(m => m.phoneType.key == 1);
                 if (MobilePhone.Count != 0 && string.IsNullOrEmpty(order.MobilePhoneNumber))
@@ -1965,7 +1973,7 @@ namespace ExternalBanking
             //     result.Add(new ActionError(696));
             //  }
 
-             if (result.Count == 0 && order.SubType != 5 && order.Source != SourceType.SSTerminal && order.Source != SourceType.CashInTerminal)
+            if (result.Count == 0 && order.SubType != 5 && order.Source != SourceType.SSTerminal && order.Source != SourceType.CashInTerminal)
             {
                 List<ActionError> checkMature = new List<ActionError>();
                 checkMature = MatureOrder.CheckMature(order);
@@ -2080,6 +2088,14 @@ namespace ExternalBanking
                 //Տվյալ վարկի համար հնարավոր է իրականացնել միայն վարկի մայր գումարի մարում։ 
                 result.Add(new ActionError(1907));
             }
+
+            if (InfoDB.CommunicationTypeExistenceFromSAP(order.CustomerNumber) == 0 && order.Source != SourceType.AcbaOnline && order.Source != SourceType.MobileBanking)
+            {
+                //SAP CRM ծրագրում հաճախորդի հետ հաղորդակցման եղանակը ընտրված չէ։
+                result.Add(new ActionError(2034));
+            }
+
+
             return result;
         }
 
@@ -2112,11 +2128,11 @@ namespace ExternalBanking
                 //Պատկանելիությունը ընտրված չէ
                 result.Add(new ActionError(579));
             }
-            if (order.StatementDeliveryType == -1)
-            {
-                //Քաղվածքի ստացման եղանակը ընտրված չէ
-                result.Add(new ActionError(580));
-            }
+            //if (order.StatementDeliveryType == -1)
+            //{
+            //    //Քաղվածքի ստացման եղանակը ընտրված չէ
+            //    result.Add(new ActionError(580));
+            //}
 
             if (order.RestrictionGroup == 18 && order.Currency != "AMD")
             {
@@ -2565,14 +2581,10 @@ namespace ExternalBanking
                 result.Add(new ActionError(1628));
             }
 
-            if (order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking)
+            if (InfoDB.CommunicationTypeExistenceFromSAP(order.CustomerNumber) == 0 && order.Source != SourceType.AcbaOnline && order.Source != SourceType.MobileBanking)
             {
-                if (InfoDB.CommunicationTypeExistence(order.CustomerNumber) == 1 && order.StatementDeliveryType != null)
-                {
-                    //Դիմումը հնարավոր չէ ուղարկել, քանի որ հաղորդակցման եղանակը սխալ է ընտրված։ Անհրաժեշտ է մուտքագրել նոր դիմում։
-                    result.Add(new ActionError(1732));
-                }
-
+                //SAP CRM ծրագրում հաճախորդի հետ հաղորդակցման եղանակը ընտրված չէ։
+                result.Add(new ActionError(2034));
             }
 
             return result;
@@ -2599,10 +2611,10 @@ namespace ExternalBanking
                 return IsValid = false;
             }
 
-            var customer = ACBAOperationService.GetCustomer(order.CustomerNumber);
+            var customer = ACBAOperationService.GetCustomerMainData(order.CustomerNumber);
 
             //Հասցեն բացակայում է
-            List<CustomerAddress> customerAddresses = customerAddresses = (customer as PhysicalCustomer).person.addressList;
+            List<CustomerAddress> customerAddresses = customer.Addresses;
             if (!customerAddresses.Exists(item => item.addressType.key == 2))
             {
                 return IsValid = false;
@@ -2716,10 +2728,10 @@ namespace ExternalBanking
                         //Հաշվի համար գոյություն ունի հարկային տեսչության կողմից հաստատման ենթակա հայտ
                         result.Add(new ActionError(517, new string[] { account.AccountNumber }));
                     }
-                    else if(account.Currency == "AMD" && account.AccountType == 10 && (order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking))
+                    else if (account.Currency == "AMD" && account.AccountType == 10 && (order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking))
                     {
-                        List<Account> currentAccList = Account.GetCurrentAccounts(order.CustomerNumber, ProductQualityFilter.Opened).Where(x=>x.AccountType == 10).ToList();
-                        if(currentAccList.Where(x=>x.Currency == "AMD").Count() == 1 && currentAccList.Where(x=>x.Currency != "AMD").Count() > 0)
+                        List<Account> currentAccList = Account.GetCurrentAccounts(order.CustomerNumber, ProductQualityFilter.Opened).Where(x => x.AccountType == 10).ToList();
+                        if (currentAccList.Where(x => x.Currency == "AMD").Count() == 1 && currentAccList.Where(x => x.Currency != "AMD").Count() > 0)
                         {
                             //Հաշիվը հնարավոր չէ փակել:Հաշիվը փակելու համար անհրաժեշտ է փակել արտարժութային ընթացիկ հաշիվ(ներ)ը:
                             result.Add(new ActionError(1892));
@@ -2884,7 +2896,7 @@ namespace ExternalBanking
                 {
                     Account account = card.CardAccount;
 
-                    if (! String.IsNullOrEmpty(card.MainCardNumber))
+                    if (!String.IsNullOrEmpty(card.MainCardNumber))
                     {
                         //Տվյալ տեսակի քարտի համար հնարավոր չէ իրականացնել քարտային հաշվի փակում
                         result.Add(new ActionError(1828));
@@ -3018,7 +3030,7 @@ namespace ExternalBanking
 
             }
 
-            if (CheckCustomerPhoneNumber(order.CustomerNumber) )
+            if (CheckCustomerPhoneNumber(order.CustomerNumber))
             {
                 //Հաճախորդի համար չկա մուտքագրված հեռախոսահամար:
                 result.Add(new ActionError(1904));
@@ -3146,7 +3158,7 @@ namespace ExternalBanking
                     }
                 }
 
-                if(paymentOrder.Source == SourceType.STAK && paymentOrder.Type == OrderType.TransitNonCashOutCurrencyExchangeOrder)
+                if (paymentOrder.Source == SourceType.STAK && paymentOrder.Type == OrderType.TransitNonCashOutCurrencyExchangeOrder)
                 {
                     rateType = RateType.NonCash;
                 }
@@ -3542,21 +3554,10 @@ namespace ExternalBanking
             }
             if (order.AdditionalDetails.AdditionType == 5 && (order.AdditionalDetails.AdditionValue == "1" || order.AdditionalDetails.AdditionValue == "3" || order.AdditionalDetails.AdditionValue == "4"))
             {
-                short customerType;
                 List<CustomerEmail> customerEmails;
 
-                var customer = ACBAOperationService.GetCustomer(order.CustomerNumber);
-                customerType = customer.customerType.key;
-
-                if (customerType == (short)CustomerTypes.physical)
-                {
-                    customerEmails = (customer as PhysicalCustomer).person.emailList;
-                }
-                else
-                {
-                    customerEmails = (customer as LegalCustomer).Organisation.emailList;
-                }
-
+                var customer = ACBAOperationService.GetCustomerMainData(order.CustomerNumber);
+                customerEmails = customer.Emails;
 
                 if (!customerEmails.Exists(item => item.emailType.key == 5))
                 {
@@ -4438,7 +4439,7 @@ namespace ExternalBanking
 
                 if (order.Type == OrderType.CreditLineSecureDeposit)
                 {
-                    
+
                     if (order.ProductType == 50 || order.ProductType == 51)
                     {
                         if (order.EndDate.Date > order.StartDate.Date.AddMonths(60))
@@ -4650,6 +4651,13 @@ namespace ExternalBanking
                 }
             }
 
+            if (InfoDB.CommunicationTypeExistenceFromSAP(order.CustomerNumber) == 0 && order.Source != SourceType.AcbaOnline && order.Source != SourceType.MobileBanking)
+            {
+                //SAP CRM ծրագրում հաճախորդի հետ հաղորդակցման եղանակը ընտրված չէ։
+                result.Add(new ActionError(2034));
+            }
+
+
             ActionError validResult = LoanProductOrder.ValidateLoanProduct(order);
             if (validResult != null)
             {
@@ -4773,19 +4781,17 @@ namespace ExternalBanking
             {
                 //Քարտը գտնված չէ
                 result.Add(new ActionError(534));
+                return result;
             }
             else
             {
                 result.AddRange(LoanProductOrder.FastOverdraftValidations(order.CustomerNumber, order.Source, card.CardNumber));
             }
 
-            if (order.Type == OrderType.FastOverdraftApplication && card != null)
+            if (order.Type == OrderType.FastOverdraftApplication && LoanProductOrder.CheckLoanApplication(card.CardNumber))
             {
-                if (LoanProductOrder.CheckLoanApplication(card.CardNumber))
-                {
-                    //Տվյալ քարտի համար արդեն գոյություն ունի վարկային դիմում
-                    result.Add(new ActionError(1260));
-                }
+                //Տվյալ քարտի համար արդեն գոյություն ունի վարկային դիմում
+                result.Add(new ActionError(1260));
             }
 
 
@@ -4840,6 +4846,13 @@ namespace ExternalBanking
             {
                 //Մուտքագրված գումարը սխալ է:
                 result.Add(new ActionError(22));
+            }
+
+
+            if (InfoDB.CommunicationTypeExistenceFromSAP(order.CustomerNumber) == 0 && order.Source != SourceType.AcbaOnline && order.Source != SourceType.MobileBanking)
+            {
+                //SAP CRM ծրագրում հաճախորդի հետ հաղորդակցման եղանակը ընտրված չէ։
+                result.Add(new ActionError(2034));
             }
 
 
@@ -4988,9 +5001,9 @@ namespace ExternalBanking
                 double debitAccountBalance = Account.GetAcccountAvailableBalance(accounts[i].Key.AccountNumber, creditAccountNumber);
                 double creditLineBalance = 0;
                 double sentOrdersAmounts = Order.GetSentOrdersAmount(accounts[i].Key.AccountNumber, source); // ashxatum e miayn source == AcbaOnline AcbaOnlineXML MobileBanking ArmSoft depqerum
-                  if (OnlySaveAndApprove && (type == OrderType.RATransfer || type == OrderType.InterBankTransferNonCash || type == OrderType.CashCredit
-                    || type == OrderType.ReferenceOrder || type == OrderType.InBankConvertation || type == OrderType.CashCreditConvertation
-                    || type == OrderType.SwiftCopyOrder || type == OrderType.FeeForServiceProvided || type == OrderType.Convertation))
+                if (OnlySaveAndApprove && (type == OrderType.RATransfer || type == OrderType.InterBankTransferNonCash || type == OrderType.CashCredit
+                  || type == OrderType.ReferenceOrder || type == OrderType.InBankConvertation || type == OrderType.CashCreditConvertation
+                  || type == OrderType.SwiftCopyOrder || type == OrderType.FeeForServiceProvided || type == OrderType.Convertation))
                 {
                     debitAccountBalance += Order.GetSentNotConfirmedAmounts(accounts[i].Key.AccountNumber, OrderType.CashDebit);
                 }
@@ -5039,7 +5052,6 @@ namespace ExternalBanking
                                     result.Add(depositAccountCheck);
                                 return result;
                             }
-
                             else if (accounts[i].Key.IsIPayAccount())  // Կցված քարտով գործարքների համար ստուգման անցում
                             {
                                 return result;
@@ -5054,7 +5066,7 @@ namespace ExternalBanking
                     {
                         errorText = "գործարքը կատարելու";
                     }
-                    if (source == SourceType.MobileBanking || Account.AccountAccessible(accounts[i].Key.AccountNumber, user.AccountGroup))
+                    if ((source == SourceType.MobileBanking || Account.AccountAccessible(accounts[i].Key.AccountNumber, user.AccountGroup)) && type != OrderType.CardLessCashOrder)
                     {
                         //{0} հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար(հասանելի գումար՝ {1},մնացորդ ՝ {2})
                         result.Add(new ActionError(1098, new string[] { accounts[i].Key.AccountNumber.ToString(), balance.ToString("#,0.00") + " " + accounts[i].Key.Currency, (accounts[i].Key.Balance + creditLineBalance).ToString("#,0.00") + " " + accounts[i].Key.Currency, errorText }));
@@ -5354,7 +5366,7 @@ namespace ExternalBanking
                 list.Add(new KeyValuePair<Account, double>(debitAccount, transitPaymentOrder.Amount));
             }
 
-            else if(order.GetType().Name == "CardlessCashoutOrder")
+            else if (order.GetType().Name == "CardlessCashoutOrder")
             {
                 CardlessCashoutOrder cardlessCashoutOrder = (CardlessCashoutOrder)order;
                 useCreditLine = cardlessCashoutOrder.UseCreditLine;
@@ -5381,8 +5393,13 @@ namespace ExternalBanking
                 list.AddRange(list2);
 
             }
-
-            if (order.Source != SourceType.SberBankTransfer)
+            else if (order.GetType().Name == "VehicleInsuranceOrder")
+            {
+                VehicleInsuranceOrder vehicleInsuranceOrder = (VehicleInsuranceOrder)order;
+                Account debitAccount = Account.GetAccount(vehicleInsuranceOrder.DebitAccount.AccountNumber);
+                list.Add(new KeyValuePair<Account, double>(debitAccount, vehicleInsuranceOrder.Amount));
+            }
+            if (order.Source != SourceType.SberBankTransfer && order.Source != SourceType.AcbaMat)
                 result.AddRange(ValidateOrderAmount(order.user, order.Source, list, order.Type, creditAccount.AccountNumber, errorText, useCreditLine, order.OnlySaveAndApprove));
             return result;
         }
@@ -5938,7 +5955,7 @@ namespace ExternalBanking
                 return result;
             }
 
-            if (order.Type == OrderType.CancelTransaction && removableOrder.Quality != OrderQuality.Sent3 && removableOrder.Type != OrderType.RemittanceCancellationOrder && removableOrder.Type != OrderType.LinkPaymentOrder && !(removableOrder.Type == OrderType.FastTransferPaymentOrder && removableOrder.SubType == 23))
+            if (order.Type == OrderType.CancelTransaction && removableOrder.Quality != OrderQuality.Sent3 && removableOrder.Type != OrderType.RemittanceCancellationOrder && removableOrder.Type != OrderType.LinkPaymentOrder && removableOrder.Type != OrderType.ConsumeLoanApplicationOrder && !(removableOrder.Type == OrderType.FastTransferPaymentOrder && removableOrder.SubType == 23))
             {
                 //Հնարավոր չէ կազմել հրաժարման հայտ տվյալ կարգավիճակով գործարքի համար,ստուգեք գործարքի կարգավիճակը:
                 result.Add(new ActionError(921));
@@ -5964,7 +5981,58 @@ namespace ExternalBanking
                 return result;
             }
 
+            if (removableOrder.Quality == OrderQuality.Completed && removableOrder.Type == OrderType.ConsumeLoanApplicationOrder && ConsumeLoanApplicationOrder.CheckConsumeLoanApplicationAppId(order.RemovingOrderId))
+            {
+                //Հնարավոր չէ կազմել հրաժարման հայտ տվյալ տեսակի գործարքի համար:
+                result.Add(new ActionError(1699));
+                return result;
+            }
 
+            if (removableOrder.Quality == OrderQuality.Draft && (removableOrder.Type == OrderType.ConsumeLoanApplicationOrder || removableOrder.Type == OrderType.ConsumeLoanSettlementOrder))
+            {
+                //Հնարավոր չէ կազմել հրաժարման հայտ տվյալ կարգավիճակով գործարքի համար,ստուգեք գործարքի կարգավիճակը:
+                result.Add(new ActionError(921));
+                return result;
+            }
+
+            if ((removableOrder.Quality == OrderQuality.Draft || removableOrder.Quality == OrderQuality.Canceled || removableOrder.Quality == OrderQuality.Declined) && (removableOrder.Type == OrderType.ConsumeLoanApplicationOrder || removableOrder.Type == OrderType.ConsumeLoanSettlementOrder))
+            {
+                //Հնարավոր չէ կազմել հրաժարման հայտ տվյալ կարգավիճակով գործարքի համար,ստուգեք գործարքի կարգավիճակը:
+                result.Add(new ActionError(921));
+                return result;
+            }
+
+            if (order.Source == SourceType.AcbaOnline || order.Source == SourceType.MobileBanking)
+            {
+                if (removableOrder.CustomerNumber != order.CustomerNumber)
+                {
+                    //Հնարավոր չէ կազմել հրաժարման հայտ տվյալ կարգավիճակով գործարքի համար,ստուգեք գործարքի կարգավիճակը:
+                    result.Add(new ActionError(921));
+                    return result;
+                }
+            }
+
+            if (order.Source == SourceType.AcbaOnline
+                || order.Source == SourceType.AcbaOnlineXML
+                || order.Source == SourceType.ArmSoft
+                || order.Source == SourceType.MobileBanking)
+            {
+                if (removableOrder.Type == OrderType.RATransfer && removableOrder.SubType == 1)
+                {
+                    if (removableOrder.Source == SourceType.AcbaOnline
+                || removableOrder.Source == SourceType.AcbaOnlineXML
+                || removableOrder.Source == SourceType.ArmSoft
+                || removableOrder.Source == SourceType.MobileBanking)
+                    {
+                        if (removableOrder.Quality == OrderQuality.SBQprocessed || removableOrder.Quality == OrderQuality.Completed)
+                        {
+                            //Հնարավոր չէ հեռացնել
+                            result.Add(new ActionError(2064));
+                            return result;
+                        }
+                    }
+                }
+            }
 
             return result;
 
@@ -6356,7 +6424,7 @@ namespace ExternalBanking
                 result.AddRange(Validation.CheckCustomerDebtsAndDahk(order.CustomerNumber, order.DebitAccount));
             }
 
-            
+
             return result;
         }
 
@@ -6366,13 +6434,13 @@ namespace ExternalBanking
         /// <param name="appId">Վարկի ունիկալ համար</param>
         /// <returns>Վերադարձնում է error, եթե վարկը ենթակա չէ հեռացման</returns>
         public static List<ActionError> CheckDeleteAvailability(ulong appId)
-        {            
+        {
             List<ActionError> result = new List<ActionError>();
             if (ValidationDB.CheckLoanDelete(appId) == false)
             {
                 //Վարկը տրված է, հնարավոր չէ հեռացնել
                 result.Add(new ActionError(1964));
-            }            
+            }
             return result;
         }
 
@@ -6836,7 +6904,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(834));
                 return result;
             }
-           
+
             if (pensionApplication.Quality != 0 && !order.user.IsChiefAcc)
             {
                 //Դադարեցնել կարելի է միայն գործող պայմանագիրը
@@ -7126,7 +7194,7 @@ namespace ExternalBanking
             short customerQuality = ACBAOperationService.GetCustomerQuality(order.CustomerNumber);
 
 
-            if (Customer.IsCustomerUpdateExpired(order.CustomerNumber) && order.Card.CardType != (uint)PlasticCardType.VISA_VIRTUAL)
+            if (Customer.IsCustomerUpdateExpired(order.CustomerNumber) && order.Card.CardType != (uint)PlasticCardType.VISA_DIGITAL)
             {
                 //Հաճախորդի տվյալները չեն թարմացվել մեկ տարվա ընթացքում
                 result.Add(new ActionError(496));
@@ -7134,7 +7202,7 @@ namespace ExternalBanking
 
             if (customerType == (short)CustomerTypes.physical)
             {
-                if (order.Card.CardType != (uint)PlasticCardType.VISA_VIRTUAL)
+                if (order.Card.CardType != (uint)PlasticCardType.VISA_DIGITAL)
                 {
                     List<CustomerDocument> customerDocuments = ACBAOperationService.GetCustomerDocumentList(order.CustomerNumber);
                     //Հաճախորդի ստորագրության նմուշի ստուգում:
@@ -7161,7 +7229,7 @@ namespace ExternalBanking
 
             if (verificationData == null || verificationData.VerificationResultsList.Count == 0)
             {
-                if (order.Card.CardType == (uint)PlasticCardType.VISA_VIRTUAL)
+                if (order.Card.CardType == (uint)PlasticCardType.VISA_DIGITAL)
 
                 {
                     result.Add(new ActionError(1719)); //Հաշվի բացումն արգելվում է՝ համաձայն Բանկում գործող սահմանափակումների: Virtual card
@@ -7176,7 +7244,7 @@ namespace ExternalBanking
                 VerificationResult verificationResult = verificationData.VerificationResultsList.Find(m => m.id != 0);
                 if (verificationResult.verifyResult.key == 2)
                 {
-                    if (order.Card.CardType == (uint)PlasticCardType.VISA_VIRTUAL)
+                    if (order.Card.CardType == (uint)PlasticCardType.VISA_DIGITAL)
                     {
                         result.Add(new ActionError(1719)); //Հաշվի բացումն արգելվում է՝ համաձայն Բանկում գործող սահմանափակումների: Virtual card
                         return result;
@@ -7780,7 +7848,7 @@ namespace ExternalBanking
                 return result;
             }
             Card card = Card.GetCardMainData((ulong)order.ProductAppId, order.CustomerNumber);
-            if (card == null || card.ClosingDate != null)
+            if (card == null)
             {
                 //Քարտը գտնված չէ:
                 result.Add(new ActionError(672));
@@ -8239,10 +8307,16 @@ namespace ExternalBanking
                 }
             }
 
-            if (CheckCustomerPhoneNumber(order.CustomerNumber) )
+            if (CheckCustomerPhoneNumber(order.CustomerNumber))
             {
                 //Հաճախորդի համար չկա մուտքագրված հեռախոսահամար:
                 result.Add(new ActionError(1904));
+            }
+
+            if (order.CustomerNumber!= 100000003724 && !ACBAOperationService.HasLegalCommunication(order.CustomerNumber))
+            {
+                //«SAP CRM» ծրագրում անհրաժեշտ է ընտրել Օրենսդրական ծանուցում(ներ)ի ստացման եղանակ(ներ)ը:
+                result.Add(new ActionError(2004));
             }
 
             return result;
@@ -9161,7 +9235,7 @@ namespace ExternalBanking
                     //Բջջային հեռախոսի ֆորմատը սխալ է (ճիշտ ֆորմատը՝ 374XXYYYYYY)
                     result.Add(new ActionError(1433, new string[] { "Բջջային հեռախոսի ֆորմատը սխալ է(ճիշտ ֆորմատը՝ 374XXYYYYYY) " }));
                 }
-                if  (!order.IsArmenia)
+                if (!order.IsArmenia)
                 {
                     order.MobilePhone = "00" + order.MobilePhone;
                 }
@@ -9232,7 +9306,7 @@ namespace ExternalBanking
                 {
                     result.Add(new ActionError(1897));
                 }
-                else if (!(order.SMSType == 4 && order.SMSFilter == "N" && order.OperationType==2))
+                else if (!(order.SMSType == 4 && order.SMSFilter == "N" && order.OperationType == 2))
                 {
                     result.Add(new ActionError(1897));
                 }
@@ -9672,15 +9746,15 @@ namespace ExternalBanking
                     result.Add(new ActionError(1469));
                 }
 
-                 if(order.Bond.ShareType == SharesTypes.Stocks)
+                if (order.Bond.ShareType == SharesTypes.Stocks)
                 {
-                    if(order.Bond.SecuringMoney == true)
+                    if (order.Bond.SecuringMoney == true)
                     {
                         double debitAccountBalance = Account.GetAccountAvailableBalanceForStocksInAmd(order.Bond.AccountForBond.AccountNumber);
                         if (order.Bond.TotalPrice > debitAccountBalance)
                         {
-                                //հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար
-                                result.Add(new ActionError(1099, new string[] { order.Bond.AccountForBond.AccountNumber, "գործարքը կատարելու" }));
+                            //հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար
+                            result.Add(new ActionError(1099, new string[] { order.Bond.AccountForBond.AccountNumber, "գործարքը կատարելու" }));
                         }
                     }
                 }
@@ -9785,6 +9859,7 @@ namespace ExternalBanking
             {
                 //Տվյալ կարգավիճակով պարտատոմսի համար գումարի գանձումը հնարավոր չէ։
                 result.Add(new ActionError(1476));
+                return result;
             }
 
 
@@ -10226,91 +10301,101 @@ namespace ExternalBanking
         /// <param name="order"></param>
         /// <param name="filialCode"></param>
         /// <returns></returns>
-        internal static List<ActionError> ValidateCardRemovalOrder(PlasticCardRemovalOrder order, ushort filialCode)
+        internal static List<ActionError> ValidateCardRemovalOrder(PlasticCardRemovalOrder order, User user)
         {
             List<ActionError> result = new List<ActionError>();
+            order.Card.CardChangeType = (CardChangeType)Card.GetCardChangeType(order.Card.ProductId);
 
             result.AddRange(ValidateDraftOrderQuality(order, order.CustomerNumber));
             result.AddRange(ValidateDocumentNumber(order, order.CustomerNumber));
 
             if (order.RemovalReason == 0)
-            {//Քարտի հեռացման պատճառն ընտրված չէ
+            {
+                //Քարտի հեռացման պատճառն ընտրված չէ
                 result.Add(new ActionError(1637));
-                return result;
+                // return result;
             }
 
             CardStatus cardStatus = new CardStatus();
             cardStatus = Card.GetCardStatus((ulong)order.Card.ProductId, order.CustomerNumber);
 
             if (cardStatus.Status != 3)
-            {//Քարտը տրամադրված է
+            {
+                //Քարտը տրամադրված է
                 result.Add(new ActionError(1641));
-                return result;
+                //return result;
             }
 
-            if (PlasticCardRemovalOrder.CheckForArcaFileGenerationProcess())
-            {//Քարտի պատվերի ֆայլն ուղարկված է ԱրՔա։ Հեռացումը հնարավոր չէ իրականացնել
-                result.Add(new ActionError(1640));
-                return result;
-            }
+            if (order.Card.CardChangeType == CardChangeType.New)
+            {
+                if (PlasticCardRemovalOrder.CheckForArcaFileGenerationProcess())
+                {
+                    //Քարտի պատվերի ֆայլն ուղարկված է ԱրՔա։ Հեռացումը հնարավոր չէ իրականացնել
+                    result.Add(new ActionError(1640));
+                    //return result;
+                }
 
-            if (PlasticCardRemovalOrder.PlasticCardSentToArca(order.Card.ProductId) == PlasticCardSentToArcaStatus.NoInfo)
-            {//ԱրՔա ուղարկված լինելու (չլինելու) վերաբերյալ տվյալներ հայտնաբերված չեն:
-                result.Add(new ActionError(1639));
-                return result;
-            }
+                if (PlasticCardRemovalOrder.PlasticCardSentToArca(order.Card.ProductId, order.Card.CardChangeType) == PlasticCardSentToArcaStatus.NoInfo)
+                {
+                    //ԱրՔա ուղարկված լինելու (չլինելու) վերաբերյալ տվյալներ հայտնաբերված չեն:
+                    result.Add(new ActionError(1639));
+                    //return result;
+                }
 
-            if (PlasticCardRemovalOrder.PlasticCardSentToArca(order.Card.ProductId) == PlasticCardSentToArcaStatus.SentToArca)
-            {//Քարտի պատվերի ֆայլն ուղարկված է ԱրՔա։ Հեռացումը հնարավոր չէ իրականացնել
-                result.Add(new ActionError(1640));
-                return result;
+                if (PlasticCardRemovalOrder.PlasticCardSentToArca(order.Card.ProductId, order.Card.CardChangeType) == PlasticCardSentToArcaStatus.SentToArca)
+                {
+                    //Քարտի պատվերի ֆայլն ուղարկված է ԱրՔա։ Հեռացումը հնարավոր չէ իրականացնել
+                    result.Add(new ActionError(1640));
+                    //return result;
+                }
             }
 
             Card card = Card.GetCard((ulong)order.Card.ProductId, order.CustomerNumber);
+            user.AdvancedOptions.TryGetValue("isCardDepartment", out string isCardDepartment);
 
             if (card != null)
             {
                 order.Card = card; //do not remove
 
-                if (order.Card.FilialCode != filialCode)
+                if (isCardDepartment != "1" && order.Card.FilialCode != user.filialCode)
                 {
                     //Այլ մասնաճյուղի քարտ փակել հնարավոր չէ
-                    result.Add(new ActionError(533));
-                    return result;
+                    result.Add(new ActionError(1653));
+                    //return result;
                 }
 
                 if (order.Card.OpenDate.Date != DateTime.Now.Date)
-                {//Տրամադրման ա/թ
+                {
+                    //Հաշվի բացման օրը չի կարող տարբերվել գործառնական օրվանից։
                     result.Add(new ActionError(1638));
-                    return result;
+                    //return result;
                 }
 
                 if (order.Card.ClosingDate != null)
                 {
                     //Ընտրված է փակված քարտ
                     result.Add(new ActionError(532));
-                    return result;
+                    //return result;
                 }
-
-                if (order.Card.CreditLine != null)
+                if (order.Card.CardChangeType == CardChangeType.New && order.Card.CreditLine != null)
                 {
                     //Քարտը ունի վարկային գիծ
                     result.Add(new ActionError(521));
-                    return result;
+                    //return result;
                 }
 
                 if (order.Card.MainCardNumber == "")
                 {
                     //Հաշիվը ներառված է պարբերական փոխանցման հանձնարարականում
                     result.AddRange(CardClosingOrder.CheckCardPeriodicTransfer(order.Card.CardAccount.AccountNumber));
-                    if (result.Count > 0)
-                        return result;
+                    //if (result.Count > 0)
+                    //    return result;
                 }
 
                 //Քարտն ունի չձևակերպված գործարքներ
                 result.AddRange(CardClosingOrder.CheckCardTransactions(order.Card.CardNumber, card.Type));
-                if (result.Count > 0)
-                    return result;
+                //if (result.Count > 0)
+                //    return result;
 
 
                 List<Card> linkedCards = Card.GetLinkedCards(order.Card.CardNumber);
@@ -10323,20 +10408,20 @@ namespace ExternalBanking
                     }
                     //Քարտը հիմնական է հանդիսանում @var1 քարտի(երի) համար
                     result.Add(new ActionError(526, new string[] { linkedCardNumbers }));
-                    return result;
+                    //return result;
                 }
                 if (Account.GetAccountBalance(order.Card.OverdraftAccount.AccountNumber) != 0)
                 {
                     //Քարտի օվերդրաֆտի հաշիվը մնացորդ ունի
                     result.Add(new ActionError(527));
-                    return result;
+                    //return result;
                 }
 
                 if (order.Card.PositiveRate > 0)
                 {
                     //Քարտին առկա է կուտակված ցպահանջ տոկոսագումար
                     result.Add(new ActionError(529));
-                    return result;
+                    //return result;
                 }
 
                 if (order.Card.Overdraft != null)
@@ -10358,14 +10443,74 @@ namespace ExternalBanking
                 {
                     //Քարտը գտնված չէ
                     result.Add(new ActionError(534));
-                    return result;
+                    //return result;
                 }
-                else if (plasticCard.FilialCode != filialCode)
+                else if (isCardDepartment != "1" && plasticCard.FilialCode != user.filialCode)
                 {
                     //Այլ մասնաճյուղի քարտ փակել հնարավոր չէ
-                    result.Add(new ActionError(533));
-                    return result;
+                    result.Add(new ActionError(1653));
+                    //return result;
                 }
+            }
+            if (order.Card.CardChangeType == CardChangeType.RenewWithNewType || order.Card.CardChangeType == CardChangeType.RenewWithSameType)
+            {
+                if (isCardDepartment != "1")
+                {
+                    if (PlasticCardRemovalOrder.PlasticCardSentToArca(order.Card.ProductId, order.Card.CardChangeType) == PlasticCardSentToArcaStatus.SentToArca)
+                    {
+                        //Քարտի պատվերի ֆայլն ուղարկված է ԱրՔա։ Հեռացումը հնարավոր չէ իրականացնել
+                        result.Add(new ActionError(2052));
+                        //return result;
+                    }
+                }
+            }
+
+            if (order.Card.CardChangeType == CardChangeType.CreditLineCardReplace || order.Card.CardChangeType == CardChangeType.RenewWithNewType || order.Card.CardChangeType == CardChangeType.RenewWithSameType)
+            {
+                Card newCard = Card.GetCard((ulong)order.Card.ProductId, order.CustomerNumber);
+                //ulong oldProductId = Card.GetCardOldProductId(order.Card.ProductId, (short)order.Card.CardChangeType);
+                ulong oldProductId = Card.GetCardOldProductId(order.Card.ProductId, order.Card.CardChangeType == CardChangeType.CreditLineCardReplace ? 3 : 1);
+
+                Card oldCard = Card.GetCard(oldProductId, order.CustomerNumber);
+                if (oldCard != null)
+                {
+                    if (oldCard.CreditLine != null)
+                    {
+                        List<LoanProductProlongation> list = LoanProduct.GetLoanProductProlongations((ulong)oldCard.CreditLine.ProductId);
+                        LoanProductProlongation loanProlong = null;
+                        if (list != null)
+                        {
+                            loanProlong = list.Find(m => m.ActivationDate == null);
+                        }
+                        if (loanProlong != null && newCard is null)
+                        {
+                            // Հնարավոր չէ պահպանել: Անհրաժեշտ է հեռացնել վարկային գծի երկարաձգումը:
+                            result.Add(new ActionError(2049));
+                        }
+                    }
+
+                }
+                if (newCard != null)
+                {
+                    if ((order.Card.CardChangeType == CardChangeType.RenewWithNewType || order.Card.CardChangeType == CardChangeType.RenewWithSameType) && newCard != null)
+                    {
+                        // Հնարավոր չէ հեռացնել: Հաշիվը կցված է նոր քարտին:
+                        result.Add(new ActionError(2051));
+                    }
+                    if (newCard.CreditLine != null)
+                    {
+                        List<LoanProductProlongation> list = LoanProduct.GetLoanProductProlongations((ulong)newCard.CreditLine.ProductId);
+                        if (list != null)
+                        {
+                            if (order.Card.CardChangeType == CardChangeType.CreditLineCardReplace && newCard != null)
+                            {
+                                // Հնարավոր չէ հեռացնել: Վարկային գիծը երկարաձգված է և հաշիվը կցված է նոր քարտին:
+                                result.Add(new ActionError(2050));
+                            }
+                        }
+                    }
+                }
+
             }
             return result;
         }
@@ -10500,32 +10645,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(1557));
             }
 
-            if (order.IsOurCard && (Card.GetEmbossingName(order.CreditCardNumber) == null || !order.EmbossingName.ToUpper().Equals(Card.GetEmbossingName(order.CreditCardNumber).ToUpper())))
-            {
-                //Մուտքագրված տվյալներում առկա է սխալ: Խնդրում ենք ճշտել քարտի համարը կամ քարտապանի անուն/ազգանունը
-                result.Add(new ActionError(1564));
-            }
 
-            if (!order.IsOurCard)
-            {
-                try
-                {
-                    using (ArcaDataServiceClient proxy = new ArcaDataServiceClient())
-                    {
-                        CardIdentification cardIdentification = new CardIdentification();
-                        cardIdentification.CardNumber = order.CreditCardNumber;
-                        cardIdentification.EmbossedName = order.EmbossingName;
-                        bool res = proxy.CheckCardEmbossingName(cardIdentification);
-                        if (!res)
-                            result.Add(new ActionError(1564));// Մուտքագրված տվյալներում առկա է սխալ: Խնդրում ենք ճշտել քարտի համարը կամ քարտապանի անուն/ազգանունը
-                    }
-                }
-                catch (Exception e)
-                {
-
-                    throw e;
-                }
-            }
 
             if (templateType == TemplateType.None)
             {
@@ -10751,7 +10871,7 @@ namespace ExternalBanking
                         CustomerMainData customerMainData = ACBAOperationService.GetCustomerMainData(customerNumber);
                         if (customerMainData != null)
                         {
-                            if (cardHolderName.Trim().ToLower() != customerMainData?.CustomerDescriptionEng.Trim().ToLower())
+                            if (!ValidateCardholderName(cardHolderName.Trim().ToLower(), customerMainData?.CustomerDescriptionEng.Trim().ToLower()))
                             {
                                 actionResult.Errors.Add(new ActionError(1734)); //Քարտը հնարավոր չէ կցել: Քարտը պետք է թողարկված լինի Ձեր անունով:
                             }
@@ -12009,12 +12129,12 @@ namespace ExternalBanking
                 "37"
             };
 
-            if(notAllowedBIN.Contains(order.ReceiverCardNumber.Substring(0, 2)))
+            if (notAllowedBIN.Contains(order.ReceiverCardNumber.Substring(0, 2)))
             {
                 //Հնարավոր չէ կատարել փոխանցում տվյալ վճարային համակարգի քարտերին
                 result.Add(new ActionError(1909));
             }
-            if(Card.GetArmenianCardsBIN().Contains(order.ReceiverCardNumber.Substring(0,6)))
+            if (Card.GetArmenianCardsBIN().Contains(order.ReceiverCardNumber.Substring(0, 6)))
             {
                 //Նշված տեսակի փոխանցումը կատարելու համար անհրաժեշտ է ընտրել "Իմ քարտերի միջև" կամ "ՀՀ բանկերի քարտերին" տեսակը:
                 result.Add(new ActionError(1908));
@@ -12068,8 +12188,8 @@ namespace ExternalBanking
             if (string.IsNullOrEmpty(order.CreditAccount))
                 errors.Add(new ActionError(1879));
 
-            if (order.FirstName != Utility.ConvertAnsiToUnicode(customer.person.fullName.firstName) 
-                || order.LastName != Utility.ConvertAnsiToUnicode(customer.person.fullName.lastName) 
+            if (order.FirstName != Utility.ConvertAnsiToUnicode(customer.person.fullName.firstName)
+                || order.LastName != Utility.ConvertAnsiToUnicode(customer.person.fullName.lastName)
                 || (!string.IsNullOrEmpty(order.FatherName) && order.FatherName != Utility.ConvertAnsiToUnicode(customer.person.fullName.MiddleName)))
                 errors.Add(new ActionError(1880));
 
@@ -12109,7 +12229,7 @@ namespace ExternalBanking
             }
             return response;
         }
-     
+
         ///<summary>
         ///Հաշվի հեռացման ստուգումների իրականացում 
         /// </summary>
@@ -12243,14 +12363,14 @@ namespace ExternalBanking
                 result.Add(new ActionError(1960));
             }
 
-            if ((order.MainCardNumber == null && !CardReOpenOrderDB.IsExistsOverdraftAppId(order.CardNumber)) || (order.MainCardNumber != null && !CardReOpenOrderDB.IsExistsOverdraftAppId(order.MainCardNumber)&& !CardReOpenOrderDB.IsCardOpen(order.MainCardNumber)))
+            if ((order.MainCardNumber == null && !CardReOpenOrderDB.IsExistsOverdraftAppId(order.CardNumber)) || (order.MainCardNumber != null && !CardReOpenOrderDB.IsExistsOverdraftAppId(order.MainCardNumber) && !CardReOpenOrderDB.IsCardOpen(order.MainCardNumber)))
             {
                 //Տվյալ քարտը հնարավոր չէ վերաբացել։                
                 result.Add(new ActionError(1961));
             }
 
             ushort typeId = CardReOpenOrderDB.GetTypeOfCardChanges(order.ProductID);
-            if (typeId>0)
+            if (typeId > 0)
             {
                 //Տվյալ քարտը  {0} է '
                 result.Add(new ActionError(1963, new string[] { typeId == 3 ? "փոխարինված " : typeId == 1 ? "վերաթողարկված " : "տեղափոխված " }));
@@ -12455,6 +12575,64 @@ namespace ExternalBanking
                 result.Add(new ActionError(2041));
 
             return result;
+        }
+
+        /// <summary>
+        /// Քարտապանի անուն ազգանվան երկու տարբերակների համեմատում։
+        /// </summary>
+        /// <param name="InputText"></param>
+        /// <param name="BaseText"></param>
+        /// <returns></returns>
+        internal static bool ValidateCardholderName(string InputText, string BaseText)
+        {
+
+            InputText = InputText.Replace("  ", " ").Replace("mr.", string.Empty).Replace("ms.", string.Empty).Replace("mrs.", string.Empty).Trim();
+
+
+            List<string> list = new List<string>();
+            string[] inputArr = InputText.Split(' ');
+            Utility.MakeCombination(inputArr, 0, inputArr.Length - 1, list);
+
+            foreach (var item in list)
+            {
+                int errorCount = Utility.LevenshteinDistance(item, BaseText);
+                if (errorCount <= 3)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// ԱՊՊԱ պայմանագրի հայտի պահպանման ստուգումներ
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        internal static List<ActionError> ValidateVehicleInsuranceOrder(VehicleInsuranceOrder order)
+        {
+            List<ActionError> result = new List<ActionError>();
+            result.AddRange(ValidateDocumentNumber(order, order.CustomerNumber));
+
+            if (!string.IsNullOrEmpty(order.EmailAddress))
+            {
+                result.AddRange(ValidateEmail(order.EmailAddress));
+            }
+            else
+            {
+                //Էլ.հասցեն մուտքագրված չէ:
+                result.Add(new ActionError(465));
+            }
+
+            if ((order.GroupId != 0) ? !OrderGroup.CheckGroupId(order.GroupId) : false)
+            {
+                //Նշված խումբը գոյություն չունի։
+                result.Add(new ActionError(1628));
+            }
+
+            return result;
+
         }
     }
 }

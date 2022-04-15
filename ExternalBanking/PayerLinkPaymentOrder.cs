@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -111,7 +108,7 @@ namespace ExternalBanking
                 return result;
             }
 
-    
+
 
             if (result.Errors.Count == 0)
             {
@@ -153,31 +150,21 @@ namespace ExternalBanking
                 return result;
             }
 
-            Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PayerLinkPaymentOrderDB.Save(this);
 
                 if (result.ResultCode != ResultCode.Normal)
-                {
                     return result;
-                }
                 else
-                {
                     base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
-                }
-
 
                 if (result.ResultCode != ResultCode.Normal)
-                {
                     return result;
-                }
-
-
 
                 result = base.Approve(schemaType, userName);
-                
+
 
                 if (result.ResultCode == ResultCode.Normal)
                 {
@@ -191,17 +178,15 @@ namespace ExternalBanking
                     LogOrderChange(user, Action.Update);
                     result.Id = this.Id;
                     scope.Complete();
-                   
-                    
                 }
                 else
                 {
                     result.ResultCode = ResultCode.Failed;
                     return result;
                 }
-               
             }
-            base.Confirm(user);
+            //base.Confirm(user);
+
             return result;
         }
 

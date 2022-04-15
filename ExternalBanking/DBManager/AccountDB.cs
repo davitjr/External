@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
+using System.Data.SqlClient;
 using System.Dynamic;
 using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web.Configuration;
-using ExternalBanking.Helpers;
 
 namespace ExternalBanking.DBManager
 {
@@ -426,7 +422,7 @@ namespace ExternalBanking.DBManager
         {
             ulong customerNumber = 0;
 
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
 
@@ -476,7 +472,7 @@ namespace ExternalBanking.DBManager
                 Task<List<Account>> accounts14 = GetDeveloperSpecialAccountsAsync(customerNumber, conn);   //Կառուցապատողի հատուկ հաշիվներ
 
                 Task<List<Account>> accounts13 = GetDahkTransitAccountList(customerNumber, conn);
-                
+
                 accountList.AddRange(await accounts1);
 
                 accountList.AddRange(await accounts2);
@@ -706,9 +702,9 @@ namespace ExternalBanking.DBManager
             }
             return attachedCardNumber;
         }
-        public static double  GetAttachedCardFee(long docId)
+        public static double GetAttachedCardFee(long docId)
         {
-           double fee = 0;
+            double fee = 0;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
@@ -2624,7 +2620,6 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         public static bool IsPoliceAccount(string accountNumber)
         {
-            DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["TaxServiceConn"].ToString()))
             {
                 conn.Open();
@@ -2649,7 +2644,6 @@ namespace ExternalBanking.DBManager
 
         public static bool CheckAccountForPSN(string accountNumber)
         {
-            DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["TaxServiceConn"].ToString()))
             {
                 conn.Open();
@@ -2682,7 +2676,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-                   using SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.Read())
                     {
@@ -4149,7 +4143,6 @@ namespace ExternalBanking.DBManager
 
                     if (dt.Rows.Count > 0)
                     {
-                        DataRow row = dt.Rows[0];
                         accountFlowDetails = new AccountFlowDetails();
                         if (dt.Rows[0]["balance_amd"] != DBNull.Value)
                             accountFlowDetails.BallanceAMD = Convert.ToDouble(dt.Rows[0]["balance_amd"].ToString());
@@ -4816,9 +4809,9 @@ namespace ExternalBanking.DBManager
                 using DataTable dataTable = new DataTable();
 
                 using SqlDataReader dataReader = sqlCommand.ExecuteReader();
-                
-                    dataTable.Load(dataReader);
-                
+
+                dataTable.Load(dataReader);
+
 
                 if (dataTable.Rows.Count > 0)
                 {
@@ -4920,18 +4913,18 @@ namespace ExternalBanking.DBManager
 
 
 
-
+                    StringBuilder ORDPBuilder = new StringBuilder();
                     if (ORDP.Length > 65)
                     {
                         for (int z = 0; z < ORDP.Length; z += 65)
                         {
-                            if ((ORDP.Substring(z)).Length > 65)
+                            if (ORDP.Substring(z).Length > 65)
                             {
-                                ORDPFinal += (ORDP.Substring(z, 65)) + Environment.NewLine;
+                                ORDPBuilder.Append(ORDP.Substring(z, 65) + Environment.NewLine);
                             }
                             else
                             {
-                                ORDPFinal += (ORDP.Substring(z));
+                                ORDPBuilder.Append(ORDP.Substring(z));
                             }
                         }
                     }
@@ -4939,18 +4932,20 @@ namespace ExternalBanking.DBManager
                     {
                         ORDPFinal = ORDP;
                     }
+                    ORDPFinal = ORDPBuilder.ToString();
 
+                    StringBuilder BENMBuilder = new StringBuilder();
                     if (BENM.Length > 65)
                     {
                         for (int z = 0; z < BENM.Length; z += 65)
                         {
-                            if ((BENM.Substring(z)).Length > 65)
+                            if (BENM.Substring(z).Length > 65)
                             {
-                                BENMFinal += (BENM.Substring(z, 65)) + Environment.NewLine;
+                                BENMBuilder.Append(BENM.Substring(z, 65) + Environment.NewLine);
                             }
                             else
                             {
-                                BENMFinal += (BENM.Substring(z));
+                                BENMBuilder.Append(BENM.Substring(z));
                             }
                         }
                     }
@@ -4958,18 +4953,20 @@ namespace ExternalBanking.DBManager
                     {
                         BENMFinal = BENM;
                     }
+                    BENMFinal = BENMBuilder.ToString();
 
+                    StringBuilder REMIBuilder = new StringBuilder();
                     if (REMI.Length > 65)
                     {
                         for (int z = 0; z < REMI.Length; z += 65)
                         {
-                            if ((REMI.Substring(z)).Length > 65)
+                            if (REMI.Substring(z).Length > 65)
                             {
-                                REMIFinal += (REMI.Substring(z, 65)) + Environment.NewLine;
+                                REMIBuilder.Append(REMI.Substring(z, 65) + Environment.NewLine);
                             }
                             else
                             {
-                                REMIFinal += (REMI.Substring(z));
+                                REMIBuilder.Append(REMI.Substring(z));
                             }
                         }
                     }
@@ -4977,6 +4974,7 @@ namespace ExternalBanking.DBManager
                     {
                         REMIFinal = REMI;
                     }
+                    REMIFinal = REMIBuilder.ToString();
 
                     transactionDescription = ORDPFinal + Environment.NewLine + BENMFinal + Environment.NewLine + REMIFinal;
 
@@ -5191,7 +5189,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(@"SELECT distinct PAcc.type_of_product , PAcc.type_of_Account, type_of_account_new, Arm_number, balance, currency, 
+                using (SqlCommand cmd = new SqlCommand(@"SELECT distinct PAcc.type_of_product , type_of_account_new, Arm_number, balance, currency, 
                                                         T.description, Acc.description as ac_description, card_number, filialcode,account_type,freeze_date,
                                                         UnUsed_amount,UnUsed_amount_date,account_access_group,closing_date, open_date
                                                         FROM[tbl_all_accounts;] AS Acc
@@ -5300,7 +5298,6 @@ namespace ExternalBanking.DBManager
 
                 sqlCommand.Parameters.Add("@transactionsGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
 
-                DataTable dataTable = new DataTable();
 
                 using SqlDataReader dr = sqlCommand.ExecuteReader();
                 if (dr.Read())
@@ -5329,7 +5326,6 @@ namespace ExternalBanking.DBManager
 
                 sqlCommand.Parameters.Add("@transactionGroupNumber", SqlDbType.BigInt).Value = transactionsGroupNumber;
 
-                DataTable dataTable = new DataTable();
 
                 using SqlDataReader dr = sqlCommand.ExecuteReader();
                 if (dr.Read())
@@ -5730,9 +5726,9 @@ namespace ExternalBanking.DBManager
                     {
                         filialCode = Convert.ToInt32(cmd.ExecuteScalar());
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        throw;
+                        throw ex;
                     }
 
                 }
@@ -6186,7 +6182,6 @@ namespace ExternalBanking.DBManager
 
         internal static ulong CheckCustomerFreeFunds(string accountNumber)
         {
-            ActionResult actionResult = new ActionResult();
             DateTime operDay = Utility.GetNextOperDay().Date;
             ulong thirdPersonCustomerNumber = 0;
 
@@ -6334,7 +6329,6 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
-                    DataTable dt = new DataTable();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                         if (dr.Read())
                             accountNumber = dr["Arm_number"].ToString();
@@ -6362,6 +6356,29 @@ namespace ExternalBanking.DBManager
                 }
             }
             return accountAmount;
+        }
+
+        internal static List<Account> GetAllCurrentAccounts(ulong customerNumber)
+        {
+            List<Account> accountList = GetAllCurrentAccountsAsync(customerNumber).Result;
+
+            return accountList;
+        }
+        internal static async Task<List<Account>> GetAllCurrentAccountsAsync(ulong customerNumber)
+        {
+            List<Account> accountList = new List<Account>();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+
+                Task<List<Account>> accountList1 = GetCurrentAccountList(customerNumber, conn);
+                Task<List<Account>> accountList2 = GetCurrentAccountListForNonMobileClients(customerNumber, conn);   //Սահմանափակ հասանելիությամ հաշվիներ
+
+                accountList.AddRange(await accountList1);
+                accountList.AddRange(await accountList2);
+
+            }
+            return accountList;
         }
 
     }

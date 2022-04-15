@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -13,7 +13,7 @@ namespace ExternalBanking
         /// Ունիկալ համար
         /// </summary>
         public long Id { get; set; }
-        
+
         /// <summary>
         /// Մուտքագրման ամսաթիվ
         /// </summary>
@@ -109,7 +109,7 @@ namespace ExternalBanking
             Localization.SetCulture(freezeHistory, new Culture((Languages)1));
             return freezeHistory;
         }
-        
-        
+
+
     }
 }

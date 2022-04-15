@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -284,7 +283,7 @@ namespace ExternalBanking.DBManager
                     dt.Load(cmd.ExecuteReader());
 
                     docId = Convert.ToInt64(dt.Rows[0]["doc_id"].ToString());
-                 
+
                 }
             }
 

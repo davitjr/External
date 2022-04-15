@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
-using System.Linq;
-using ExternalBanking.XBManagement;
-using System.Diagnostics;
-using System.Data;
-using ExternalBanking.ArcaDataServiceReference;
-using System.Transactions;
-using System.Threading.Tasks;
-using System.Configuration;
-using ExternalBanking.TokenOperationsCasServiceReference;
-using ExternalBanking.ServiceClient;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ARUSDataService;
-using ExternalBanking.SberTransfers.Order;
-using static ExternalBanking.ReceivedBillSplitRequest;
+using ExternalBanking.DBManager;
 using ExternalBanking.PreferredAccounts;
+using ExternalBanking.SberTransfers.Order;
+using ExternalBanking.SecuritiesTrading;
+using ExternalBanking.ServiceClient;
+using ExternalBanking.XBManagement;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using static ExternalBanking.ReceivedBillSplitRequest;
 
 namespace ExternalBanking
 {
@@ -430,18 +427,15 @@ namespace ExternalBanking
                 Localization.SetCulture(result, Culture);
                 return result;
             }
-            if (order.DebitAccount.IsAttachedCard == true)
+            if (order.DebitAccount.IsAttachedCard && !Utility.ValidateAttachedCardOpeartionLimit(order.Amount, order.Currency))
             {
-                if (Utility.ValidateAttachedCardOpeartionLimit(order.Amount, order.Currency) == false)
-                {
-                    result.Errors.Add(new ActionError(1899));
-                    result.ResultCode = ResultCode.ValidationError;
-                    Localization.SetCulture(result, Culture);
-                    return result;
-                }
+                result.Errors.Add(new ActionError(1899));
+                result.ResultCode = ResultCode.ValidationError;
+                Localization.SetCulture(result, Culture);
+                return result;
             }
             if ((Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
-                && order.ReceiverAccount.IsCardAccount() != true
+                && !order.ReceiverAccount.IsCardAccount()
                 && ((order.SubType != 2 && order.Type == OrderType.RATransfer)
                 || (order.SubType != 3 && order.Type == OrderType.Convertation)))
             {
@@ -474,6 +468,8 @@ namespace ExternalBanking
 
             if (Utility.CheckOperationLimit(order.Amount, order.Currency, OneOperationAmountLimit))
             {
+                if (order.IsPoliceInspectorAct)
+                    order.TransferFee = GetPaymentOrderFee(order);
                 result = order.Save(userName, Source, User);
             }
             else
@@ -540,7 +536,7 @@ namespace ExternalBanking
         public ActionResult ApproveOrder(PaymentOrder order, short schemaType, string userName)
         {
             ActionResult result = new ActionResult();
-            if ((Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking) && order.ReceiverAccount.IsCardAccount() != true
+            if ((Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking) && !order.ReceiverAccount.IsCardAccount()
                 && ((order.Type == OrderType.RATransfer && order.SubType == 3) || order.Type == OrderType.Convertation))
             {
 
@@ -628,6 +624,8 @@ namespace ExternalBanking
             TransitPaymentOrder transitOrder = new TransitPaymentOrder();
             CurrencyExchangeOrder currencyExchangeOrder = new CurrencyExchangeOrder();
 
+            if (orderType == OrderType.NonCashTransitPaymentOrder)
+                return 0;
 
             if (orderType == OrderType.CashPosPayment)
             {
@@ -645,12 +643,7 @@ namespace ExternalBanking
             {
                 paymentOrder = (PaymentOrder)order;
 
-                if (paymentOrder?.ReceiverAccount?.AccountNumber == "103003240159" || paymentOrder?.ReceiverAccount?.AccountNumber == "103003241157"
-                    || paymentOrder?.ReceiverAccount?.AccountNumber == "103003249150"
-                    || paymentOrder?.ReceiverAccount?.AccountNumber == "103008661003"
-                    || paymentOrder?.ReceiverAccount?.AccountNumber == "103008661011" || paymentOrder?.ReceiverAccount?.AccountNumber == "103008661490"
-                    || paymentOrder?.ReceiverAccount?.AccountNumber == "103008661581" || paymentOrder?.ReceiverAccount?.AccountNumber == "103003248152"
-                    || paymentOrder?.ReceiverAccount?.AccountNumber == "103003635671")
+                if (!string.IsNullOrEmpty(paymentOrder?.ReceiverAccount?.AccountNumber) && Order.CheckAccountForNonFee(paymentOrder?.ReceiverAccount?.AccountNumber))
                 {
                     return 0;
                 }
@@ -663,12 +656,9 @@ namespace ExternalBanking
                 && (order.SubType == 1 && order.Type == OrderType.RATransfer || order.Type == OrderType.PeriodicTransfer))
             {
                 //Ստուգում է Ա/Ձ է թե ոչ
-                if (GetCustomerType(order.CustomerNumber) == 2)
+                if (GetCustomerType(order.CustomerNumber) == 2 && PaymentOrder.IsTransferFromBusinessmanToOwnerAccount(paymentOrder.DebitAccount.AccountNumber, paymentOrder.ReceiverAccount.AccountNumber))
                 {
-                    if (PaymentOrder.IsTransferFromBusinessmanToOwnerAccount(paymentOrder.DebitAccount.AccountNumber, paymentOrder.ReceiverAccount.AccountNumber))
-                    {
-                        feeType = 11;
-                    }
+                    feeType = 11;
                 }
             }
 
@@ -700,25 +690,23 @@ namespace ExternalBanking
 
             }
 
-            if (orderType == OrderType.PeriodicTransfer)
+            if (orderType == OrderType.PeriodicTransfer && !(paymentOrder.SubType == 1 && paymentOrder.ReceiverBankCode >= 22000 && paymentOrder.ReceiverBankCode <= 22300))
             {
-                if (!(paymentOrder.SubType == 1 && paymentOrder.ReceiverBankCode >= 22000 && paymentOrder.ReceiverBankCode <= 22300))
-                {
-                    transferFee = AccountingTools.GetFeeForLocalTransfer(paymentOrder);
-                }
+                transferFee = AccountingTools.GetFeeForLocalTransfer(paymentOrder);
             }
             if (orderType == OrderType.CashDebit || orderType == OrderType.ReestrTransferOrder)
             {
-                if (paymentOrder.Currency == "RUR" || paymentOrder.Currency == "CHF" || paymentOrder.Currency == "GBP")
+                if ((paymentOrder.Currency == "RUR" || paymentOrder.Currency == "CHF" || paymentOrder.Currency == "GBP") && paymentOrder.ReceiverAccount != null)
                 {
-                    if (paymentOrder.ReceiverAccount != null)
+                    string fieldName = "percent";
+                    int index = 93;
+                    if (paymentOrder.Currency == "RUR")
                     {
-                        string fieldName = "percent";
-                        int index = 93;
-                        double percent = AccountingTools.GetCashPaymentOrderFee(index, fieldName, paymentOrder.ReceiverAccount.AccountNumber);
-                        double kurs = Utility.GetCBKursForDate(DateTime.Now.Date, paymentOrder.Currency);
-                        transferFee = Utility.RoundAmount((double)Convert.ToDecimal(percent * paymentOrder.Amount * kurs), "AMD");
+                        index = 930;
                     }
+                    double percent = AccountingTools.GetCashPaymentOrderFee(index, fieldName, paymentOrder.ReceiverAccount.AccountNumber);
+                    double kurs = Utility.GetCBKursForDate(DateTime.Now.Date, paymentOrder.Currency);
+                    transferFee = Utility.RoundAmount((double)Convert.ToDecimal(percent * paymentOrder.Amount * kurs), "AMD");
                 }
 
                 if (orderType == OrderType.CashDebit && paymentOrder.Currency == "AMD")
@@ -730,7 +718,7 @@ namespace ExternalBanking
             {
                 if (feeType == 0)
                 {
-                    return transferFee = 0;
+                    return 0;
                 }
 
                 if (currencyExchangeOrder?.DebitAccount?.Currency == "AMD")
@@ -739,7 +727,7 @@ namespace ExternalBanking
                 }
                 else
                 {
-                    return transferFee = 0;
+                    return 0;
                 }
 
             }
@@ -749,7 +737,7 @@ namespace ExternalBanking
 
                 if (feeType == 0)
                 {
-                    return transferFee = 0;
+                    return 0;
                 }
 
                 if (feeType == 6)
@@ -789,7 +777,7 @@ namespace ExternalBanking
                     transferFee = AccountingTools.GetCashoutOrderFee(paymentOrder, feeType);
                 }
             }
-            if (paymentOrder.TransferID != 0 || ((orderType == OrderType.InterBankTransferNonCash || orderType == OrderType.InterBankTransferCash)))
+            if (paymentOrder.TransferID != 0 || orderType == OrderType.InterBankTransferNonCash || orderType == OrderType.InterBankTransferCash)
             {
 
                 double priceAmount = 0;
@@ -820,6 +808,10 @@ namespace ExternalBanking
                     {
                         string fieldNameTransit = "percent";
                         int indexTransit = 93;
+                        if (transitOrder.Currency == "RUR")
+                        {
+                            indexTransit = 930;
+                        }
                         double percent = AccountingTools.GetCashPaymentOrderFee(indexTransit, fieldNameTransit, transitOrder.TransitAccount.AccountNumber);
                         double kurs = Utility.GetCBKursForDate(DateTime.Now.Date, transitOrder.Currency);
                         transferFee = Utility.RoundAmount(percent * transitOrder.Amount * kurs, "AMD");
@@ -834,23 +826,17 @@ namespace ExternalBanking
                 }
             }
 
-            if (orderType == OrderType.CashOutFromTransitAccountsOrder)
+            if (orderType == OrderType.CashOutFromTransitAccountsOrder && paymentOrder.DebitAccount != null)
             {
+                double minFeeAmount = 0;
+                double percent = AccountingTools.CashOutFromTransitAccountsOrderFee(paymentOrder.DebitAccount, User.filialCode, ref minFeeAmount);
 
-                if (paymentOrder.DebitAccount != null)
+                double kurs = Utility.GetCBKursForDate(DateTime.Now.Date, paymentOrder.Currency);
+                transferFee = Utility.RoundAmount(percent * paymentOrder.Amount * kurs, "AMD");
+
+                if (transferFee < minFeeAmount)
                 {
-                    double minFeeAmount = 0;
-                    double percent = AccountingTools.CashOutFromTransitAccountsOrderFee(paymentOrder.DebitAccount, User.filialCode, ref minFeeAmount);
-
-                    transferFee = percent * paymentOrder.Amount;
-
-                    double kurs = Utility.GetCBKursForDate(DateTime.Now.Date, paymentOrder.Currency);
-                    transferFee = Utility.RoundAmount(percent * paymentOrder.Amount * kurs, "AMD");
-
-                    if (transferFee < minFeeAmount)
-                    {
-                        transferFee = minFeeAmount;
-                    }
+                    transferFee = minFeeAmount;
                 }
 
             }
@@ -965,19 +951,6 @@ namespace ExternalBanking
             return transferFee;
         }
 
-        private short GetTariffGroup()
-        {
-            short result;
-            var vipInfo = ACBAOperationService.GetCustomerVipData(CustomerNumber);
-            result = vipInfo.vipType.key;
-            return result;
-        }
-
-        internal short GetCustomerLink()
-        {
-            short result = ACBAOperationService.GetCustomerLinkType(CustomerNumber);
-            return result;
-        }
 
         internal ulong GetIdentityId(ulong customerNumber)
         {
@@ -1097,11 +1070,11 @@ namespace ExternalBanking
         public List<Account> GetAccountsForOrder(OrderType orderType, byte orderSubType, OrderAccountType accountType, SourceType source, bool includingAttachedCards = true)
         {
             List<Account> accounts = new List<Account>();
-            if ((orderType == OrderType.PreferredAccountActivationOrder || orderType == OrderType.PreferredAccountDeactivationOrder) && orderSubType == 1) // Mobile/Email Preferred Accounts
+            if ((orderType == OrderType.PreferredAccountActivationOrder || orderType == OrderType.PreferredAccountDeactivationOrder || orderType == OrderType.VehicleInsuranceOrder) && orderSubType == 1) // Mobile/Email Preferred Accounts
             {
                 List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
                 currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount);
-              
+
                 Localization.SetCulture(currentAccounts, Culture);
 
                 List<Account> cardAccounts = Account.GetCardAccounts(this.CustomerNumber);
@@ -1111,13 +1084,14 @@ namespace ExternalBanking
                 cardAccounts.ForEach(m =>
                 {
                     Card card = Card.GetCardWithOutBallance(m.AccountNumber);
-                    if (card != null)
+                    if (card != null && card.Type != 21)
+                    {
                         m.AccountDescription = card.CardNumber + " " + card.CardType;
+                        accounts.Add(m);
+                    }
                 });
 
                 accounts.AddRange(currentAccounts);
-                accounts.AddRange(cardAccounts);
-
                 return accounts;
             }
             else if ((orderType == OrderType.PreferredAccountActivationOrder || orderType == OrderType.PreferredAccountDeactivationOrder) && orderSubType == 2) // Visa Alias Preferred Accounts
@@ -1137,11 +1111,12 @@ namespace ExternalBanking
                 cardAccounts.ForEach(m =>
                 {
                     Card card = Card.GetCardWithOutBallance(m.AccountNumber);
-                    if (card != null)
+                    if (card != null && card.Type != 21)
+                    {
                         m.AccountDescription = card.CardNumber + " " + card.CardType;
+                        accounts.Add(m);
+                    }
                 });
-
-                accounts.AddRange(cardAccounts);
 
                 return accounts;
             }
@@ -1154,11 +1129,13 @@ namespace ExternalBanking
                 cardAccounts.ForEach(m =>
                 {
                     Card card = Card.GetCardWithOutBallance(m.AccountNumber);
-                    if (card != null)
+                    if (card != null && card.Type != 21)
+                    {
                         m.AccountDescription = card.CardNumber + " " + card.CardType;
+                        accounts.Add(m);
+                    }
                 });
 
-                accounts.AddRange(cardAccounts);
                 return accounts;
             }
 
@@ -1227,7 +1204,7 @@ namespace ExternalBanking
                 }
             }
 
-            if (orderType == OrderType.BondRegistrationOrder)
+            if (orderType == OrderType.BondRegistrationOrder || orderType == OrderType.SecuritiesBuyOrder || orderType == OrderType.SecuritiesSellOrder)
             {
                 List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
 
@@ -1236,7 +1213,14 @@ namespace ExternalBanking
                 if (currentAccounts != null && currentAccounts.Count > 0)
                     Localization.SetCulture(currentAccounts, Culture);
 
-                currentAccounts = currentAccounts.FindAll(m =>  m.AccountType == (ushort)ProductType.CurrentAccount && m.JointType == 0);
+                currentAccounts = currentAccounts.FindAll(m => m.AccountType == (ushort)ProductType.CurrentAccount && m.JointType == 0);
+
+                if (accountType == OrderAccountType.FeeAccount && orderType == OrderType.SecuritiesBuyOrder)
+                {
+                    List<Card> Cards = Card.GetCards(this.CustomerNumber, ProductQualityFilter.Opened); 
+                    List<Account> cardAccount = Cards.Where(a => a.Currency == "AMD").Select(a => a.CardAccount).ToList();
+                    currentAccounts.AddRange(cardAccount.GroupBy(u => u.AccountNumber).Select(grp => grp.First()));
+                }
                 accounts.AddRange(currentAccounts);
                 return accounts;
             }
@@ -1374,7 +1358,7 @@ namespace ExternalBanking
 
                     if ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline || source == SourceType.AcbaOnlineXML || source == SourceType.ArmSoft) && accountType == OrderAccountType.DebitAccount)
                     {
-                        currentAccounts.RemoveAll(m => m.ISDahkCardTransitAccount(m.AccountNumber) == true);
+                        currentAccounts.RemoveAll(m => m.ISDahkCardTransitAccount(m.AccountNumber));
                     }
 
 
@@ -1405,8 +1389,7 @@ namespace ExternalBanking
                     if (accountType == OrderAccountType.DebitAccount && orderType == OrderType.RATransfer && (orderSubType == 3 || orderSubType == 4))
                     {
                         //Առևտրային վարկային գիծ , Օվերդրաֆտ
-                        List<CreditLine> creditLines = new List<CreditLine>();
-                        creditLines = GetCreditLines(ProductQualityFilter.NotSet);
+                        List<CreditLine> creditLines = GetCreditLines(ProductQualityFilter.NotSet);
 
                         creditLines.ForEach(m =>
                         {
@@ -1488,8 +1471,7 @@ namespace ExternalBanking
                     {
                         if ((orderType == OrderType.Convertation && customerType == 6) || (orderType == OrderType.RATransfer && orderSubType == 3))
                         {
-                            List<Account> depositAccounts = new List<Account>();
-                            depositAccounts = Account.GetDepositAccounts(this.CustomerNumber);
+                            List<Account> depositAccounts = Account.GetDepositAccounts(this.CustomerNumber);
                             Localization.SetCulture(depositAccounts, Culture);
                             accounts.AddRange(depositAccounts);
                         }
@@ -1498,8 +1480,7 @@ namespace ExternalBanking
 
                     if (accountType == OrderAccountType.DebitAccount && orderType == OrderType.RATransfer && orderSubType == 3)
                     {
-                        List<Account> depositAccounts = new List<Account>();
-                        depositAccounts = Account.GetDecreasingDepositAccountList(this.CustomerNumber);
+                        List<Account> depositAccounts = Account.GetDecreasingDepositAccountList(this.CustomerNumber);
                         Localization.SetCulture(depositAccounts, Culture);
                         accounts.AddRange(depositAccounts);
                     }
@@ -1530,7 +1511,7 @@ namespace ExternalBanking
                     //Eduard
                     if ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline || source == SourceType.AcbaOnlineXML || source == SourceType.ArmSoft) && orderType == OrderType.CommunalPayment)
                     {
-                        currentAccounts.RemoveAll(m => m.ISDahkCardTransitAccount(m.AccountNumber) == true);
+                        currentAccounts.RemoveAll(m => m.ISDahkCardTransitAccount(m.AccountNumber));
                     }
 
                     if (orderType == OrderType.CommunalPayment || (orderType == OrderType.RATransfer && accountType == OrderAccountType.FeeAccount && orderSubType == 2 && (source == SourceType.MobileBanking || source == SourceType.AcbaOnline))) //Davit
@@ -1565,14 +1546,10 @@ namespace ExternalBanking
                     accounts.AddRange(cardAccounts);
                 }
 
-                if (includingAttachedCards)
+                if (includingAttachedCards && accountType == OrderAccountType.DebitAccount && CheckOtherCardAvailability(orderType, orderSubType))
                 {
-                    if (accountType == OrderAccountType.DebitAccount && CheckOtherCardAvailability(orderType, orderSubType))
-                    {
-                        List<Account> otherBankCards = Account.GetOtherBankAttachedCards(CustomerNumber);
-                        accounts.AddRange(otherBankCards);
-                    }
-
+                    List<Account> otherBankCards = Account.GetOtherBankAttachedCards(CustomerNumber);
+                    accounts.AddRange(otherBankCards);
                 }
             }
 
@@ -1583,15 +1560,14 @@ namespace ExternalBanking
             if ((orderType == OrderType.CreditSecureDeposit || orderType == OrderType.CreditLineSecureDeposit) && accountType == OrderAccountType.DebitAccount)
             {
                 accounts.RemoveAll(m => m.AccountType == 11);
-                List<Account> depositAccounts = new List<Account>();
-                depositAccounts = Account.GetDepositAccounts(this.CustomerNumber);
+                List<Account> depositAccounts = Account.GetDepositAccounts(this.CustomerNumber);
                 Localization.SetCulture(depositAccounts, Culture);
                 accounts.AddRange(depositAccounts);
             }
 
             accounts.RemoveAll(m => m.Status == 1);
 
-            if(orderType == OrderType.BillSplit || orderType == OrderType.LinkPaymentOrder)
+            if (orderType == OrderType.BillSplit || orderType == OrderType.LinkPaymentOrder)
             {
                 accounts.RemoveAll(m => m.Currency != "AMD");
             }
@@ -1893,8 +1869,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveReferenceOrder(ReferenceOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -2071,8 +2046,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveCashOrder(CashOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -2085,8 +2059,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApproveCashOrder(CashOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -2128,8 +2101,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApproveStatmentByEmailOrder(StatmentByEmailOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -2226,8 +2198,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveCustomerDataOrder(CustomerDataOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -2240,8 +2211,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApproveCustomerDataOrder(CustomerDataOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -2285,6 +2255,7 @@ namespace ExternalBanking
             return allThirdPerson;
 
         }
+
         /// <summary>
         /// Վերադարձնում է ավանդի տոկոսադրույքը
         /// </summary>
@@ -2294,16 +2265,18 @@ namespace ExternalBanking
         {
             return Deposit.GetDepositOrderCondition(order, Source);
         }
+
         /// <summary>
         /// Ավանդի գրաֆիկ
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
-        public List<DepositRepayment> GetDepositRepayments(ulong productId)
+        public List<DepositRepayment> GetDepositRepaymentsWithProductId(ulong productId)
         {
             List<DepositRepayment> repayments = Deposit.GetDepositRepayment(productId);
             return repayments;
         }
+
         /// <summary>
         /// Վերադարձնում է տվյալ ավանդին կցված երրորդ անձանց
         /// </summary>
@@ -2348,8 +2321,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public List<DepositCase> GetDepositCases(ProductQualityFilter filter)
         {
-            List<DepositCase> depositCases = new List<DepositCase>();
-            depositCases = DepositCase.GetDepositCases(this.CustomerNumber, filter);
+            List<DepositCase> depositCases = DepositCase.GetDepositCases(this.CustomerNumber, filter);
             Localization.SetCulture(depositCases, this.Culture);
             return depositCases;
         }
@@ -2360,8 +2332,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public DepositCase GetDepositCase(ulong productId)
         {
-            DepositCase depositCase = new DepositCase();
-            depositCase = DepositCase.GetDepositCase(productId, this.CustomerNumber);
+            DepositCase depositCase = DepositCase.GetDepositCase(productId, this.CustomerNumber);
             Localization.SetCulture(depositCase, this.Culture);
 
             return depositCase;
@@ -2906,7 +2877,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAccountOrder(AccountOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
+            ActionResult result;
             order.CustomerNumber = CustomerNumber;
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
@@ -2958,9 +2929,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveAccountOrder(AccountOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
-
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3001,6 +2970,18 @@ namespace ExternalBanking
             Localization.SetCulture(card, this.Culture);
             return card;
         }
+
+        /// <summary>
+        /// Վերադարձնում է հաճախորդի քարտը
+        /// </summary>
+        /// <param name="cardNumber">Քարտի համար</param>
+        /// <returns></returns>
+        public Card GetCardMainData(string cardNumber)
+        {
+            Card card = Card.GetCardMainData(cardNumber);
+            return card;
+        }
+
         public ActionResult SaveAndApproveMatureOrder(MatureOrder order, string userName, short schemaType)
         {
             ActionResult result = new ActionResult();
@@ -3039,12 +3020,11 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SavePeriodicUtilityPaymentOrder(PeriodicUtilityPaymentOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.SavePeriodicUtilityPaymentOrder(userName, Source, User);
+            ActionResult result = order.SavePeriodicUtilityPaymentOrder(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
 
@@ -3059,8 +3039,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApprovePeriodicUtilityPaymentOrder(PeriodicUtilityPaymentOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
+            ActionResult result = order.Approve(schemaType, userName, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -3102,8 +3081,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApprovePeriodicPaymentOrder(Order order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName);
+            ActionResult result = order.Approve(schemaType, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3175,8 +3153,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveMatureOrder(MatureOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3190,8 +3167,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApproveMatureOrder(MatureOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3465,11 +3441,10 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SavePeriodicBudgetPaymentOrder(PeriodicBudgetPaymentOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if ((order.OrderNumber == "" || order.OrderNumber == null))
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-            result = order.SavePeriodicBudgetPaymentOrder(userName, Source, User);
+            ActionResult result = order.SavePeriodicBudgetPaymentOrder(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
 
@@ -3484,9 +3459,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApprovePeriodicBudgetPaymentOrder(PeriodicBudgetPaymentOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
-
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3516,9 +3489,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveCardClosingOrder(CardClosingOrder order, short schemaType, string userName, string clientIp)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, order.user, clientIp);
-
+            ActionResult result = order.Approve(schemaType, userName, order.user, clientIp);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3531,12 +3502,11 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveCardClosingOrder(CardClosingOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -3657,9 +3627,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApprovePeriodicTerminationOrder(PeriodicTerminationOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName);
-
+            ActionResult result = order.Approve(schemaType, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3672,12 +3640,11 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SavePeriodicTerminationOrder(PeriodicTerminationOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if ((order.OrderNumber == "" || order.OrderNumber == null) && order.Id == 0)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -3718,9 +3685,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveAccountReOpenOrder(AccountReOpenOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
-
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -3772,8 +3737,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public List<Account> GetAccountsForNewDeposit(DepositOrder order)
         {
-            List<Account> currentAccounts = new List<Account>();
-            currentAccounts = Account.GetAccountsForNewDeposit(order);
+            List<Account> currentAccounts = Account.GetAccountsForNewDeposit(order);
             Localization.SetCulture(currentAccounts, Culture);
             return currentAccounts;
         }
@@ -3869,20 +3833,16 @@ namespace ExternalBanking
                 {
                     opPerson.PersonDocument = Utility.ConvertAnsiToUnicode(opPerson.PersonDocument);
                 }
-                if (customer.person.addressList != null && customer.person.addressList.Count != 0)
+                if (customer.person.addressList != null && customer.person.addressList.Any() && customer.person.addressList.Exists(add => add.addressType.key == 2))
                 {
-                    if (customer.person.addressList.Exists(add => add.addressType.key == 2))
-                    {
-                        opPerson.PersonAddress = Utility.ConvertAnsiToUnicode(Utility.GenerateAddress(customer.person.addressList.Find(add => add.addressType.key == 2)));
-                    }
-
+                    opPerson.PersonAddress = Utility.ConvertAnsiToUnicode(Utility.GenerateAddress(customer.person.addressList.Find(add => add.addressType.key == 2)));
                 }
 
                 opPerson.PersonBirth = customer.person.birthDate;
 
                 if (customer.person.PhoneList != null && customer.person.PhoneList.Count != 0)
                 {
-                    CustomerPhone phone = new CustomerPhone();
+                    CustomerPhone phone;
                     if (customer.person.PhoneList.Exists(ph => ph.phoneType.key == 1))
                     {
                         phone = customer.person.PhoneList.Find(ph => ph.phoneType.key == 1);
@@ -3940,19 +3900,16 @@ namespace ExternalBanking
                             m.PersonNoSocialNumber = Utility.ConvertAnsiToUnicode(assingneeCustomer.person.documentList.Find(cd => cd.documentType.key == 57).documentNumber);
                         }
                     }
-                    if (assingneeCustomer.person.addressList != null && assingneeCustomer.person.addressList.Count != 0)
+                    if (assingneeCustomer.person.addressList != null && assingneeCustomer.person.addressList.Any() && assingneeCustomer.person.addressList.Exists(add => add.addressType.key == 2))
                     {
-                        if (assingneeCustomer.person.addressList.Exists(add => add.addressType.key == 2))
-                        {
-                            m.PersonAddress = Utility.ConvertAnsiToUnicode(Utility.GenerateAddress(assingneeCustomer.person.addressList.Find(add => add.addressType.key == 2)));
-                        }
+                        m.PersonAddress = Utility.ConvertAnsiToUnicode(Utility.GenerateAddress(assingneeCustomer.person.addressList.Find(add => add.addressType.key == 2)));
                     }
 
                     m.PersonBirth = assingneeCustomer.person.birthDate;
 
                     if (assingneeCustomer.person.PhoneList != null && assingneeCustomer.person.PhoneList.Count != 0)
                     {
-                        CustomerPhone phone = new CustomerPhone();
+                        CustomerPhone phone;
                         if (assingneeCustomer.person.PhoneList.Exists(ph => ph.phoneType.key == 1))
                         {
                             phone = assingneeCustomer.person.PhoneList.Find(ph => ph.phoneType.key == 1);
@@ -4054,13 +4011,8 @@ namespace ExternalBanking
         }
         public static bool IsCustomerUpdateExpired(ulong customerNumber)
         {
-            bool updateExpired = true;
-
             byte expired = ACBAOperationService.CheckCustomerUpdateExpired(customerNumber);
-
-            updateExpired = expired == 1 ? true : false;
-
-            return updateExpired;
+            return expired == 1;
 
         }
         public double GetOrderServiceFee(OrderType type, int urgent)
@@ -4118,6 +4070,12 @@ namespace ExternalBanking
 
             ActionResult result = new ActionResult();
 
+            if (order == null)
+            {
+                result.ResultCode = ResultCode.Failed;
+                result.Errors.Add(new ActionError(636));
+            }
+
             result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
@@ -4151,16 +4109,8 @@ namespace ExternalBanking
             }
 
 
-            if (order == null)
-            {
-                result.ResultCode = ResultCode.Failed;
-                result.Errors.Add(new ActionError(636));
-            }
-            else
-            {
-                result = order.Confirm(User);
-                Localization.SetCulture(result, Culture);
-            }
+            result = order.Confirm(User);
+            Localization.SetCulture(result, Culture);
 
             return result;
         }
@@ -4378,8 +4328,7 @@ namespace ExternalBanking
 
         public ActionResult ApproveHBActivationOrder(HBActivationOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User, Source);
+            ActionResult result = order.Approve(schemaType, userName, User, Source);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -4413,12 +4362,11 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveLoanProductOrder(LoanProductOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -4461,13 +4409,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveLoanProductOrder(LoanProductOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-
-
-            result = order.Approve(schemaType, userName, User);
-
-
-
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -4541,25 +4483,22 @@ namespace ExternalBanking
 
             result = order.SaveAndApprove(userName, Source, User, schemaType);
 
-            if (result.ResultCode == ResultCode.Normal)
+            if (result.ResultCode == ResultCode.Normal && AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(order.FreezeReason))
             {
-                if (AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(order.FreezeReason))
+                Card freezingCard = Card.GetCard(order.FreezeAccount);
+                if (freezingCard != null)
                 {
-                    Card freezingCard = Card.GetCard(order.FreezeAccount);
-                    if (freezingCard != null)
+                    try
                     {
-                        try
+                        foreach (var cardNumber in AutomateCardBlockingUnblocking.GetAllCardNumbers(freezingCard, CustomerNumber))
                         {
-                            foreach (var cardNumber in AutomateCardBlockingUnblocking.GetAllCardNumbers(freezingCard, CustomerNumber))
-                            {                                
-                                ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(order.FreezeReason), order.OperationDate, order.RegistrationDate);
-                                SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
-                            }
+                            ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(order.FreezeReason), order.OperationDate, order.RegistrationDate);
+                            SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
                         }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                 }
             }
@@ -4608,18 +4547,15 @@ namespace ExternalBanking
             if (result.ResultCode == ResultCode.Normal)
             {
                 List<AccountFreezeDetails> freezeDetails = AccountFreezeDetails.GetAccountFreezeHistory(order.FreezedAccount.AccountNumber, 1, 0);
-                if (freezeDetails.Count == 0 && !CustomerDB.HasBankrupt(CustomerNumber))
+                if (freezeDetails.Count == 0 && !CustomerDB.HasBankrupt(CustomerNumber) && AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(order.UnfreezeReason))
                 {
-                    if (AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(order.UnfreezeReason))
+                    Card unFreezingCard = Card.GetCard(order.FreezedAccount);
+                    if (unFreezingCard != null)
                     {
-                        Card unFreezingCard = Card.GetCard(order.FreezedAccount);
-                        if (unFreezingCard != null)
+                        foreach (var cardNumber in AutomateCardBlockingUnblocking.GetAllCardNumbers(unFreezingCard, CustomerNumber))
                         {
-                            foreach (var cardNumber in AutomateCardBlockingUnblocking.GetAllCardNumbers(unFreezingCard, CustomerNumber))
-                            {
-                                ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Unblock, AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(order.UnfreezeReason), order.OperationDate, order.RegistrationDate);
-                                SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
-                            }
+                            ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Unblock, AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(order.UnfreezeReason), order.OperationDate, order.RegistrationDate);
+                            SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
                         }
                     }
                 }
@@ -4751,12 +4687,11 @@ namespace ExternalBanking
         }
         public ActionResult SaveLoanProductActivationOrder(LoanProductActivationOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if ((order.OrderNumber == "" || order.OrderNumber == null) && order.Id == 0)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -4785,9 +4720,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveLoanProductActivationOrder(LoanProductActivationOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName);
-
+            ActionResult result = order.Approve(schemaType, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -4841,16 +4774,13 @@ namespace ExternalBanking
                 return result;
             }
 
-            if (Source != SourceType.MobileBanking && Source != SourceType.AcbaOnline)
+            if (Source != SourceType.MobileBanking && Source != SourceType.AcbaOnline && !order.CanRemoveOrder(order.RemovingOrderId, User.userID))
             {
-                if (!(order.CanRemoveOrder(order.RemovingOrderId, User.userID)))
-                {
-                    //Հրաժարման հայտի ձևակերպման հասանելիութուն ունի միայն հայտը մուտքագրողը և տվյալ մասնաճյուղի ԳԳՀՄ/ՆՀՊ-ն։
-                    result.Errors.Add(new ActionError(1739));
-                    Localization.SetCulture(result, Culture);
-                    result.ResultCode = ResultCode.ValidationError;
-                    return result;
-                }
+                //Հրաժարման հայտի ձևակերպման հասանելիութուն ունի միայն հայտը մուտքագրողը և տվյալ մասնաճյուղի ԳԳՀՄ/ՆՀՊ-ն։
+                result.Errors.Add(new ActionError(1739));
+                Localization.SetCulture(result, Culture);
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
             }
 
             result = order.SaveAndApprove(userName, Source, User, schemaType);
@@ -4958,9 +4888,7 @@ namespace ExternalBanking
 
         public Tax GetTax(int claimNumber, int eventNumber)
         {
-            Tax tax = new Tax();
-
-            tax = Tax.GetTax(claimNumber, eventNumber);
+            Tax tax = Tax.GetTax(claimNumber, eventNumber);
             Localization.SetCulture(tax, Culture);
             return tax;
         }
@@ -5140,10 +5068,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAndApproveCredentialOrder(CredentialOrder order, string userName, short schemaType)
         {
-
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -5158,10 +5084,8 @@ namespace ExternalBanking
         }
         public ActionResult SaveCredentialOrder(CredentialOrder order, string userName, short schemaType)
         {
-
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -5176,10 +5100,8 @@ namespace ExternalBanking
         }
         public ActionResult ApproveCredentialOrder(CredentialOrder order, string userName, short schemaType)
         {
-
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -5371,8 +5293,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApproveCardReReleaseOrder(CardReReleaseOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -5387,8 +5308,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApproveCreditLineTerminationOrder(CreditLineTerminationOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -5474,8 +5394,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAndApproveServicePaymentNoteOrder(ServicePaymentNoteOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -5544,8 +5463,7 @@ namespace ExternalBanking
 
         public List<PensionApplication> GetPensionApplicationHistory(ProductQualityFilter filter)
         {
-            List<PensionApplication> list = new List<PensionApplication>();
-            list = PensionApplication.GetPensionApplicationHistory(this.CustomerNumber, filter);
+            List<PensionApplication> list = PensionApplication.GetPensionApplicationHistory(this.CustomerNumber, filter);
             Localization.SetCulture(list, Culture);
             return list;
         }
@@ -5652,8 +5570,7 @@ namespace ExternalBanking
 
         public List<TransferCallContractDetails> GetTransferCallContractsDetails()
         {
-            List<TransferCallContractDetails> contracts = new List<TransferCallContractDetails>();
-            contracts = TransferCallContractDetails.GetTransferCallContractsDetails(this.CustomerNumber);
+            List<TransferCallContractDetails> contracts = TransferCallContractDetails.GetTransferCallContractsDetails(this.CustomerNumber);
             Localization.SetCulture(contracts, Culture);
             return contracts;
         }
@@ -5756,8 +5673,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public Order GetOrder(long ID)
         {
-            Order order = new Order();
-            order = Order.GetOrder(ID);
+            Order order = Order.GetOrder(ID);
             Localization.SetCulture(order, Culture);
             return order;
         }
@@ -5846,13 +5762,7 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public List<PlasticCard> GetCardsForRegistration(ushort filialCode)
-        {
-            List<PlasticCard> cards = PlasticCard.GetCardsForRegistration(this.CustomerNumber, filialCode);
-            //Localization.SetCulture(cards, this.Culture);
-            return cards;
-        }
-
+        public List<PlasticCard> GetCardsForRegistration(ushort filialCode) => PlasticCard.GetCardsForRegistration(this.CustomerNumber, filialCode);
 
 
         /// <summary>
@@ -5925,11 +5835,10 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SavePeriodicSwiftStatementOrder(PeriodicSwiftStatementOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if ((order.OrderNumber == "" || order.OrderNumber == null) && order.Id == 0)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-            result = order.SavePeriodicSwiftStatementOrder(userName, Source, User);
+            ActionResult result = order.SavePeriodicSwiftStatementOrder(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
 
@@ -5944,9 +5853,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApprovePeriodicSwiftStatementOrder(PeriodicSwiftStatementOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName, User);
-
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -6024,11 +5931,11 @@ namespace ExternalBanking
                 ushort freezeReason = 0;
                 if (order.Card.SupplementaryType == SupplementaryType.Linked || order.Card.SupplementaryType == SupplementaryType.Attached)
                 {
-                    freezeDetails = AccountFreezeDetails.GetAccountFreezeHistory(order.CardAccount.AccountNumber, 1, 0).Where(m => AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(m.ReasonId)).OrderBy(m=>m.RegistrationDate).ToList();
-                    freezeReason = (ushort)(freezeDetails.Count() > 0 ? freezeDetails.FirstOrDefault().ReasonId : 0);
+                    freezeDetails = AccountFreezeDetails.GetAccountFreezeHistory(order.CardAccount.AccountNumber, 1, 0).Where(m => AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(m.ReasonId)).OrderBy(m => m.RegistrationDate).ToList();
+                    freezeReason = (ushort)(freezeDetails?.Any() == true ? freezeDetails.FirstOrDefault().ReasonId : 0);
                 }
                 bool hasBankrupt = CustomerDB.HasBankrupt(CustomerNumber);
-                if (hasBankrupt || freezeDetails.Count() > 0)
+                if (hasBankrupt || freezeDetails?.Any() == true)
                 {
                     if (ArcaCardsTransactionOrder.GetPreviousBlockingOrderId(order.Card.CardNumber) == null)
                     {
@@ -6486,7 +6393,7 @@ namespace ExternalBanking
                 card = null;
             return card;
         }
-                
+
 
         public List<LoanProductClassification> GetLoanProductClassifications(ulong productId, DateTime dateFrom)
         {
@@ -6499,19 +6406,9 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public List<SafekeepingItem> GetSafekeepingItems(ProductQualityFilter filter)
-        {
-            List<SafekeepingItem> items = SafekeepingItem.GetSafekeepingItems(this.CustomerNumber, filter);
-            // Localization.SetCulture(accounts, this.Culture);
-            return items;
-        }
+        public List<SafekeepingItem> GetSafekeepingItems(ProductQualityFilter filter) => SafekeepingItem.GetSafekeepingItems(this.CustomerNumber, filter);
 
-        public SafekeepingItem GetSafekeepingItem(ulong productId)
-        {
-            SafekeepingItem item = SafekeepingItem.GetSafekeepingItem(this.CustomerNumber, productId);
-            //Localization.SetCulture(card, this.Culture);
-            return item;
-        }
+        public SafekeepingItem GetSafekeepingItem(ulong productId) => SafekeepingItem.GetSafekeepingItem(this.CustomerNumber, productId);
 
         /// <summary>
         /// Քարտի կարգավիճակի փոփոխման հայտ
@@ -6556,12 +6453,11 @@ namespace ExternalBanking
 
         public ActionResult SaveFactoringTerminationOrder(FactoringTerminationOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if ((order.OrderNumber == "" || order.OrderNumber == null) && order.Id == 0)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -6590,9 +6486,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveFactoringTerminationOrder(FactoringTerminationOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName);
-
+            ActionResult result = order.Approve(schemaType, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -6624,12 +6518,11 @@ namespace ExternalBanking
 
         public ActionResult SaveLoanProductTerminationOrder(LoanProductTerminationOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if ((order.OrderNumber == "" || order.OrderNumber == null) && order.Id == 0)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -6658,9 +6551,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveLoanProductTerminationOrder(LoanProductTerminationOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName);
-
+            ActionResult result = order.Approve(schemaType, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -6710,13 +6601,12 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveCustomerCommunalCard(CustomerCommunalCard customerCommunalCard)
         {
-            ActionResult result = new ActionResult();
             customerCommunalCard.CustomerNumber = this.CustomerNumber;
             customerCommunalCard.OpenDate = DateTime.Now.Date;
             customerCommunalCard.OpenerSetNumber = (ushort)User.userID;
             customerCommunalCard.OpenerFilialCode = User.filialCode;
             customerCommunalCard.Quality = 1;
-            result = customerCommunalCard.SaveCustomerCommunalCard();
+            ActionResult result = customerCommunalCard.SaveCustomerCommunalCard();
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -6728,13 +6618,12 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ChangeCustomerCommunalCardQuality(CustomerCommunalCard customerCommunalCard)
         {
-            ActionResult result = new ActionResult();
             customerCommunalCard.Quality = 0;
             customerCommunalCard.CustomerNumber = this.CustomerNumber;
             customerCommunalCard.EditingDate = DateTime.Now.Date;
             customerCommunalCard.EditorSetNumber = (ushort)User.userID;
             customerCommunalCard.Id = CustomerCommunalCard.GetCustomerCommunalCards(this.CustomerNumber).Find(m => m.AbonentNumber == customerCommunalCard.AbonentNumber && m.BranchCode == customerCommunalCard.BranchCode).Id;
-            result = customerCommunalCard.ChangeCustomerCommunalCardQuality();
+            ActionResult result = customerCommunalCard.ChangeCustomerCommunalCardQuality();
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -6747,12 +6636,11 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveDepositDataChangeOrder(DepositDataChangeOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if ((order.OrderNumber == "" || order.OrderNumber == null) && order.Id == 0)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -6780,9 +6668,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApproveDepositDataChangeOrder(DepositDataChangeOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(schemaType, userName);
-
+            ActionResult result = order.Approve(schemaType, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -6815,8 +6701,7 @@ namespace ExternalBanking
 
         public List<DepositAction> GetDepositActions(DepositOrder order)
         {
-            List<DepositAction> actions = new List<DepositAction>();
-            actions = DepositOrder.GetDepositActions(order);
+            List<DepositAction> actions = DepositOrder.GetDepositActions(order);
             return actions;
         }
 
@@ -6910,7 +6795,7 @@ namespace ExternalBanking
         }
         public ActionResult SaveAndApproveHBApplicationOrder(HBApplicationOrder order, string userName, short schemaType)
         {
-            if ((!bool.Parse(ConfigurationManager.AppSettings["EnabledOldMobileCompatibility"])) && order.HBApplicationUpdate.AddedItems.OfType<HBToken>().Where(x => x.TokenType != HBTokenTypes.Token).Count() > 0)
+            if ((!bool.Parse(ConfigurationManager.AppSettings["EnabledOldMobileCompatibility"])) && order.HBApplicationUpdate.AddedItems.OfType<HBToken>().Where(x => x.TokenType != HBTokenTypes.Token)?.Any() == true)
             {
                 List<string> tempTokens = order.GetTempTokenList(order.HBApplicationUpdate.AddedItems.OfType<HBToken>().Where(x => x.TokenType != HBTokenTypes.Token).Count());
                 for (int i = 0; i < tempTokens.Count; i++)
@@ -6947,12 +6832,7 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="hbAppID"></param>
         /// <returns></returns>
-        public List<HBUser> GetHBUsers(int hbAppID, ProductQualityFilter filter)
-        {
-            List<HBUser> hbUsers = HBUser.GetHBUsers(hbAppID, filter);
-            //Localization.SetCulture(hbUsers, Culture);
-            return hbUsers;
-        }
+        public List<HBUser> GetHBUsers(int hbAppID, ProductQualityFilter filter) => HBUser.GetHBUsers(hbAppID, filter);
 
         /// <summary>
         /// Վերադարձնում է պայմանագրի տվյալ կարգավիճակով ՀԲ օգտագործողին
@@ -6981,12 +6861,7 @@ namespace ExternalBanking
         /// <param name="HBUserID"></param>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public List<HBToken> GetHBTokens(int HBUserID, ProductQualityFilter filter)
-        {
-            List<HBToken> hbTokens = HBToken.GetHBTokens(HBUserID, filter);
-            //Localization.SetCulture(hbTokens, Culture);
-            return hbTokens;
-        }
+        public List<HBToken> GetHBTokens(int HBUserID, ProductQualityFilter filter) => HBToken.GetHBTokens(HBUserID, filter);
 
         /// <summary>
         /// Վերադարձնում է նշված օգտագործողի ֆիլտրված թոքեները
@@ -7009,6 +6884,7 @@ namespace ExternalBanking
             PhoneBankingContract phoneBankingContract = PhoneBankingContract.Get(this.CustomerNumber);
             return phoneBankingContract;
         }
+
         ///// <summary>
         ///// Տոկենի ապաբլոկավորման  հայտի պահպանում և ուղղարկում
         ///// </summary>
@@ -7035,10 +6911,7 @@ namespace ExternalBanking
         public ActionResult SaveAndApprovePhoneBankingContractOrder(PhoneBankingContractOrder order, string userName, short schemaType)
         {
             order.CustomerNumber = CustomerNumber;
-            ActionResult result = new ActionResult();
-
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -7105,10 +6978,7 @@ namespace ExternalBanking
         public ActionResult SaveAndApprovePhoneBankingContractClosingOrder(PhoneBankingContractClosingOrder order, string userName, short schemaType)
         {
             order.CustomerNumber = CustomerNumber;
-            ActionResult result = new ActionResult();
-
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -7303,8 +7173,7 @@ namespace ExternalBanking
         public ActionResult SaveHBRegistrationCodeResendOrder(HBRegistrationCodeResendOrder order, string userName, short schemaType)
         {
             order.CustomerNumber = CustomerNumber;
-            ActionResult result = new ActionResult();
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -7424,27 +7293,16 @@ namespace ExternalBanking
             return LoanMonitoringConclusion.GetLoanMonitoringConclusion(monitoringId, productId);
         }
 
-        public ActionResult SaveLoanMonitoringConclusion(LoanMonitoringConclusion monitroing)
-        {
-            ActionResult result = new ActionResult();
-            result = monitroing.Save(User);
-            return result;
-        }
+        public ActionResult SaveLoanMonitoringConclusion(LoanMonitoringConclusion monitroing) => monitroing.Save(User);
 
         public ActionResult ApproveLoanMonitoringConclusion(long monitoringId)
         {
-            ActionResult result = new ActionResult();
-            result = LoanMonitoringConclusion.Approve(monitoringId);
+            ActionResult result = LoanMonitoringConclusion.Approve(monitoringId);
             Localization.SetCulture(result, Culture);
             return result;
         }
 
-        public ActionResult DeleteLoanMonitoringConclusion(long monitoringId)
-        {
-            ActionResult result = new ActionResult();
-            result = LoanMonitoringConclusion.Delete(monitoringId);
-            return result;
-        }
+        public ActionResult DeleteLoanMonitoringConclusion(long monitoringId) => LoanMonitoringConclusion.Delete(monitoringId);
 
         public float GetProvisionCoverCoefficient(long productId)
         {
@@ -7487,7 +7345,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -7511,7 +7368,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -7529,37 +7385,25 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveCreditHereAndNowActivationOrders(CreditHereAndNowActivationOrders creditHereAndNowActivationOrders, string userName)
         {
-
-            ActionResult result = new ActionResult();
-
-            result = creditHereAndNowActivationOrders.SaveAndApprove(userName, User, Source, 1);
-
+            ActionResult result = creditHereAndNowActivationOrders.SaveAndApprove(userName, User, Source, 1);
             Localization.SetCulture(result, Culture);
             return result;
         }
         public ActionResult SaveAndApproveClassifiedLoanActionOrders(ClassifiedLoanActionOrders classifiedLoanActionOrders, string userName)
         {
-
-            ActionResult result = new ActionResult();
-
-            result = classifiedLoanActionOrders.SaveAndApprove(userName, User, Source, 1);
-
+            ActionResult result = classifiedLoanActionOrders.SaveAndApprove(userName, User, Source, 1);
             Localization.SetCulture(result, Culture);
             return result;
         }
         public ActionResult SaveAndApproveLoanProductClassificationRemoveOrder(LoanProductClassificationRemoveOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
         public ActionResult SaveAndApproveLoanProductMakeOutOrder(LoanProductMakeOutOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -7624,7 +7468,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -7642,7 +7485,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -7703,8 +7545,7 @@ namespace ExternalBanking
         /// 
         public ActionResult ApprovePeriodicPaymentOrder(PeriodicPaymentOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = order.ApprovePeriodicPaymentOrder(schemaType, userName, User);
+            ActionResult result = order.ApprovePeriodicPaymentOrder(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -7819,11 +7660,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public List<Account> GetAccountsForCouponRepayment()
         {
-            List<Account> currentAccounts = new List<Account>();
-
-            List<Account> transitAccount = new List<Account>();
-            transitAccount = Account.GetCustomerTransitAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
-            currentAccounts = Account.GetAccountsForCouponRepayment(this.CustomerNumber);
+            List<Account> transitAccount = Account.GetCustomerTransitAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
+            List<Account> currentAccounts = Account.GetAccountsForCouponRepayment(this.CustomerNumber);
 
 
             List<Account> allAccounts = new List<Account>();
@@ -7840,12 +7678,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public List<Account> GetAccountsForBondRepayment(string currency)
         {
-            List<Account> transitAccount = new List<Account>();
-            transitAccount = Account.GetCustomerTransitAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
-
-
-            List<Account> accounts = new List<Account>();
-            accounts = Account.GetAccountsForBondRepayment(this.CustomerNumber, currency);
+            List<Account> transitAccount = Account.GetCustomerTransitAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
+            List<Account> accounts = Account.GetAccountsForBondRepayment(this.CustomerNumber, currency);
 
             List<Account> allAccounts = new List<Account>();
             allAccounts.AddRange(transitAccount);
@@ -8016,19 +7850,7 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApprovePlasticCardSMSServiceOrder(PlasticCardSMSServiceOrder order, string userName, short schemaType)
         {
-
-            ActionResult result = new ActionResult();
-
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
-            //if (result.Errors.Count > 0)
-            //{
-            //    Localization.SetCulture(result, Culture);
-            //    result.ResultCode = ResultCode.ValidationError;
-            //    return result;
-            //}
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
-
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8042,19 +7864,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApprovePlasticCardSMSServiceOrder(PlasticCardSMSServiceOrder order, string userName, short schemaType)
         {
-
-            ActionResult result = new ActionResult();
-
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
-            //if (result.Errors.Count > 0)
-            //{
-            //    Localization.SetCulture(result, Culture);
-            //    result.ResultCode = ResultCode.ValidationError;
-            //    return result;
-            //}
-
-            result = order.Approve(userName, Source, User, schemaType);
-
+            ActionResult result = order.Approve(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8100,9 +7910,7 @@ namespace ExternalBanking
 
         public List<ProductNotificationConfigurations> GetProductNotificationConfigurations(ulong productId)
         {
-            List<ProductNotificationConfigurations> productNotificationConfigurations = ProductNotificationConfigurations.GetProductNotificationConfigurations(productId);
-            //Localization.SetCulture(productNotificationConfigurations, this.Culture);
-            return productNotificationConfigurations;
+            return ProductNotificationConfigurations.GetProductNotificationConfigurations(productId);
         }
 
         public ActionResult SaveAndApproveSwiftMessageRejectOrder(SwiftMessageRejectOrder order, string userName, short schemaType)
@@ -8193,8 +8001,7 @@ namespace ExternalBanking
 
         public List<Fond> GetFonds(ProductQualityFilter filter)
         {
-            List<Fond> fonds = new List<Fond>();
-            fonds = Fond.GetFonds(filter);
+            List<Fond> fonds = Fond.GetFonds(filter);
             Localization.SetCulture(fonds, this.Culture);
             return fonds;
         }
@@ -8231,9 +8038,7 @@ namespace ExternalBanking
         }
         public ActionResult SaveAndApproveLoanProductMakeOutBalanceOrder(LoanProductMakeOutBalanceOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8346,9 +8151,7 @@ namespace ExternalBanking
 
         public FTPRate GetFTPRateDetails(FTPRateType rateType)
         {
-            FTPRate rate = new FTPRate();
-            rate = FTPRate.GetFTPRateDetails(rateType);
-            return rate;
+            return FTPRate.GetFTPRateDetails(rateType); ;
         }
 
         public ActionResult SaveAndApproveFTPRateOrder(FTPRateOrder order, string userName, short schemaType)
@@ -8386,12 +8189,11 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAccountClosingOrder(AccountClosingOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = this.CustomerNumber;
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -8406,10 +8208,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApproveAccountClosingOrder(AccountClosingOrder order, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            //order.CustomerNumber = this.CustomerNumber;
-            result = order.Approve(schemaType, userName, User);
-
+            ActionResult result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8441,11 +8240,9 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveCreditLineTerminationOrder(CreditLineTerminationOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8502,8 +8299,7 @@ namespace ExternalBanking
 
         public ActionResult SaveArcaCardsTransactionOrder(ArcaCardsTransactionOrder arcaCardsTransactionOrder, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = arcaCardsTransactionOrder.Save(userName, Source, User, schemaType);
+            ActionResult result = arcaCardsTransactionOrder.Save(userName, Source, User, schemaType);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -8524,8 +8320,7 @@ namespace ExternalBanking
 
         public ActionResult ApproveArcaCardsTransactionOrder(ArcaCardsTransactionOrder arcaCardsTransactionOrder, string userName, short approvementScheme)
         {
-            ActionResult result = new ActionResult();
-            result = arcaCardsTransactionOrder.Approve(userName, approvementScheme);
+            ActionResult result = arcaCardsTransactionOrder.Approve(userName, approvementScheme);
             if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
             {
                 Localization.SetCulture(result, Culture);
@@ -8551,8 +8346,7 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveCardToCardOrder(CardToCardOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -8567,7 +8361,6 @@ namespace ExternalBanking
             order.CustomerNumber = this.CustomerNumber;
             order.Get();
             Localization.SetCulture(order, Culture);
-            //Localization.SetCulture(order);
             return order;
         }
         public AttachedCardTransactionReceipt GetAttachedCardTransactionDetails(long orderId)
@@ -8581,8 +8374,7 @@ namespace ExternalBanking
 
         public ActionResult SaveCardToCardOrder(CardToCardOrder cardToCardOrder, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = cardToCardOrder.Save(userName, Source, User, schemaType);
+            ActionResult result = cardToCardOrder.Save(userName, Source, User, schemaType);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -8592,8 +8384,7 @@ namespace ExternalBanking
 
         public ActionResult ApproveCardToCardOrder(CardToCardOrder cardToCardOrder, string userName, short approvementScheme)
         {
-            ActionResult result = new ActionResult();
-            result = cardToCardOrder.Approve(userName, approvementScheme);
+            ActionResult result = cardToCardOrder.Approve(userName, approvementScheme);
             if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
             {
                 Localization.SetCulture(result, Culture);
@@ -8618,8 +8409,7 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveCardLimitChangeOrder(CardLimitChangeOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -8629,8 +8419,7 @@ namespace ExternalBanking
 
         public ActionResult SaveCardLimitChangeOrder(CardLimitChangeOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.Save(userName, Source, User, schemaType);
+            ActionResult result = order.Save(userName, Source, User, schemaType);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -8650,8 +8439,7 @@ namespace ExternalBanking
 
         public ActionResult ApproveCardLimitChangeOrder(CardLimitChangeOrder order, string userName, short approvementScheme)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(userName, approvementScheme);
+            ActionResult result = order.Approve(userName, approvementScheme);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -8667,10 +8455,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SavePaymentOrderTemplate(PaymentOrderTemplate template, string userName)
         {
-            ActionResult result = new ActionResult();
-
-            result = template.Save(userName, Source, User);
-
+            ActionResult result = template.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8683,8 +8468,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveLoanMatureOrderTemplate(LoanMatureOrderTemplate template, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = template.Save(userName, Source, User);
+            ActionResult result = template.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8697,9 +8481,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveUtilityPaymentOrderTemplate(UtilityPaymentOrderTemplate template, string userName)
         {
-            ActionResult result = new ActionResult();
             template.UtilityPaymentOrder.CustomerNumber = this.CustomerNumber;
-            result = template.Save(userName, Source, User);
+            ActionResult result = template.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8761,12 +8544,7 @@ namespace ExternalBanking
 
         public ActionResult SaveHBServletRequestOrder(HBServletRequestOrder order, string userName, short schemaType, String clientIp)
         {
-            ActionResult result = new ActionResult();
-
-
-
-            result = order.SaveOrder(userName, Source, User, schemaType, clientIp);
-
+            ActionResult result = order.SaveOrder(userName, Source, User, schemaType, clientIp);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8840,16 +8618,14 @@ namespace ExternalBanking
 
         public ActionResult SaveForgivableLoanCommitment(CreditCommitmentForgivenessOrder creditCommitmentForgiveness, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = creditCommitmentForgiveness.SaveForgivableLoanCommitment(userName, Source, User, schemaType, creditCommitmentForgiveness);
+            ActionResult result = creditCommitmentForgiveness.SaveForgivableLoanCommitment(userName, Source, User, schemaType, creditCommitmentForgiveness);
             Localization.SetCulture(result, Culture);
             return result;
         }
 
         public ActionResult SaveAndApprovePlasticCardOrder(PlasticCardOrder cardOrder, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = cardOrder.SaveAndApprove(User, Source, CustomerNumber, schemaType);
+            ActionResult result = cardOrder.SaveAndApprove(User, Source, CustomerNumber, schemaType);
 
             if (cardOrder.Source == SourceType.Bank && result.ResultCode == ResultCode.DoneAndReturnedValues)
             {
@@ -8861,14 +8637,14 @@ namespace ExternalBanking
                     if (mainCard != null)
                     {
                         freezeDetails = AccountFreezeDetails.GetAccountFreezeHistory(mainCard.CardAccount.AccountNumber, 1, 0).Where(m => AutomateCardBlockingUnblocking.FreezingReasonsForBlocking.Contains(m.ReasonId)).OrderBy(m => m.RegistrationDate).ToList();
-                        freezeReason = (ushort)(freezeDetails.Count() > 0 ? freezeDetails.FirstOrDefault().ReasonId : 0);
+                        freezeReason = (ushort)(freezeDetails?.Any() == true ? freezeDetails.FirstOrDefault().ReasonId : 0);
                     }
                 }
                 bool hasBankrupt = CustomerDB.HasBankrupt(CustomerNumber);
-                if (hasBankrupt || freezeDetails.Count() > 0)
+                if (hasBankrupt || freezeDetails?.Any() == true)
                 {
                     var cardNumber = result.Errors[0].Description;
-                    
+
                     ArcaCardsTransactionOrder blockOrder = CreateArcaCardTransactionOrder(cardNumber, ArcaCardsTransationActionType.Block, hasBankrupt ? ArcaCardsTransationActionReason.Bankrupt : AutomateCardBlockingUnblocking.GetCardTransactionReasonByFreezeReasonId(freezeReason), cardOrder.OperationDate, cardOrder.RegistrationDate);
                     SaveAndApproveAutomateArcaCardsTransactionOrder(blockOrder, User.userName, schemaType);
                 }
@@ -8900,8 +8676,7 @@ namespace ExternalBanking
         }
         public ActionResult SaveAndApproveArcaCardsTransactionOrder(ArcaCardsTransactionOrder arcaCardsTransactionOrder, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = arcaCardsTransactionOrder.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = arcaCardsTransactionOrder.SaveAndApprove(userName, Source, User, schemaType);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -8911,7 +8686,7 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveAutomateArcaCardsTransactionOrder(ArcaCardsTransactionOrder arcaCardsTransactionOrder, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
+            ActionResult result;
             byte cardBlockingActionAvailability = ArcaCardsTransactionOrder.GetCardBlockingActionAvailabilityForFreezing(arcaCardsTransactionOrder.CardNumber, arcaCardsTransactionOrder.ActionReasonId);
             if (cardBlockingActionAvailability == arcaCardsTransactionOrder.ActionType)
             {
@@ -8960,23 +8735,20 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveCardToCardOrderTemplate(CardToCardOrderTemplate template, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = template.Save(userName, Source, User);
+            ActionResult result = template.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
         public ActionResult SavePlasticCardOrder(PlasticCardOrder cardOrder, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = cardOrder.Save(User, Source, CustomerNumber, userName);
+            ActionResult result = cardOrder.Save(User, Source, CustomerNumber, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
 
         public ActionResult ApprovePlasticCardOrder(PlasticCardOrder cardOrder, short schemaType, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = cardOrder.Approve(User, schemaType, userName);
+            ActionResult result = cardOrder.Approve(User, schemaType, userName);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -8991,10 +8763,7 @@ namespace ExternalBanking
 
         public ActionResult SaveInternationalOrderTemplate(InternationalOrderTemplate template, string userName)
         {
-            ActionResult result = new ActionResult();
-
-            result = template.Save(userName, Source, User);
-
+            ActionResult result = template.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9072,30 +8841,22 @@ namespace ExternalBanking
         public Dictionary<string, string> GetPlasticCardOrderCardTypes()
         {
             Dictionary<string, string> cardTypes;
-            ACBAServiceReference.Customer customer;
-            //Customer customer;
             short customerType;
             var dt = Info.GetCardTypes();
             cardTypes = dt.AsEnumerable()
                 .ToDictionary<DataRow, string, string>(row => row[0].ToString(),
                                        row => row[2].ToString());
 
-            ACBAOperationServiceClient client = new ACBAOperationServiceClient();
-            CustomerMainData mainData;
-            mainData = (CustomerMainData)client.GetCustomerMainData(CustomerNumber);
-            using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-            {
-                customer = (ACBAServiceReference.Customer)proxy.GetCustomer(CustomerNumber);
-                customerType = customer.customerType.key;
-            }
+            CustomerMainData mainData = ACBAOperationService.GetCustomerMainData(CustomerNumber);
+            customerType = (short)mainData.CustomerType;
 
             if (customerType == (short)CustomerTypes.physical)
             {
-                DateTime? BirthDate = (customer as PhysicalCustomer).person.birthDate;
+                DateTime? BirthDate = ACBAOperationService.GetCustomerBirthDate(CustomerNumber);
 
                 cardTypes = cardTypes.Where(x => x.Key == "11" || x.Key == "31" || x.Key == "36"
                      || x.Key == "47" || x.Key == "37" || x.Key == "48" || x.Key == "49" || x.Key == "42" || x.Key == "38"
-                     || x.Key == "21" || x.Key == "46" || x.Key == "34" || x.Key == "50" || x.Key == "52")
+                     || x.Key == "21" || x.Key == "46" || x.Key == "34" || x.Key == "50" || x.Key == "52" || x.Key == "54")
                         .ToDictionary(x => x.Key, x => x.Value);
 
                 if (mainData.ResidenceType != 1)
@@ -9133,9 +8894,7 @@ namespace ExternalBanking
             Localization.SetCulture(currentAccounts, Culture);
             accounts.AddRange(currentAccounts);
 
-
-            List<Account> depositAccounts = new List<Account>();
-            depositAccounts = Account.GetDepositAccounts(this.CustomerNumber);
+            List<Account> depositAccounts = Account.GetDepositAccounts(this.CustomerNumber);
             Localization.SetCulture(depositAccounts, Culture);
             accounts.AddRange(depositAccounts);
 
@@ -9162,11 +8921,10 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SavePeriodicDataChangeOrder(PeriodicTransferDataChangeOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User, schemaType);
+            ActionResult result = order.Save(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9181,8 +8939,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult ApprovePeriodicDataChangeOrder(PeriodicTransferDataChangeOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.Approve(User, Source, userName, schemaType);
+            ActionResult result = order.Approve(User, Source, userName, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9213,8 +8970,7 @@ namespace ExternalBanking
 
         public ActionResult SaveAccountReOpenOrder(AccountReOpenOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9305,7 +9061,7 @@ namespace ExternalBanking
                 homePage.Accounts.ResultCode = ResultCode.Normal;
                 homePage.Accounts.Content = accounts;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 homePage.Accounts.ResultCode = ResultCode.Failed;
                 ActionError actionError = new ActionError(1684);
@@ -9321,7 +9077,7 @@ namespace ExternalBanking
                 homePage.Cards.ResultCode = ResultCode.Normal;
                 homePage.Cards.Content = cards;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 homePage.Cards.ResultCode = ResultCode.Failed;
 
@@ -9376,7 +9132,6 @@ namespace ExternalBanking
                             if (grafik.Count > 1)
                             {
                                 grafik.Sort((x, y) => x.EndDate.CompareTo(y.EndDate));
-                                //grafik.RemoveRange(0, grafik.Count - 1);
                             }
                             var findedGRafik = grafik.Find(x => x.EndDate >= Utility.GetNextOperDay() && x.Amount - x.MaturedAmount > 0);
 
@@ -9415,7 +9170,7 @@ namespace ExternalBanking
                 homePage.Loans.ResultCode = ResultCode.Normal;
                 homePage.Loans.Content = loans;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 homePage.Loans.ResultCode = ResultCode.Failed;
 
@@ -9436,10 +9191,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveBudgetPaymentOrderTemplate(BudgetPaymentOrderTemplate template, string userName)
         {
-            ActionResult result = new ActionResult();
-
-            result = template.Save(userName, Source, User);
-
+            ActionResult result = template.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9472,19 +9224,11 @@ namespace ExternalBanking
             return accounts;
         }
 
-        public InterestMargin GetInterestMarginDetails(InterestMarginType marginType)
-        {
-            InterestMargin margin = new InterestMargin();
-            margin = InterestMargin.GetInterestMarginDetails(marginType);
-            return margin;
-        }
+        public InterestMargin GetInterestMarginDetails(InterestMarginType marginType) => InterestMargin.GetInterestMarginDetails(marginType);
 
-        public InterestMargin GetInterestMarginDetailsByDate(InterestMarginType marginType, DateTime marinDate)
-        {
-            InterestMargin margin = new InterestMargin();
-            margin = InterestMargin.GetInterestMarginDetailsByDate(marginType, marinDate);
-            return margin;
-        }
+
+        public InterestMargin GetInterestMarginDetailsByDate(InterestMarginType marginType, DateTime marinDate) => InterestMargin.GetInterestMarginDetailsByDate(marginType, marinDate);
+
 
         public ActionResult SaveAndApproveInterestMarginOrder(InterestMarginOrder order, string userName, short schemaType)
         {
@@ -9513,21 +9257,10 @@ namespace ExternalBanking
             return order;
         }
 
-        /// <summary>
-        /// Ստուգում է չհաստատված գործարքի առկայությունը
-        /// </summary>
-        /// <param name="customerNumber"></param>
-        /// <param name="documentType"></param>
-        /// <returns></returns>
-        private static (long?, bool) IsExistsNotConfirmedHBOrder(ulong customerNumber, OrderType documentType)
-        {
-            return HBApplicationDB.IsExistsNotConfirmedHBOrder(customerNumber, documentType);
-        }
 
         public ActionResult SaveAndApprovePlasticCardRemovalOrder(PlasticCardRemovalOrder cardRemovalOrder, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = cardRemovalOrder.SaveAndApprove(User, Source, CustomerNumber, schemaType);
+            ActionResult result = cardRemovalOrder.SaveAndApprove(User, Source, CustomerNumber, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9551,8 +9284,7 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveCardAccountRemovalOrder(CardAccountRemovalOrder cardOrder, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = cardOrder.SaveAndApprove(User, Source, CustomerNumber, schemaType);
+            ActionResult result = cardOrder.SaveAndApprove(User, Source, CustomerNumber, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9572,10 +9304,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveCurrencyExchangeOrderTemplate(CurrencyExchangeOrderTemplate template, string userName)
         {
-            ActionResult result = new ActionResult();
-
-            result = template.Save(userName, Source, User);
-
+            ActionResult result = template.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9595,9 +9324,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult RejectOrder(OrderRejection orderRejection)
         {
-            ActionResult result = new ActionResult();
             orderRejection.CustomerNumber = CustomerNumber;
-            result = orderRejection.Reject(this.Culture.Language);
+            ActionResult result = orderRejection.Reject(this.Culture.Language);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -9682,10 +9410,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAndApproveLoanDelayOrder(LoanDelayOrder order, string userName, short schemaType)
         {
-
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -9737,7 +9463,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -9765,7 +9490,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -9793,7 +9517,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -9838,7 +9561,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -9866,7 +9588,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -9909,7 +9630,6 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -9960,22 +9680,7 @@ namespace ExternalBanking
 
         public R2ARequestOutput SaveAndApproveSTAKPaymentOrder(STAKPaymentOrder order, string userName, short schemaType)
         {
-            R2ARequestOutputResponse response = new R2ARequestOutputResponse();
-
-            ////result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
-            //if (result.Errors.Count > 0)
-            //{
-            //    Localization.SetCulture(result, Culture);
-            //    result.ResultCode = ResultCode.ValidationError;
-            //    return result;
-            //}
-
-            //result = order.SaveAndApprove(userName, Source, User, schemaType);
-
-            //return result;
-
-            response = order.SaveAndApprove(userName, Source, User, schemaType);
-            //ActionResult actionRresult = R2ARequestOutput.ActionResult;
+            R2ARequestOutputResponse response = order.SaveAndApprove(userName, Source, User, schemaType);
 
             if (response.ActionResult.ResultCode == ResultCode.Normal)
             {
@@ -9984,7 +9689,7 @@ namespace ExternalBanking
                 response.R2ARequestOutput.ResponseCode = "1";
                 response.R2ARequestOutput.ResponseMessage = "R2A փոխանցումը վճարված է։";
             }
-            else    // if (response.ActionResult.ResultCode == ResultCode.Failed)
+            else
             {
                 Localization.SetCulture(response.ActionResult, Culture);
 
@@ -10018,10 +9723,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveAndApproveCancelLoanDelayOrder(CancelDelayOrder order, string userName, short schemaType)
         {
-
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -10059,8 +9762,7 @@ namespace ExternalBanking
         public ActionResult SaveAndApproveHBApplicationFullPermissionsGrantingOrder(HBApplicationFullPermissionsGrantingOrder order, string userName, short schemaType)
         {
             order.CustomerNumber = CustomerNumber;
-            ActionResult result = new ActionResult();
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10117,8 +9819,7 @@ namespace ExternalBanking
         }
         public ActionResult ApproveCardToOtherCardsOrder(CardToOtherCardsOrder cardToCardOrder, string userName, short approvementScheme)
         {
-            ActionResult result = new ActionResult();
-            result = cardToCardOrder.Approve(userName, approvementScheme, Culture);
+            ActionResult result = cardToCardOrder.Approve(userName, approvementScheme, Culture);
             if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
             {
                 Localization.SetCulture(result, Culture);
@@ -10213,8 +9914,7 @@ namespace ExternalBanking
 
         public ActionResult SaveCardAdditionalDataOrder(CardAdditionalDataOrder additionalDataOrder, short approvementScheme, string userName)
         {
-            ActionResult result = new ActionResult();
-            result = additionalDataOrder.SaveAndApprove(User, Source, CustomerNumber, approvementScheme);
+            ActionResult result = additionalDataOrder.SaveAndApprove(User, Source, CustomerNumber, approvementScheme);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10472,8 +10172,7 @@ namespace ExternalBanking
 
         public ActionResult SaveCardAccountClosingOrder(CardAccountClosingOrder accountclosingorder, short approvementScheme)
         {
-            ActionResult result = new ActionResult();
-            result = accountclosingorder.SaveAndApprove(Source, CustomerNumber, approvementScheme);
+            ActionResult result = accountclosingorder.SaveAndApprove(Source, CustomerNumber, approvementScheme);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10498,10 +10197,8 @@ namespace ExternalBanking
         /// </summary>
         public ActionResult SaveAndApproveLoanInterestRateConcessionOrder(LoanInterestRateConcessionOrder order, string userName, short schemaType)
         {
-
             ActionResult result = new ActionResult();
 
-            //result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
             if (result.Errors.Count > 0)
             {
                 Localization.SetCulture(result, Culture);
@@ -10547,8 +10244,7 @@ namespace ExternalBanking
 
         public ActionResult SavePensionPaymentOrder(PensionPaymentOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-            result = order.SavePensionPaymentOrder(order, userName, Source, User, schemaType);
+            ActionResult result = order.SavePensionPaymentOrder(order, userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10585,22 +10281,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ContentResult<string> ApproveCardLessCashOutOrder(CardlessCashoutOrder order, short schemaType, string userName)
         {
-            ContentResult<string> result = new ContentResult<string>();
-
-            //if (Order.GetDayOrdersAmount(this.CustomerNumber, order.Id, DateTime.Now, Source) <= this.DailyOperationAmountLimit)
-            //{
-            result = order.Approve(schemaType, userName, User);
-            //}
-            //else
-            //{
-            //    //Դուք գերազանցում եք կատարվող գործարքների օրեկան սահմանաչափը:
-            //    result.Errors.Add(new ActionError(74));
-            //    result.ResultCode = ResultCode.ValidationError;
-            //}
-
-
-            //}
-
+            ContentResult<string> result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10629,7 +10310,8 @@ namespace ExternalBanking
         {
             CardlessCashoutOrder paymentOrder = new CardlessCashoutOrder();
             paymentOrder.Id = id;
-            paymentOrder.CustomerNumber = this.CustomerNumber;
+            if (Culture == null)
+                Culture = new Culture(Languages.eng);
             paymentOrder.Get(Culture.Language);
             Localization.SetCulture(paymentOrder, Culture);
 
@@ -10649,14 +10331,12 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveSberPaymentOrder(SberIncomingTransferOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-
             Transfer transfer = new Transfer();
             transfer.Id = transfer.GetTransferIdByDocId(order.Id);
             transfer.Get();
 
             CurrencyExchangeOrder currencyorder = new CurrencyExchangeOrder(order, transfer, this);
-            result = currencyorder.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = currencyorder.SaveAndApprove(userName, Source, User, schemaType);
 
             return result;
         }
@@ -10697,9 +10377,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveBillSplitOrder(BillSplitOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
-
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10733,8 +10411,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ContentResult<string> ApproveLinkPaymentOrder(LinkPaymentOrder order, short schemaType, string userName)
         {
-            ContentResult<string> result = new ContentResult<string>();
-            result = order.Approve(schemaType, userName, User);
+            ContentResult<string> result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10765,17 +10442,24 @@ namespace ExternalBanking
             List<Account> currentAccounts = Account.GetCurrentAccounts(CustomerNumber, ProductQualityFilter.Opened);
             List<Account> depositAccounts = Account.GetDepositAccounts(CustomerNumber);
             List<Account> cardAccounts = Account.GetCardAccounts(CustomerNumber);
+
+            cardAccounts.ForEach(m =>
+            {
+                Card card = Card.GetCardWithOutBallance(m.AccountNumber);
+                if (card != null)
+                    m.AccountDescription = card.CardNumber + " " + card.CardType;
+            });
             accounts.AddRange(depositAccounts);
             currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount || m.AccountType == (ushort)ProductType.AparikTexum);
             accounts.AddRange(currentAccounts);
             accounts.AddRange(cardAccounts);
-            accounts.RemoveAll(m => m.Currency != "AMD" || m.ISDahkCardTransitAccount(m.AccountNumber) == true);
+            accounts.RemoveAll(m => m.Currency != "AMD" || m.ISDahkCardTransitAccount(m.AccountNumber));
 
             Localization.SetCulture(accounts, Culture);
 
             return accounts;
         }
-  
+
         /// <summary>
         /// Քարտի վերաբացման մուտքագրման հայտի պահպանում և հաստատում
         /// Վերադարձնում է հաշվի հեռացման հայտի տվյալները
@@ -10851,8 +10535,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public ContentResult<List<BillSplitLinkResult>> ApproveBillSplitOrder(BillSplitOrder order, short schemaType, string userName)
         {
-            ContentResult<List<BillSplitLinkResult>> result = new ContentResult<List<BillSplitLinkResult>>();
-            result = order.Approve(schemaType, userName, User);
+            ContentResult<List<BillSplitLinkResult>> result = order.Approve(schemaType, userName, User);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -10860,9 +10543,7 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveBillSplitSenderRejectionOrder(BillSplitSenderRejectionOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
 
@@ -10897,12 +10578,9 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApproveBillSplitReminderOrder(BillSplitReminderOrder order, string userName, short schemaType)
         {
-            ActionResult result = new ActionResult();
-
-            result = order.SaveAndApprove(userName, Source, User, schemaType);
+            ActionResult result = order.SaveAndApprove(userName, Source, User, schemaType);
             Localization.SetCulture(result, Culture);
             return result;
-
         }
 
         public BillSplitReminderOrder GetBillSplitReminderOrder(long ID)
@@ -10922,7 +10600,7 @@ namespace ExternalBanking
         /// <param name="schemaType"></param>
         /// <returns></returns>
         public ActionResult SaveAndApproveCardRenewOrder(CardRenewOrder order, short schemaType)
-        {            
+        {
             ActionResult result = new ActionResult();
             if (Validation.BankOpDayIsClosed())
             {
@@ -11135,7 +10813,7 @@ namespace ExternalBanking
 
         public ActionResult SaveDepositaryAccountOrder(DepositaryAccountOrder depositaryAccountOrder, string userName)
         {
-            ActionResult result  = depositaryAccountOrder.Save(userName, User);
+            ActionResult result = depositaryAccountOrder.Save(userName, User);
             if (result.ResultCode == ResultCode.ValidationError)
             {
                 Localization.SetCulture(result, Culture);
@@ -11160,8 +10838,7 @@ namespace ExternalBanking
         {
             User user = new User() { userID = 88 };
             order.user = user;
-            ActionResult result = new ActionResult();
-            result = order.SaveAndApprove(user.userName, SourceType.AcbaOnline, user, 3);
+            ActionResult result = order.SaveAndApprove(user.userName, SourceType.AcbaOnline, user, 3);
             Localization.SetCulture(result, Culture);
             return result;
         }
@@ -11226,7 +10903,7 @@ namespace ExternalBanking
         public List<Account> GetAccountsForStock()
         {
 
-            List<Account>  currentAccounts = Account.GetAccountsForStock(this.CustomerNumber);
+            List<Account> currentAccounts = Account.GetAccountsForStock(this.CustomerNumber);
             Localization.SetCulture(currentAccounts, Culture);
             return currentAccounts;
         }
@@ -11240,12 +10917,11 @@ namespace ExternalBanking
         /// <returns></returns>
         public ActionResult SaveConsumeLoanApplicationOrder(ConsumeLoanApplicationOrder order, string userName)
         {
-            ActionResult result = new ActionResult();
             order.CustomerNumber = CustomerNumber;
             if (order.OrderNumber == "" || order.OrderNumber == null)
                 order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            result = order.Save(userName, Source, User);
+            ActionResult result = order.Save(userName, Source, User);
 
             Localization.SetCulture(result, Culture);
             return result;
@@ -11265,5 +10941,367 @@ namespace ExternalBanking
             Localization.SetCulture(order, Culture);
             return order;
         }
+
+        /// <summary>
+        /// Սպառողական վարկի ձևակերպման հայտ
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult SaveConsumeLoanSettlementOrder(ConsumeLoanSettlementOrder order, string userName)
+        {
+            order.CustomerNumber = CustomerNumber;
+            if (order.OrderNumber == "" || order.OrderNumber == null)
+                order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+
+            ActionResult result = order.Save(userName, Source, User);
+
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public ConsumeLoanSettlementOrder GetConsumeLoanSettlementOrder(long ID)
+        {
+            ConsumeLoanSettlementOrder order = new ConsumeLoanSettlementOrder();
+            order.Id = ID;
+            order.CustomerNumber = this.CustomerNumber;
+            order.GetConsumeLoanSettlementOrder();
+            Localization.SetCulture(order, Culture);
+            return order;
+        }
+
+        /// </summary>
+        /// <param name="order">Հղումով փոխանցման</param>
+        /// <returns></returns>
+        public ActionResult SaveAndApproveCardlessCashoutCancellationOrder(CardlessCashoutCancellationOrder order)
+        {
+            ActionResult result = order.SaveAndApprove();
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Վերադարձնում է հաճախորդի բոլոր ընթացիկ հաշիվները
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public List<Account> GetAllCurrentAccounts()
+        {
+            List<Account> accounts = Account.GetAllCurrentAccounts(this.CustomerNumber);
+            Localization.SetCulture(accounts, this.Culture);
+            return accounts;
+        }
+
+
+        public ActionResult ApproveConsumeLoanSettlementOrder(ConsumeLoanSettlementOrder order, short schemaType, string userName)
+        {
+            ActionResult result = order.Approve(userName, schemaType, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Բյուջե վճարման հանձնարարականի հաստատում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <param name="schemaType"></param>
+        /// <returns></returns>
+        public ActionResult ApproveBudgetPaymentOrder(BudgetPaymentOrder order, string userName, short schemaType)
+        {
+            ActionResult result = new ActionResult();
+
+            if (Utility.CheckOperationLimit(order.Amount, order.Currency, OneOperationAmountLimit))
+            {
+                result = order.Approve(userName, Source, User, schemaType);
+            }
+            else
+            {
+                result.Errors.Add(new ActionError(66));
+                result.ResultCode = ResultCode.ValidationError;
+            }
+            Localization.SetCulture(result, Culture);
+            return result;
+
+        }
+
+        /// <summary>
+        /// Վերադարձնում է հաճախորդի՝ ծառայությունների խումբը
+        /// </summary>
+        /// <param name="status">Խմբի կարգավիճակ</param>
+        /// <returns></returns>
+        public OrderGroup GetOrderGroup(int id) => OrderGroup.GetOrderGroup(this.CustomerNumber, id);
+
+
+        /// <summary>
+        /// ԱՊՊԱ պայմանագրի հայտի պահպանում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult SaveVehicleInsuranceOrder(VehicleInsuranceOrder order, string userName)
+        {
+            order.CustomerNumber = CustomerNumber;
+            if (order.OrderNumber == "" || order.OrderNumber == null)
+                order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+
+            ActionResult result = order.Save(userName, Source, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// ԱՊՊԱ պայմանագրի հայտի թարմացում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public ActionResult UpdateVehicleInsuranceOrder(VehicleInsuranceOrder order, short schemaType, string userName)
+        {
+            order.CustomerNumber = CustomerNumber;
+
+            ActionResult result = order.Update(Source, User, schemaType, userName);
+
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Ստուգում է «Քարտի հեռացում» հայտի համար անհրաժեշտ որոշ տվյալներ
+        /// </summary>
+        public List<string> CheckPlasticCardRemovalOrder(PlasticCardRemovalOrder order, User user)
+        {
+            bool fromCardDepartment;
+            user.AdvancedOptions.TryGetValue("isCardDepartment", out string isCardDepartment);
+            fromCardDepartment = isCardDepartment == "1";
+            return PlasticCardRemovalOrder.CheckPlasticCardRemovalOrder(order, fromCardDepartment);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public VehicleInsuranceOrder GetVehicleInsuranceOrder(long ID)
+        {
+            VehicleInsuranceOrder order = new VehicleInsuranceOrder();
+            order.Id = ID;
+            order.CustomerNumber = this.CustomerNumber;
+            order.GetVehicleInsuranceOrder();
+            Localization.SetCulture(order, Culture);
+            return order;
+        }
+
+        public ActionResult ApproveVehicleInsuranceOrder(VehicleInsuranceOrder Order, short schemaType, string userName)
+        {
+            ActionResult result = Order.Approve(User, schemaType, userName);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public ActionResult ValidateVehicleInusuranceOrderForSending(VehicleInsuranceOrder VehicleInsuranceOrder)
+        {
+            ActionResult result = VehicleInsuranceOrder.ValidateForSend();
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Արժեթղթերի առուվաճառքի հայտի պահպանում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult SaveSecuritiesTradingOrder(SecuritiesTradingOrder order, string userName)
+        {
+            order.CustomerNumber = CustomerNumber;
+            if (order.OrderNumber == "" || order.OrderNumber == null)
+                order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+
+            ActionResult result = order.Save(userName, Source, User);
+
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Արժեթղթերի առուվաճառքի հայտի ստացում
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public SecuritiesTradingOrder GetSecuritiesTradingOrder(long ID, Languages Language)
+        {
+            SecuritiesTradingOrder order = new SecuritiesTradingOrder();
+            order.Id = ID;
+            order.CustomerNumber = this.CustomerNumber;
+            order.GetSecuritiesTradingOrder(Language);
+            Localization.SetCulture(order, Culture);
+            return order;
+        }
+
+        /// <summary>
+        /// Արժեթղթերի առուվաճառքի հայտի հաստատում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="schemaType"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult ApproveSecuritiesTradingOrder(SecuritiesTradingOrder order, short schemaType, string userName)
+        {
+            ActionResult result = order.Approve(userName, schemaType, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public ActionResult InsertASWAContractResponseDetails(long DocId, bool IsCompleted, short TypeOfFunction, string Description)
+        {
+            ActionResult result = VehicleInsuranceOrder.InsertASWAContractResponseDetails(DocId, IsCompleted, TypeOfFunction, Description);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public ActionResult SaveAswaSearchResponseDetails(VehicleInsuranceOrder Order)
+        {
+            ActionResult result = Order.SaveAswaSearchResponseDetails();
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public VehicleInsuranceOrder GetAswaSearchResponseDetails(long Id)
+        {
+            VehicleInsuranceOrder order = new VehicleInsuranceOrder();
+            order.CustomerNumber = this.CustomerNumber;
+            order.GetAswaSearchResponseDetails(Id);
+            Localization.SetCulture(order, Culture);
+            return order;
+        }
+
+        public ActionResult SaveBrokerContractOrder(BrokerContractOrder order, string userName)
+        {
+            ActionResult result = order.Save(User, userName);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public ActionResult SaveAndApproveBrokerContractOrder(BrokerContractOrder order, short schemaType)
+        {
+            ActionResult result = order.SaveAndApprove(schemaType, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public BrokerContractOrder GetBrokerContractOrder(long id)
+        {
+            BrokerContractOrder order = new BrokerContractOrder
+            {
+                Id = id,
+                CustomerNumber = CustomerNumber
+            };
+            order.GetBrokerContractOrder();
+            Localization.SetCulture(order, Culture);
+
+            return order;
+        }
+
+        public ActionResult ApproveBrokerContractOrder(BrokerContractOrder order, string userName, short schemaType)
+        {
+            ActionResult result = order.Approve(userName, User, schemaType);
+            if (result.ResultCode == ResultCode.ValidationError || result.ResultCode == ResultCode.Failed)
+            {
+                Localization.SetCulture(result, Culture);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Անքարտ կանխիկացման հայտի ուղարկում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="schemaType"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult ApproveCardLessCashOutOrderForApproveOrdes(CardlessCashoutOrder order, short schemaType, string userName)
+        {
+            ActionResult result = order.ApproveForApproves(schemaType, userName, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+
+        /// <summary>
+        /// Բորսայում կատարված գործարքին համապատասխան հայտի հաստատում և կատարում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="schemaType"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public ActionResult SaveAndApproveSecuritiesMarketTradingOrder(SecuritiesMarketTradingOrder order)
+        {
+            ActionResult result = order.SaveAndApprove();
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+
+        public ActionResult SaveAndApproveSecuritiesTradingOrderCancellationOrder(SecuritiesTradingOrderCancellationOrder order)
+        {
+            ActionResult result = order.SaveAndApprove();
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        /// <summary>
+        /// Արժեթղթերի առուվաճառքի հայտերի ստացում
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public List<SecuritiesTradingOrder> GetSecuritiesTradingOrders(short QualityType, DateTime StartDate, DateTime EndDate, Languages Language)
+        {
+            List<SecuritiesTradingOrder> orders = SecuritiesTradingOrder.GetSecuritiesTradingOrders(this.CustomerNumber, QualityType, StartDate, EndDate, Language);
+            Localization.SetCulture(orders, Culture);
+            return orders;
+        }
+
+        public List<Bond> GetGovernmentBonds(ulong CustomerNumber)
+        {
+            Bond bond = new Bond();
+            return bond.GetGovernmentBonds(CustomerNumber);
+        }
+
+        //Davit Pos
+        public ActionResult SaveAndApproveNewPosLocationOrder(NewPosLocationOrder order, string userName, short schemaType)
+        {
+            ActionResult result = new ActionResult();
+            order.CustomerNumber = this.CustomerNumber;
+
+            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
+            if (result.Errors.Count > 0)
+            {
+                Localization.SetCulture(result, Culture);
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+            order.user = User;
+            result = order.SaveAndApprove(userName, Source, User, schemaType);
+
+            Localization.SetCulture(result, Culture);
+
+            return result;
+        }
+        //Davit Pos
+        public NewPosLocationOrder NewPosApplicationOrderDetails(long orderId)
+        {
+            NewPosLocationOrder OrderDetail = new NewPosLocationOrder();
+
+            OrderDetail = OrderDetail.NewPosApplicationOrderDetails(orderId);
+
+            return OrderDetail;
+        }
+
     }
 }

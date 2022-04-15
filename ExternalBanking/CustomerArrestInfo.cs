@@ -1,9 +1,4 @@
 ﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -33,13 +28,13 @@ namespace ExternalBanking
 
         public static string PostNewAddedCustomerArrestInfo(CustomerArrestInfo obj)
         {
-            return CustomerArrestsInfoDB.PostNewAddedCustomerArrestInfo(obj);           
+            return CustomerArrestsInfoDB.PostNewAddedCustomerArrestInfo(obj);
 
         }
 
         public static string RemoveCustomerArrestInfo(CustomerArrestInfo obj)
         {
-           return CustomerArrestsInfoDB.RemoveCustomerArrestInfo(obj);
+            return CustomerArrestsInfoDB.RemoveCustomerArrestInfo(obj);
         }
 
         public static string GetCustomerArrestsInfo(ulong customerNumber)

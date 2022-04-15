@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using ExternalBanking.ACBAServiceReference;
+using System.Data.SqlClient;
 
 
 namespace ExternalBanking.DBManager
@@ -108,7 +105,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.TransferCallContractDetails.Account.AccountNumber;
 
-               using SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -232,13 +229,13 @@ namespace ExternalBanking.DBManager
         {
 
             bool check = false;
-            using(SqlConnection conn=new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT account_number FROM Tbl_contracts_for_transfers_by_call WHERE account_number =@accountNumber and quality = 0 and deleted = 0 and isnull(card_number, '') = ''", conn);
+                using SqlCommand cmd = new SqlCommand(@"SELECT account_number FROM Tbl_contracts_for_transfers_by_call WHERE account_number =@accountNumber and quality = 0 and deleted = 0 and isnull(card_number, '') = ''", conn);
                 cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = order.TransferCallContractDetails.Account.AccountNumber;
 
-              using SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {

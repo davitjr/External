@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Քարտի կարգավիճակի փոփոխման հայտ
     /// </summary>
-    public class CardStatusChangeOrder:Order
+    public class CardStatusChangeOrder : Order
     {
         /// <summary>
         /// Պրոդուկտի ունիկալ համար
@@ -52,7 +48,6 @@ namespace ExternalBanking
 
             this.Complete();
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -66,7 +61,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = CardStatusChangeOrderDB.SaveCardStatusChangeOrder(this, userName);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

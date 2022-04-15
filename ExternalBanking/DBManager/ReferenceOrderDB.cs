@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 
 namespace ExternalBanking.DBManager
@@ -86,8 +86,8 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (int)source;
                     if (order.Source != SourceType.Bank)
                         cmd.Parameters.Add("@Reference_type", SqlDbType.TinyInt).Value = order.ReferenceType;
-                    else 
-                    { 
+                    else
+                    {
                         cmd.Parameters.Add("@type_of_reference_receipt", SqlDbType.TinyInt).Value = order.ReferenceReceiptType;
                         cmd.Parameters.Add("@passport", SqlDbType.NVarChar, 50).Value = order.PassportDetails;
                         cmd.Parameters.Add("@phone_number", SqlDbType.NVarChar, 50).Value = order.PhoneNumber;
@@ -315,8 +315,8 @@ namespace ExternalBanking.DBManager
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                     order.GroupId = dt.Rows[0]["order_group_id"] != DBNull.Value ? Convert.ToInt32(dt.Rows[0]["order_group_id"]) : 0;
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
-                   
-                    
+
+
                     order.ReferenceReceiptType = dt.Rows[0]["type_of_reference_receipt"] != DBNull.Value ? (ReferenceReceiptTypes)Convert.ToInt32(dt.Rows[0]["type_of_reference_receipt"]) : ReferenceReceiptTypes.None;
 
                     if (order.ReferenceReceiptType == ReferenceReceiptTypes.DeliveryService)

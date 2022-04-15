@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using ExternalBanking.DBManager;
 using System.Data;
 using System.Linq;
 
@@ -89,7 +89,10 @@ namespace ExternalBanking
         /// </summary>
         public bool Is_24_7 { get; set; }
 
-      
+        /// <summary>
+        /// Վարկի տեսակը որ միջավայրից է մուտքագրված
+        /// </summary>
+        public SourceType Source { get; set; }
 
         public Loan()
         {
@@ -500,7 +503,11 @@ namespace ExternalBanking
             return LoanDB.GetLoanAccountNumber(productId, customerNumber);
         }
 
-        public static double GetLoanOrderAcknowledgement(long docId) => LoanDB.GetLoanOrderAcknowledgement(docId);
+        public static double GetLoanOrderAcknowledgement(long docId)
+        {
+            OrderType orderType = Utility.GetDocumentType((int)docId);
+            return LoanDB.GetLoanOrderAcknowledgement(docId, orderType);
+        }
 
         public static LoanRepaymentFromCardDataChange GetLoanRepaymentFromCardDataChangeHistory(ulong appId)
         {
@@ -512,6 +519,13 @@ namespace ExternalBanking
             return LoanDB.SaveLoanRepaymentFromCardDataChange(loanRepaymentFromCardDataChange);
         }
 
+        public static List<KeyValuePair<string, string>> GetLoanGrafikChangeDates(ulong productId) => LoanDB.GetLoanGrafikChangeDates(productId);
+
+        public static List<LoanRepaymentGrafik> GetLoanGrafikBeforeChange(ulong productId, DateTime changeDate) => LoanDB.GetLoanGrafikBeforeChange(productId, changeDate);
+        public static float GetInterestRateEffective(double startCapital, string currency, DateTime dateOfBeginning, DateTime dateOfNormalEnd, DateTime firstRepaymentDate, float interestRate)
+        {
+            return LoanDB.GetInterestRateEffective(startCapital, currency, dateOfBeginning, dateOfNormalEnd, firstRepaymentDate, interestRate);
+        }
 
     }
 }

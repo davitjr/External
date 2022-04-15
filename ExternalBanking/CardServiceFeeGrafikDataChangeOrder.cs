@@ -1,20 +1,14 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Քարտի սպասարկման վարձի գրաֆիկի տվյալների փոփոխման հայտ
     /// </summary>
-    public class CardServiceFeeGrafikDataChangeOrder:Order
+    public class CardServiceFeeGrafikDataChangeOrder : Order
     {
         /// <summary>
         /// քարտի սպասարկման վարձի գրաֆիկ
@@ -61,7 +55,6 @@ namespace ExternalBanking
             this.Complete();
 
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -72,22 +69,22 @@ namespace ExternalBanking.DBManager
 
         public static void SaveCashierCashLimits(CashierCashLimit listLimit)
         {
-                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
                 {
-                    using (SqlCommand cmd = new SqlCommand())
-                    {
-                        conn.Open();
-                        cmd.Connection = conn;
-                        cmd.CommandText = @"INSERT INTO Tbl_cashiers_cash_limits(set_number,currency,amount,date_of_beginning,set_by) 
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = @"INSERT INTO Tbl_cashiers_cash_limits(set_number,currency,amount,date_of_beginning,set_by) 
                                                 VALUES(@setNumber,@currency,@amount,getdate(),@changeSetNumber)";
 
-                        cmd.Parameters.Add("@setNumber", SqlDbType.Int).Value = listLimit.SetNumber;
-                        cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = listLimit.Currency;
-                        cmd.Parameters.Add("@amount", SqlDbType.Money).Value = listLimit.Amount;
-                        cmd.Parameters.Add("@changeSetNumber", SqlDbType.Int).Value = listLimit.ChangeBySetNumber;
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.Add("@setNumber", SqlDbType.Int).Value = listLimit.SetNumber;
+                    cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = listLimit.Currency;
+                    cmd.Parameters.Add("@amount", SqlDbType.Money).Value = listLimit.Amount;
+                    cmd.Parameters.Add("@changeSetNumber", SqlDbType.Int).Value = listLimit.ChangeBySetNumber;
+                    cmd.ExecuteNonQuery();
                 }
+            }
         }
 
         public static ActionResult GenerateCashierCashDefaultLimits(int setNumber, int changeSetNumber)
@@ -139,11 +136,11 @@ namespace ExternalBanking.DBManager
 
                         }
                     }
-                        
+
 
                     return filial_code;
                 }
-                    
+
             }
 
 

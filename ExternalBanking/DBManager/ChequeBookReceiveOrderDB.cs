@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -30,17 +26,17 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     cmd.CommandText = "pr_Cheque_Book_Receive_Order";
                     cmd.CommandType = CommandType.StoredProcedure;
-          
+
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                     cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
                     cmd.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = order.RegistrationDate.Date;
-                    cmd.Parameters.Add("@debet_account", SqlDbType.Float).Value =Convert.ToDouble (order.ChequeBookAccount.AccountNumber);
+                    cmd.Parameters.Add("@debet_account", SqlDbType.Float).Value = Convert.ToDouble(order.ChequeBookAccount.AccountNumber);
                     //cmd.Parameters.Add("@deb_for_transfer_payment", SqlDbType.Float).Value =order.FeeAccount.AccountNumber;
                     //cmd.Parameters.Add("@service_fee", SqlDbType.Float).Value = order.FeeAmount;
                     cmd.Parameters.Add("@cost_price", SqlDbType.Float).Value = order.CostPrice;
                     cmd.Parameters.Add("@username", SqlDbType.NChar, 20).Value = userName;
-                    cmd.Parameters.Add("@page_number_start", SqlDbType.NVarChar,50).Value = order.PageNumberStart;
-                    cmd.Parameters.Add("@page_number_end", SqlDbType.NVarChar,50).Value = order.PageNumberEnd;
+                    cmd.Parameters.Add("@page_number_start", SqlDbType.NVarChar, 50).Value = order.PageNumberStart;
+                    cmd.Parameters.Add("@page_number_end", SqlDbType.NVarChar, 50).Value = order.PageNumberEnd;
                     cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (byte)source;
                     cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = (Int16)order.Type;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
@@ -60,7 +56,7 @@ namespace ExternalBanking.DBManager
                 return result;
             }
         }
-      
+
 
         /// <summary>
         /// Վերադարձնում է չեկային գրքույքի ստացման հայտի տվյալները
@@ -74,7 +70,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT registration_date,
+                using SqlCommand cmd = new SqlCommand(@"SELECT registration_date,
                                                          doc.document_number,
                                                          doc.document_type,
                                                          doc.debet_account,
@@ -90,19 +86,19 @@ namespace ExternalBanking.DBManager
                                                          FROM Tbl_HB_documents as doc
                                                          INNER JOIN Tbl_Cheque_Book_Receive_Order_Details as det
                                                          on doc.doc_ID=det.doc_ID
-                                                         WHERE doc.customer_number=case when @customer_number = 0 then doc.customer_number else @customer_number end AND doc.doc_ID=@DocID", conn);              
+                                                         WHERE doc.customer_number=case when @customer_number = 0 then doc.customer_number else @customer_number end AND doc.doc_ID=@DocID", conn);
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 order.FeeAccount = new Account();
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)
                 {
-                    order.PageNumberStart =dt.Rows[0]["page_number_start"].ToString();
+                    order.PageNumberStart = dt.Rows[0]["page_number_start"].ToString();
                     order.PageNumberEnd = dt.Rows[0]["page_number_end"].ToString();
                     order.ChequeBookAccount = Account.GetAccount(dt.Rows[0]["debet_account"].ToString());
                     order.FeeAccount.AccountNumber = dt.Rows[0]["deb_for_transfer_payment"].ToString();
                     order.ChequeBookAccount.AccountTypeDescription = Utility.ConvertAnsiToUnicode(order.ChequeBookAccount.AccountTypeDescription);
-                   
+
                     order.OrderNumber = dt.Rows[0]["document_number"].ToString();
                     order.Type = (OrderType)dt.Rows[0]["document_type"];
                     order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
@@ -124,9 +120,8 @@ namespace ExternalBanking.DBManager
         /// </summary>
         /// <param name="customerNumber"></param>
         /// <returns></returns>
-        internal static bool HasChequeBookOrder(ulong customerNumber,string accountNumber)
+        internal static bool HasChequeBookOrder(ulong customerNumber, string accountNumber)
         {
-            DataTable dt = new DataTable();
             string result = "";
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -137,7 +132,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = @"if ( select COUNT(customer_number) from [Tbl_HB_documents]  where customer_number=@customer_number and debet_account=@accountNumber and document_type=22 and quality=30)!=0
                                         select 1;
                                         else
-                                        select 0";                                          
+                                        select 0";
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                     cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
                     result = cmd.ExecuteScalar().ToString();
@@ -151,8 +146,6 @@ namespace ExternalBanking.DBManager
 
         internal static double GetOrderServiceFee(ulong customerNumber)
         {
-
-            DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())

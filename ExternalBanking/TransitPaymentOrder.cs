@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
@@ -286,6 +285,15 @@ namespace ExternalBanking
                 if (this.TransitAccountType == TransitAccountTypes.ForLeasingLoans && this.AdditionalParametrs != null)
                 {
                     LeasingDB.SaveLeasingPaymentDetails(this);
+                }
+
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
                 }
 
                 if (result.ResultCode != ResultCode.Normal)

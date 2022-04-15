@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -94,7 +91,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public static List<SMSMessage> GetSMSMessagesByType(ulong customerNumber, DateTime dateFrom, DateTime dateTo, int messageType)
         {
-            List<SMSMessage> smsMessages = SMSMessageDB.GetSentSMSMessagesByType(customerNumber, dateFrom, dateTo,messageType);
+            List<SMSMessage> smsMessages = SMSMessageDB.GetSentSMSMessagesByType(customerNumber, dateFrom, dateTo, messageType);
             return smsMessages;
         }
 
@@ -104,7 +101,7 @@ namespace ExternalBanking
         /// <param name="customerNumber">հաճախորդի համար</param>
         /// <param name="smsText">ուղարկվող տեքստ</param>
         public static ActionResult SendPhoneBankingAuthorizationSMSMessage(ulong customerNumber, string smsText, ACBAServiceReference.User user)
-        {            
+        {
             int userID = user.userID;
             ActionResult result = SMSMessageDB.SendPhoneBankingAuthorizationSMSMessage(customerNumber, smsText, userID);
             return result;

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -49,24 +44,24 @@ namespace ExternalBanking.DBManager
 											   L.Is_Ok,
 											   L.operation_Date,
 											   L.rejection_msg_arm,
-											   L.rejection_msg_eng
+											   L.rejection_msg_eng,
+                                               D.customer_number
                                       FROM   tbl_hb_documents D 
                                                INNER JOIN tbl_cardless_cashout_order_details C 
                                                ON D.doc_id = C.doc_id 
 											   LEFT JOIN tbl_cardless_cashout_operations_log L
 											   ON D.Doc_id = L.Doc_id
-                                        WHERE  D.doc_id = @id 
-                                               AND customer_number = CASE 
-                                                                       WHEN @customerNumber = 0 THEN D.customer_number 
-                                                                       ELSE @customerNumber 
-                                                                     END ";
+                                        WHERE  D.doc_id = @id
+                                        ORDER BY L.operation_date DESC";
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
+
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.Read())
                         {
                             order.Id = long.Parse(dr["doc_id"].ToString());
+
+                            order.CustomerNumber = Convert.ToUInt64(dr["customer_number"].ToString());
 
                             order.Quality = (OrderQuality)Convert.ToInt16(dr["quality"]);
 
@@ -97,6 +92,10 @@ namespace ExternalBanking.DBManager
 
                             if (dr["amount"] != DBNull.Value)
                                 order.Amount = Convert.ToDouble(dr["amount"]);
+
+                            if (dr["amount_for_payment"] != DBNull.Value)
+                                order.TransferFee = Convert.ToDouble(dr["amount_for_payment"]);
+
                             if (dr["currency"] != DBNull.Value)
                                 order.Currency = dr["currency"].ToString();
 
@@ -158,9 +157,7 @@ namespace ExternalBanking.DBManager
 
                         }
                         else
-                        {
                             order = null;
-                        }
                     }
                 }
             }
@@ -174,7 +171,6 @@ namespace ExternalBanking.DBManager
         internal static ActionResult Save(CardlessCashoutOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            Account account = new Account();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -193,7 +189,7 @@ namespace ExternalBanking.DBManager
                     }
                     cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
-                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.Currency;
+                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = order.DebitAccount.Currency;
                     cmd.Parameters.Add("@debit_acc", SqlDbType.VarChar, 50).Value = order.DebitAccount.AccountNumber;
                     cmd.Parameters.Add("@service_fee_account", SqlDbType.VarChar, 50).Value = order.FeeAccount.AccountNumber;
                     cmd.Parameters.Add("@amount_for_payment", SqlDbType.Float).Value = order.TransferFee;
@@ -284,7 +280,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT  hb.customer_number ,cod.mobile_phone_number,cod.amount_amd FROM tbL_hb_documents HB 
+                    cmd.CommandText = @"SELECT hb.doc_id, hb.customer_number ,cod.mobile_phone_number,cod.amount_amd, cod.amount_amd_not_converted FROM tbL_hb_documents HB 
 										                                    INNER JOIN 
 										                                    TBl_cardless_cashout_order_details COD 
 										                                    ON hb.doc_id = cod.doc_id
@@ -294,15 +290,17 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.Read())
                         {
-                            order.CustomerNumber =ulong.Parse( dr["customer_number"].ToString());
+                            order.Id = long.Parse(dr["doc_id"].ToString());
+                            order.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
                             order.MobilePhoneNumber = (dr["mobile_phone_number"].ToString());
-                            order.AmountInAmd = double.Parse(dr["amount_amd"].ToString());
+                            order.AmountInAmd = double.Parse(dr["amount_amd_not_converted"].ToString());
                         }
                     }
                 }
             }
             return order;
         }
+
         public static bool IsCardlessCashCodeCorrect(string cardlessCashOutCode)
         {
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -337,6 +335,7 @@ namespace ExternalBanking.DBManager
             }
         }
 
+
         public static void UpdateTransactionDetails(string atmid, string transactionid, string otp)
         {
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
@@ -368,7 +367,6 @@ namespace ExternalBanking.DBManager
 
         public static ActionResult Confirm(ulong docID, string TransactionId, string AtmId, SourceType source = SourceType.AcbaOnline)
         {
-            int itemNumber = 0;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -381,21 +379,13 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = docID;
                     cmd.Parameters.Add("@bankingSource", SqlDbType.SmallInt).Value = source;
-                    cmd.Parameters.Add("@operDay", SqlDbType.SmallDateTime).Value = Utility.GetNextOperDay();
+                    cmd.Parameters.Add("@operDay", SqlDbType.SmallDateTime).Value = Utility.GetCurrentOperDay();
                     cmd.Parameters.Add("@setNumber", SqlDbType.Int).Value = 88;
-                    //cmd.Parameters.Add("@TransactionId", SqlDbType.NVarChar).Value = TransactionId;
                     cmd.Parameters.Add("@Atm_Id", SqlDbType.NVarChar).Value = AtmId;
                     cmd.Parameters.Add(new SqlParameter("@itemNumber", SqlDbType.Int) { Direction = ParameterDirection.Output });
-                    //try
-                    //{
-                        cmd.ExecuteNonQuery();
-                        return new ActionResult { ResultCode = ResultCode.Normal };
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    return new ActionResult { ResultCode = ResultCode.Failed }; 
-                    //}
-                    
+                    cmd.ExecuteNonQuery();
+                    return new ActionResult { ResultCode = ResultCode.Normal };
+
                 }
             }
         }
@@ -409,7 +399,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = @"SELECT   HB.customer_number, COD.mobile_phone_number, COD.amount_amd, HB.doc_id, HB.quality, order_OTP_generation_date
+                    cmd.CommandText = @"SELECT   HB.customer_number, COD.mobile_phone_number, COD.amount_amd, HB.doc_id, HB.quality, order_OTP_generation_date, COD.amount_amd_not_converted
                                                                             FROM tbL_hb_documents HB
 										                                    INNER JOIN
 										                                    TBl_cardless_cashout_order_details COD
@@ -426,7 +416,7 @@ namespace ExternalBanking.DBManager
                             order.Quality = (OrderQuality)Convert.ToInt16(dr["quality"]);
                             order.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
                             order.MobilePhoneNumber = dr["mobile_phone_number"].ToString();
-                            order.AmountInAmd = double.Parse(dr["amount_amd"].ToString());
+                            order.AmountInAmd = double.Parse(dr["amount_amd_not_converted"].ToString());
                         }
                     }
                 }
@@ -459,7 +449,7 @@ namespace ExternalBanking.DBManager
                     {
                         cmd.ExecuteNonQuery();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         //return new ActionResult { ResultCode = ResultCode.Failed }; քոմենթ քանի դեռ կատարման կտորը վերջնական պատրաստ չէ
                     }
@@ -485,5 +475,42 @@ namespace ExternalBanking.DBManager
                 }
             }
         }
+
+        internal static void SaveInProcess(long id, string atmId, string transactionId)
+        {
+            string query = @"INSERT INTO Tbl_cardless_cashout_order_in_process(doc_id, registration_date, atm_id, transaction_id)
+                            VALUES (@doc_id, @registration_date, @atm_id, @transaction_id)";
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    conn.Open();
+                    cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = id;
+                    cmd.Parameters.Add("@registration_date", SqlDbType.DateTime).Value = DateTime.Now;
+                    cmd.Parameters.Add("@atm_id", SqlDbType.NVarChar, 10).Value = atmId;
+                    cmd.Parameters.Add("@transaction_id", SqlDbType.NVarChar, 20).Value = transactionId;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        internal static bool CheckOrderProcess(long id)
+        {
+            string query = @"SELECT 1 FROM Tbl_cardless_cashout_order_in_process
+                                            WHERE doc_id = @doc_id";
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    conn.Open();
+                    cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = id;
+                    return cmd.ExecuteReader().Read();
+                }
+            }
+        }
+
+
     }
 }

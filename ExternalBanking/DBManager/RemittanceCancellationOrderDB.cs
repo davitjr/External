@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -26,7 +22,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = OrderType.RemittanceCancellationOrder;
                     cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
-                    cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;                   
+                    cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
                     cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
 
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = Convert.ToInt32(order.Source);
@@ -244,7 +240,7 @@ namespace ExternalBanking.DBManager
 
                     if (dt.Rows[0]["NAT_beneficiary_middle_name"] != DBNull.Value)
                         order.NATBeneficiaryMiddleName = dt.Rows[0]["NAT_beneficiary_middle_name"].ToString();
-                    
+
                     if (dt.Rows[0]["NAT_sender_last_name"] != DBNull.Value)
                         order.NATSenderLastName = dt.Rows[0]["NAT_sender_last_name"].ToString();
 

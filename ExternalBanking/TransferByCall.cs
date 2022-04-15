@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System;
 
 namespace ExternalBanking
 {
-    public  class TransferByCall
+    public class TransferByCall
     {
         /// <summary>
         /// Կատարված զանգի ունիկալ համար
@@ -62,10 +57,10 @@ namespace ExternalBanking
         /// Գրանցման ամսաթիվ
         /// </summary>
         public DateTime RegistrationDate { get; set; }
-         /// <summary>
+        /// <summary>
         /// Գրանցողի ՊԿ
         /// </summary>
-        public long RegistrationSetNumber { get; set; }        
+        public long RegistrationSetNumber { get; set; }
         /// <summary>
         /// Հաճախորդի հեռախոսահամար
         /// </summary>
@@ -85,7 +80,7 @@ namespace ExternalBanking
         /// <summary>
         /// Հաստատման-մերժման ՊԿ
         /// </summary>
-        public long ConfirmationSetNumber { get; set; }  
+        public long ConfirmationSetNumber { get; set; }
         /// </summary>
         /// Երկորդ Հաստատման-մերժման ամսաթիվ  
         /// </summary>
@@ -106,16 +101,16 @@ namespace ExternalBanking
         /// Մերժման պատճառ
         /// </summary>
         public string RegectDescription { get; set; }
-         /// <summary>
+        /// <summary>
         /// Զանգի կարգավիճակի նկարագրություն
         /// </summary>
         public string TransferQualityDescription { get; set; }
-           /// <summary>
+        /// <summary>
         /// Հաշվի արժույթ
         /// </summary>
         public string AccountCurrency { get; set; }
 
-         /// Հաշվի նկարագրություն
+        /// Հաշվի նկարագրություն
         /// </summary>
         public string AccountDescription { get; set; }
 
@@ -156,10 +151,10 @@ namespace ExternalBanking
             {
                 result.ResultCode = ResultCode.ValidationError;
                 Culture culture = new Culture(Languages.hy);
-                Localization.SetCulture(result,culture);
+                Localization.SetCulture(result, culture);
                 return result;
             }
-            return TransferByCallDB.Save(this,user);
+            return TransferByCallDB.Save(this, user);
         }
 
         /// <summary>           
@@ -184,12 +179,12 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            if (this.Quality!=0 || this.RegisteredBy==1)
+            if (this.Quality != 0 || this.RegisteredBy == 1)
             {
                 //Հաճախորդը գտնված չէ:
                 result.Errors.Add(new ActionError(813));
             }
-      
+
             return result;
         }
         /// <summary>
@@ -239,7 +234,7 @@ namespace ExternalBanking
         {
             return TransferByCallDB.Get(Id);
         }
-     
+
         /// <summary>
         /// Ստուգում է գոյություն ունի նշված տեսակի ակտիվ փոխանցում
         /// </summary>
@@ -249,8 +244,8 @@ namespace ExternalBanking
 
             return TransferByCallDB.CheckActiveTransferSystem(this.TransferSystem);
 
-        }  
-         /// <summary>
+        }
+        /// <summary>
         /// Նույն տվյալներով փոխանցման առկայության ստուգում
         /// </summary>
         /// <returns></returns>

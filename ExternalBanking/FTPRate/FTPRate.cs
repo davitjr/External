@@ -1,9 +1,5 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -14,7 +10,7 @@ namespace ExternalBanking
         /// FTP տոկոսադրույքի տեսակ
         /// </summary>
         public FTPRateType rateType { get; set; }
-       
+
         /// <summary>
         /// Միջոցների տրամադրման պայմաններ
         /// </summary>
@@ -29,7 +25,7 @@ namespace ExternalBanking
 
     }
 
-   
+
 
     public class FTPRateDetail
     {
@@ -48,6 +44,6 @@ namespace ExternalBanking
         /// Վերադարձնում է սեփական միջոցների տեղաբաշխման տվյալները
         /// </summary>
         /// <returns></returns>
-       
+
     }
 }

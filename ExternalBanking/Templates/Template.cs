@@ -1,11 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -179,11 +177,11 @@ namespace ExternalBanking
                 if (template.TemplateDocumentType == OrderType.CommunalPayment)
                 {
                     template.GroupTemplateShrotInfo = GetCommunalTemplateDetails(template.GroupTemplateShrotInfo, template.ID,
-                        template.TemplateCustomerNumber, template.TemplateSourceType);
+                        template.TemplateCustomerNumber, template.TemplateSourceType, groupId);
 
                     Dictionary<string, string> types = new Dictionary<string, string>();
 
-                    
+
 
                     //Ծառայության մանրամասն ստացում
                     UtilityPaymentOrderTemplate detailedTemplate = UtilityPaymentOrderTemplate.Get(template.ID,
@@ -308,18 +306,19 @@ namespace ExternalBanking
             return TemplateDB.GetCustomerTemplatesCounts(customerNumber);
         }
 
-        private static GroupTemplateShrotInfo GetCommunalTemplateDetails(GroupTemplateShrotInfo template, int templateId, ulong templateCustomerNumber, SourceType source)
+        private static GroupTemplateShrotInfo GetCommunalTemplateDetails(GroupTemplateShrotInfo template, int templateId, ulong templateCustomerNumber, SourceType source, int groupId)
         {
             UtilityPaymentOrderTemplate utility = UtilityPaymentOrderTemplate.Get(templateId, templateCustomerNumber);
             SearchCommunal searchCommunal = new SearchCommunal
             {
                 CommunalType = utility.UtilityPaymentOrder.CommunalType,
                 AbonentNumber = utility.UtilityPaymentOrder.Code,
+                Branch = utility.UtilityPaymentOrder.Branch,
                 AbonentType = (short)utility.UtilityPaymentOrder.AbonentType
             };
 
 
-            var search = searchCommunal.SearchCommunalByType(source);
+            var search = searchCommunal.SearchCommunalByType(source, true, groupId);
 
             template.Debt = search[0].Debt.Value;
             template.Amount = 0; //գերավճարի դեպքում պետք է 0 ցուցադրվի 
@@ -328,7 +327,6 @@ namespace ExternalBanking
                 case CommunalTypes.None:
                     break;
                 case CommunalTypes.ENA:
-                case CommunalTypes.Gas:
                 case CommunalTypes.YerWater:
                 case CommunalTypes.BeelineInternet:
                 case CommunalTypes.ArmenTel:
@@ -336,8 +334,27 @@ namespace ExternalBanking
                     if (template.Debt < 0) template.Amount = Math.Abs(template.Debt); //պարտքը ստանում ենք բացասական թվով
                     break;
                 case CommunalTypes.UCom:
+                    if (template.Debt < 0) template.Amount = Math.Abs(template.Debt);
+                    template.ReceiverName = search[0].Description;
+                    break;
                 case CommunalTypes.Orange:
-                    if (template.Debt < 0) template.Amount = template.Debt; //պարտքը ստանում ենք դրական թվով
+                    template.Amount = template.Debt; //պարտքը ստանում ենք դրական թվով
+                    break;
+                case CommunalTypes.Gas:
+                    //if (utility.UtilityPaymentOrder.AbonentType == 1)
+                    //{
+                    //if (template.Debt > 0)
+                    //    template.Amount = Math.Abs(template.Debt);
+                    //else
+                    //    template.Amount = 0;
+                    //template.Debt *= -1;
+                    if (utility.UtilityPaymentOrder.AbonentType == 1)
+                        template.FeeDebt = search[0].FeeDebt.Value;
+                    if (template.Debt < 0) template.Amount = Math.Abs(template.Debt);
+                    //template.FeeDebt *= -1;
+                    //if (template.FeeDebt > 0) template.FeeDebt *= -1; //սպասարկման պարտքը ստանում ենք բացասական թվով
+                    //}
+                    //if (template.Debt < 0) template.Amount = Math.Abs(template.Debt); //պարտքը ստանում ենք բացասական թվով
                     break;
                 default:
                     break;

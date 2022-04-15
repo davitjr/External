@@ -2,7 +2,7 @@
 
 namespace ExternalBankingRESTService
 {
-	public class PeriodicTransferRequestResponse
+    public class PeriodicTransferRequestResponse
     {
         public PeriodicTransfer PeriodicTransfer { get; set; }
         public Result Result { get; set; }

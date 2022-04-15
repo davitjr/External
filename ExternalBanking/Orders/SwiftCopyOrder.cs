@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,7 +8,7 @@ namespace ExternalBanking
     /// <summary>
     /// Swift հաղորդագրության պատճենի ստացման հայտ
     /// </summary>
-    public class SwiftCopyOrder:Order
+    public class SwiftCopyOrder : Order
     {
         /// <summary>
         /// Գործարքի համար
@@ -62,7 +59,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             result.Errors.AddRange(Validation.ValidateSwiftCopyOrder(this));
-            
+
             return result;
         }
         /// <summary>
@@ -71,9 +68,9 @@ namespace ExternalBanking
         /// <param name="Id"></param>
         /// <param name="CustomerNumber"></param>
         /// <returns></returns>
-        public bool CheckForSwiftCopy(long Id,ulong CustomerNumber)
+        public bool CheckForSwiftCopy(long Id, ulong CustomerNumber)
         {
-            return SwiftCopyOrderDB.CheckForSwiftCopy(Id,CustomerNumber);
+            return SwiftCopyOrderDB.CheckForSwiftCopy(Id, CustomerNumber);
         }
         /// <summary>
         /// Swift հաղորդագրության պատճենի ստացման հայտի հաստատում
@@ -164,8 +161,8 @@ namespace ExternalBanking
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.SubType = 1;
 
-            if(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
-            {                
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
+            {
                 double swiftCopyOrderFee = ChequeBookOrder.GetOrderServiceFee(this.CustomerNumber, OrderType.SwiftCopyOrder, 0);
                 this.Fees = new List<OrderFee>();
                 OrderFee orderFee = new OrderFee();
@@ -183,7 +180,7 @@ namespace ExternalBanking
                 if (m.Type == 18)
                 {
                     m.Account = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.FeeAccount), "AMD", this.FilialCode);
-                    m.OrderNumber = this.OrderNumber;                    
+                    m.OrderNumber = this.OrderNumber;
                 }
 
             });
@@ -261,7 +258,7 @@ namespace ExternalBanking
                 }
             }
 
-            if(Source != SourceType.AcbaOnline || source != SourceType.MobileBanking)
+            if (Source != SourceType.AcbaOnline || source != SourceType.MobileBanking)
             {
                 result = base.Confirm(user);
 
@@ -284,7 +281,7 @@ namespace ExternalBanking
                 result.Errors = warnings;
             }
 
-            
+
             return result;
         }
 

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -14,7 +12,7 @@ namespace ExternalBanking.DBManager
         internal static PaymentStatus GetPaymentStatus(long paymentID)
         {
             PaymentStatus status = new PaymentStatus();
-           
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
@@ -26,7 +24,7 @@ namespace ExternalBanking.DBManager
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@docId", SqlDbType.Float).Value = paymentID;
 
-               using  SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
@@ -53,7 +51,7 @@ namespace ExternalBanking.DBManager
 
 
 
-        internal static CashTerminal CheckTerminalPassword(string userName,string password)
+        internal static CashTerminal CheckTerminalPassword(string userName, string password)
         {
 
             CashTerminal cashTerminal = null;
@@ -69,17 +67,17 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.CommandText = "pr_terminal_password_check";
 
-                    cmd.Parameters.Add("@username", SqlDbType.NVarChar,50).Value = userName;
-                    cmd.Parameters.Add("@password", SqlDbType.NVarChar,50).Value = password;
+                    cmd.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = userName;
+                    cmd.Parameters.Add("@password", SqlDbType.NVarChar, 50).Value = password;
                     cmd.Parameters.Add(new SqlParameter("@res", SqlDbType.Int) { Direction = ParameterDirection.Output });
                     cmd.Parameters.Add(new SqlParameter("@customerNumber", SqlDbType.Float) { Direction = ParameterDirection.Output });
                     cmd.Parameters.Add(new SqlParameter("@terminalId", SqlDbType.Int) { Direction = ParameterDirection.Output });
                     cmd.ExecuteNonQuery();
                     result = Convert.ToInt16(cmd.Parameters["@res"].Value);
-                    if (cmd.Parameters["@customerNumber"].Value != null && result==0)
+                    if (cmd.Parameters["@customerNumber"].Value != null && result == 0)
                     {
-                        customerNumber= Convert.ToUInt64(cmd.Parameters["@customerNumber"].Value);
-                        terminalId= Convert.ToInt32(cmd.Parameters["@terminalId"].Value);
+                        customerNumber = Convert.ToUInt64(cmd.Parameters["@customerNumber"].Value);
+                        terminalId = Convert.ToInt32(cmd.Parameters["@terminalId"].Value);
                         if (customerNumber != 0)
                         {
                             cashTerminal = new CashTerminal();
@@ -88,7 +86,7 @@ namespace ExternalBanking.DBManager
                             cashTerminal.AccessibleActions = GetCTAccessibleActions(terminalId);
                         }
                     }
-  
+
                 }
             }
             return cashTerminal;
@@ -143,7 +141,7 @@ namespace ExternalBanking.DBManager
             return status;
         }
 
-                internal static Account GetCTDebitAccount(ulong customerNumber)
+        internal static Account GetCTDebitAccount(ulong customerNumber)
         {
             Account account = new Account();
 
@@ -174,7 +172,7 @@ namespace ExternalBanking.DBManager
             return account;
         }
 
-      
+
         internal static List<CTAccessibleAction> GetCTAccessibleActions(int terminalId)
         {
             List<CTAccessibleAction> actions = null;
@@ -206,8 +204,8 @@ namespace ExternalBanking.DBManager
 
                     }
                 }
-                
-                
+
+
 
             }
 
@@ -222,7 +220,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-               using SqlCommand cmd = new SqlCommand(@"SELECT ID FROM tbl_external_payments_system_configurations 
+                using SqlCommand cmd = new SqlCommand(@"SELECT ID FROM tbl_external_payments_system_configurations 
                                                                             WHERE  customer_number = @customerNumber", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
@@ -232,7 +230,7 @@ namespace ExternalBanking.DBManager
                 if (dr.Read())
                 {
                     ID = Convert.ToUInt16(dr["ID"]);
-                 }
+                }
 
             }
 

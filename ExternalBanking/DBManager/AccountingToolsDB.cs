@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 namespace ExternalBanking.DBManager
 {
     internal static class AccountingToolsDB
@@ -56,7 +53,7 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     cmd.CommandText = "SELECT dbo.fn_get_Bank_Mail_fee(@armNumber,@amount,@sourceType,@transferGroup,@transferType,@setDate,@urgent,@taxTransfer,@isOperationByPeriod)";
                     cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@armNumber", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
+                    cmd.Parameters.Add("@armNumber", SqlDbType.Float).Value = order.DebitAccount?.AccountNumber;
                     cmd.Parameters.Add("@amount", SqlDbType.Money).Value = order.Amount;
                     cmd.Parameters.Add("@sourceType", SqlDbType.TinyInt).Value = order.Source;
                     cmd.Parameters.Add("@transferGroup", SqlDbType.TinyInt).Value = 1;
@@ -122,7 +119,7 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     DataTable dt = new DataTable();
                     //index 93 կանխիկ մուտք հաշվին RUR ով(հատուկ սակագին)
-                    if (index == 93)
+                    if (index == 93 || index == 930 )
                     {
                         cmd.CommandText = @"Select TOP 1 AdditionValue FROM Tbl_all_accounts_AddInf WHERE arm_number=@accountNumber and AdditionID=14";
                     }

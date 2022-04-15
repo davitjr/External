@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using ExternalBanking.ACBAServiceReference;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -47,7 +41,7 @@ namespace ExternalBanking.DBManager
 
         internal static DocumentSignatureSetting GetBranchDocumentSignatureSetting(ushort filialCode)
         {
-            DocumentSignatureSetting result=new DocumentSignatureSetting();
+            DocumentSignatureSetting result = new DocumentSignatureSetting();
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {

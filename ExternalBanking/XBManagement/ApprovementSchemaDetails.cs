@@ -1,11 +1,5 @@
-﻿using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
-using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
 
 namespace ExternalBanking.XBManagement
 {
@@ -31,7 +25,7 @@ namespace ExternalBanking.XBManagement
         /// </summary>
         public byte Order { get; set; }
 
-       
+
 
         /// <summary>
         /// Հաստատման սխեմայի մանրամասների պահպանում
@@ -51,18 +45,18 @@ namespace ExternalBanking.XBManagement
             {
                 result.ResultCode = ResultCode.Normal;
             }
-                            
-                if(result.ResultCode == ResultCode.Normal)
+
+            if (result.ResultCode == ResultCode.Normal)
+            {
+                //result = this.Step.Save(schemaId, user);
+                if (result.ResultCode == ResultCode.Normal)
                 {
-                    //result = this.Step.Save(schemaId, user);
-                    if (result.ResultCode == ResultCode.Normal)
-                    {
-                        this.Step = new ApprovementSchemaStep();
-                        this.Step.Description = "Քայլ " + this.Order.ToString();
-                        result = ApprovementSchemaDetailsDB.Save(this, schemaId, orderId);
-                    }                           
-                }       
-                
+                    this.Step = new ApprovementSchemaStep();
+                    this.Step.Description = "Քայլ " + this.Order.ToString();
+                    result = ApprovementSchemaDetailsDB.Save(this, schemaId, orderId);
+                }
+            }
+
             return result;
         }
 
@@ -77,7 +71,7 @@ namespace ExternalBanking.XBManagement
             return result;
         }
 
-       
+
 
         /// <summary>
         /// Վերադարձնում է հաճախորդի հաստատման սխեմայի մանրամասները
@@ -87,12 +81,12 @@ namespace ExternalBanking.XBManagement
         public static List<ApprovementSchemaDetails> Get(int schemaId)
         {
             List<ApprovementSchemaDetails> schemaDetailsList = new List<ApprovementSchemaDetails>();
-                            schemaDetailsList = ApprovementSchemaDetailsDB.GetApprovementSchemaDetails(schemaId);
-                foreach (ApprovementSchemaDetails schemaDetails in schemaDetailsList)
-                {
-                    schemaDetails.Group = XBUserGroup.Get(schemaDetails.Group.Id);
-                    schemaDetails.Step = ApprovementSchemaStep.Get(schemaDetails.Step.Id);
-                }
+            schemaDetailsList = ApprovementSchemaDetailsDB.GetApprovementSchemaDetails(schemaId);
+            foreach (ApprovementSchemaDetails schemaDetails in schemaDetailsList)
+            {
+                schemaDetails.Group = XBUserGroup.Get(schemaDetails.Group.Id);
+                schemaDetails.Step = ApprovementSchemaStep.Get(schemaDetails.Step.Id);
+            }
 
             return schemaDetailsList;
         }
@@ -105,11 +99,11 @@ namespace ExternalBanking.XBManagement
         public static ApprovementSchemaDetails GetApprovementSchemaDetailsById(int schemaDetailsId)
         {
             ApprovementSchemaDetails schemaDetails = new ApprovementSchemaDetails();
-           
-                schemaDetails = ApprovementSchemaDetailsDB.GetApprovementSchemaDetailsById(schemaDetailsId);            
-                schemaDetails.Group = XBUserGroup.Get(schemaDetails.Group.Id);
-                schemaDetails.Step = ApprovementSchemaStep.Get(schemaDetails.Step.Id);
-            
+
+            schemaDetails = ApprovementSchemaDetailsDB.GetApprovementSchemaDetailsById(schemaDetailsId);
+            schemaDetails.Group = XBUserGroup.Get(schemaDetails.Group.Id);
+            schemaDetails.Step = ApprovementSchemaStep.Get(schemaDetails.Step.Id);
+
             return schemaDetails;
         }
         /// <summary>
@@ -126,7 +120,7 @@ namespace ExternalBanking.XBManagement
             }
 
             result = ApprovementSchemaDB.RemoveApprovementSchemaDetails(this, orderId);
-             
+
             return result;
         }
 
@@ -141,6 +135,6 @@ namespace ExternalBanking.XBManagement
             result.Errors.AddRange(Validation.ValidateApprovementSchemaDetailsForRemove(this));
             return result;
         }
-   
+
     }
 }

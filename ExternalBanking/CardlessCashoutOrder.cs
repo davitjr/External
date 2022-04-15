@@ -5,10 +5,7 @@ using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using System.Transactions;
-using System.Web.Configuration;
 
 namespace ExternalBanking
 {
@@ -19,7 +16,6 @@ namespace ExternalBanking
         /// Փոխանակման փոխարժեք
         /// </summary>
         public double ConvertationRate { get; set; }
-
 
         /// <summary>
         /// Փոխանցման միջնորդավճարի հաշվեհամար
@@ -127,7 +123,6 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-
                 result = CardlessCashoutOrderDB.Save(this, userName, source);
 
                 ActionResult resultOrderFee = SaveOrderFee();
@@ -141,9 +136,9 @@ namespace ExternalBanking
                 LogOrderChange(user, action);
                 scope.Complete();
             }
+
             return result;
         }
-
 
         /// <summary>
         /// Վճարման հանձնարարականի ուղարկում բանկ
@@ -154,57 +149,47 @@ namespace ExternalBanking
         public ContentResult<string> Approve(short schemaType, string userName, ACBAServiceReference.User user)
         {
             ContentResult<string> result = new ContentResult<string>();
-            ActionResult validationResult = ValidateForSend(user);
+            ActionResult validationResult = ValidateForSend();
             result.Errors = validationResult.Errors;
             result.ResultCode = validationResult.ResultCode;
             if (validationResult.ResultCode == ResultCode.Normal)
             {
-                Action action = Id == 0 ? Action.Add : Action.Update;
+                using TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted });
+                ActionResult actionResult = base.Approve(schemaType, userName);
 
-                using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+                if (actionResult.ResultCode == ResultCode.Normal)
                 {
-                    ActionResult actionResult = base.Approve(schemaType, userName);
-
-
-                    if (actionResult.ResultCode == ResultCode.Normal)
-                    {
-                        result.ResultCode = ResultCode.Normal;
-                        Quality = OrderQuality.Sent3;
-                        base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
-                        base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
-                        LogOrderChange(user, Action.Update);
-                        result.Content = GenerateOrderOTP(Id);
-                        UpdateInDB(result.Content, Id);
-                        scope.Complete();
-                    }
-                    else
-                    {
-                        result.ResultCode = ResultCode.Failed;
-                        return result;
-                    }
+                    result.ResultCode = ResultCode.Normal;
+                    Quality = OrderQuality.Sent3;
+                    base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
+                    base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
+                    LogOrderChange(user, Action.Update);
+                    result.Content = GenerateOrderOTP(Id);
+                    UpdateInDB(result.Content, Id);
+                    scope.Complete();
+                }
+                else
+                {
+                    result.ResultCode = ResultCode.Failed;
+                    return result;
                 }
             }
             //result = base.Confirm(user);
 
-
             return result;
-
 
         }
 
-        private ActionResult ValidateForSend(User user)
+        private ActionResult ValidateForSend()
         {
             ActionResult result = new ActionResult();
 
-            if (this.Quality != OrderQuality.Sent3)
-            {
-                //Տվյալ կարգավիճակով փաստաթուղթը հնարավոր չէ ուղարկել:
-                result.Errors.Add(new ActionError(35));
-                return result;
-            }
-
             result.Errors.AddRange(Validation.SetAmountsForCheckBalance(this));
             result.ResultCode = result.Errors.Count > 0 ? ResultCode.ValidationError : ResultCode.Normal;
+
+            if (result.Errors.Exists(a => a.Code == 1099))
+                SendNotSufficientFundsSms();
+
             return result;
         }
 
@@ -216,7 +201,6 @@ namespace ExternalBanking
             CardFee = Fees.Where(x => x.Type == 7).FirstOrDefault() is null ? 0 : Fees.Where(x => x.Type == 7).FirstOrDefault().Amount;
             TransferFee = Fees.Where(x => x.Type == 20).FirstOrDefault().Amount;
         }
-
 
         /// <summary>
         /// Գեներացնում է 6 նիշանոց ՕՏՊ սմս ուղարկելու համար
@@ -247,6 +231,7 @@ namespace ExternalBanking
             {
                 SendAtmOtpWithSms(cardlessCashoutOrder);
             }
+
             return cardlessCashoutOrder;
         }
         private ActionResult Validate(User user)
@@ -257,11 +242,13 @@ namespace ExternalBanking
             {//Մուտքագրված գումարը սխալ է։ Գումարը պետք է լինի 1000 ՀՀ դրամի և ամբողջ թվի բազմապատիկ։
                 result.Errors.Add(new ActionError(1884));
             }
+
             if (AmountInAMDNotConverted > 399_000)
             {
                 //Գործարքի առավելագույն սահմանաչափը 399,000 ՀՀ դրամ է:
                 result.Errors.Add(new ActionError(1886));
             }
+
             if (Currency != "AMD")
             {
                 double roundedNumber = Math.Round((Utility.RoundAmount((double)((decimal)Amount * (decimal)ConvertationRate), "AMD") / 1000)) * 1000;
@@ -270,6 +257,7 @@ namespace ExternalBanking
                     //Դրամային գումարը սխալ է:
                     result.Errors.Add(new ActionError(781));
                 }
+
                 if (Utility.RoundAmount(AmountInAMDNotConverted / ConvertationRate, Currency) != Amount)
                 {
                     //Արժույթի գումարը սխալ է:
@@ -281,6 +269,7 @@ namespace ExternalBanking
 
             return result;
         }
+
         private void Complete()
         {
             //Հայտի համար   
@@ -292,6 +281,7 @@ namespace ExternalBanking
             {
                 Fees = new List<OrderFee>();
             }
+
             if (TransferFee > 0)//փոխանցման միջնորդավճար
             {
                 OrderFee orderFee = new OrderFee
@@ -303,6 +293,7 @@ namespace ExternalBanking
                 };
                 Fees.Add(orderFee);
             }
+
             if (CardFee > 0)//քարտի կանխիկացման միջնորդավճար
             {
                 OrderFee orderFee = new OrderFee
@@ -329,48 +320,8 @@ namespace ExternalBanking
             {
                 AmountInAmd = AmountInAMDNotConverted;
             }
-            Description = $"Անքարտ Կանխիկացում (հեռ․ {MobilePhoneNumber})";
-        }
-        private static (bool isTestVersion, bool IsCodeVerified, CardlessCashoutOrder cardlessCashoutOrder) TestCardlessCashoutCodeForTestEnvironmentNCR(string cardlessCashOutCode)
-        {
-            bool IsCodeVerified = false;
-            CardlessCashoutOrder cardlessCashoutOrder = new CardlessCashoutOrder();
-            bool isTestVersion = bool.Parse(WebConfigurationManager.AppSettings["TestVersion"].ToString());
-            if (!isTestVersion)
-            {
-                return (isTestVersion: false, IsCodeVerified, cardlessCashoutOrder);
-            }
 
-            switch (cardlessCashOutCode)
-            {
-                case "34111111":
-                case "34111112":
-                case "34111113":
-                case "34111114":
-                case "34111115":
-                    {
-                        // verifyed cardlessCashoutOrder object returned
-                        cardlessCashoutOrder = new CardlessCashoutOrder()
-                        {
-                            Id = 333333,
-                            PhoneNumber = "+37491111111",
-                            AmountInAmd = 1000,
-                            OrderOTP = "34111111",
-                            AtmOTP = "333333"
-                        };
-                        IsCodeVerified = true;
-                    }
-                    break;
-                case "34333333":
-                    {
-                        // throwed exception
-                        throw new InvalidOperationException();
-                    }
-                default:
-                    // not verifyed cardlessCashoutOrder object is empty
-                    break;
-            }
-            return (isTestVersion: true, IsCodeVerified, cardlessCashoutOrder);
+            Description = $"Փոխանցում բանկոմատին (հեռ․ {MobilePhoneNumber})";
         }
         public static double GetOrderFee(double orderAmountInAMD)
         {
@@ -379,13 +330,6 @@ namespace ExternalBanking
 
         public static (bool IsCodeVerified, CardlessCashoutOrder cardlessCashoutOrder) GetCardlessCashoutOrderWithVerificationForNCR(string otp)
         {
-            //TODO Remove next 3 lines after going to production
-            (bool isTestVersion, bool IsTestCodeVerified, CardlessCashoutOrder cardlessCashoutTestOrder) = TestCardlessCashoutCodeForTestEnvironmentNCR(otp);
-            if (isTestVersion)
-            {
-                return (IsTestCodeVerified, cardlessCashoutTestOrder);
-            }
-
             CardlessCashoutOrder cardLessCashOutOrder = new CardlessCashoutOrder();
             bool IsCodeVerified = CardlessCashoutOrderDB.IsCardlessCashCodeCorrect(otp);
             if (IsCodeVerified)
@@ -393,17 +337,34 @@ namespace ExternalBanking
                 cardLessCashOutOrder = CardlessCashoutOrderDB.GetCardlessCashoutOrderForAtmView(otp);
                 SendAtmOtpWithSms(cardLessCashOutOrder);
             }
+
             return (IsCodeVerified, cardLessCashOutOrder);
         }
 
-        public static ActionResult Confirm(ulong docID, string TransactionId, string AtmId, SourceType source)
+        public ActionResult Confirm(ulong docID, string TransactionId, string AtmId, SourceType source)
         {
+            this.user = new User() { userID = 88, userName = "Auto" };
+            ActionResult validationResult = ValidateForConfirm(this);
+            SaveInProcess(this.Id, AtmId, TransactionId);
+            if (validationResult.ResultCode == ResultCode.ValidationError)
+                return validationResult;
             return CardlessCashoutOrderDB.Confirm(docID, TransactionId, AtmId, source);
         }
+
         private static void SendAtmOtpWithSms(CardlessCashoutOrder cardLessCashOutOrder)
         {
             cardLessCashOutOrder.AtmOTP = GenerateAtmOtp(6);
             string message = $"Kankhikacman mekangamya kodn e: {cardLessCashOutOrder.AtmOTP}​";
+
+            if (!cardLessCashOutOrder.MobilePhoneNumber.StartsWith("0") && cardLessCashOutOrder.MobilePhoneNumber.Length == 8)
+            {
+                cardLessCashOutOrder.MobilePhoneNumber = cardLessCashOutOrder.MobilePhoneNumber.Insert(0, "+374");
+            }
+            else if (cardLessCashOutOrder.MobilePhoneNumber.StartsWith("0") && cardLessCashOutOrder.MobilePhoneNumber.Length == 9)
+            {
+                cardLessCashOutOrder.MobilePhoneNumber = cardLessCashOutOrder.MobilePhoneNumber.Remove(0, 1).Insert(0, "+374");
+            }
+
             SmsHelper.SendSms(cardLessCashOutOrder.MobilePhoneNumber, cardLessCashOutOrder.CustomerNumber, message, 88, 42);
         }
         private void SendNotSufficientFundsSms()
@@ -426,7 +387,82 @@ namespace ExternalBanking
 
         public static void SaveCancelNotificationMessage(string request)
         {
-             CardlessCashoutOrderDB.SaveCancelNotificationMessage(request);
+            CardlessCashoutOrderDB.SaveCancelNotificationMessage(request);
+        }
+
+        private static void SendNotSufficientFundsSms(ulong customerNumber, double amountInAmd)
+        {
+            Phone phone = ACBAOperationService.GetCustomerMainMobilePhone(customerNumber)?.phone;
+            string phoneNumber = phone?.countryCode + phone?.areaCode + phone?.phoneNumber;
+            string message = $"Dzer {amountInAmd} gumarov anqart kankhikacman gorcarqy merzhvats e. Anbavarar mijocner. Gortsarqn avartelu hamar hamalreq hashivy.";
+            SmsHelper.SendSms(phoneNumber, customerNumber, message, 88, 42);
+        }
+
+        private static ActionResult ValidateForConfirm(CardlessCashoutOrder order)
+        {
+            ActionResult result = new ActionResult();
+
+            if (order.Quality != OrderQuality.Sent3)
+            {
+                //Տվյալ կարգավիճակով փաստաթուղթը հնարավոր չէ ուղարկել:
+                result.Errors.Add(new ActionError(35));
+            }
+
+            if (CheckOrderProcess(order.Id))
+            {
+                //Տվյալ կարգավիճակով փաստաթուղթը հնարավոր չէ ուղարկել:
+                result.Errors.Add(new ActionError(2046));
+            }
+
+            result.Errors.AddRange(Validation.SetAmountsForCheckBalance(order));
+
+            if (result.Errors.Exists(a => a.Code == 1099))
+                SendNotSufficientFundsSms(order.CustomerNumber, order.AmountInAmd);
+
+            result.ResultCode = result.Errors.Count > 0 ? ResultCode.ValidationError : ResultCode.Normal;
+            return result;
+        }
+        private void SaveInProcess(long id, string atmId, string transactionId) => CardlessCashoutOrderDB.SaveInProcess(id, atmId, transactionId);
+
+        private static bool CheckOrderProcess(long id) => CardlessCashoutOrderDB.CheckOrderProcess(id);
+
+        /// <summary>
+        /// Վճարման հանձնարարականի ուղարկում բանկ
+        /// </summary>
+        /// <param name="schemaType">Հաստատման կարգ (2 հաստատող,3 հաստատող)</param>
+        /// <param name="userName">Օգտագործողի անուն (Հաճախորդ)</param>
+        /// <returns></returns>
+        public ActionResult ApproveForApproves(short schemaType, string userName, ACBAServiceReference.User user)
+        {
+            ActionResult result = new ActionResult();
+            ActionResult validationResult = ValidateForSend();
+            result.Errors = validationResult.Errors;
+            result.ResultCode = validationResult.ResultCode;
+            if (validationResult.ResultCode == ResultCode.Normal)
+            {
+                using TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted });
+                ActionResult actionResult = base.Approve(schemaType, userName);
+
+                if (actionResult.ResultCode == ResultCode.Normal)
+                {
+                    result.ResultCode = ResultCode.Normal;
+                    Quality = OrderQuality.Sent3;
+                    base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
+                    base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
+                    LogOrderChange(user, Action.Update);
+                    result.Id = Convert.ToInt32("34" + Id.ToString().Substring(Id.ToString().Length - 6));
+                    UpdateInDB(GenerateOrderOTP(Id), Id);
+                    scope.Complete();
+                }
+                else
+                {
+                    result.ResultCode = ResultCode.Failed;
+                    return result;
+                }
+            }
+
+            return result;
+
         }
     }
 }

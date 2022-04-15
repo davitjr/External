@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -274,7 +271,7 @@ namespace ExternalBanking
         /// <summary>
         /// Ապագա ժամանակաշրջանի տոկոսի կուտակման հաշվի մնացորդ
         /// </summary>
-        public double NextPeriodRateAccountBalance { get => LoanProduct.GetNextPeriodRateAccountBalance(this.NextPeriodRateAccount); set { } } 
+        public double NextPeriodRateAccountBalance { get => LoanProduct.GetNextPeriodRateAccountBalance(this.NextPeriodRateAccount); set { } }
 
         public double? InterestRateEffectiveWithOnlyBankProfit { get; set; }
 
@@ -345,7 +342,7 @@ namespace ExternalBanking
             return LoanProductDB.GetNextPeriodRateAccount(productId);
         }
 
-        
+
         /// <summary>
         /// Վերադարձնում է ապագա ժամանակաշրջանի տոկոսի հաշվի մնացորդը կախված ունիկալ համարից
         /// </summary>

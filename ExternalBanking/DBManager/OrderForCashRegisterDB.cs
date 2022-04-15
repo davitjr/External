@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
 {
-   internal class OrderForCashRegisterDB
+    internal class OrderForCashRegisterDB
     {
         internal static List<OrderForCashRegister> GetOrdersForCashRegister(SearchOrders searchOrders)
         {

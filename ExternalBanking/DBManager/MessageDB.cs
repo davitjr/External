@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -19,7 +16,7 @@ namespace ExternalBanking.DBManager
         internal static List<Message> GetMessages(ulong customerNumber, DateTime dateFrom, DateTime dateTo, short type)
         {
             List<Message> messages = new List<Message>();
-           
+
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
@@ -146,10 +143,10 @@ namespace ExternalBanking.DBManager
                         table.Columns.Add("UploadFileExt", (typeof(string)));
                         foreach (var item in message.Attachments)
                         {
-                            table.Rows.Add(item.AttachmentInBase64  == null? item.Attachment: Convert.FromBase64String(item.AttachmentInBase64), item.FileName, item.FileExtension);
+                            table.Rows.Add(item.AttachmentInBase64 == null ? item.Attachment : Convert.FromBase64String(item.AttachmentInBase64), item.FileName, item.FileExtension);
                         }
 
-                        cmd.Parameters.Add("@msg_upload_data", SqlDbType.Structured).Value = table; 
+                        cmd.Parameters.Add("@msg_upload_data", SqlDbType.Structured).Value = table;
                     }
 
                     conn.Open();

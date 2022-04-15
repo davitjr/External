@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.ArcaDataServiceReference;
+using ExternalBanking.DBManager;
+using ExternalBanking.ServiceClient;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ArcaDataServiceReference;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking
 {

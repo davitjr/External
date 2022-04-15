@@ -49,5 +49,14 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         long? GetPreviousUnBlockingOrderId(string cardNumber);
+
+        [OperationContract]
+        ulong GetCardHolderCustomerNumber(long productId);
+
+        [OperationContract]
+        ActionResult SaveAndApproveCardNotRenew(CardNotRenewOrder order);
+
+        [OperationContract]
+        ActionResult SaveCardAdditionalData(CardAdditionalDataOrder order);
     }
 }

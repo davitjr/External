@@ -1,10 +1,6 @@
-﻿using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -12,7 +8,7 @@ namespace ExternalBanking
     /// <summary>
     /// Չեկային գրքույկի ստացման հայտ
     /// </summary>
-    public class ChequeBookReceiveOrder:Order
+    public class ChequeBookReceiveOrder : Order
     {
         /// <summary>
         /// Հաշվեհամար
@@ -58,7 +54,7 @@ namespace ExternalBanking
         /// <param name="schemaType"></param>
         /// <returns></returns>
         public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
-        {           
+        {
             this.Complete();
             ActionResult result = this.Validate();
 
@@ -78,7 +74,7 @@ namespace ExternalBanking
             Action action = this.Id == 0 ? Action.Add : Action.Update;
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result =  ChequeBookReceiveOrderDB.Save(this, userName, source);
+                result = ChequeBookReceiveOrderDB.Save(this, userName, source);
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -133,7 +129,7 @@ namespace ExternalBanking
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.Fees = new List<OrderFee>();
-            this.Fees.Add(new OrderFee {Account=this.FeeAccount,Amount= this.FeeAmount,Currency="AMD",Type=17});
+            this.Fees.Add(new OrderFee { Account = this.FeeAccount, Amount = this.FeeAmount, Currency = "AMD", Type = 17 });
         }
 
         /// <summary>
@@ -151,7 +147,7 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
             List<KeyValuePair<Account, double>> list = new List<KeyValuePair<Account, double>>();
             list.Add(new KeyValuePair<Account, double>(this.FeeAccount, Convert.ToDouble(this.FeeAmount)));
-            result.Errors.AddRange(Validation.ValidateOrderAmount(user,this.Source,list, this.Type));
+            result.Errors.AddRange(Validation.ValidateOrderAmount(user, this.Source, list, this.Type));
             return result;
         }
 
@@ -171,10 +167,10 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="customerNumber"></param>
         /// <returns></returns>
-        public static  bool HasChequeBookOrder(ulong customerNumber,string accountNumber)
+        public static bool HasChequeBookOrder(ulong customerNumber, string accountNumber)
         {
-          
-            return ChequeBookReceiveOrderDB.HasChequeBookOrder(customerNumber,accountNumber);
+
+            return ChequeBookReceiveOrderDB.HasChequeBookOrder(customerNumber, accountNumber);
 
         }
 
@@ -184,14 +180,15 @@ namespace ExternalBanking
         /// <param name="customerNumber"></param>
         /// <param name="culture"></param>
         /// <returns></returns>
-        public static List<string> GetChequeBookReceiveOrderWarnings(ulong customerNumber, string accountNumber, Culture culture) {
-                      
+        public static List<string> GetChequeBookReceiveOrderWarnings(ulong customerNumber, string accountNumber, Culture culture)
+        {
+
             List<string> warnings = new List<string>();
 
-            if (customerNumber!=0 && accountNumber!=null && !HasChequeBookOrder(customerNumber,accountNumber))
+            if (customerNumber != 0 && accountNumber != null && !HasChequeBookOrder(customerNumber, accountNumber))
             {
-                warnings.Add(Info.GetTerm(721, new string[] {  }, culture.Language));
-            }         
+                warnings.Add(Info.GetTerm(721, new string[] { }, culture.Language));
+            }
             return warnings;
         }
 
@@ -199,7 +196,7 @@ namespace ExternalBanking
 
 
 
-  
+
 
 
 

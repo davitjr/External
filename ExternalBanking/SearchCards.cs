@@ -1,14 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
     public class SearchCards
-    {   
+    {
         /// <summary>
         /// Որոնվող քարի մասնաճյուղ
         /// </summary>
@@ -33,7 +29,7 @@ namespace ExternalBanking
         /// Որոնել նաև փակված քարտերի մեջ
         /// </summary>
         public bool includeCloseCards { get; set; }
-                
+
         /// <summary>
         /// Քարտի(երի) որոնում տրված պարամետրերով
         /// </summary>
@@ -42,7 +38,7 @@ namespace ExternalBanking
         public static List<SearchCardResult> Search(SearchCards searchParams)
         {
             List<SearchCardResult> cards = SearchCardsDB.SearchCards(searchParams);
-            Localization.SetCulture(cards,new Culture(Languages.hy));
+            Localization.SetCulture(cards, new Culture(Languages.hy));
             return cards;
         }
 

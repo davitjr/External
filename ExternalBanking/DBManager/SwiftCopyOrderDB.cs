@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
-using System.Text.RegularExpressions;
 
 namespace ExternalBanking.DBManager
 {
@@ -155,34 +153,34 @@ namespace ExternalBanking.DBManager
             }
             return order;
         }
-        
 
-            internal static bool CheckSwiftCopy(long docID)
+
+        internal static bool CheckSwiftCopy(long docID)
+        {
+
+            bool val = false;
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-
-                bool val = false;
-
-                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+                using (SqlCommand cmd = new SqlCommand("select top 1 b.add_tbl_unic_number from tbl_bank_mail_in b inner join(select * from dbo.tbl_hb_documents  where document_type = 134) h " +
+                    " on b.id = h.transfer_id where b.add_tbl_name = 'tbl_hb_documents' and  b.add_tbl_unic_number = @Doc_ID", conn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("select top 1 b.add_tbl_unic_number from tbl_bank_mail_in b inner join(select * from dbo.tbl_hb_documents  where document_type = 134) h " +
-                        " on b.id = h.transfer_id where b.add_tbl_name = 'tbl_hb_documents' and  b.add_tbl_unic_number = @Doc_ID", conn))
+                    conn.Open();
+                    cmd.CommandType = CommandType.Text;
+
+                    cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = docID;
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        conn.Open();
-                        cmd.CommandType = CommandType.Text;
-
-                        cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = docID;
-
-                        using (SqlDataReader dr = cmd.ExecuteReader())
-                        {
-                            if (dr.HasRows)
-                                val = true;
-                        }
+                        if (dr.HasRows)
+                            val = true;
                     }
                 }
-
-                return val;
-
             }
+
+            return val;
+
+        }
 
         internal static byte[] PrintSwiftCopyOrderFile(long docID)
         {
@@ -206,10 +204,10 @@ namespace ExternalBanking.DBManager
         }
 
 
-        }
     }
+}
 
 
 
-            
-        
+
+

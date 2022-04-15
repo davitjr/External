@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using ExternalBanking.Interfaces;
+﻿using ExternalBanking.DBManager;
 using ExternalBanking.XBManagement.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace ExternalBanking.XBManagement
 {
-    public class HBToken:IEditableHBItem
+    public class HBToken : IEditableHBItem
     {
-      
+
         /// <summary>
         /// Հերթական ID
         /// </summary>
@@ -19,7 +15,7 @@ namespace ExternalBanking.XBManagement
         /// <summary>
         /// ՀԲ օգտագործողի ID
         /// </summary>
-        public int HBUserID { get; set; }        
+        public int HBUserID { get; set; }
         /// <summary>
         /// Տոկենի համար
         /// </summary>
@@ -82,7 +78,7 @@ namespace ExternalBanking.XBManagement
         /// <summary>
         /// Թոկենի կարգավիճակ
         /// </summary>
-        public HBTokenQuality Quality {get;set;}
+        public HBTokenQuality Quality { get; set; }
         /// <summary>
         /// Թոկենի կարգավիճակի նկարագրություն
         /// </summary>
@@ -98,7 +94,7 @@ namespace ExternalBanking.XBManagement
         /// <summary>
         /// PIN կոդ
         /// </summary>
-        public string Pin { get; set; }      
+        public string Pin { get; set; }
         /// <summary>
         /// Հաճախորդի ռեգիստրացիաի վիճակ
         /// </summary>
@@ -178,7 +174,7 @@ namespace ExternalBanking.XBManagement
         /// </summary>
         /// <param name="tokenType"></param>
         /// <returns></returns>
-        public static List<string> GetHBTokenNumbers(HBTokenTypes tokenType,int userFilial)
+        public static List<string> GetHBTokenNumbers(HBTokenTypes tokenType, int userFilial)
         {
             return HBTokenDB.GetHBTokenNumers(tokenType, userFilial);
         }
@@ -188,7 +184,7 @@ namespace ExternalBanking.XBManagement
 
             ActionResult result = new ActionResult();
             result.Errors.AddRange(Validation.ValidateHBToken(this));
-           
+
             return result;
         }
         public ActionResult ValidateUpdate()
@@ -219,7 +215,7 @@ namespace ExternalBanking.XBManagement
 
             HBTokenDB.Save(userID, source, this, docId, Action.Add);
 
-            result.ResultCode = ResultCode.Normal; 
+            result.ResultCode = ResultCode.Normal;
             return result;
         }
 
@@ -234,7 +230,7 @@ namespace ExternalBanking.XBManagement
         public ActionResult Deactivate(int userID, SourceType source, long docId, ulong customerNumber = 0)
         {
             ActionResult result = new ActionResult();
-            
+
             HBTokenDB.Save(userID, source, this, docId, Action.Deactivate);
 
             result.ResultCode = ResultCode.Normal;
@@ -273,13 +269,13 @@ namespace ExternalBanking.XBManagement
         public static List<HBToken> GetHBTokens(int hbAppId)
         {
             List<HBToken> hbTokens = new List<HBToken>();
-            var hbUsers=HBUser.GetHBUsers(hbAppId, ProductQualityFilter.Opened);
+            var hbUsers = HBUser.GetHBUsers(hbAppId, ProductQualityFilter.Opened);
             List<HBToken> tokens;
             foreach (var user in hbUsers)
             {
-                tokens =GetHBTokens(user.ID, ProductQualityFilter.Opened);
+                tokens = GetHBTokens(user.ID, ProductQualityFilter.Opened);
                 hbTokens.AddRange(tokens);
-            }           
+            }
             return hbTokens;
         }
 
@@ -288,13 +284,13 @@ namespace ExternalBanking.XBManagement
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public static ActionResult CancelTokenNumberReservation(HBToken  token)
+        public static ActionResult CancelTokenNumberReservation(HBToken token)
         {
             ActionResult result = new ActionResult();
             HBTokenDB.CancelTokenNumberReservation(token);
             result.ResultCode = ResultCode.Normal;
             return result;
-            
+
         }
 
         /// <summary>
@@ -308,7 +304,7 @@ namespace ExternalBanking.XBManagement
         /// <returns></returns>
         public static double GetHBServiceFee(ulong customerNumber, DateTime date, HBServiceFeeRequestTypes requestType, HBTokenTypes tokenType, HBTokenSubType tokenSubType)
         {
-            return HBTokenDB.GetHBServiceFee(customerNumber,  date,  requestType,  tokenType,  tokenSubType);
+            return HBTokenDB.GetHBServiceFee(customerNumber, date, requestType, tokenType, tokenSubType);
         }
         /// <summary>
         /// Վերադարձվում է տոկենի GID դաշտը
@@ -336,7 +332,7 @@ namespace ExternalBanking.XBManagement
         {
             return HBTokenDB.CheckTokenQuantityAvailability(this);
         }
-    
+
         public static bool HasCustomerOnlineBanking(ulong customerNumber)
         {
             return HBTokenDB.HasCustomerOnlineBanking(customerNumber);
@@ -344,6 +340,6 @@ namespace ExternalBanking.XBManagement
         public static bool HasCustomerOneActiveToken(ulong customerNumber)
         {
             return HBTokenDB.HasCustomerOneActiveToken(customerNumber);
-        }       
+        }
     }
 }

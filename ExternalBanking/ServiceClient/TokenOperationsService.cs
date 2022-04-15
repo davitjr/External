@@ -1,11 +1,7 @@
 ﻿using ExternalBanking.TokenOperationsServiceReference;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.ServiceClient
 {
@@ -110,16 +106,16 @@ namespace ExternalBanking.ServiceClient
                 ((IClientChannel)client).Close();
                 success = true;
             }
-            catch (FaultException ex)
+            catch (FaultException)
             {
                 ((IClientChannel)client).Close();
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
 

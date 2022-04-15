@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using System.Data;
+﻿using ExternalBanking.DBManager;
 using ExternalBanking.UtilityPaymentsManagment;
 using ExternalBanking.UtilityPaymentsServiceReference;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Web.Configuration;
 
 namespace ExternalBanking
@@ -107,7 +105,7 @@ namespace ExternalBanking
 
 
 
-        public List<Communal> SearchCommunalByType(SourceType source, bool isSearch = true)
+        public List<Communal> SearchCommunalByType(SourceType source, bool isSearch = true, int groupId = 0)
         {
             List<Communal> communals = new List<Communal>();
 
@@ -120,21 +118,25 @@ namespace ExternalBanking
                     break;
                 case CommunalTypes.Gas:
                     communals = source == SourceType.MobileBanking ? CommunalDB.SearchCommunalGasForMobile(this) : CommunalDB.SearchCommunalGas(this, source);
-
-                    if ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && AbonentType == 1)
-                    {
-                        foreach (Communal c in communals)
-                        {
-                            if (c.Debt < 0)
-                            {
-                                c.Debt = Convert.ToDouble(Math.Abs(Convert.ToDecimal(c.Debt)));
-                            }
-                            else
-                            {
-                                c.Debt = 0;
-                            }
-                        }
-                    }
+                    //if ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && AbonentType == 1)
+                    //{
+                    //    foreach (Communal c in communals)
+                    //    {
+                    //        if (c.Debt < 0)
+                    //        {
+                    //            c.Debt = Convert.ToDouble(Math.Abs(Convert.ToDecimal(c.Debt)));
+                    //        }
+                    //        else if(c.Debt > 0)
+                    //        {
+                    //            c.Debt *= -1;
+                    //        }
+                    //        else
+                    //        {
+                    //            if(groupId == 0)
+                    //                c.Debt = 0;
+                    //        }
+                    //    }
+                    //}
                     break;
                 case CommunalTypes.ArmWater:
                     communals = (source == SourceType.MobileBanking || source == SourceType.AcbaOnline) ? CommunalDB.SearchCommunalArmWaterForMobile(this) : CommunalDB.SearchCommunalArmWater(this);
@@ -155,14 +157,6 @@ namespace ExternalBanking
                     {
                         foreach (Communal c in communals)
                         {
-                            if (c.Debt < 0)
-                            {
-                                c.Debt = Convert.ToDouble(Math.Abs(Convert.ToDecimal(c.Debt)));
-                            }
-                            else
-                            {
-                                c.Debt = 0;
-                            }
                             c.Description = GetCommunalPaymentDescription();
                         }
                     }
@@ -212,7 +206,7 @@ namespace ExternalBanking
             if (CommunalType == CommunalTypes.UCom)
             {
                 UcomFixAbonentSearch abonentSearch = new UcomFixAbonentSearch();
-                abonentSearch = abonentSearch.GetUcomFixAbonentSearch(this.AbonentNumber); 
+                abonentSearch = abonentSearch.GetUcomFixAbonentSearch(this.AbonentNumber);
 
                 parameters.Add(new KeyValuePair<string, string>(key: "AbonentName", value: abonentSearch.Client));
                 parameters.Add(new KeyValuePair<string, string>(key: "AmountDebt_Internet", value: abonentSearch.Balance.Internet.ToString("F2")));

@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -33,7 +29,6 @@ namespace ExternalBanking
 
             this.Complete();
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -45,8 +40,8 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result = Card3DSecureServiceOrderDB.Save(this, userName,source);
-              
+                result = Card3DSecureServiceOrderDB.Save(this, userName, source);
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -93,7 +88,7 @@ namespace ExternalBanking
 
         public static List<Card3DSecureService> GetCard3DSecureServiceHistory(ulong productID)
         {
-           return  Card3DSecureServiceOrderDB.GetCard3DSecureServiceHistory(productID);
+            return Card3DSecureServiceOrderDB.GetCard3DSecureServiceHistory(productID);
         }
 
 

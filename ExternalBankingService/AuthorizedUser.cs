@@ -23,13 +23,13 @@ namespace ExternalBankingService
 
         public int TypeOfClient { get; set; }
 
-        public string UserName { get; set; }    
-        
+        public string UserName { get; set; }
+
         public double OneTransactionLimitToOwnAccount { get; set; }
 
-        public double OneTransactionLimitToAnothersAccount { get; set; }  
+        public double OneTransactionLimitToAnothersAccount { get; set; }
 
-        public double DayLimitToOwnAccount { get; set; } 
+        public double DayLimitToOwnAccount { get; set; }
 
         public double DayLimitToAnothersAccount { get; set; }
 

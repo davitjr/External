@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using System.Transactions;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace ExternalBanking.DBManager
@@ -182,9 +180,9 @@ namespace ExternalBanking.DBManager
                     cmd.CommandTimeout = 300;
                     DbConn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
-                    {                        
+                    {
                         if (dr.Read())
-                        {                            
+                        {
                             if (dr["sum_of_equipment_price"] != DBNull.Value)
                                 equipment.SumOfEquipmentPrice = Convert.ToDouble(dr["sum_of_equipment_price"]);
                             if (dr["sum_of_price_limit_by_the_bank"] != DBNull.Value)
@@ -305,7 +303,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@appID", SqlDbType.Float).Value = appID;
                     cmd.Parameters.Add("@setNumber", SqlDbType.Int).Value = setNumber;
-                   cmd.Parameters.Add("@allowMature", SqlDbType.Int).Value = allowMature;
+                    cmd.Parameters.Add("@allowMature", SqlDbType.Int).Value = allowMature;
 
                     cmd.ExecuteNonQuery();
                     result.ResultCode = ResultCode.Normal;
@@ -387,7 +385,7 @@ namespace ExternalBanking.DBManager
             return equipment;
         }
 
-           
-        
+
+
     }
 }

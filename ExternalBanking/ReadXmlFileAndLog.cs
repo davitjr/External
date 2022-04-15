@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ExternalBanking
 {
     public class ReadXmlFileAndLog
     {
-      public  List<PaymentOrder> paymentOrders { get; set; }
+        public List<PaymentOrder> paymentOrders { get; set; }
 
 
-     public  ActionResult actionResult { get; set; }
+        public ActionResult actionResult { get; set; }
 
 
     }

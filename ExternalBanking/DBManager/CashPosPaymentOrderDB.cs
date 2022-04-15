@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -32,10 +29,10 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
                     cmd.Parameters.Add("@sourceType", SqlDbType.TinyInt).Value = (short)source;
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
-                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar,20).Value = order.CardNumber;
+                    cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar, 20).Value = order.CardNumber;
                     cmd.Parameters.Add("@authorizationCode", SqlDbType.NVarChar, 20).Value = order.AuthorizationCode;
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
-                    cmd.Parameters.Add("@currency", SqlDbType.VarChar,3).Value = order.Currency;
+                    cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
                     cmd.Parameters.Add("@posAccount", SqlDbType.Float).Value = order.PosAccount.AccountNumber;
                     cmd.Parameters.Add("@creditAccount", SqlDbType.VarChar, 50).Value = order.CreditAccount.AccountNumber;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
@@ -119,7 +116,7 @@ namespace ExternalBanking.DBManager
                             if (dr["description"] != DBNull.Value)
                                 order.Description = Utility.ConvertAnsiToUnicode(dr["description"].ToString());
 
-                            if(dr["card_number"]!=DBNull.Value)
+                            if (dr["card_number"] != DBNull.Value)
                                 order.CardNumber = dr["card_number"].ToString();
 
                             if (dr["authorization_code"] != DBNull.Value)
@@ -131,7 +128,7 @@ namespace ExternalBanking.DBManager
                             if (dr["credit_account"] != DBNull.Value)
                                 order.CreditAccount = Account.GetSystemAccount(dr["credit_account"].ToString());
 
-                                                order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+                            order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
 
 
                         }

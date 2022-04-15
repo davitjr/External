@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 using System.Transactions;
 
 namespace ExternalBanking.DBManager
@@ -71,7 +70,7 @@ namespace ExternalBanking.DBManager
 
                 messageUniqNumber = UtilityDB.GetLastKeyNumber(36, Constants.HEAD_OFFICE_FILIAL_CODE);
 
-               using SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_SWIFT_messages(
+                using SqlCommand cmd = new SqlCommand(@"INSERT INTO Tbl_SWIFT_messages(
                                                               unic_number,account_number,customer_number,filial,
                                                               registration_date,registration_set_number,
                                                               type,MT,SWIFT_code,fee_amount,

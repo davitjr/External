@@ -1,12 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.ARUSDataService;
+using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking.ARUSDataService;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -189,7 +186,7 @@ namespace ExternalBanking
                     LogOrderChange(user, Action.Update);
                     scope.Complete();
                 }
-              
+
             }
 
             return result;
@@ -301,7 +298,7 @@ namespace ExternalBanking
                 return result;
             }
 
-            Action action = Action.Add;         
+            Action action = Action.Add;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
@@ -374,7 +371,7 @@ namespace ExternalBanking
                 result = base.Confirm(user);
 
                 string infoDescription = Environment.NewLine + "Փոխանցման կարգավիճակ՝ " + ARUSRequestResponse.CancellationOutput.StatusCodeName +
-                                         Environment.NewLine + "Փոխանցման միջնորդավճար՝ " + ARUSRequestResponse.CancellationOutput.RemittanceFee + 
+                                         Environment.NewLine + "Փոխանցման միջնորդավճար՝ " + ARUSRequestResponse.CancellationOutput.RemittanceFee +
                                          Environment.NewLine + "Փոխանցման միջնորդավճար AMD՝ " + ARUSRequestResponse.CancellationOutput.AMDFee +
                                          Environment.NewLine + "Ուղարկող գործակալի միջնորդավճար՝ " + ARUSRequestResponse.CancellationOutput.SendingFee;
 
@@ -414,7 +411,7 @@ namespace ExternalBanking
                 this.SendPayoutDivCode = divCodes.Select("name like '%Send%'")[0]["code"].ToString();
             }
             //Վճարված փոխանցման չեղարկում
-            else if(this.SubType == 2)
+            else if (this.SubType == 2)
             {
                 this.SendPayoutDivCode = divCodes.Select("name like '%Pay%'")[0]["code"].ToString();
             }
@@ -459,7 +456,7 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
 
-            if(this.Quality != OrderQuality.TransactionLimitApprovement)
+            if (this.Quality != OrderQuality.TransactionLimitApprovement)
             {
                 //Տվյալ կարգավիճակով փաստաթուղթը հնարավոր չէ ուղարկել։
                 result.Errors.Add(new ActionError(35));

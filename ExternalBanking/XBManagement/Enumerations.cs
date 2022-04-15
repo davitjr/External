@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-
-namespace ExternalBanking.XBManagement
+﻿namespace ExternalBanking.XBManagement
 {
     public enum HBProductPermissionType : short
     {
@@ -57,7 +50,7 @@ namespace ExternalBanking.XBManagement
         Paidfactoring = 12
 
     }
-    public enum RequestType:short
+    public enum RequestType : short
     {
         NotSpecified = 0,
         /// <summary>

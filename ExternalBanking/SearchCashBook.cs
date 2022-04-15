@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -53,8 +50,8 @@ namespace ExternalBanking
         /// <returns></returns>
         public static List<CashBook> GetCashBooks(SearchCashBook searchParams, ExternalBanking.ACBAServiceReference.User user)
         {
-            
-            if (user.IsChiefAcc || user.AdvancedOptions["isHeadCashBook"] =="1" ||
+
+            if (user.IsChiefAcc || user.AdvancedOptions["isHeadCashBook"] == "1" || user.isOnlineAcc ||
                 (user.AdvancedOptions["canApproveCashBookSurplusDeficit"] == "1" && user.AdvancedOptions["isEncashmentDepartment"] == "1"))
             {
                 searchParams.RegisteredUserID = null;

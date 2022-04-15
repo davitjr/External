@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Configuration;
 
 
 namespace ExternalBanking.DBManager
@@ -18,7 +12,18 @@ namespace ExternalBanking.DBManager
             SearchAccountResult searchAccountResult = new SearchAccountResult();
             if (!String.IsNullOrEmpty(searchParams.accountNumber))
             {
-                Account account  = Account.GetAccount(ulong.Parse(searchParams.accountNumber));
+
+                Account account = null;
+                if(currentUser!=null && currentUser.isOnlineAcc)
+                {
+                    account = Account.GetSystemAccount(searchParams.accountNumber);
+                }
+                else
+                {
+                    account = Account.GetAccount(ulong.Parse(searchParams.accountNumber));
+                }
+
+                
                 if (account != null)
                 {
                     ulong customerNumber = account.GetAccountCustomerNumber();
@@ -62,24 +67,24 @@ namespace ExternalBanking.DBManager
             }
 
             return accountList;
-            
+
 
         }
 
-        internal static SearchAccountResult SetSearchAccountResult(Account account,ulong customerNumber)
+        internal static SearchAccountResult SetSearchAccountResult(Account account, ulong customerNumber)
         {
             SearchAccountResult searchAccountResult = new SearchAccountResult();
             searchAccountResult.AccountNumber = account.AccountNumber;
-                        searchAccountResult.CustomerNumber =customerNumber;
-                        searchAccountResult.Currency = account.Currency;
-                        searchAccountResult.Description = account.AccountDescription;
-                        searchAccountResult.CloseDate = account.ClosingDate;
-                        searchAccountResult.ProductNumber = account.ProductNumber;
-                        searchAccountResult.FilialCode = account.FilialCode;
-                        searchAccountResult.AccountType = account.AccountType;
-                        searchAccountResult.AccountTypeDescription = account.AccountTypeDescription;
+            searchAccountResult.CustomerNumber = customerNumber;
+            searchAccountResult.Currency = account.Currency;
+            searchAccountResult.Description = account.AccountDescription;
+            searchAccountResult.CloseDate = account.ClosingDate;
+            searchAccountResult.ProductNumber = account.ProductNumber;
+            searchAccountResult.FilialCode = account.FilialCode;
+            searchAccountResult.AccountType = account.AccountType;
+            searchAccountResult.AccountTypeDescription = account.AccountTypeDescription;
 
-                        return searchAccountResult;
+            return searchAccountResult;
         }
     }
 }

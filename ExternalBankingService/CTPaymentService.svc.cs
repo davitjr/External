@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
+﻿using ExternalBanking;
 using ExternalBankingService.Interfaces;
-using ExternalBanking;
-using System.Web.Configuration;
 using NLog;
 using NLog.Targets;
-using ExternalBanking.ArcaDataServiceReference;
+using System;
+using System.ServiceModel;
+using System.Web.Configuration;
 
 namespace ExternalBankingService
 {
@@ -44,7 +39,7 @@ namespace ExternalBankingService
             CashTerminal.CustomerNumber = cashTerminal.CustomerNumber;
             CashTerminal.UserName = cashTerminal.UserName;
             CashTerminal.ID = cashTerminal.ID;
-         }
+        }
 
 
         public void WriteLog(Exception ex)
@@ -137,7 +132,7 @@ namespace ExternalBankingService
         {
             try
             {
-                return CashTerminal.CheckTerminalPassword(userName,password);
+                return CashTerminal.CheckTerminalPassword(userName, password);
 
             }
             catch (Exception ex)
@@ -178,7 +173,7 @@ namespace ExternalBankingService
                 return response;
 
             }
-            catch(C2CTransferException ex)
+            catch (C2CTransferException ex)
             {
                 WriteLog(ex);
                 return ex.TransferResponse;
@@ -224,7 +219,7 @@ namespace ExternalBankingService
                 return terminal.GetC2CTransferStatus(transferID);
 
             }
-            catch(C2CTransferStatusException ex)
+            catch (C2CTransferStatusException ex)
             {
                 WriteLog(ex);
                 return ex.TransferStatusResponse;
@@ -289,7 +284,7 @@ namespace ExternalBankingService
                 return response;
 
             }
-            catch(C2CTransferException ex)
+            catch (C2CTransferException ex)
             {
                 WriteLog(ex);
                 EOTransferResponse response = new EOTransferResponse();

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -16,9 +12,9 @@ namespace ExternalBanking
         public OrderType OrderType { get; set; }
         public byte OrderSubType { get; set; }
 
-        public  ActionPermission() { }
+        public ActionPermission() { }
 
-        public  ActionPermission(int ActionID, String Description, OrderType OrderType, byte OrderSubType)
+        public ActionPermission(int ActionID, String Description, OrderType OrderType, byte OrderSubType)
         {
             this.ActionID = ActionID;
             this.Description = Description;

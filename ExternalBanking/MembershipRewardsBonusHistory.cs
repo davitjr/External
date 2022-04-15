@@ -1,9 +1,4 @@
-﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace ExternalBanking
 {
@@ -47,8 +42,8 @@ namespace ExternalBanking
         /// <summary>
         /// Պատասխանատու կատարող
         /// </summary>
-         public int SetNumber { get; set; }
-        
+        public int SetNumber { get; set; }
+
         public int UniqueNumber { get; set; }
 
         public int turbo_acs_id { get; set; }
@@ -57,7 +52,7 @@ namespace ExternalBanking
         /// Միավորների վերջին հաշվարկման օրը
         /// </summary>
         public DateTime? LastDayOfBonusCalculation { get; set; }
-        
+
         public long TransferGroupNumber { get; set; }
 
         /// <summary>

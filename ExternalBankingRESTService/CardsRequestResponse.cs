@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.XBS;
+using System.Collections.Generic;
 
 namespace ExternalBankingRESTService
 {
-	public class CardsRequestResponse
+    public class CardsRequestResponse
     {
         public List<Card> Cards { get; set; }
         public Result Result { get; set; }
 
-       public CardsRequestResponse()
+        public CardsRequestResponse()
         {
             Result = new Result();
         }

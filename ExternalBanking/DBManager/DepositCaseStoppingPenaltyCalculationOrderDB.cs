@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -110,7 +110,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                         c.*,
                                                         d.filial,
                                                         d.customer_number,
@@ -137,11 +137,11 @@ namespace ExternalBanking.DBManager
                 order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
                 order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
                 order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
-                order.Source=(SourceType)Convert.ToInt16( dt.Rows[0]["source_type"]);
-                order.FilialCode= dt.Rows[0]["operationFilialCode"] != DBNull.Value ? Convert.ToUInt16(dt.Rows[0]["operationFilialCode"]) : (ushort)0;
+                order.Source = (SourceType)Convert.ToInt16(dt.Rows[0]["source_type"]);
+                order.FilialCode = dt.Rows[0]["operationFilialCode"] != DBNull.Value ? Convert.ToUInt16(dt.Rows[0]["operationFilialCode"]) : (ushort)0;
                 order.ProductId = Convert.ToUInt64(dt.Rows[0]["app_id"]);
                 order.DateOfStoppingPenaltyCalculation = Convert.ToDateTime(dt.Rows[0]["date_of_stopping_penalty_calculation"]);
-                order.DocumentDate= Convert.ToDateTime(dt.Rows[0]["document_date"]);
+                order.DocumentDate = Convert.ToDateTime(dt.Rows[0]["document_date"]);
                 order.ChangingReason = dt.Rows[0]["changing_reason"].ToString();
 
             }

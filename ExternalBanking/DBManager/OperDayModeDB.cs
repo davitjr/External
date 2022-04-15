@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -37,13 +34,13 @@ namespace ExternalBanking.DBManager
         internal static KeyValuePair<string, string> GetCurrentOperDay24_7_Mode()
         {
             KeyValuePair<string, string> dictionary = new KeyValuePair<string, string>();
-           using DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 connection.Open();
                 string SqlQuery = "select M.id, M.[description] from TBl_Current_oper_day C inner join tbl_type_of_24_7_mode M on C.mode_24_7 = M.id";
 
-               using SqlCommand cmd = new SqlCommand(SqlQuery, connection);
+                using SqlCommand cmd = new SqlCommand(SqlQuery, connection);
                 dt.Load(cmd.ExecuteReader());
 
                 string Key = "";

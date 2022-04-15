@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -58,7 +55,7 @@ namespace ExternalBanking
         /// <param name="dateTo"></param>
         /// <param name="type">հաղորդագրության տեսակ (ստացված,ուղարկված)</param>
         /// <returns></returns>
-        public static List<Message> GetMessages(ulong customerNumber,DateTime dateFrom,DateTime dateTo,short type)
+        public static List<Message> GetMessages(ulong customerNumber, DateTime dateFrom, DateTime dateTo, short type)
         {
             List<Message> messages = MessageDB.GetMessages(customerNumber, dateFrom, dateTo, type);
             return messages;
@@ -70,13 +67,13 @@ namespace ExternalBanking
         /// <param name="messagesCount">Հաղորդագրությունների քանակ</param>
         /// <param name="type">Հաղորդագրությունների տեսակ</param>
         /// <returns></returns>
-        public static List<Message> GetMessages(ulong customerNumber,short messagesCount,MessageType type)
+        public static List<Message> GetMessages(ulong customerNumber, short messagesCount, MessageType type)
         {
             return MessageDB.GetMessages(customerNumber, messagesCount, type);
         }
 
-        
-        
+
+
         public void Add(ulong customerNumber)
         {
             MessageDB.Add(this, customerNumber);
@@ -107,7 +104,7 @@ namespace ExternalBanking
             return MessageDB.GetUnreadedMessagesCount(customerNumber);
         }
 
-        
+
         /// <summary>
         /// Վերադարձնում է նշված տեսակի չկարդացված հաղորդագրությունների քանակը:
         /// </summary>
@@ -131,7 +128,7 @@ namespace ExternalBanking
 
         public static OrderAttachment GetMessageAttachmentById(int Id)
         {
-           return MessageDB.GetMessageAttachmentById(Id);
+            return MessageDB.GetMessageAttachmentById(Id);
         }
     }
 }

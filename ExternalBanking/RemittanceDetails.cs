@@ -1,10 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.ARUSDataService;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ARUSDataService;
 
 namespace ExternalBanking
 {
@@ -630,7 +627,7 @@ namespace ExternalBanking
         /// </summary>
         public string ResponseMessage { get; set; }
 
-       
+
 
         /// <summary>
         /// Վերադարձնում է արագ փոխանցման տվյալները՝ ըստ փոխանցման հսկիչ համարի
@@ -650,12 +647,12 @@ namespace ExternalBanking
 
             //Մուտքային դաշտերի ստուգումներ
             List<ActionError> errors = Validation.ValidateURN(URN);
-            if(errors != null && errors.Count > 0)
+            if (errors != null && errors.Count > 0)
             {
                 remittanceDetailsRequestResponse.ActionResult.Errors = new List<ActionError>();
                 remittanceDetailsRequestResponse.ActionResult.Errors.AddRange(errors);
                 remittanceDetailsRequestResponse.ActionResult.ResultCode = ResultCode.ValidationError;
-              
+
 
                 return remittanceDetailsRequestResponse;
             }
@@ -723,22 +720,22 @@ namespace ExternalBanking
 
             //PurposeRemittanceCode = "RW";   //Հանել հետագայում
 
-            
+
 
             if (!String.IsNullOrEmpty(PurposeRemittanceCode))
             {
-                DataTable purposes = ARUSInfo.GetRemittancePurposes(MTOAgentCode, authorizedUserSessionToken, userName, clientIP);              
-                PurposeRemittanceName = purposes.Select("code = '" + PurposeRemittanceCode + "'")[0]["name"].ToString();        
+                DataTable purposes = ARUSInfo.GetRemittancePurposes(MTOAgentCode, authorizedUserSessionToken, userName, clientIP);
+                PurposeRemittanceName = purposes.Select("code = '" + PurposeRemittanceCode + "'")[0]["name"].ToString();
             }
 
-            if(!String.IsNullOrEmpty(SendPayoutDivCode))
+            if (!String.IsNullOrEmpty(SendPayoutDivCode))
             {
                 DataTable divisions = ARUSInfo.GetSendPayoutDivisionCodes(authorizedUserSessionToken, userName, clientIP);
                 SendPayoutDivName = divisions.Select("code = '" + SendPayoutDivCode + "'")[0]["name"].ToString();
-                
+
             }
 
-            if(!String.IsNullOrEmpty(MTOAgentCode))
+            if (!String.IsNullOrEmpty(MTOAgentCode))
             {
                 MTOAgentName = MTOList.Select("code = '" + MTOAgentCode + "'")[0]["name"].ToString();
             }
@@ -770,8 +767,8 @@ namespace ExternalBanking
                 BeneficiarySexName = BeneficiarySexName == "Female" ? "Female (Իգական)" : (BeneficiarySexName == "Male" ? "Male (Արական)" : BeneficiarySexName);
             }
 
-            
-            if(!String.IsNullOrEmpty(SendAgentTypeCode))
+
+            if (!String.IsNullOrEmpty(SendAgentTypeCode))
             {
                 SendAgentTypeName = ARUSInfo.GetAgentTypeNameByCode(SendAgentTypeCode);
             }
@@ -781,11 +778,11 @@ namespace ExternalBanking
                 BeneAgentTypeName = ARUSInfo.GetAgentTypeNameByCode(BeneAgentTypeCode);
             }
 
-            if(!String.IsNullOrEmpty(SenderResidencyCode) || !String.IsNullOrEmpty(BeneficiaryResidencyCode))
+            if (!String.IsNullOrEmpty(SenderResidencyCode) || !String.IsNullOrEmpty(BeneficiaryResidencyCode))
             {
                 DataTable YesNoList = ARUSInfo.GetYesNo(authorizedUserSessionToken, userName, clientIP);
                 if (!String.IsNullOrEmpty(SenderResidencyCode))
-                {                
+                {
                     SenderResidencyName = YesNoList.Select("code = '" + SenderResidencyCode + "'")[0]["name"].ToString();
                     SenderResidencyName = SenderResidencyName == "Yes" ? "Yes (Այո) " : (SenderResidencyName == "No" ? "No (Ոչ)" : SenderResidencyName);
                 }

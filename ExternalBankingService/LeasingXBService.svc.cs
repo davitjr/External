@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
-using ExternalBanking;
+﻿using ExternalBanking;
 using ExternalBankingService.Interfaces;
+using System;
+using System.ServiceModel;
 
 namespace ExternalBankingService
 {
@@ -21,7 +17,7 @@ namespace ExternalBankingService
                 Customer customer = new Customer();
                 return customer.GetAccountsForLeasing(CustomerNumber);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);

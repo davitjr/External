@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -54,11 +51,11 @@ namespace ExternalBanking
 
             limits.ForEach(m =>
             {
-                if (!oldLimits.Exists(o=> o.Currency == m.Currency && o.Amount == m.Amount))
+                if (!oldLimits.Exists(o => o.Currency == m.Currency && o.Amount == m.Amount))
                 {
                     CashierCashLimitDB.SaveCashierCashLimits(m);
                 }
-                
+
             });
 
             result.ResultCode = ResultCode.Normal;
@@ -66,13 +63,13 @@ namespace ExternalBanking
         }
 
 
-        public static  ActionResult GenerateCashierCashDefaultLimits(int setNumber, int changeSetNumber)
+        public static ActionResult GenerateCashierCashDefaultLimits(int setNumber, int changeSetNumber)
         {
             return CashierCashLimitDB.GenerateCashierCashDefaultLimits(setNumber, changeSetNumber);
         }
 
 
-        public static  List<CashierCashLimit> GetCashierLimits(int setNumber)
+        public static List<CashierCashLimit> GetCashierLimits(int setNumber)
         {
             return CashierCashLimitDB.GetCashierLimits(setNumber);
         }

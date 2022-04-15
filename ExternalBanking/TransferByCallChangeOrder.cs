@@ -1,8 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -22,7 +20,7 @@ namespace ExternalBanking
         /// </summary>
         public ReceivedFastTransferPaymentOrder ReceivedFastTransfer { get; set; }
 
-        public new ActionResult SaveAndApprove(  SourceType source, short schemaType)
+        public new ActionResult SaveAndApprove(SourceType source, short schemaType)
         {
             this.Complete();
 
@@ -52,13 +50,13 @@ namespace ExternalBanking
 
 
 
-             if (result.Errors.Count != 0)
-             {
-                 result.ResultCode = ResultCode.ValidationError;
-                 Localization.SetCulture(result, new Culture(Languages.hy));
+            if (result.Errors.Count != 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+                Localization.SetCulture(result, new Culture(Languages.hy));
 
-                 return result;
-             }
+                return result;
+            }
 
 
 
@@ -142,15 +140,15 @@ namespace ExternalBanking
             this.ReceivedFastTransfer.FeeAcba = Utility.RoundAmount(this.ReceivedFastTransfer.FeeAcba, this.ReceivedFastTransfer.Currency);
             if (this.SubType == 1 || this.SubType == 5)
             {
-                this.Description = this.SubType == 5 ? "Հեռախոսազանգով փոխանցման հաստատում" :   "Փոխանցման խմբագրում" ;
+                this.Description = this.SubType == 5 ? "Հեռախոսազանգով փոխանցման հաստատում" : "Փոխանցման խմբագրում";
             }
         }
 
         public static Dictionary<string, string> GetCallTransferRejectionReasons()
         {
-            
-                Dictionary<string, string> reasons = TransferByCallDB.GetCallTransferRejectionReasons();
-                return reasons;
+
+            Dictionary<string, string> reasons = TransferByCallDB.GetCallTransferRejectionReasons();
+            return reasons;
         }
 
 

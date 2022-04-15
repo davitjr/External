@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -36,6 +32,10 @@ namespace ExternalBanking
         /// Պարտք/Գերավճար
         /// </summary>
         public double Debt { get; set; }
+        /// <summary>
+        /// Սպասարկման գումար
+        /// </summary>
+        public double FeeDebt { get; set; }
         /// <summary>
         /// Վարկի տեսակ
         /// </summary>

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -22,7 +18,7 @@ namespace ExternalBanking
         /// MR կարգավիճակի նկարագրություն
         /// </summary>
         public string StatusDescription { get; set; }
-        
+
         /// <summary>
         /// Կարգավիճակի փոփոխման ա/թ
         /// </summary>

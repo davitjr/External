@@ -1,6 +1,4 @@
-﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ExternalBanking
 {
@@ -34,7 +32,7 @@ namespace ExternalBanking
 
         public LoanStatement()
         {
-            Transactions = new List<LoanStatementDetail>();            
+            Transactions = new List<LoanStatementDetail>();
         }
     }
 }

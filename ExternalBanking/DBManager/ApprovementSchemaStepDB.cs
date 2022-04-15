@@ -1,11 +1,7 @@
 ﻿using ExternalBanking.XBManagement;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -18,7 +14,7 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
-        
+
                 using (SqlCommand cmd = new SqlCommand())
                 {
                     conn.Open();
@@ -69,7 +65,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-               string script = @"SELECT id,step_description FROM Tbl_Steps WHERE id = @id";
+                string script = @"SELECT id,step_description FROM Tbl_Steps WHERE id = @id";
 
                 using (SqlCommand cmd = new SqlCommand(script, conn))
                 {

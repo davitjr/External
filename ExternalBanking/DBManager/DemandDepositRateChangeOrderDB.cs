@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -82,10 +80,10 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@percent_credit_account", SqlDbType.Float).Value = order.PercentCreditAccount;
 
                 if (!string.IsNullOrEmpty(order.DocumentNumber))
-                    cmd.Parameters.Add("@document_number", SqlDbType.NVarChar,1000).Value = order.DocumentNumber;
+                    cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 1000).Value = order.DocumentNumber;
                 else
                     cmd.Parameters.Add("@document_number", SqlDbType.NVarChar, 1000).Value = DBNull.Value;
-                if(order.DocumentDate!=null)
+                if (order.DocumentDate != null)
                     cmd.Parameters.Add("@document_date", SqlDbType.SmallDateTime).Value = order.DocumentDate?.Date;
                 else
                     cmd.Parameters.Add("@document_date", SqlDbType.SmallDateTime).Value = DBNull.Value;
@@ -102,7 +100,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"SELECT 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 
                                                     hb.filial,
                                                     hb.customer_number,
                                                     hb.registration_date,

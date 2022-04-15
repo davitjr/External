@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Configuration;
 using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
@@ -1243,7 +1243,7 @@ namespace ExternalBanking.DBManager
 
             parameters.Add(key: "customerNumberHB", value: customerNumber.ToString());
             ContractServiceRef.Contract contract = null;
-            if (fromApprove == true)
+            if (fromApprove)
             {
                 contract = new ContractServiceRef.Contract();
 
@@ -1541,7 +1541,7 @@ namespace ExternalBanking.DBManager
             }
             return ballance;
         }
-        internal static void SaveCreditLineByApiGate(long docId,double productId,ulong orderId )
+        internal static void SaveCreditLineByApiGate(long docId, double productId, ulong orderId)
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
@@ -1616,7 +1616,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = @"SELECT f_name
                                         FROM tbl_credit_lines 
                                         tbl_credit_lines  WHERE  App_Id = @productId";
-                    
+
                     cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
 
                     var result = cmd.ExecuteScalar();
@@ -1657,7 +1657,7 @@ namespace ExternalBanking.DBManager
                                                   WHERE Doc_ID = @docID", DbConn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@docID", SqlDbType.Int).Value = docID;
-               using SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                     date = dr["contract_date"] != DBNull.Value ? Convert.ToDateTime(dr["contract_date"]) : default;

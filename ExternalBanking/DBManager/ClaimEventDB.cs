@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -20,7 +20,7 @@ namespace ExternalBanking.DBManager
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)
                 {
-                    events=new List<ClaimEvent>();
+                    events = new List<ClaimEvent>();
                     foreach (DataRow row in dt.Rows)
                     {
                         ClaimEvent claimEvent = new ClaimEvent();
@@ -30,16 +30,16 @@ namespace ExternalBanking.DBManager
                         claimEvent.EventDate = DateTime.Parse(row["event_date"].ToString());
                         claimEvent.Type = short.Parse(row["event_type"].ToString());
                         claimEvent.CourtType = row["court_type"] != DBNull.Value ? short.Parse(row["court_type"].ToString()) : (short)0;
-                        claimEvent.Purpose=row["event_purpose"]!=DBNull.Value? short.Parse(row["event_purpose"].ToString()):(short)0;
-                        claimEvent.ClaimAmount = row["claim_amount"] != DBNull.Value ? double.Parse(row["claim_amount"].ToString()) : 0; 
+                        claimEvent.Purpose = row["event_purpose"] != DBNull.Value ? short.Parse(row["event_purpose"].ToString()) : (short)0;
+                        claimEvent.ClaimAmount = row["claim_amount"] != DBNull.Value ? double.Parse(row["claim_amount"].ToString()) : 0;
                         claimEvent.Description = row["event_add_inf"] != DBNull.Value ? row["event_add_inf"].ToString() : null;
                         claimEvent.EventTax = new List<Tax>();
                         Tax tax = Tax.GetTax(claimEvent.claimNumber, claimEvent.EventNumber);
-                        if (tax!=null)
+                        if (tax != null)
                         {
                             claimEvent.EventTax.Add(tax);
                         }
-                        
+
 
                         events.Add(claimEvent);
                     }

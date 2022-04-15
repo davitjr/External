@@ -1,20 +1,18 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
 {
-    public class ServicePaymentNoteOrder:Order
+    public class ServicePaymentNoteOrder : Order
     {
         /// <summary>
         /// Սպասարկման վարձի գանձման նշում
         /// </summary>
         public ServicePaymentNote Note { get; set; }
-        public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user,short schemaType) {
+        public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
+        {
             this.Complete(source);
             ActionResult result = this.Validate();
             List<ActionError> warnings = new List<ActionError>();
@@ -34,11 +32,11 @@ namespace ExternalBanking
                 {
                     result = ServicePaymentNoteDB.Save(this, userName, source);
                 }
-                else if(this.Type == OrderType.DeleteServicePaymentNote)
+                else if (this.Type == OrderType.DeleteServicePaymentNote)
                 {
                     result = ServicePaymentNoteDB.Delete(this, userName, source);
-                }               
-               
+                }
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

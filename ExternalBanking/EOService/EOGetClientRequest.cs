@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ExternalBanking
 {
@@ -92,73 +90,73 @@ namespace ExternalBanking
             if (this.Telephone != "" && this.Telephone != null)
                 search.phoneNumber = this.Telephone;
 
-            if ((this.SSN == 0 || this.SSN.ToString().Length >5) && ((this.Passport == "" || this.Passport == null) || this.Passport.Length >5))
+            if ((this.SSN == 0 || this.SSN.ToString().Length > 5) && ((this.Passport == "" || this.Passport == null) || this.Passport.Length > 5))
+            {
+
+                var searchResult = ACBAOperationService.FindCustomers(search, 1); // TODO paging
+
+                List<SearchCustomers> customers = new List<SearchCustomers>();
+
+                if (searchResult.First(m => m.Key >= 0).Key != 0)
                 {
+                    uint custmersCount = searchResult.First(m => m.Key >= 0).Key;
+                    customers = searchResult[custmersCount];
+                }
 
-                        var searchResult = ACBAOperationService.FindCustomers(search, 1); // TODO paging
+                customers = customers.FindAll(m => m.documentNumber == this.Passport || m.socCardNumber == this.SSN.ToString());
+                if (customers.Count != 0)
+                {
+                    Account cardAccount = new Account();
 
-                        List<SearchCustomers> customers = new List<SearchCustomers>();
-
-                        if (searchResult.First(m => m.Key >= 0).Key != 0)
+                    foreach (SearchCustomers customer in customers)
+                    {
+                        if (!Validation.IsDAHKAvailability(Convert.ToUInt64(customer.customerNumber)))
                         {
-                            uint custmersCount = searchResult.First(m => m.Key >= 0).Key;
-                            customers = searchResult[custmersCount];
-                        }
-
-                        customers = customers.FindAll(m => m.documentNumber == this.Passport || m.socCardNumber == this.SSN.ToString());
-                        if (customers.Count != 0)
-                        {
-                            Account cardAccount = new Account();
-
-                            foreach (SearchCustomers customer in customers)
+                            List<Card> customerCardsList = Card.GetCards(Convert.ToUInt64(customer.customerNumber), ProductQualityFilter.Opened);
+                            foreach (Card card in customerCardsList)
                             {
-                                if (!Validation.IsDAHKAvailability(Convert.ToUInt64(customer.customerNumber)))
+                                if (this.ProductID == card.CardNumber.Substring(0, 8) + card.CardNumber.Substring(card.CardNumber.Length - 4))
                                 {
-                                    List<Card> customerCardsList = Card.GetCards(Convert.ToUInt64(customer.customerNumber), ProductQualityFilter.Opened);
-                                    foreach (Card card in customerCardsList)
+                                    if (card.Currency == "AMD")
                                     {
-                                        if (this.ProductID == card.CardNumber.Substring(0, 8) + card.CardNumber.Substring(card.CardNumber.Length - 4))
-                                        {
-                                            if (card.Currency == "AMD")
-                                            {
-                                                response.Account = Convert.ToInt64(card.CardAccount.AccountNumber);
-                                                response.ErrorCode = 0;
-                                                response.ErrorText = "";
-                                            }
-                                            else
-                                            {
-                                                response.Account = Convert.ToInt64(card.CardAccount.AccountNumber);
-                                                response.ErrorCode = 1;
-                                                response.ErrorText = "Foreign currency card";
-                                            }
-                                            break;
-                                        }
-
+                                        response.Account = Convert.ToInt64(card.CardAccount.AccountNumber);
+                                        response.ErrorCode = 0;
+                                        response.ErrorText = "";
                                     }
-                                    if (response.Account == 0)
+                                    else
                                     {
-                                        response.Account = 0;
+                                        response.Account = Convert.ToInt64(card.CardAccount.AccountNumber);
                                         response.ErrorCode = 1;
-                                        response.ErrorText = "Product not found";
+                                        response.ErrorText = "Foreign currency card";
                                     }
-                                }
-                                else
-                                {
-                                    response.Account = 0;
-                                    response.ErrorCode = 1;
-                                    response.ErrorText = "Found in stop list";
+                                    break;
                                 }
 
                             }
+                            if (response.Account == 0)
+                            {
+                                response.Account = 0;
+                                response.ErrorCode = 1;
+                                response.ErrorText = "Product not found";
+                            }
                         }
-
                         else
                         {
                             response.Account = 0;
                             response.ErrorCode = 1;
-                            response.ErrorText = "Client not found";
+                            response.ErrorText = "Found in stop list";
                         }
+
+                    }
                 }
+
+                else
+                {
+                    response.Account = 0;
+                    response.ErrorCode = 1;
+                    response.ErrorText = "Client not found";
+                }
+            }
             else
             {
                 response.Account = 0;
@@ -167,7 +165,7 @@ namespace ExternalBanking
             }
             response.ID = EOServiceDB.SaveEOGetClientResponse(response);
             return response;
-            }
         }
     }
+}
 

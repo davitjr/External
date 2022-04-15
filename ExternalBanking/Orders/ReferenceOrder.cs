@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,7 +8,7 @@ namespace ExternalBanking
     /// <summary>
     ///  Տեղեկանքի ստացման հայտ
     /// </summary>
-    public class ReferenceOrder:Order
+    public class ReferenceOrder : Order
     {
         /// <summary>
         /// Տեղեկանքի տեսակ
@@ -110,36 +107,36 @@ namespace ExternalBanking
         public ActionResult Save(string userName, SourceType source, ACBAServiceReference.User user)
         {
             this.Complete();
-            ActionResult result =this.Validate();
+            ActionResult result = this.Validate();
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
 
-             Action action = this.Id == 0 ? Action.Add : Action.Update;
+            Action action = this.Id == 0 ? Action.Add : Action.Update;
 
-             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
-             {
-                 result = ReferenceOrderDB.Save(this, userName, source);
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            {
+                result = ReferenceOrderDB.Save(this, userName, source);
 
-                 ActionResult resultOPPerson = base.SaveOrderOPPerson();
+                ActionResult resultOPPerson = base.SaveOrderOPPerson();
 
-                 if (resultOPPerson.ResultCode != ResultCode.Normal)
-                 {
-                     return resultOPPerson;
-                 }
+                if (resultOPPerson.ResultCode != ResultCode.Normal)
+                {
+                    return resultOPPerson;
+                }
 
-                 ActionResult resultFee = base.SaveOrderFee();
+                ActionResult resultFee = base.SaveOrderFee();
 
-                 if (resultFee.ResultCode != ResultCode.Normal)
-                 {
-                     return resultFee;
-                 }
+                if (resultFee.ResultCode != ResultCode.Normal)
+                {
+                    return resultFee;
+                }
 
-                 LogOrderChange(user, action);
-                 scope.Complete();
-             }
+                LogOrderChange(user, action);
+                scope.Complete();
+            }
 
             return result;
         }
@@ -180,7 +177,7 @@ namespace ExternalBanking
                 }
             }
 
-           
+
 
             return result;
         }
@@ -212,7 +209,7 @@ namespace ExternalBanking
             else
             {
                 result.ResultCode = ResultCode.Normal;
-            }          
+            }
 
             return result;
         }
@@ -223,11 +220,11 @@ namespace ExternalBanking
         {
             ReferenceOrderDB.Get(this);
             this.Fees = Order.GetOrderFees(this.Id);
-            
+
         }
 
 
-          /// <summary>
+        /// <summary>
         /// Լրացնում է վճարման հանձնարարականի ավտոմատ լրացվող դաշտերը
         /// </summary>
         private void Complete()
@@ -271,7 +268,7 @@ namespace ExternalBanking
 
             });
 
-            if(ReferenceTypes.Count == 1 && ReferenceTypes.Contains(9))
+            if (ReferenceTypes.Count == 1 && ReferenceTypes.Contains(9))
             {
                 ReferenceLanguage = 1;
             }
@@ -279,7 +276,7 @@ namespace ExternalBanking
         }
 
 
-          /// <summary>
+        /// <summary>
         /// Վճարման հանձնարարականի պահպանում և ուղղարկում
         /// </summary>
         /// <param name="userName">Օգտագործողի անուն (Հաճախորդ)</param>
@@ -366,7 +363,7 @@ namespace ExternalBanking
             {
 
             }
-            
+
 
             result.Errors = warnings;
             return result;

@@ -1,16 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.Interfaces;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-    public class CreditHereAndNowActivationOrders:PreOrder 
+    public class CreditHereAndNowActivationOrders : PreOrder
     {
         /// <summary>
         /// Ապառիկ տեղում վարկերի ակտիվացման հայտերի նախնական հայտի մանրամասներ
@@ -44,7 +38,7 @@ namespace ExternalBanking
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
-            
+
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = CreditHereAndNowDB.SaveCreditHereAndNowActivationPreOrder(this, userName, source);
@@ -58,9 +52,9 @@ namespace ExternalBanking
                     scope.Complete();
                 }
             }
-            
+
             return result;
         }
 
-     }
+    }
 }

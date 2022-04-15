@@ -34,7 +34,6 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@status", SqlDbType.SmallInt).Value = template.Status;
                     cmd.Parameters.Add("@debit_card_number", SqlDbType.NVarChar).Value = template.CardToCardOrder.DebitCardNumber;
                     cmd.Parameters.Add("@credit_card_number", SqlDbType.NVarChar).Value = template.CardToCardOrder.CreditCardNumber;
-                    cmd.Parameters.Add("@embossing_name", SqlDbType.NVarChar).Value = template.CardToCardOrder.EmbossingName;
                     cmd.Parameters.Add("@is_our_card", SqlDbType.NVarChar).Value = template.CardToCardOrder.IsOurCard;
                     cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = template.CardToCardOrder.Currency;
 
@@ -142,11 +141,11 @@ namespace ExternalBanking.DBManager
                             // CardToCard օբյեկտի արժեքավորում
                             template.CardToCardOrder.DebitCardNumber = dr["debit_card_number"].ToString();
                             template.CardToCardOrder.CreditCardNumber = dr["credit_card_number"].ToString();
-                            template.CardToCardOrder.EmbossingName = dr["embossing_name"].ToString();
+                            template.CardToCardOrder.EmbossingName = dr["embossing_name"].ToString() == null ? "" : dr["embossing_name"].ToString();
                             template.CardToCardOrder.IsOurCard = Convert.ToBoolean(dr["is_our_card"].ToString());
                             template.CardToCardOrder.RegistrationDate = DateTime.Now;
                             template.CardToCardOrder.Currency = dr["currency"].ToString();
-                            
+
                         }
                         else
                         {

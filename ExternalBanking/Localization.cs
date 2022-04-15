@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace ExternalBanking
                 {
                     account.AccountTypeDescription = Info.AccountTypeDescription(account.AccountType, culture.Language);
                 }
-                else 
+                else
                 {
                     account.AccountTypeDescription = culture.Language == Languages.hy ? "Սահմանափակ հաշիվ" : "Limited account";
                 }
@@ -43,7 +43,7 @@ namespace ExternalBanking
             {
                 deposit.DepositTypeDescription = Info.GetDepositTypeDescription(deposit.DepositType, culture.Language);
                 deposit.JointTypeDescription = Info.GetJointTypeDescription(deposit.JointType, culture.Language);
-                deposit.StatementDeliveryTypeDescription = Info.GetStatementDeliveryTypeDescription(deposit.StatementDeliveryType, culture.Language);
+                deposit.StatementDeliveryTypeDescription = deposit.StatementDeliveryType == null ? null : Info.GetStatementDeliveryTypeDescription(deposit.StatementDeliveryType, culture.Language);
 
                 if (deposit.ClosingDate != null)
                     deposit.ClosingReasonTypeDescription = Info.GetDepositClosingReasonTypeDescription(deposit.ClosingReasonType, culture.Language);
@@ -108,7 +108,7 @@ namespace ExternalBanking
         public static void SetCulture(Loan loan, Culture culture)
         {
             loan.LoanTypeDescription = Info.GetLoanTypeDescription(loan.LoanType, culture.Language);
-            if(!loan.Is_24_7)
+            if (!loan.Is_24_7)
             {
                 loan.QualityDescription = Info.GetLoanQualityTypeDescription(loan.Quality, culture.Language);
             }
@@ -124,7 +124,7 @@ namespace ExternalBanking
                 }
 
             }
-            
+
             loan.FondDescription = Info.GetFondDescription(loan.Fond);
             loan.LoanProgramDescription = Info.GetLoanProgramDescription(loan.LoanProgram);
             loan.SaleDescription = Info.GetLoanActionDescription(loan.Sale);
@@ -163,7 +163,7 @@ namespace ExternalBanking
         {
             order.SubTypeDescription = Info.GetOrderSubTypeDescription(order.Type, order.SubType, culture.Language);
             order.QualityDescription = Info.GetOrderQualityTypeDescription((short)order.Quality, culture.Language);
- 
+
         }
 
         public static void SetLoanMatureTypeDescription(PaymentOrder order, Culture culture)
@@ -507,12 +507,12 @@ namespace ExternalBanking
             order.SubTypeDescription = Info.GetOrderSubTypeDescription(order.Type, order.SubType, culture.Language);
             order.QualityDescription = Info.GetOrderQualityTypeDescription((short)order.Quality, culture.Language);
 
-            if(order.StatementDeliveryType != null)
+            if (order.StatementDeliveryType != null)
             {
                 order.StatementDeliveryTypeDescription = Info.GetStatementDeliveryTypeDescription(order.StatementDeliveryType, culture.Language);
             }
 
-            
+
         }
 
         /// <summary>
@@ -615,7 +615,7 @@ namespace ExternalBanking
             order.Deposit.DepositTypeDescription = Info.GetDepositTypeDescription((short)order.DepositType, culture.Language);
 
 
-           
+
 
             //if (order.Deposit.DepositOption != null)
             //{
@@ -847,7 +847,7 @@ namespace ExternalBanking
 
         public static void SetCulture(Template template, Culture culture)
         {
-            if(template != null)
+            if (template != null)
             {
                 template.TemplateDocumentSubTypeDescription = Info.GetOrderSubTypeDescription(template.TemplateDocumentType, template.TemplateDocumentSubType, culture.Language);
             }
@@ -869,6 +869,25 @@ namespace ExternalBanking
                 result.Errors.ForEach(m => SetCulture(m, culture));
             }
             result.Errors = result.Errors.GroupBy(i => i.Description).Select(g => g.First()).ToList();
+        }
+
+        public static void SetCulture(ConsumeLoanApplicationOrder order, Culture culture)
+        {
+            order.SubTypeDescription = Info.GetOrderSubTypeDescription(order.Type, order.SubType, culture.Language);
+            order.QualityDescription = Info.GetOrderQualityTypeDescription((short)order.Quality, culture.Language);
+            order.ProductTypeDescription = culture.Language == Languages.hy ? "5G վարկ" : "5G loan";
+        }
+
+        public static void SetCulture(ConsumeLoanSettlementOrder order, Culture culture)
+        {
+            order.SubTypeDescription = Info.GetOrderSubTypeDescription(order.Type, order.SubType, culture.Language);
+            order.QualityDescription = Info.GetOrderQualityTypeDescription((short)order.Quality, culture.Language);
+            order.ProductTypeDescription = culture.Language == Languages.hy ? "5G վարկ" : "5G loan";
+        }
+
+        public static void SetCulture(List<SecuritiesTradingOrder> accounts, Culture culture)
+        {
+            accounts.ForEach(m => SetCulture(m, culture));
         }
     }
 }

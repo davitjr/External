@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -49,6 +45,6 @@ namespace ExternalBanking
         /// <param name="DigitalUserId"></param>
         /// <returns></returns>
         public ActionResult ResetCustomerAccountRestConfig(int DigitalUserId, ulong customerNumber) => DigitalAccountRestConfigurationsDB.ResetCustomerAccountRestConfig(DigitalUserId, customerNumber);
-        
+
     }
 }

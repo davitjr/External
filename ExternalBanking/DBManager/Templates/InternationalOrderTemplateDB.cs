@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -42,7 +38,7 @@ namespace ExternalBanking.DBManager
                 if (template.InternationalPaymentOrder.DescriptionForPaymentRUR1 != "Материальная помощь" && template.InternationalPaymentOrder.DescriptionForPaymentRUR1 != "Другое")
                 {
                     descriptionForPayment = descriptionForPayment + " " + template.InternationalPaymentOrder.DescriptionForPaymentRUR3 + " "
-                        + template.InternationalPaymentOrder.DescriptionForPaymentRUR4 + " " 
+                        + template.InternationalPaymentOrder.DescriptionForPaymentRUR4 + " "
                         + template.InternationalPaymentOrder.DescriptionForPaymentRUR5;
                     if (template.InternationalPaymentOrder.DescriptionForPaymentRUR5 == "с НДС")
                     {

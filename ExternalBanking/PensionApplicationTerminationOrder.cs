@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,7 +8,7 @@ namespace ExternalBanking
     /// <summary>
     /// Կենսաթոշակի դադարեցման տվյալներ
     /// </summary>
-    public class PensionApplicationTerminationOrder:PensionApplicationOrder
+    public class PensionApplicationTerminationOrder : PensionApplicationOrder
     {
         /// <summary>
         /// Դադարեցման հիմք
@@ -56,7 +53,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PensionApplicationOrderDB.SavePensionApplicationTerminationOrder(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -112,7 +109,7 @@ namespace ExternalBanking
         public ActionResult Validate()
         {
             ActionResult result = new ActionResult();
-   
+
             result.Errors.AddRange(Validation.ValidatePensionApplicationTerminationOrder(this));
             return result;
         }

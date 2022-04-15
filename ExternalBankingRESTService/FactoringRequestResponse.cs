@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.XBS;
 
 namespace ExternalBankingRESTService
 {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System;
 
 namespace ExternalBanking
 {
@@ -114,7 +110,7 @@ namespace ExternalBanking
 
 
 
-        public static Tax GetTax(int claimNumber,int eventNumber)
+        public static Tax GetTax(int claimNumber, int eventNumber)
         {
             return TaxDB.GetTax(claimNumber, eventNumber);
         }

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System;
 namespace ExternalBanking
 {
     public class TransferByCallFilter
@@ -45,7 +40,7 @@ namespace ExternalBanking
         /// Քարտի համար
         /// </summary>
         public string CardNumber { get; set; }
-         /// <summary>
+        /// <summary>
         // Գրանցողի ՊԿ
         /// </summary>
         public short RegisteredBy { get; set; }
@@ -60,8 +55,8 @@ namespace ExternalBanking
         {
             return TransferByCallDB.GetList(this);
         }
-        
+
     }
-    
-    
+
+
 }

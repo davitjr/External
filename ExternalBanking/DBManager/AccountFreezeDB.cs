@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 
 
 namespace ExternalBanking.DBManager
 {
-	static class AccountFreezeDB
+    static class AccountFreezeDB
     {
         /// <summary>
         /// Վերադարձնում է հաշվի սառեցման գրությունները
@@ -27,7 +27,7 @@ namespace ExternalBanking.DBManager
                     condition = condition + " And closing_date is not null Order by ID Desc ";
                     break;
             }
-            
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
@@ -76,9 +76,9 @@ namespace ExternalBanking.DBManager
                             freezeHistory.Add(oneFreezeHistory);
                         }
                     }
-  
+
                 }
-                   
+
             }
 
             return freezeHistory;
@@ -93,8 +93,8 @@ namespace ExternalBanking.DBManager
         internal static AccountFreezeDetails GetAccountFreezeDetails(string freezeId)
         {
             AccountFreezeDetails freezeDetails = new AccountFreezeDetails();
-            
-           
+
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
@@ -141,7 +141,7 @@ namespace ExternalBanking.DBManager
 
                         }
                     }
- 
+
                 }
             }
 
@@ -150,6 +150,6 @@ namespace ExternalBanking.DBManager
         }
 
 
-        
+
     }
 }

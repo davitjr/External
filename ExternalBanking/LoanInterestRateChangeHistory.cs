@@ -1,12 +1,12 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using ExternalBanking.DBManager;
 
 
 namespace ExternalBanking
 {
     public class LoanInterestRateChangeHistory
-    {  
+    {
         /// <summary>
         /// Տոկոսադրույքի փոփոխման ամսաթիվ
         /// </summary>
@@ -26,6 +26,6 @@ namespace ExternalBanking
         {
             return LoanInterestRateChangeHistoryDB.GetLoanInterestRateChangeHistoryDetails(productID);
         }
-        
+
     }
 }

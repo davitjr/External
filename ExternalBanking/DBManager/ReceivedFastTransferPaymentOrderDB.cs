@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -84,7 +81,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@sender_phone", SqlDbType.NVarChar).Value = order.SenderPhone;
                         cmd.Parameters.Add("@sender_agent_name", SqlDbType.NVarChar).Value = order.SenderAgentName;
                     }
-                    
+
                     if (order.GroupId != 0)
                     {
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
@@ -105,11 +102,11 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@rate_buy", SqlDbType.Float).Value = order.ConvertationRate;
                         cmd.Parameters.Add("@rate_sell", SqlDbType.Float).Value = order.ConvertationRate1;
                     }
-                    else if (order.ConvertationRate != 0  )
+                    else if (order.ConvertationRate != 0)
                     {
                         cmd.Parameters.Add("@rate_buy", SqlDbType.Float).Value = order.ConvertationRate;
                     }
-                    else if (order.ConvertationRate1 !=0)
+                    else if (order.ConvertationRate1 != 0)
                     {
                         cmd.Parameters.Add("@rate_buy", SqlDbType.Float).Value = order.ConvertationRate1;
                     }
@@ -140,7 +137,7 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        public static double GetFastTransferFeePercent(byte transferType = 0, string code = "", string countryCode = "", double amount = 0, string currency = "", DateTime date =new DateTime() )
+        public static double GetFastTransferFeePercent(byte transferType = 0, string code = "", string countryCode = "", double amount = 0, string currency = "", DateTime date = new DateTime())
         {
 
             double result;
@@ -167,7 +164,7 @@ namespace ExternalBanking.DBManager
 
         }
 
-        public static byte GetFastTransferAcbaCommisionType(byte transferType, string code="")
+        public static byte GetFastTransferAcbaCommisionType(byte transferType, string code = "")
         {
 
             byte result;
@@ -238,7 +235,7 @@ TD.ARUS_success,
                                                                     LEFT JOIN Tbl_Received_Fast_Transfer_Data TD on D.doc_id = TD.doc_id
                                                          WHERE D.doc_id=@id ";
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
-                  //  cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
+                    //  cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.Read())
@@ -258,7 +255,7 @@ TD.ARUS_success,
                                 order.DebitAccount = Account.GetAccount(debitAccount);
                             }
 
-                          if (dr["receiver_name"] != DBNull.Value)
+                            if (dr["receiver_name"] != DBNull.Value)
                                 order.Receiver = Utility.ConvertAnsiToUnicode(dr["receiver_name"].ToString());
 
                             if (dr["amount"] != DBNull.Value)
@@ -277,7 +274,7 @@ TD.ARUS_success,
 
                             if (dr["fast_transfer_code"] != DBNull.Value)
                                 order.Code = Utility.ConvertAnsiToUnicode(dr["fast_transfer_code"].ToString());
- 
+
                             if (dr["transferSystem"] != DBNull.Value)
                                 order.TransferSystemDescription = Utility.ConvertAnsiToUnicode(dr["transferSystem"].ToString());
 
@@ -300,15 +297,15 @@ TD.ARUS_success,
                             if (dr["transfer_contract_id"] != DBNull.Value)
                                 order.ContractId = Convert.ToInt64(dr["transfer_contract_id"]);
 
-                            if((SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.AcbaOnline || (SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.MobileBanking)
+                            if ((SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.AcbaOnline || (SourceType)int.Parse(dr["source_type"].ToString()) == SourceType.MobileBanking)
                             {
-                                if(dr["credit_account"] != DBNull.Value)
+                                if (dr["credit_account"] != DBNull.Value)
                                 {
                                     order.ReceiverAccount = new Account();
                                     order.ReceiverAccount = Account.GetAccount(dr["credit_account"].ToString());
                                 }
 
-                                if(dr["rate_sell_buy"] != DBNull.Value && Convert.ToDouble((dr["rate_sell_buy"]).ToString()) != 0)
+                                if (dr["rate_sell_buy"] != DBNull.Value && Convert.ToDouble((dr["rate_sell_buy"]).ToString()) != 0)
                                 {
                                     if (dr["rate_sell_buy_cross"] != DBNull.Value && Convert.ToDouble((dr["rate_sell_buy_cross"]).ToString()) != 0)
                                     {
@@ -317,7 +314,7 @@ TD.ARUS_success,
                                     }
                                     else
                                     {
-                                        if(dr["currency"].ToString() == "AMD")
+                                        if (dr["currency"].ToString() == "AMD")
                                         {
                                             order.ConvertationRate = Convert.ToDouble(dr["rate_sell_buy"].ToString());
                                             order.ConvertationRate1 = 0;
@@ -325,10 +322,10 @@ TD.ARUS_success,
                                         else
                                         {
                                             order.ConvertationRate = 0;
-                                            order.ConvertationRate1 = Convert.ToDouble(dr["rate_sell_buy"].ToString());                                           
+                                            order.ConvertationRate1 = Convert.ToDouble(dr["rate_sell_buy"].ToString());
                                         }
                                     }
-                                }                             
+                                }
 
                             }
 
@@ -419,19 +416,19 @@ TD.ARUS_success,
 
                                 if (dr["NAT_beneficiary_last_name"] != DBNull.Value)
                                     order.NATBeneficiaryLastName = dr["NAT_beneficiary_last_name"].ToString();
-                                
+
                                 if (dr["NAT_beneficiary_first_name"] != DBNull.Value)
                                     order.NATBeneficiaryFirstName = dr["NAT_beneficiary_first_name"].ToString();
-                                
+
                                 if (dr["NAT_beneficiary_middle_name"] != DBNull.Value)
                                     order.NATBeneficiaryMiddleName = dr["NAT_beneficiary_middle_name"].ToString();
-                                
+
                                 if (dr["NAT_sender_name"] != DBNull.Value)
                                     order.NATSender = dr["NAT_sender_name"].ToString();
-                                
+
                                 if (dr["sender_phone"] != DBNull.Value)
                                     order.SenderPhone = dr["sender_phone"].ToString();
-                                
+
                                 if (dr["sender_agent_name"] != DBNull.Value)
                                     order.SenderAgentName = dr["sender_agent_name"].ToString();
                             }
@@ -483,7 +480,7 @@ TD.ARUS_success,
 
                     cmd.Parameters.Add("@receiverName", SqlDbType.NVarChar, 250).Value = (object)receivedFastTransferPaymentOrder.Receiver ?? DBNull.Value;
                     cmd.Parameters.Add("@receiver_passport", SqlDbType.NVarChar, 250).Value = (object)receivedFastTransferPaymentOrder.ReceiverPassport ?? DBNull.Value;
- 
+
                     cmd.Parameters.Add("@country", SqlDbType.NVarChar, 50).Value = (object)receivedFastTransferPaymentOrder.Country ?? DBNull.Value;
 
                     cmd.Parameters.Add("@fee_in_currency", SqlDbType.Float).Value = (object)receivedFastTransferPaymentOrder.Fee ?? DBNull.Value;
@@ -558,14 +555,14 @@ TD.ARUS_success,
                             if (dr["regect_descr"] != DBNull.Value)
                                 reason = Utility.ConvertAnsiToUnicode(dr["regect_descr"].ToString());
                         }
-                    }     
+                    }
                 }
             }
             return reason;
         }
 
 
-       internal static void  UpdateOrderCurrencyFastTransfer(double convertationRate, double convertationRate1, long docID)
+        internal static void UpdateOrderCurrencyFastTransfer(double convertationRate, double convertationRate1, long docID)
         {
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -583,7 +580,7 @@ TD.ARUS_success,
             }
         }
 
-        internal static void SetTransferByCallType(short type,  long id)
+        internal static void SetTransferByCallType(short type, long id)
         {
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -643,5 +640,37 @@ TD.ARUS_success,
             }
         }
 
+        public static bool IsExistReceivedFastTransferWithURN(string code, ulong customerNumber)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = @"Select 1 from TBl_HB_Documents Where
+                                        DATEDIFF(MONTH, registration_date,Convert(date, getdate())  ) <= 3
+                                        And
+                                        quality IN (3,30)
+                                        And
+                                        @customer_number = customer_number 
+                                        And
+                                        @code = fast_transfer_code";
+
+
+                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
+                    cmd.Parameters.Add("@code", SqlDbType.NVarChar, 20).Value = code;
+
+
+                    if (cmd.ExecuteReader().HasRows)
+                    {
+                        return true;
+                    }
+                    else return false;
+
+                }
+            }
+
+        }
     }
 }

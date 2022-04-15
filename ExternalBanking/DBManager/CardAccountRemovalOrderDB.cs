@@ -92,9 +92,9 @@ namespace ExternalBanking.DBManager
                                         WHERE V.App_Id =@appID  and V.visa_number <> V2.visa_number";
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@appID", SqlDbType.Float).Value = appID;
-                   
 
-                   using SqlDataReader rd = cmd.ExecuteReader();
+
+                    using SqlDataReader rd = cmd.ExecuteReader();
 
                     if (rd.Read())
                     {
@@ -135,7 +135,7 @@ namespace ExternalBanking.DBManager
                         {
                             cardAccountRemovalOrder.Card.Currency = dr["currency"].ToString();
                             cardAccountRemovalOrder.Card.CardNumber = dr["card_number"].ToString();
-                            cardAccountRemovalOrder.Card.CardAccount.AccountNumber = dr["card_account"].ToString();                            
+                            cardAccountRemovalOrder.Card.CardAccount.AccountNumber = dr["card_account"].ToString();
                             cardAccountRemovalOrder.RegistrationDate = Convert.ToDateTime(dr["registration_date"].ToString());
                             cardAccountRemovalOrder.Type = (OrderType)dr["document_type"];
                             cardAccountRemovalOrder.Quality = (OrderQuality)Convert.ToInt16(dr["quality"]);

@@ -1,14 +1,10 @@
 ﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DocFlowManagement
 {
@@ -21,9 +17,9 @@ namespace ExternalBanking.DocFlowManagement
 
         public List<MemoField> MemoFields { get; set; }
 
-        public ActionResult SaveAndSend(User user, int memoType,int filialCode)
+        public ActionResult SaveAndSend(User user, int memoType, int filialCode)
         {
-            int memoId = MemoDocumentDB.Save(this, user, memoType,filialCode);
+            int memoId = MemoDocumentDB.Save(this, user, memoType, filialCode);
             var result = MemoDocumentDB.Send(Convert.ToInt32(memoId), user.userID);
             result.Id = memoId;
             return result;
@@ -32,7 +28,7 @@ namespace ExternalBanking.DocFlowManagement
 
         public ActionResult Send(int memoId, int hbDocId)
         {
-            return MemoDocumentDB.Send(memoId,hbDocId);
+            return MemoDocumentDB.Send(memoId, hbDocId);
         }
 
         public ActionResult LinkHBToDocFlow(int memoId, int hbDocId)
@@ -46,7 +42,7 @@ namespace ExternalBanking.DocFlowManagement
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DocFlowConn"].ToString()))
             {
-               using SqlCommand cmd = new SqlCommand("Sp_Get_MemoDocument_Template", conn);
+                using SqlCommand cmd = new SqlCommand("Sp_Get_MemoDocument_Template", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 SqlParameter param = cmd.Parameters.Add(new SqlParameter("@memo_type", SqlDbType.Int));
                 param.Direction = ParameterDirection.Input;
@@ -67,7 +63,7 @@ namespace ExternalBanking.DocFlowManagement
                         FieldValue = row["field_value"].ToString(),
                         //FieldValueType = Convert.ToInt32(row["field_value_type"].ToString()),
                         ParametrName = row["parameter_name"].ToString()
-                    };            
+                    };
                     memoFields.Add(memoField);
                 }
             }

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
 {
-   internal class PaidAccreditiveDB
+    internal class PaidAccreditiveDB
     {
         internal static List<PaidAccreditive> GetPaidAccreditives(ulong customerNumber)
         {
@@ -232,7 +229,7 @@ namespace ExternalBanking.DBManager
                 paidAccreditive.ContractNumber = ulong.Parse(row["security_code_2"].ToString());
 
                 paidAccreditive.ProductType = Utility.GetProductTypeFromLoanType(paidAccreditive.LoanType);
-                paidAccreditive.CreditCode = LoanProduct.GetCreditCode(paidAccreditive.ProductId,paidAccreditive.ProductType);
+                paidAccreditive.CreditCode = LoanProduct.GetCreditCode(paidAccreditive.ProductId, paidAccreditive.ProductType);
                 if (row["Overdue_loan_date_for_classification"] != DBNull.Value)
                 {
                     paidAccreditive.OverdueLoanDateForClassification = Convert.ToDateTime(row["Overdue_loan_date_for_classification"].ToString());

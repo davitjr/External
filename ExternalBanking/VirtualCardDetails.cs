@@ -1,11 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -89,7 +84,7 @@ namespace ExternalBanking
                 {
                     Cvv = encryptionOperations.DecryptData(Cvv);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     bool isTestVersion = bool.Parse(ConfigurationManager.AppSettings["TestVersion"].ToString());
 
@@ -103,7 +98,7 @@ namespace ExternalBanking
                         Cvv = "";
                     }
 
-                   
+
 
                 }
             }

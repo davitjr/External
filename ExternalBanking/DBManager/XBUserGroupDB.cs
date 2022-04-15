@@ -1,12 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.XBManagement;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.XBManagement;
-using System.Data.SqlClient;
-using System.Data;
 using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -32,14 +29,14 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = group.Id;
                     cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = orderId;
                     cmd.Parameters.Add("@action", SqlDbType.TinyInt).Value = action;
-                
+
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     param.Value = group.Id;
                     cmd.Parameters.Add(param);
 
                     cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.SmallInt) { Direction = ParameterDirection.Output });
-                 
+
                     cmd.ExecuteNonQuery();
 
                     id = int.Parse(cmd.Parameters["@id"].Value.ToString());
@@ -65,12 +62,12 @@ namespace ExternalBanking.DBManager
         {
             ActionResult result = new ActionResult();
             int id = -1;
-           
+
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
                 conn.Open();
-               
+
                 using (SqlCommand cmd = new SqlCommand())
                 {
                     cmd.CommandText = "pr_insert_access_group_member";
@@ -87,7 +84,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add(param);
 
                     cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.SmallInt) { Direction = ParameterDirection.Output });
-                 
+
                     cmd.ExecuteNonQuery();
 
                     id = int.Parse(cmd.Parameters["@Id"].Value.ToString());
@@ -127,7 +124,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@action", SqlDbType.TinyInt).Value = Action.Delete;
                     cmd.Parameters.Add(new SqlParameter("@result", SqlDbType.SmallInt) { Direction = ParameterDirection.Output });
 
-                  
+
                     cmd.ExecuteNonQuery();
 
                     byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
@@ -208,7 +205,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.ExecuteNonQuery();
 
-                    byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);        
+                    byte actionResult = Convert.ToByte(cmd.Parameters["@result"].Value);
 
                     if (actionResult == 1)
                     {
@@ -220,7 +217,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
             }
-        
+
             return result;
         }
 
@@ -278,7 +275,7 @@ namespace ExternalBanking.DBManager
                     groupList.Add(group);
                 }
             }
-           
+
             return groupList;
         }
 
@@ -294,7 +291,7 @@ namespace ExternalBanking.DBManager
                 script = @"SELECT M.user_id FROM Tbl_Access_Group_Members M inner join Tbl_Access_Groups G on M.group_id = G.id                                        
                                              WHERE G.id = @groupId";
 
-               using SqlCommand cmd = new SqlCommand(script, conn);
+                using SqlCommand cmd = new SqlCommand(script, conn);
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
@@ -312,8 +309,8 @@ namespace ExternalBanking.DBManager
                     HBUser user = new HBUser();
 
                     user.ID = Convert.ToInt32(row["user_id"]);
-                  
-                   
+
+
                     userList.Add(user);
                 }
             }
@@ -351,7 +348,7 @@ namespace ExternalBanking.DBManager
 
                     }
                 }
-  
+
             }
 
             return group;
@@ -384,7 +381,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-               using SqlCommand cmd = new SqlCommand(@"SELECT isnull(max (cast(substring(group_name, 7, LEN(group_name) - 6) as int)),0) + 1 as NextGroupNumber FROM Tbl_HB_documents 
+                using SqlCommand cmd = new SqlCommand(@"SELECT isnull(max (cast(substring(group_name, 7, LEN(group_name) - 6) as int)),0) + 1 as NextGroupNumber FROM Tbl_HB_documents 
                                                                  WHERE customer_number =@customerNumber", conn);
 
                 cmd.CommandType = CommandType.Text;
@@ -413,7 +410,7 @@ namespace ExternalBanking.DBManager
                 script = @"SELECT group_id,group_name FROM Tbl_Access_Groups_Order_Details                                    
                            WHERE doc_id = @doc_id and action = 1";
 
-               using SqlCommand cmd = new SqlCommand(script, conn);
+                using SqlCommand cmd = new SqlCommand(script, conn);
 
 
                 cmd.CommandType = CommandType.Text;
@@ -452,7 +449,7 @@ namespace ExternalBanking.DBManager
                 script = @"SELECT user_id FROM Tbl_Access_Group_Members_Order_Details                                        
                                              WHERE group_id = @groupId and doc_id = @doc_id and action = 1";
 
-               using SqlCommand cmd = new SqlCommand(script, conn);
+                using SqlCommand cmd = new SqlCommand(script, conn);
 
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
@@ -497,7 +494,7 @@ namespace ExternalBanking.DBManager
                                   ON M.group_id = G.id
                                   WHERE u.user_name=@userName";
 
-               using SqlCommand cmd = new SqlCommand(script, conn);
+                using SqlCommand cmd = new SqlCommand(script, conn);
 
 
                 cmd.CommandType = CommandType.Text;

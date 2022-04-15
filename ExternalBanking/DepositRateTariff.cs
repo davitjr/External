@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -13,7 +10,7 @@ namespace ExternalBanking
         public short? RateRepaymentFrequency { get; set; }
         public string FrequencyDescription { get; set; }
 
-      //  public DepositType DepositType { get; set; }
+        //  public DepositType DepositType { get; set; }
 
         public List<DepositRateTariffItem> DepositRateTariffItems { get; set; }
 

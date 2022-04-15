@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -77,7 +74,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
 
                 string sql = loanApplicationSelectScript + @" WHERE A.customer_number=@customerNumber AND loan_type=54 ORDER BY A.application_date desc ";
-                
+
                 using SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
@@ -126,7 +123,7 @@ namespace ExternalBanking.DBManager
                 if (row["date_of_beginning"] != DBNull.Value)
                 {
                     loanApplication.StartDate = DateTime.Parse(row["date_of_beginning"].ToString());
-                    
+
                 }
                 else
                 {
@@ -157,7 +154,7 @@ namespace ExternalBanking.DBManager
                     loanApplication.OfferedAmount = double.Parse(row["Offered_amount"].ToString());
 
                 if (row["rejectionReason"] != DBNull.Value)
-                    loanApplication.RejectReason = Utility.ConvertAnsiToUnicode( row["rejectionReason"].ToString());
+                    loanApplication.RejectReason = Utility.ConvertAnsiToUnicode(row["rejectionReason"].ToString());
 
 
                 if (row["refuse_Reason"] != DBNull.Value)
@@ -172,7 +169,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        public static List<FicoScoreResult> GetLoanApplicationFicoScoreResults(ulong customerNumber,ulong productId,DateTime requestDate)
+        public static List<FicoScoreResult> GetLoanApplicationFicoScoreResults(ulong customerNumber, ulong productId, DateTime requestDate)
         {
             List<FicoScoreResult> results = new List<FicoScoreResult>();
 
@@ -195,7 +192,7 @@ namespace ExternalBanking.DBManager
 
                     dt.Load(dr);
                 }
-                               
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
 

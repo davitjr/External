@@ -2,9 +2,6 @@
 using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -25,7 +22,6 @@ namespace ExternalBanking
             this.Complete();
 
             ActionResult result = this.Validate(customerNumber);
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -82,7 +78,8 @@ namespace ExternalBanking
             if (this.SubType == 1 || this.SubType == 2)
             {
                 if (CardAdditionalData.AdditionID == 0 || CardAdditionalData.AdditionValue == "")
-                {//Լրացրեք բոլոր տվյալները:
+                {
+                    //Լրացրեք բոլոր տվյալները:
                     result.Errors.Add(new ActionError(1812));
                 }
 
@@ -90,7 +87,8 @@ namespace ExternalBanking
                 {
 
                     if (CardAdditionalData.AdditionValue.Length != 8)
-                    {//Սխալ ամասթիվ:
+                    {
+                        //Սխալ ամասթիվ:
                         result.Errors.Add(new ActionError(134));
                     }
                 }
@@ -101,9 +99,42 @@ namespace ExternalBanking
                                                                   this.OperationDate.Value.Month.ToString().Length < 2 ? "0" + this.OperationDate.Value.Month.ToString() : this.OperationDate.Value.Month.ToString(),
                                                                   this.OperationDate.Value.Year.ToString().Substring(2));
                     if (operday != CardAdditionalData.AdditionValue)
-                    {//Սխալ ամասթիվ:
+                    {
+                        //Անհրաժեշտ է մուտքագրել տվյալ գործառնական օրը:
                         result.Errors.Add(new ActionError(1813));
                     }
+                }
+            }
+
+            if (SubType == 1)
+            {
+                if (CardAdditionalDataOrderDB.IsExistAdditionalData(PlasticCard.ProductId, CardAdditionalData.AdditionID))
+                {
+                    switch (CardAdditionalData.AdditionID)
+                    {
+                        case 3:
+                            result.Errors.Add(new ActionError(2057, new string[] { "Ակտի ա/թ" }));
+                            break;
+                        case 4:
+                            result.Errors.Add(new ActionError(2057, new string[] { "Չստացված քարտը Բանկ հետ վերադարձման ա/թ" }));
+                            break;
+                        case 9:
+                            result.Errors.Add(new ActionError(2057, new string[] { "Մասնաճյուղում քարտի առկայություն" }));
+                            break;
+                        case 10:
+                            result.Errors.Add(new ActionError(2057, new string[] { "Մասնաճյուղում PIN ծրարի առկայություն" }));
+                            break;
+                        case 14:
+                            result.Errors.Add(new ActionError(2057, new string[] { "Ստացված քարտի փ/թղթերի վերադարձման ա/թ" }));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (Card.GetCardNumber((long)PlasticCard.ProductId).Equals(""))
+                {
+                    //Քարտի համարը բացակայում է: Հնարավոր չէ կատարել ընտրված գործողությունը։
+                    result.Errors.Add(new ActionError(2058));
                 }
             }
 

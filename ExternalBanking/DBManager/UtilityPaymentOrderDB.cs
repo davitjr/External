@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -115,7 +112,7 @@ namespace ExternalBanking.DBManager
 
                         command.Parameters.Add("@doc_type", SqlDbType.Int).Value = utilityPaymentOrder.Type;
                         command.Parameters.Add("@customer_number", SqlDbType.Float).Value = utilityPaymentOrder.CustomerNumber;
-                        command.Parameters.Add("@doc_number", SqlDbType.VarChar, 20).Value = utilityPaymentOrder.OrderNumber;
+                        command.Parameters.Add("@doc_number", SqlDbType.VarChar, 20).Value = utilityPaymentOrder.OrderNumber == null ? "0" : utilityPaymentOrder.OrderNumber;
                         command.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = utilityPaymentOrder.RegistrationDate;
                         command.Parameters.Add("@currency", SqlDbType.VarChar, 50).Value = utilityPaymentOrder.Currency;
                         command.Parameters.Add("@debet_account", SqlDbType.VarChar, 50).Value = utilityPaymentOrder.DebitAccount.AccountNumber;
@@ -212,6 +209,7 @@ namespace ExternalBanking.DBManager
                             acctionResult.ResultCode = ResultCode.Failed;
                         }
                     }
+
                     if (source == SourceType.SSTerminal || source == SourceType.CashInTerminal)
                     {
                         OrderDB.SaveOrderDetails(utilityPaymentOrder);
@@ -303,7 +301,7 @@ namespace ExternalBanking.DBManager
                             else
                                 order.PaymentTime = Convert.ToDateTime(dr["registration_date"]);
 
-                            if(dr["use_credit_line"] != DBNull.Value)
+                            if (dr["use_credit_line"] != DBNull.Value)
                             {
                                 order.UseCreditLine = Convert.ToBoolean(dr["use_credit_line"]);
                             }

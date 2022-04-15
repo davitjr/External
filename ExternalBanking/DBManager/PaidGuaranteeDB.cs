@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
@@ -10,14 +7,14 @@ using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
 {
-   internal class PaidGuaranteeDB
+    internal class PaidGuaranteeDB
     {
-       internal static List<PaidGuarantee> GetPaidGuarantees(ulong customerNumber)
-       {
-           List<PaidGuarantee> paidGuarantees = new List<PaidGuarantee>();
-           using(SqlConnection conn=new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-           {
-               string sql = @"SELECT
+        internal static List<PaidGuarantee> GetPaidGuarantees(ulong customerNumber)
+        {
+            List<PaidGuarantee> paidGuarantees = new List<PaidGuarantee>();
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT
                                           S.App_Id,
                                           dbo.fnc_get_product_account_from_group(S.app_id, 51, 1) AS loan_full_number,
                                           a2.account_number AS [connect_account_full_number],
@@ -56,40 +53,40 @@ namespace ExternalBanking.DBManager
                                     AND S.quality NOT IN (40)
                                     AND s.loan_type = 34
                                     ORDER BY Date_of_normal_end ";
-               using(SqlCommand cmd=new SqlCommand(sql,conn))
-               {
-                   cmd.CommandType = CommandType.Text;
-                   cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                   conn.Open();
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    conn.Open();
 
-                   DataTable dt = new DataTable();
-                   using (SqlDataReader dr = cmd.ExecuteReader())
-                   {
+                    DataTable dt = new DataTable();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
 
-                       dt.Load(dr);
-                   }
+                        dt.Load(dr);
+                    }
 
-                   for (int i = 0; i < dt.Rows.Count; i++)
-                   {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
 
-                       DataRow row = dt.Rows[i];
+                        DataRow row = dt.Rows[i];
 
-                       PaidGuarantee paidGuarantee = SetPaidGuarantee(row);
+                        PaidGuarantee paidGuarantee = SetPaidGuarantee(row);
 
-                       paidGuarantees.Add(paidGuarantee);
-                   }
-               }
+                        paidGuarantees.Add(paidGuarantee);
+                    }
+                }
 
-           }
-           return paidGuarantees;
-       }
+            }
+            return paidGuarantees;
+        }
 
-       internal static List<PaidGuarantee> GetClosedPaidGuarantees(ulong customerNumber)
-       {
-           List<PaidGuarantee> paidGuarantees = new List<PaidGuarantee>();
-           using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-           {
-               string sql = @"SELECT
+        internal static List<PaidGuarantee> GetClosedPaidGuarantees(ulong customerNumber)
+        {
+            List<PaidGuarantee> paidGuarantees = new List<PaidGuarantee>();
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT
                                           S.App_Id,
                                           S.start_capital,
                                           S.currency,
@@ -128,40 +125,40 @@ namespace ExternalBanking.DBManager
                                     AND S.quality = 40
                                     AND s.loan_type = 34
                                     ORDER BY Date_of_normal_end";
-               using (SqlCommand cmd = new SqlCommand(sql, conn))
-               {
-                   cmd.CommandType = CommandType.Text;
-                   cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                   conn.Open();
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    conn.Open();
 
-                   DataTable dt = new DataTable();
-                   using (SqlDataReader dr = cmd.ExecuteReader())
-                   {
+                    DataTable dt = new DataTable();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
 
-                       dt.Load(dr);
-                   }
+                        dt.Load(dr);
+                    }
 
-                   for (int i = 0; i < dt.Rows.Count; i++)
-                   {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
 
-                       DataRow row = dt.Rows[i];
+                        DataRow row = dt.Rows[i];
 
-                       PaidGuarantee paidGuarantee = SetPaidGuarantee(row);
+                        PaidGuarantee paidGuarantee = SetPaidGuarantee(row);
 
-                       paidGuarantees.Add(paidGuarantee);
-                   }
-               }
+                        paidGuarantees.Add(paidGuarantee);
+                    }
+                }
 
-           }
-           return paidGuarantees;
-       }
+            }
+            return paidGuarantees;
+        }
 
-       internal static PaidGuarantee GetPaidGuarantee(ulong customerNumber,ulong productId)
-       {
-           PaidGuarantee paidGuarantee = new PaidGuarantee();
-           using(SqlConnection conn=new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
-           {
-               string sql = @"SELECT
+        internal static PaidGuarantee GetPaidGuarantee(ulong customerNumber, ulong productId)
+        {
+            PaidGuarantee paidGuarantee = new PaidGuarantee();
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT
                                           S.App_Id,
                                           S.start_capital,
                                           S.currency,
@@ -202,68 +199,68 @@ namespace ExternalBanking.DBManager
                                     AND s.loan_type = 34
                                     AND S.app_id = @appId
                                     ORDER BY Date_of_normal_end";
-               using(SqlCommand cmd=new SqlCommand(sql,conn))
-               {
-                   cmd.CommandType = CommandType.Text;
-                   cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                   cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
-                   conn.Open();
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    cmd.Parameters.Add("@appId", SqlDbType.Float).Value = productId;
+                    conn.Open();
 
-                   DataTable dt = new DataTable();
-                   using(SqlDataReader dr=cmd.ExecuteReader())
-                   {
-                       dt.Load(dr);
-                   }
-                   if (dt.Rows.Count>0)
-                   {
-                       DataRow row = dt.Rows[0];
-                       paidGuarantee = SetPaidGuarantee(row);
-                   }
-               }
-           }
-           return paidGuarantee;
-       }
-       private static PaidGuarantee SetPaidGuarantee(DataRow row)
-       {
-           PaidGuarantee paidGuarantee = new PaidGuarantee();
+                    DataTable dt = new DataTable();
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        dt.Load(dr);
+                    }
+                    if (dt.Rows.Count > 0)
+                    {
+                        DataRow row = dt.Rows[0];
+                        paidGuarantee = SetPaidGuarantee(row);
+                    }
+                }
+            }
+            return paidGuarantee;
+        }
+        private static PaidGuarantee SetPaidGuarantee(DataRow row)
+        {
+            PaidGuarantee paidGuarantee = new PaidGuarantee();
 
-           if (row != null)
-           {
-               paidGuarantee.ProductId = long.Parse(row["app_id"].ToString());
-               paidGuarantee.LoanType = short.Parse(row["loan_type"].ToString());
-               paidGuarantee.Quality = short.Parse(row["quality"].ToString());
-               paidGuarantee.Currency = row["currency"].ToString();
-               paidGuarantee.InterestRate = float.Parse(row["interest_rate"].ToString());
+            if (row != null)
+            {
+                paidGuarantee.ProductId = long.Parse(row["app_id"].ToString());
+                paidGuarantee.LoanType = short.Parse(row["loan_type"].ToString());
+                paidGuarantee.Quality = short.Parse(row["quality"].ToString());
+                paidGuarantee.Currency = row["currency"].ToString();
+                paidGuarantee.InterestRate = float.Parse(row["interest_rate"].ToString());
                 paidGuarantee.FillialCode = int.Parse(row["filialcode"].ToString());
-               if (row.Table.Columns["out_capital"] != null)
-                   paidGuarantee.OutCapital = double.Parse(row["out_capital"].ToString());
-               if (row.Table.Columns["judgment_penalty_rate"] != null)
-                   paidGuarantee.JudgmentRate = double.Parse(row["judgment_penalty_rate"].ToString());
-               if (row.Table.Columns["overdue_capital"] != null)
-                   paidGuarantee.OverdueCapital = double.Parse(row["overdue_capital"].ToString());
-               if (row.Table.Columns["Subsidia_Current_Rate_Value"] != null)
-                   paidGuarantee.SubsidiaCurrentRateValue = double.Parse(row["Subsidia_Current_Rate_Value"].ToString());
-               if (row.Table.Columns["current_fee"] != null)
-                   paidGuarantee.CurrentFee = double.Parse(row["current_fee"].ToString());
-               paidGuarantee.StartCapital = double.Parse(row["start_capital"].ToString());
-               paidGuarantee.CurrentCapital = double.Parse(row["current_capital"].ToString());
-               paidGuarantee.CurrentRateValue = double.Parse(row["current_rate_value"].ToString());
-               paidGuarantee.InpaiedRestOfRate = double.Parse(row["inpaied_rest_of_rate"].ToString());
-               paidGuarantee.PenaltyRate = double.Parse(row["penalty_rate"].ToString());
-               paidGuarantee.PenaltyAdd = double.Parse(row["penalty_add"].ToString());
-               paidGuarantee.TotalFee = double.Parse(row["total_fee"].ToString());
-               paidGuarantee.TotalRateValue = double.Parse(row["total_rate_value"].ToString());
-               if (row["day_of_rate_calculation"] != DBNull.Value && row["day_of_rate_calculation"].ToString() != "")
-               {
-                   paidGuarantee.DayOfRateCalculation = DateTime.Parse(row["day_of_rate_calculation"].ToString());
-               }
-               paidGuarantee.StartDate = DateTime.Parse(row["date_of_beginning"].ToString());
-               paidGuarantee.EndDate = DateTime.Parse(row["date_of_normal_end"].ToString());
-               paidGuarantee.ContractNumber = ulong.Parse(row["security_code_2"].ToString());
-               paidGuarantee.LoanAccount = Account.GetAccount(ulong.Parse(row["loan_full_number"].ToString()));
-               paidGuarantee.ConnectAccount= Account.GetAccount(ulong.Parse(row["connect_account_full_number"].ToString()));
-               if(row.Table.Columns["request_status"]!=null )
-                   paidGuarantee.RequestStatus = int.Parse(row["request_status"].ToString());
+                if (row.Table.Columns["out_capital"] != null)
+                    paidGuarantee.OutCapital = double.Parse(row["out_capital"].ToString());
+                if (row.Table.Columns["judgment_penalty_rate"] != null)
+                    paidGuarantee.JudgmentRate = double.Parse(row["judgment_penalty_rate"].ToString());
+                if (row.Table.Columns["overdue_capital"] != null)
+                    paidGuarantee.OverdueCapital = double.Parse(row["overdue_capital"].ToString());
+                if (row.Table.Columns["Subsidia_Current_Rate_Value"] != null)
+                    paidGuarantee.SubsidiaCurrentRateValue = double.Parse(row["Subsidia_Current_Rate_Value"].ToString());
+                if (row.Table.Columns["current_fee"] != null)
+                    paidGuarantee.CurrentFee = double.Parse(row["current_fee"].ToString());
+                paidGuarantee.StartCapital = double.Parse(row["start_capital"].ToString());
+                paidGuarantee.CurrentCapital = double.Parse(row["current_capital"].ToString());
+                paidGuarantee.CurrentRateValue = double.Parse(row["current_rate_value"].ToString());
+                paidGuarantee.InpaiedRestOfRate = double.Parse(row["inpaied_rest_of_rate"].ToString());
+                paidGuarantee.PenaltyRate = double.Parse(row["penalty_rate"].ToString());
+                paidGuarantee.PenaltyAdd = double.Parse(row["penalty_add"].ToString());
+                paidGuarantee.TotalFee = double.Parse(row["total_fee"].ToString());
+                paidGuarantee.TotalRateValue = double.Parse(row["total_rate_value"].ToString());
+                if (row["day_of_rate_calculation"] != DBNull.Value && row["day_of_rate_calculation"].ToString() != "")
+                {
+                    paidGuarantee.DayOfRateCalculation = DateTime.Parse(row["day_of_rate_calculation"].ToString());
+                }
+                paidGuarantee.StartDate = DateTime.Parse(row["date_of_beginning"].ToString());
+                paidGuarantee.EndDate = DateTime.Parse(row["date_of_normal_end"].ToString());
+                paidGuarantee.ContractNumber = ulong.Parse(row["security_code_2"].ToString());
+                paidGuarantee.LoanAccount = Account.GetAccount(ulong.Parse(row["loan_full_number"].ToString()));
+                paidGuarantee.ConnectAccount = Account.GetAccount(ulong.Parse(row["connect_account_full_number"].ToString()));
+                if (row.Table.Columns["request_status"] != null)
+                    paidGuarantee.RequestStatus = int.Parse(row["request_status"].ToString());
 
                 paidGuarantee.ProductType = Utility.GetProductTypeFromLoanType(paidGuarantee.LoanType);
                 paidGuarantee.CreditCode = LoanProduct.GetCreditCode(paidGuarantee.ProductId, paidGuarantee.ProductType);
@@ -274,7 +271,7 @@ namespace ExternalBanking.DBManager
                 }
 
             }
-           return paidGuarantee;
-       }
+            return paidGuarantee;
+        }
     }
 }

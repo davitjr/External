@@ -1,9 +1,4 @@
 ﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -13,7 +8,7 @@ namespace ExternalBanking
         /// <summary>
         /// Հեռացվող պարտատոմսի Id
         /// </summary>
-        public int BondId { get; set;}
+        public int BondId { get; set; }
 
         /// <summary>
         /// Մերժման պատճառի կոդ
@@ -31,7 +26,6 @@ namespace ExternalBanking
             this.Complete();
 
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -44,7 +38,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = BondQualityUpdateOrderDB.SaveBondQualityUpdateOrder(this, userName);
-               
+
                 result = base.SaveOrderOPPerson();
 
                 if (result.ResultCode != ResultCode.Normal)
@@ -85,9 +79,9 @@ namespace ExternalBanking
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
-            if(this.SubType == 3)
+            if (this.SubType == 3)
             {
-                if(this.ReasonId != BondRejectReason.Other)
+                if (this.ReasonId != BondRejectReason.Other)
                 {
                     this.ReasonDescription = null;
                 }

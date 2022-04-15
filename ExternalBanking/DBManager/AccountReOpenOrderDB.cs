@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -70,7 +69,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
 
-                   
+
             }
             return order;
         }
@@ -90,7 +89,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"Select doc_ID from Tbl_HB_documents where quality in (1,2,3,5) and document_type=12 and document_subtype=1 and
-                                                debet_account=@accountNumber and customer_number=@customerNumber",conn))
+                                                debet_account=@accountNumber and customer_number=@customerNumber", conn))
                 {
                     cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
@@ -102,7 +101,7 @@ namespace ExternalBanking.DBManager
                     else
                         secondReOpen = false;
                 }
-                   
+
             }
             return secondReOpen;
         }

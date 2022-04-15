@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Linq;
 namespace ExternalBanking.DBManager
 {
-   public class TransferCallContractDetailsDB
+    public class TransferCallContractDetailsDB
     {
         internal static List<TransferCallContractDetails> GetTransferCallContractsDetails(ulong customerNumber)
         {
@@ -21,7 +20,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    
+
 
                     conn.Open();
 
@@ -49,7 +48,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        internal static TransferCallContractDetails GetTransferCallContractDetails(long contractId,ulong customerNumber)
+        internal static TransferCallContractDetails GetTransferCallContractDetails(long contractId, ulong customerNumber)
         {
             TransferCallContractDetails contract = new TransferCallContractDetails();
 
@@ -73,11 +72,11 @@ namespace ExternalBanking.DBManager
                         dt.Load(dr);
                     }
 
-                    if (dt.Rows.Count>0)
+                    if (dt.Rows.Count > 0)
                     {
                         contract = SetTransferCallContractDetails(dt.Rows[0]);
                     }
-                         
+
 
                 }
             }
@@ -93,12 +92,12 @@ namespace ExternalBanking.DBManager
             if (row != null)
             {
                 contract.ContractId = long.Parse(row["contract_id"].ToString());
-                contract.ContractNumber=long.Parse(row["contract_number"].ToString());
-                contract.Account= Account.GetAccount(ulong.Parse(row["account_number"].ToString()));
+                contract.ContractNumber = long.Parse(row["contract_number"].ToString());
+                contract.Account = Account.GetAccount(ulong.Parse(row["account_number"].ToString()));
                 contract.ContractDate = DateTime.Parse(row["contract_date"].ToString());
                 contract.ContractPassword = row["contract_password"].ToString();
                 contract.Quality = short.Parse(row["quality"].ToString());
-                contract.InvolvingSetNumber =row["intermediator_set_number"] != DBNull.Value ? int.Parse(row["intermediator_set_number"].ToString()):0;
+                contract.InvolvingSetNumber = row["intermediator_set_number"] != DBNull.Value ? int.Parse(row["intermediator_set_number"].ToString()) : 0;
                 contract.ClosingDate = row["closing_date"] != DBNull.Value ? DateTime.Parse(row["closing_date"].ToString()) : default(DateTime?);
             }
             return contract;

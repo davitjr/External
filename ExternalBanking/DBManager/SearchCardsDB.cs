@@ -84,31 +84,31 @@ namespace ExternalBanking.DBManager
 
                     DataTable dt = new DataTable();
                     using (SqlDataReader dr = cmd.ExecuteReader())
-                    {   
+                    {
                         if (dr.HasRows)
                         {
                             cardList = new List<SearchCardResult>();
                         }
 
-                       while (dr.Read())
-                       {
-                           SearchCardResult oneResult = new SearchCardResult();
-                           oneResult.ProductId = long.Parse(dr["app_id"].ToString());
-                           oneResult.CardNumber = dr["card_number"].ToString();
-                           oneResult.Currency = dr["currency"].ToString();
-                           oneResult.CardType = dr["Card_Type"].ToString();
-                           oneResult.FilialCode = int.Parse(dr["filialcode"].ToString());
+                        while (dr.Read())
+                        {
+                            SearchCardResult oneResult = new SearchCardResult();
+                            oneResult.ProductId = long.Parse(dr["app_id"].ToString());
+                            oneResult.CardNumber = dr["card_number"].ToString();
+                            oneResult.Currency = dr["currency"].ToString();
+                            oneResult.CardType = dr["Card_Type"].ToString();
+                            oneResult.FilialCode = int.Parse(dr["filialcode"].ToString());
 
-                           if (!String.IsNullOrEmpty(dr["closing_date"].ToString()))
-                           {
-                               oneResult.ClosingDate = DateTime.Parse(dr["closing_date"].ToString());
-                           }
+                            if (!String.IsNullOrEmpty(dr["closing_date"].ToString()))
+                            {
+                                oneResult.ClosingDate = DateTime.Parse(dr["closing_date"].ToString());
+                            }
 
-                           oneResult.CardHolderDescription = dr["card_holder"].ToString();
-                           oneResult.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
-                           oneResult.CardAccount = Account.GetAccount(dr["card_account"].ToString());
-                           cardList.Add(oneResult);
-                       }
+                            oneResult.CardHolderDescription = dr["card_holder"].ToString();
+                            oneResult.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
+                            oneResult.CardAccount = Account.GetAccount(dr["card_account"].ToString());
+                            cardList.Add(oneResult);
+                        }
                     }
                 }
             }

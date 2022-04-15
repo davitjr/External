@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using ExternalBanking.DBManager;
-using System.Data;
-using System.Threading.Tasks;
-using System.Linq;
-using ExternalBanking.Interfaces;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ContractServiceRef;
+using ExternalBanking.DBManager;
+using ExternalBanking.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -229,7 +229,7 @@ namespace ExternalBanking
             if (account == null)
             {
                 var acc = Account.GetCardAccounts(customerNumber).Where(x => x.AccountNumber == accountNumber);
-                if (acc.Count() != 0)
+                if (acc?.Any() == true)
                 {
                     account = acc.First();
                 }
@@ -466,10 +466,6 @@ namespace ExternalBanking
         public List<AdditionalDetails> GetAccountAdditions()
         {
             List<AdditionalDetails> additionalDetails = AccountDB.GetAccountAdditions(this.AccountNumber);
-            if (!additionalDetails.Exists(c => c.AdditionType == 5))
-            {
-                additionalDetails.Add(new AdditionalDetails() { AdditionType = 5, AdditionValue = "-1" });
-            }
 
             DataTable additionsTypes = Info.GetAccountAdditionsTypes();
             additionalDetails.ForEach(m =>
@@ -974,7 +970,7 @@ namespace ExternalBanking
             List<Deposit> deposits = null;
             DigitalAccountRestConfigurations restConfigurations = new DigitalAccountRestConfigurations();
             var configs = restConfigurations.GetCustomerAccountRestConfig(digitalUserId, customerNumber, lang);
-            foreach (var item in configs.Configurations.Where(x => x.AccountRestAttributeValue == true))
+            foreach (var item in configs.Configurations.Where(x => x.AccountRestAttributeValue))
             {
                 switch (item.AccountRestTypeId)
                 {
@@ -1038,10 +1034,10 @@ namespace ExternalBanking
                         foreach (Deposit deposit in deposits)
                         {
                             if (deposit.Currency == "AMD")
-                                balance += (double)deposit.CurrentRateValue;
+                                balance += deposit.CurrentRateValue;
                             else
                             {
-                                balance += Utility.GetLastExchangeRate(deposit.Currency, RateType.NonCash, ExchangeDirection.Buy) * (double)deposit.CurrentRateValue;
+                                balance += Utility.GetLastExchangeRate(deposit.Currency, RateType.NonCash, ExchangeDirection.Buy) * deposit.CurrentRateValue;
                             }
                         }
                         break;
@@ -1118,7 +1114,7 @@ namespace ExternalBanking
         {
             return AccountDB.GetAttachedCardNumber(docId);
         }
-        public static double  GetAttachedCardFee(long docId)
+        public static double GetAttachedCardFee(long docId)
         {
             return AccountDB.GetAttachedCardFee(docId);
         }
@@ -1139,7 +1135,10 @@ namespace ExternalBanking
 
         public static byte CheckAccessToThisAccounts(string accountNumber)
         {
-            return AccountDB.CheckAccessToThisAccounts(accountNumber);
+            if (string.IsNullOrEmpty(accountNumber))
+                return 0;
+            else
+                return AccountDB.CheckAccessToThisAccounts(accountNumber);
         }
 
         public static ulong CheckCustomerFreeFunds(string accountNumber)
@@ -1182,6 +1181,15 @@ namespace ExternalBanking
 
 
         internal static double GetAccountAvailableBalanceForStocksInAmd(string accountNumber) => AccountDB.GetAccountAvailableBalanceForStocksInAmd(accountNumber);
+
+        public static List<Account> GetAllCurrentAccounts(ulong customerNumber)
+        {
+            List<Account> currentAccounts = new List<Account>();
+
+            currentAccounts.AddRange(AccountDB.GetAllCurrentAccounts(customerNumber));
+
+            return currentAccounts;
+        }
 
     }
 }

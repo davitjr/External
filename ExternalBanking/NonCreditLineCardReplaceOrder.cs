@@ -1,10 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using System.Text.RegularExpressions;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -316,7 +316,8 @@ namespace ExternalBanking
 
             CardTariffContractDB.GetCardTariffs(cardTariff);
             CardTariff tariff = cardTariff.CardTariffs.Find(m => m.CardType == Card.Type && m.Currency == Card.Currency);
-            if (!NonCreditLineCardReplaceOrderDB.CheckCardRelatedOffice(this))
+            int quality = Card.GetRelatedOfficeQuality(Card.ProductId, RelatedOfficeNumber, null);
+            if (quality == -1)
             {
                 //Տվյալ աշխատավարձային ծրագրում նախատեսված չէ տվյալ արժույթով տվյալ քարտի տեսակը:
                 result.Errors.Add(new ActionError(1633));
@@ -401,7 +402,6 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1672));
             }
             return result;
-
         }
 
         public ulong GetCardNewAppID()
@@ -418,7 +418,6 @@ namespace ExternalBanking
         {
             return NonCreditLineCardReplaceOrderDB.IsAlreadyReplacedButNotGiven(productID);
         }
-
 
         public static bool IsNormCardStatus(string cardNumber, long productID)
         {

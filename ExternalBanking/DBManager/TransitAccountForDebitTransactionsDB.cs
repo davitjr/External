@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -230,7 +229,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd = new SqlCommand(transitAccountsForDebitTransactionsSelectScript + @" WHERE  tr.arm_number=@armNumber and (tr.filial_code=@filiaCode OR tr.for_all_branches=1) AND tr.customer_number IS NULL", conn))
+                using (SqlCommand cmd = new SqlCommand(transitAccountsForDebitTransactionsSelectScript + @" WHERE  tr.arm_number=@armNumber and (tr.filial_code=@filiaCode OR tr.for_all_branches=1) AND tr.customer_number IS NULL AND tr.closing_date IS NULL", conn))
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@armNumber", SqlDbType.Float).Value = accountNumber;

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 
 namespace ExternalBanking.DBManager
@@ -212,8 +210,8 @@ namespace ExternalBanking.DBManager
             {
                 while (reader.Read())
                 {
-                    isResident = Convert.ToInt32(reader["residence"]) == 1 ? true : false;
-                    isPhysical = Convert.ToInt32(reader["type_of_client"]) == 6 ? true : false;
+                    isResident = Convert.ToInt32(reader["residence"]) == 1;
+                    isPhysical = Convert.ToInt32(reader["type_of_client"]) == 6;
                 }
             }
 

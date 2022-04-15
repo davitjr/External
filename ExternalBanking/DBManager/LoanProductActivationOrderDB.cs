@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using ExternalBanking.ACBAServiceReference;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
@@ -154,6 +152,29 @@ namespace ExternalBanking.DBManager
                 }
             }
             return check;
+        }
+
+        internal static long? CheckPreviousActivationOrderId(LoanProductActivationOrder order)
+        {
+            long? previousOrderId = null;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(@"Select doc_id from Tbl_HB_documents D INNER JOIN Tbl_HB_Products_Identity  I ON D.doc_ID=I.HB_Doc_ID
+                                                WHERE quality in (1,2,3,5,30)  and customer_number=@customerNumber and I.App_ID=@productId
+                                                AND document_type in(73,74,141,152)", conn);
+
+                cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
+                cmd.Parameters.Add("@productId", SqlDbType.Float).Value = order.ProductId;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
+                {
+                    previousOrderId = Convert.ToInt64(dr["doc_id"].ToString());
+                }
+            }
+            return previousOrderId;
         }
 
         internal static double GetLoanProductActivationFee(ulong productId, short withTax)

@@ -2,9 +2,6 @@
 using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -23,9 +20,9 @@ namespace ExternalBanking
         /// <summary>
         /// Վերադարձնում է փոխանցման կարգավիճակի փոփոխության պատմությունը
         /// </summary>
-        public void GetRemittanceChangeHistory ()
+        public void GetRemittanceChangeHistory()
         {
-            ChangeHistory = RemittanceChangeHistoryDB.GetRemittanceChangeHistory(TransferId);                
+            ChangeHistory = RemittanceChangeHistoryDB.GetRemittanceChangeHistory(TransferId);
         }
 
     }

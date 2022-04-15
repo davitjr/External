@@ -1,11 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using ExternalBanking.DBManager;
 using System.Threading;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -36,7 +33,7 @@ namespace ExternalBanking
             //Հայտի համար   
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-            if ( this.Fond.ID == 0)
+            if (this.Fond.ID == 0)
                 this.Fond.ID = FondOrderDB.GenerateNextFondID();
             //generacnel fondi hertakan hamar
         }
@@ -109,11 +106,11 @@ namespace ExternalBanking
             return resultConfirm;
         }
 
-        public static void ConfirmFondOrder(FondOrder order,ACBAServiceReference.User user)
+        public static void ConfirmFondOrder(FondOrder order, ACBAServiceReference.User user)
         {
             order.Confirm(user);
         }
-            
+
 
         public void Get()
         {

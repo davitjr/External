@@ -1,13 +1,12 @@
-﻿using System;
+﻿using ExternalBanking.UtilityPaymentsManagment;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Configuration;
-using ExternalBanking.UtilityPaymentsManagment;
-using ExternalBanking.UtilityPaymentsServiceReference;
 
 namespace ExternalBanking.DBManager
 {
@@ -121,7 +120,12 @@ namespace ExternalBanking.DBManager
                                 CommunalDetails comunalDetail = new CommunalDetails();
                                 comunalDetail.Id = int.Parse(dr["id"].ToString());
                                 comunalDetail.Description = Utility.ConvertAnsiToUnicode(dr["description"].ToString());
-                                comunalDetail.Value = Utility.ConvertAnsiToUnicode(dr["field_value"].ToString());
+
+                                if(comunalType == CommunalTypes.YerWater)
+                                    comunalDetail.Value = Utility.ConvertAnsiToUnicode(Regex.Replace(dr["field_value"].ToString(), @"\s+", " "));
+                                else
+                                    comunalDetail.Value = Utility.ConvertAnsiToUnicode(dr["field_value"].ToString());
+
                                 comunalDetails.Add(comunalDetail);
                             }
 
@@ -315,11 +319,12 @@ namespace ExternalBanking.DBManager
                     gas.AbonentNumber = item.AbonentNumber;
                     gas.BranchCode = item.SectionCode;
                     if (source == SourceType.AcbaOnline)
-                        gas.Description = item.LastName.Replace(" ", "") + " " + item.Name + Environment.NewLine + (item.Street.StartsWith(".") == true ? item.Street.Substring(1) : item.Street).Trim() + " " + item.House.Replace(" ", "") + " " + item.Home.Replace(" ", "");
+                        gas.Description = item.LastName.Replace(" ", "") + " " + item.Name + Environment.NewLine + (item.Street.StartsWith(".") ? item.Street.Substring(1) : item.Street).Trim() + " " + item.House.Replace(" ", "") + " " + item.Home.Replace(" ", "");
                     else
                         gas.Description = item.LastName + " " + item.Name + Environment.NewLine + item.Street + " " + item.House + " " + item.Home + Environment.NewLine + " Հեռ՝ " + (item.PhoneNumber != string.Empty ? item.PhoneNumber : "-");
 
                     gas.Debt = item.CurrentGasDebt * CommunalDebtSign;
+                    gas.FeeDebt = item.CurrentServiceFeeDebt;
 
                     list.Add(gas);
 
@@ -362,8 +367,9 @@ namespace ExternalBanking.DBManager
                     gas.ComunalType = CommunalTypes.Gas;
                     gas.AbonentNumber = item.AbonentNumber;
                     gas.BranchCode = item.SectionCode;
-                    gas.Description = item.LastName.Replace(" ", "") + " " + item.Name + Environment.NewLine + (item.Street.StartsWith(".") == true ? item.Street.Substring(1) : item.Street).Trim() + " " + item.House.Replace(" ", "") + " " + item.Home.Replace(" ", "");
+                    gas.Description = item.LastName.Replace(" ", "") + " " + item.Name + Environment.NewLine + (item.Street.StartsWith(".") ? item.Street.Substring(1) : item.Street).Trim() + " " + item.House.Replace(" ", "") + " " + item.Home.Replace(" ", "");
                     gas.Debt = item.CurrentGasDebt * CommunalDebtSign;
+                    gas.FeeDebt = item.CurrentServiceFeeDebt;
 
                     list.Add(gas);
                 }
@@ -373,20 +379,20 @@ namespace ExternalBanking.DBManager
             {
                 DataTable dt = SearchCommunalData(cmnl);
 
-                    if (dt.Rows.Count > 0)
+                if (dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
                     {
-                        foreach (DataRow row in dt.Rows)
-                        {
-                            Communal gas = new Communal();
-                            gas.ComunalType = CommunalTypes.Gas;
-                            gas.AbonentNumber = row["cod"].ToString();
-                            gas.BranchCode = row["branch_cod"].ToString();
-                            gas.Description = Utility.ConvertAnsiToUnicode(row["abonent_name"].ToString() + Environment.NewLine + row["abonent_address"].ToString());
-                            gas.Debt = Double.Parse(row["debt"].ToString());
-                            list.Add(gas);
-                        }
+                        Communal gas = new Communal();
+                        gas.ComunalType = CommunalTypes.Gas;
+                        gas.AbonentNumber = row["cod"].ToString();
+                        gas.BranchCode = row["branch_cod"].ToString();
+                        gas.Description = Utility.ConvertAnsiToUnicode(row["abonent_name"].ToString() + Environment.NewLine + row["abonent_address"].ToString());
+                        gas.Debt = Double.Parse(row["debt"].ToString());
+                        list.Add(gas);
                     }
                 }
+            }
             return list;
         }
 
@@ -688,7 +694,7 @@ namespace ExternalBanking.DBManager
                         ComunalType = CommunalTypes.YerWater,
                         AbonentNumber = row["cod"].ToString(),
                         BranchCode = row["branch_cod"].ToString(),
-                        Description = Utility.ConvertAnsiToUnicode(row["abonent_name"].ToString() + Environment.NewLine + row["abonent_address"].ToString()),
+                        Description = Utility.ConvertAnsiToUnicode(Regex.Replace(row["abonent_name"].ToString(), @"\s+", " ") + Environment.NewLine + row["abonent_address"].ToString()),
                         Debt = Double.Parse(row["debt"].ToString())
                     };
                     list.Add(yerWater);
@@ -1786,8 +1792,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    string sqlText =
-                        cmd.CommandText = @"SELECT Date_Readed, Date_Present, [Date], F_J FROM Tbl_GasProm_Date WHERE F_J = 'J' ORDER BY F_J";
+                    cmd.CommandText = @"SELECT Date_Readed, Date_Present, [Date], F_J FROM Tbl_GasProm_Date WHERE F_J = 'J' ORDER BY F_J";
                     DataTable dt = new DataTable();
                     dt.Load(cmd.ExecuteReader());
                     if (dt.Rows.Count > 0)
@@ -1812,8 +1817,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    string sqlText =
-                        cmd.CommandText = @" SELECT ID, Code, Customer_Number, [Name],  FilialCode, [Percent] AS p FROM Tbl_WaterCo_List ";
+                    cmd.CommandText = @" SELECT ID, Code, Customer_Number, [Name],  FilialCode, [Percent] AS p FROM Tbl_WaterCo_List ";
                     DataTable dt = new DataTable();
                     dt.Load(cmd.ExecuteReader());
                     if (dt.Rows.Count > 0)
@@ -1851,8 +1855,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    string sqlText =
-                        cmd.CommandText = @"SELECT Tbl_WaterCo_Main.Debt_ON FROM 
+                    cmd.CommandText = @"SELECT Tbl_WaterCo_Main.Debt_ON FROM 
                                             Tbl_WaterCo_Main WHERE Left([Kod], 3) = @code 
                                             GROUP BY Tbl_WaterCo_Main.Debt_ON ORDER BY Tbl_WaterCo_Main.Debt_ON DESC";
                     DataTable dt = new DataTable();
@@ -1887,8 +1890,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    string sqlText =
-                        cmd.CommandText = @"SELECT Code_Branch, Name_Branch
+                    cmd.CommandText = @"SELECT Code_Branch, Name_Branch
                                             FROM Tbl_WaterCo_Branches WB  INNER JOIN 
                                             Tbl_WaterCo_List WL ON WB.Code_Branch = WL.Code
                                             WHERE WL.FilialCode = @filialCode 
@@ -1924,8 +1926,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    string sqlText =
-                        cmd.CommandText = @"SELECT City FROM Tbl_WaterCo_Main WHERE Left([Kod], 3) = @code GROUP BY City ORDER BY (Ascii(Left([City],1)))";
+                    cmd.CommandText = @"SELECT City FROM Tbl_WaterCo_Main WHERE Left([Kod], 3) = @code GROUP BY City ORDER BY (Ascii(Left([City],1)))";
                     DataTable dt = new DataTable();
                     cmd.Parameters.Add("@code", SqlDbType.NVarChar, 3).Value = code.ToString("000");
                     dt.Load(cmd.ExecuteReader());
@@ -1962,8 +1963,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    string sqlText =
-                        cmd.CommandText = @"SELECT Get_Date from Tbl_WaterCo_Main where Debt_ON = @debtDate GROUP by Get_Date ORDER BY Get_Date DESC";
+                    cmd.CommandText = @"SELECT Get_Date from Tbl_WaterCo_Main where Debt_ON = @debtDate GROUP by Get_Date ORDER BY Get_Date DESC";
                     cmd.Parameters.Add("@debtDate", SqlDbType.SmallDateTime).Value = debtDate;
                     DataTable dt = new DataTable();
                     dt.Load(cmd.ExecuteReader());
@@ -2467,13 +2467,15 @@ namespace ExternalBanking.DBManager
                 double Debt = CommunalDebtSign * gazList[0].CurrentGasDebt;
 
                 string[] str = gazList[0].Name.Split(' ');
-                string Name = "";
+                string name = "";
 
+                StringBuilder nameBuilder = new StringBuilder();
                 for (int i = 0; i < str.Length; i++)
                     if (str[i].Length > 1)
-                        Name = Name + str[i] + " ";
+                        nameBuilder.Append(str[i] + " ");
 
-                string name = Name;
+                name = nameBuilder.ToString();
+
                 string sname = gazList[0].LastName.Replace(" ", "");
                 string street = gazList[0].Street.Replace(" ", "");
                 string house = gazList[0].House.Replace(" ", "");
@@ -2573,8 +2575,7 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    string sqlText =
-                        cmd.CommandText = @"SELECT * FROM  ePayments.dbo.Tbl_GasProm_Date WHERE F_J = 'J' ORDER BY F_J";
+                    cmd.CommandText = @"SELECT * FROM  ePayments.dbo.Tbl_GasProm_Date WHERE F_J = 'J' ORDER BY F_J";
                     DataTable dt = new DataTable();
                     dt.Load(cmd.ExecuteReader());
                     if (dt.Rows.Count > 0)

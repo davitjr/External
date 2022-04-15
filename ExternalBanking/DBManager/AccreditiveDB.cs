@@ -8,7 +8,7 @@ using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
 {
-   internal class AccreditiveDB
+    internal class AccreditiveDB
     {
         internal static List<Accreditive> GetAccreditives(ulong customerNumber)
         {
@@ -170,7 +170,7 @@ namespace ExternalBanking.DBManager
                 accreditive.Benefeciar = Utility.ConvertAnsiToUnicode(row["benefeciar"].ToString());
                 accreditive.PercentCummulation = ushort.Parse(row["percent_cummulation"].ToString());
                 accreditive.ProductType = Utility.GetProductTypeFromLoanType(accreditive.LoanType);
-                accreditive.CreditCode = LoanProduct.GetCreditCode(accreditive.ProductId,accreditive.ProductType);
+                accreditive.CreditCode = LoanProduct.GetCreditCode(accreditive.ProductId, accreditive.ProductType);
             }
             return accreditive;
         }
@@ -198,9 +198,9 @@ namespace ExternalBanking.DBManager
                             check = true;
                         }
                     }
-                       
+
                 }
-                   
+
             }
             return check;
 

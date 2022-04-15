@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Configuration;
-using System.Data;
-using System.Text;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference; 
+using System.Collections.Generic;
 
 namespace ExternalBanking
 {
-   public class ProductDocument
+    public class ProductDocument
     {
         /// <summary>
         /// Փաստաթղթի ունիկալ համար

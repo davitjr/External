@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 
 namespace ExternalBanking.DBManager
@@ -11,7 +10,7 @@ namespace ExternalBanking.DBManager
     static class FondOrderDB
     {
 
-       internal static int GenerateNextFondID()
+        internal static int GenerateNextFondID()
         {
             int newID = 0;
 
@@ -64,7 +63,7 @@ namespace ExternalBanking.DBManager
                                                         INNER JOIN tbl_fond_order_details f ON hb.doc_ID = f.doc_id
                                                         INNER JOIN Tbl_fond_providing_order_details p ON hb.doc_ID = p.doc_id
                                     WHERE hb.Doc_ID = @DocID ";
-                    cmd.Parameters.Add("@DocID", SqlDbType.Float).Value = order.Id ;
+                    cmd.Parameters.Add("@DocID", SqlDbType.Float).Value = order.Id;
                     conn.Open();
 
                     DataTable dt = new DataTable();

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -19,7 +17,6 @@ namespace ExternalBanking.DBManager
         internal static ActionResult SaveCardReOpenOrder(CardReOpenOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            Account account = new Account();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -247,7 +244,7 @@ namespace ExternalBanking.DBManager
                     if (dt.Rows.Count > 0)
                     {
                         DataRow row = dt.Rows[0];
-                        isExistsOverdraftAppId = row.ItemArray[0] == DBNull.Value ? false : true;
+                        isExistsOverdraftAppId = row.ItemArray[0] != DBNull.Value;
                     }
                     else
                         isExistsOverdraftAppId = false;

@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.XBS;
+using System.Collections.Generic;
 
 namespace ExternalBankingRESTService
 {
     public class AccreditivesRequestResponse
     {
-       public List<Accreditive> Accreditives { get; set; }
-       public Result Result { get; set; }
+        public List<Accreditive> Accreditives { get; set; }
+        public Result Result { get; set; }
 
-       public AccreditivesRequestResponse()
+        public AccreditivesRequestResponse()
         {
             Result = new Result();
         }

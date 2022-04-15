@@ -1,16 +1,11 @@
 ﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
-{   
+{
 
     //Հայտին կցված փաստաթուղթ
     public class OrderAttachment
-    {   
+    {
         /// <summary>
         /// Ունիկալ համար (տվյալ դեպքում GUID)
         /// </summary>
@@ -30,7 +25,7 @@ namespace ExternalBanking
         /// Կցված ֆայլի անվանում
         /// </summary>
         public string FileName { get; set; }
-        
+
         /// <summary>
         /// Կցված  ֆայլի տեսակ
         /// </summary>

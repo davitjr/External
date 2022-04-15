@@ -130,7 +130,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            if (GetBillSplitSenderReminderOrdersCount(this.SenderId) > 1)
+            if (GetBillSplitSenderReminderOrdersCount(this.SenderId) >= 1)
             {
                 //Դուք արդեն ուղարկել եք հիշեցում տվյալ փոխանցողին։ Յուրաքանչյուր փոխանցողի օրական հնարավոր է ուղարկել մեկ հիշեցում։
                 result.Errors.Add(new ActionError(1962));

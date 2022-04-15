@@ -1,10 +1,10 @@
-﻿using infsec = ExternalBankingService.InfSecServiceReference;
-using ACBALibrary;
+﻿using ACBALibrary;
+using ExternalBanking.ServiceClient;
+using ExternalBankingService.InfSecServiceReference;
 using System;
 using System.Collections.Generic;
-using ExternalBankingService.InfSecServiceReference;
-using ExternalBanking.ServiceClient;
 using System.ServiceModel;
+using infsec = ExternalBankingService.InfSecServiceReference;
 
 namespace ExternalBankingService
 {
@@ -24,7 +24,7 @@ namespace ExternalBankingService
 
         public static Dictionary<string, string> InitUserPagePermissions(string userSessionToken)
         {
-            var  advancedOptions= new Dictionary<string, string>();
+            var advancedOptions = new Dictionary<string, string>();
             Use(client =>
             {
                 advancedOptions = client.GetVarPermissionsForPageBySession(userSessionToken);
@@ -90,8 +90,8 @@ namespace ExternalBankingService
 
         public static infsec.UserAccessForCustomer GetUserAccessForCustomer(string userSessionToken, string customerSessionToken)
         {
-            var userAccessForCustomer  = new infsec.UserAccessForCustomer();
-            
+            var userAccessForCustomer = new infsec.UserAccessForCustomer();
+
             Use(client =>
             {
                 userAccessForCustomer = client.GetUserAccessForCustomer(userSessionToken, customerSessionToken);
@@ -133,7 +133,7 @@ namespace ExternalBankingService
             IInfSec client = ProxyManager<IInfSec>.GetProxy(nameof(IInfSec));
 
             bool success = false;
-            
+
             try
             {
                 action(client);
@@ -142,18 +142,18 @@ namespace ExternalBankingService
                 success = true;
             }
 
-            catch (FaultException ex)
+            catch (FaultException)
 
             {
                 ((IClientChannel)client).Close();
 
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
                 throw;

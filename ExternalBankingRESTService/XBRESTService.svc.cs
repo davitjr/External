@@ -1,15 +1,15 @@
-﻿using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.MAuthorizationServiceReference;
+using ExternalBankingRESTService.OnlineBankingSecServRef;
+using ExternalBankingRESTService.XBS;
 using ExternalBankingRESTService.XBSInfo;
-using ExternalBankingRESTService.MAuthorizationServiceReference;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Web.Configuration;
 using static ExternalBankingRESTService.Enumerations;
-using System.Configuration;
-using ExternalBankingRESTService.OnlineBankingSecServRef;
 
 namespace ExternalBankingRESTService
 {
@@ -175,7 +175,7 @@ namespace ExternalBankingRESTService
                         loginRequestResponse.Result.ResultCode = ResultCodes.failed;
                         loginRequestResponse.Result.Description = mobileUserData.AuthorizationResult.Description;
                     }
-                }           
+                }
             }
             catch (Exception ex)
             {
@@ -273,17 +273,17 @@ namespace ExternalBankingRESTService
         private bool HasProductPermission(string accountNumber)
         {
             bool hasPermission = false;
-            if (_userProductPermission.Exists(m => m.ProductAccountNumber == accountNumber && m.ProductType!=HBProductPermissionType.Periodic))
+            if (_userProductPermission.Exists(m => m.ProductAccountNumber == accountNumber && m.ProductType != HBProductPermissionType.Periodic))
             {
                 hasPermission = true;
             }
             return hasPermission;
         }
 
-        private bool HasProductPermission(string accountNumber,ulong productID)
+        private bool HasProductPermission(string accountNumber, ulong productID)
         {
             bool hasPermission = false;
-            if (_userProductPermission.Exists(m => m.ProductAccountNumber == accountNumber && m.ProductAppID== productID))
+            if (_userProductPermission.Exists(m => m.ProductAccountNumber == accountNumber && m.ProductAppID == productID))
             {
                 hasPermission = true;
             }
@@ -292,7 +292,7 @@ namespace ExternalBankingRESTService
         private bool HasProductPermissionByProductID(ulong productID)
         {
             bool hasPermission = false;
-            if (_userProductPermission.Exists(m=> m.ProductAppID == productID))
+            if (_userProductPermission.Exists(m => m.ProductAppID == productID))
             {
                 hasPermission = true;
             }
@@ -370,7 +370,7 @@ namespace ExternalBankingRESTService
 
                     if (AutorizedCustomer.LimitedAccess != 0)
                     {
-                        cards.RemoveAll(m => !HasProductPermission(m.CardAccount.AccountNumber,(ulong)m.ProductId));
+                        cards.RemoveAll(m => !HasProductPermission(m.CardAccount.AccountNumber, (ulong)m.ProductId));
                     }
 
 
@@ -546,12 +546,12 @@ namespace ExternalBankingRESTService
 
                     foreach (Loan loan in loans)
                     {
-                        if(loan.ContractDate != null)
+                        if (loan.ContractDate != null)
                         {
                             loan.StartDate = loan.ContractDate ?? loan.StartDate;
                         }
 
-                        if(loan.Is_24_7)
+                        if (loan.Is_24_7)
                         {
                             loan.CurrentCapital = loan.ContractAmount;
                         }
@@ -760,7 +760,7 @@ namespace ExternalBankingRESTService
                     using (XBServiceClient proxyClient = new XBServiceClient())
                     {
                         proxyClient.SetUser(AutorizedCustomer, Language, ClientIp, user, XBS.SourceType.MobileBanking);
-                        accountStatement = proxyClient.AccountStatement(accountNumber, dateFrom, dateTo,-1,-1,null, 0,0);
+                        accountStatement = proxyClient.AccountStatement(accountNumber, dateFrom, dateTo, -1, -1, null, 0, 0);
                     }
 
                     accountStatement?.Transactions?.Sort((x, y) => y.TransactionDate.CompareTo(x.TransactionDate));
@@ -1321,7 +1321,7 @@ namespace ExternalBankingRESTService
                             result.ResultCode = ResultCodes.notAutorized;
                         }
                     }
-                  
+
                 }
                 else
                 {
@@ -1623,9 +1623,9 @@ namespace ExternalBankingRESTService
                     bool hasPermission = true;
                     if (AutorizedCustomer.LimitedAccess != 0)
                     {
-                        if (!HasProductPermission(paymentOrder.DebitAccount.AccountNumber) || 
-                            (paymentOrder.SubType==3 && !HasProductPermission(paymentOrder.ReceiverAccount.AccountNumber))
-                            || (paymentOrder.FeeAccount!=null && paymentOrder.FeeAccount.AccountNumber!="0" &&
+                        if (!HasProductPermission(paymentOrder.DebitAccount.AccountNumber) ||
+                            (paymentOrder.SubType == 3 && !HasProductPermission(paymentOrder.ReceiverAccount.AccountNumber))
+                            || (paymentOrder.FeeAccount != null && paymentOrder.FeeAccount.AccountNumber != "0" &&
                             !HasProductPermission(paymentOrder.FeeAccount.AccountNumber)))
                         {
                             hasPermission = false;
@@ -1859,7 +1859,7 @@ namespace ExternalBankingRESTService
                         utilityPaymentOrderRequestResponse.PaymentOrder = paymentOrder;
                         utilityPaymentOrderRequestResponse.Result.ResultCode = ResultCodes.normal;
                     }
-                    
+
                 }
                 catch (FaultException ex)
                 {
@@ -1939,7 +1939,7 @@ namespace ExternalBankingRESTService
                         accounts.RemoveAll(m => !HasProductPermission(m.AccountNumber));
                     }
 
-                    
+
                     accountsRequestResponse.Accounts = accounts;
                     accountsRequestResponse.Result.ResultCode = ResultCodes.normal;
                 }
@@ -2024,7 +2024,7 @@ namespace ExternalBankingRESTService
                     {
                         isSigned = proxyClient.SingData(sessionId, OTP, signData, language);
                     }
-                }           
+                }
             }
             return isSigned;
 
@@ -2086,7 +2086,7 @@ namespace ExternalBankingRESTService
                     {
                         isSigned = proxyClient.SingData(sessionId, OTP, signData, language);
                     }
-                }    
+                }
             }
             return isSigned;
         }
@@ -2490,7 +2490,7 @@ namespace ExternalBankingRESTService
                         result.ResultCode = ResultCodes.failed;
                         result.Description = mobileUserData.AuthorizationResult.Description;
                     }
-                }            
+                }
 
             }
             catch (Exception ex)
@@ -2529,7 +2529,7 @@ namespace ExternalBankingRESTService
                 ///Լեզու
                 if (WebOperationContext.Current.IncomingRequest.Headers["language"] != null)
                     byte.TryParse(WebOperationContext.Current.IncomingRequest.Headers["language"], out language);
-                
+
                 bool EnableSecurityService = bool.Parse(ConfigurationManager.AppSettings["EnableSecurityService"]);
                 if (EnableSecurityService)
                 {
@@ -2669,7 +2669,7 @@ namespace ExternalBankingRESTService
                         depositRepaymentResponse.DepositRepaymentGrafik = depositRepaymentGrafik;
                     }
 
-                  
+
                     depositRepaymentResponse.Result.ResultCode = ResultCodes.normal;
                 }
                 catch (FaultException ex)
@@ -4052,7 +4052,7 @@ namespace ExternalBankingRESTService
                     bool hasPermission = true;
                     if (AutorizedCustomer.LimitedAccess != 0)
                     {
-                        if (!HasProductPermission(paymentOrder.DebitAccount.AccountNumber) 
+                        if (!HasProductPermission(paymentOrder.DebitAccount.AccountNumber)
                             || (paymentOrder.FeeAccount != null && paymentOrder.FeeAccount.AccountNumber != "0" &&
                             !HasProductPermission(paymentOrder.FeeAccount.AccountNumber)))
                         {
@@ -4170,7 +4170,7 @@ namespace ExternalBankingRESTService
             bool isSigned = false;
             string sessionId = "";
             byte language = 0;
-            
+
             ///Սեսիայի նունականացման համար
             if (WebOperationContext.Current.IncomingRequest.Headers["SessionId"] != null)
                 sessionId = WebOperationContext.Current.IncomingRequest.Headers["SessionId"];
@@ -5003,7 +5003,7 @@ namespace ExternalBankingRESTService
                     using (XBServiceClient proxyClient = new XBServiceClient())
                     {
                         proxyClient.SetUser(AutorizedCustomer, Language, ClientIp, user, XBS.SourceType.MobileBanking);
-                        receivedFastTransferPaymentOrder = proxyClient.GetReceivedFastTransferPaymentOrder(id,"");
+                        receivedFastTransferPaymentOrder = proxyClient.GetReceivedFastTransferPaymentOrder(id, "");
                     }
 
                     receivedFastTransferPaymentOrderRequestResponse.ReceivedFastTransferPaymentOrder = receivedFastTransferPaymentOrder;
@@ -5028,7 +5028,7 @@ namespace ExternalBankingRESTService
             return receivedFastTransferPaymentOrderRequestResponse;
 
         }
-        
+
         public InfoListRequestResponse GetTransferSystemCurrency(int transfersystem)
         {
             InfoListRequestResponse transferSystemCurrenciesRequestResponse = new InfoListRequestResponse();
@@ -5293,7 +5293,7 @@ namespace ExternalBankingRESTService
                 signData.Add(key: "TransactionID", value: order.Id.ToString());
                 signData.Add(key: "Amount", value: Math.Truncate(order.Amount).ToString());
 
-              
+
 
                 string creditAccount = "";
                 creditAccount = order.ReceiverAccount.AccountNumber.ToString();
@@ -5311,7 +5311,7 @@ namespace ExternalBankingRESTService
                 ///Թվային կոդ
                 if (WebOperationContext.Current.IncomingRequest.Headers["OTP"] != null)
                     OTP = WebOperationContext.Current.IncomingRequest.Headers["OTP"];
-         
+
                 bool EnableSecurityService = bool.Parse(ConfigurationManager.AppSettings["EnableSecurityService"]);
                 if (EnableSecurityService)
                 {
@@ -5333,7 +5333,7 @@ namespace ExternalBankingRESTService
 
         }
 
-      
+
 
         public OrderHistoryRequestResponse GetOnlineOrderHistory(int orderId)
         {
@@ -5400,7 +5400,7 @@ namespace ExternalBankingRESTService
                     using (XBServiceClient proxyClient = new XBServiceClient())
                     {
                         proxyClient.SetUser(AutorizedCustomer, Language, ClientIp, user, XBS.SourceType.MobileBanking);
-                        orders = proxyClient.GetConfirmRequiredOrders(AutorizedCustomer.UserName,0,startDate,endDate,"","","",true,null,-1);
+                        orders = proxyClient.GetConfirmRequiredOrders(AutorizedCustomer.UserName, 0, startDate, endDate, "", "", "", true, null, -1);
                         orders.RemoveAll(m => m.Source == XBS.SourceType.Bank);
 
                     }
@@ -5652,32 +5652,32 @@ namespace ExternalBankingRESTService
                         //}
                         //else
                         //{
-                            //Հաճախորդի անձը հաստատող փաստաթղթեր
-                            var documents = proxyClient.GetCustomerDocumentList(customer.identityId, 1).FindAll(doc => doc.documentGroup.key == 1);
-                            documents.Sort((x, y) => y.id.CompareTo(x.id));
+                        //Հաճախորդի անձը հաստատող փաստաթղթեր
+                        var documents = proxyClient.GetCustomerDocumentList(customer.identityId, 1).FindAll(doc => doc.documentGroup.key == 1);
+                        documents.Sort((x, y) => y.id.CompareTo(x.id));
 
-                            foreach (var document in documents)
+                        foreach (var document in documents)
+                        {
+                            var attachments = proxyClient.GetAttachmentDocumentList(Convert.ToUInt64(document.id), true, 1);
+                            if (attachments.Count != 0)
                             {
-                                var attachments = proxyClient.GetAttachmentDocumentList(Convert.ToUInt64(document.id), true, 1);
-                                if (attachments.Count != 0)
+
+                                attachments.Sort((x, y) => x.id.CompareTo(y.id));
+                                attachments.ForEach(item =>
                                 {
-
-                                    attachments.Sort((x, y) => x.id.CompareTo(y.id));
-                                    attachments.ForEach(item =>
-                                    {
-                                        customerInfoForAuthenticationRequestResponse.Info.Data.Add(proxyClient.GetOneAttachment(item.id), ((TypeOfAttachments)item.FileExtension).ToString());
-                                    });
-                                    customerInfoForAuthenticationRequestResponse.Info.TypeOfDocument = CustomerAuthenticationInfoType.Document;
-                                    break;
-                                }
+                                    customerInfoForAuthenticationRequestResponse.Info.Data.Add(proxyClient.GetOneAttachment(item.id), ((TypeOfAttachments)item.FileExtension).ToString());
+                                });
+                                customerInfoForAuthenticationRequestResponse.Info.TypeOfDocument = CustomerAuthenticationInfoType.Document;
+                                break;
                             }
+                        }
 
-                            if (customerInfoForAuthenticationRequestResponse.Info.Data.Count == 0)
-                            {
-                                customerInfoForAuthenticationRequestResponse.Info.Result = CustomerAuthenticationResult.CustomerWithNoAttachments;
-                                customerInfoForAuthenticationRequestResponse.Info.TypeOfDocument = CustomerAuthenticationInfoType.Empty;
-                                customerInfoForAuthenticationRequestResponse.Info.ResultDescription = "Առկա չէ հաճախորդին կցված փաստաթուղթ։";
-                            }
+                        if (customerInfoForAuthenticationRequestResponse.Info.Data.Count == 0)
+                        {
+                            customerInfoForAuthenticationRequestResponse.Info.Result = CustomerAuthenticationResult.CustomerWithNoAttachments;
+                            customerInfoForAuthenticationRequestResponse.Info.TypeOfDocument = CustomerAuthenticationInfoType.Empty;
+                            customerInfoForAuthenticationRequestResponse.Info.ResultDescription = "Առկա չէ հաճախորդին կցված փաստաթուղթ։";
+                        }
                         //}
                     }
                 }
@@ -5711,7 +5711,7 @@ namespace ExternalBankingRESTService
             {
                 try
                 {
-                    
+
                     fileContent.Content = GetLoanTermsSheetContent(loanType, orderid);
 
                     fileContent.Result.ResultCode = ResultCodes.normal;
@@ -5788,12 +5788,12 @@ namespace ExternalBankingRESTService
             parameters.Add(key: "hbDocID", value: orderid.ToString());
             parameters.Add(key: "HB", value: "True");
 
-            fileContent = Contracts.RenderContract(contractName, parameters, "PrintLoanTermsSheet");                
-   
+            fileContent = Contracts.RenderContract(contractName, parameters, "PrintLoanTermsSheet");
+
             return fileContent;
         }
 
-        
+
 
     }
 }

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ExternalBanking.ARUSDataService;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Transactions;
-using ExternalBanking.ARUSDataService;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Globalization;
-
-
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -39,7 +36,7 @@ namespace ExternalBanking
         /// </summary>
         public DateTime SenderDateOfBirth { get; set; }
 
-         /// <summary>
+        /// <summary>
         /// Ուղարկողի էլ. հասցե
         /// </summary>
         public string SenderEmail { get; set; }
@@ -58,12 +55,12 @@ namespace ExternalBanking
         /// Ստացողի լրացուցիչ տվյալներ
         /// </summary>
         public string ReceiverAddInf { get; set; }
-       
+
         /// <summary>
         /// Ստացողի լրացուցիչ տվյալներ
         /// </summary>
-        public string ReceiverPassport  { get; set; }
- 
+        public string ReceiverPassport { get; set; }
+
         /// <summary>
         /// Վճարման մանրամասներ
         /// </summary>
@@ -87,7 +84,7 @@ namespace ExternalBanking
         /// <summary>
         /// Միջնորդավճար արժույթով
         /// </summary>
-        public double  Fee { get; set; }
+        public double Fee { get; set; }
 
         /// <summary>
         /// Միջնորդավհար ACBA արժույթով
@@ -435,10 +432,10 @@ namespace ExternalBanking
         {
             FastTransferPaymentOrderDB.Get(this);
             this.Fees = Order.GetOrderFees(this.Id);
- 
+
             if (this.Fees.Exists(m => m.Type == 5))
             {
-                this.TransferFee = this.Fees.Find(m =>  m.Type == 5).Amount;
+                this.TransferFee = this.Fees.Find(m => m.Type == 5).Amount;
                 this.FeeAccount = this.Fees.Find(m => m.Type == 5).Account;
             }
 
@@ -457,12 +454,12 @@ namespace ExternalBanking
 
         }
 
-        private void Get(FastTransferPaymentOrder  order)
+        private void Get(FastTransferPaymentOrder order)
         {
             FastTransferPaymentOrderDB.Get(order);
         }
-        
-                
+
+
         /// <summary>
         /// Վճարման հանձնարարականի պահպանում:
         /// </summary>
@@ -617,7 +614,7 @@ namespace ExternalBanking
         /// <param name="user">Օգտագործող</param>
         /// <param name="schemaType"></param>
         /// <returns></returns>
-        public new ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType) 
+        public new ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
 
             this.Complete();
@@ -646,15 +643,24 @@ namespace ExternalBanking
                     TransferAdditionalDataDB.Save(this.TransferAdditionalData);
                 }
 
-                 if (result.ResultCode != ResultCode.Normal)
-                 {
-                     return result;
-                 }
-                 else
-                 {
-                     base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
-                 }
- 
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
+                if (result.ResultCode != ResultCode.Normal)
+                {
+                    return result;
+                }
+                else
+                {
+                    base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
+                }
+
                 if (this.OPPerson != null)
                 {
                     result = base.SaveOrderOPPerson();
@@ -692,11 +698,11 @@ namespace ExternalBanking
             }
 
             result = base.Confirm(user);
-           
+
             return result;
         }
 
- 
+
 
         /// <summary>
         /// Լրացնում է վճարման հանձնարարականի ավտոմատ լրացվող դաշտերը
@@ -705,7 +711,7 @@ namespace ExternalBanking
         {
             this.ReceiverAccount = new Account();
 
-            if (this.DebitAccount != null && this.Type == OrderType.FastTransferFromCustomerAccount )
+            if (this.DebitAccount != null && this.Type == OrderType.FastTransferFromCustomerAccount)
             {
                 this.DebitAccount = Account.GetAccount(this.DebitAccount.AccountNumber);
             }
@@ -714,11 +720,11 @@ namespace ExternalBanking
                 //Տարանցիկ հաշվի լրացում
                 this.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), this.Currency, user.filialCode);
             }
-            
+
 
 
             if (this.OrderNumber == "" && this.Id == 0)
-                this.OrderNumber = GenerateNewOrderNumber(OrderNumberTypes.InternationalOrder,22000).ToString();
+                this.OrderNumber = GenerateNewOrderNumber(OrderNumberTypes.InternationalOrder, 22000).ToString();
 
             Customer customer = new Customer(this.CustomerNumber, Languages.hy);
 
@@ -731,13 +737,13 @@ namespace ExternalBanking
                 //Տարանցիկ հաշվի լրացում (Միջնորդավճարի)
                 this.FeeAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.FeeAccount), "AMD", user.filialCode);
             }
-           this.Fee = Utility.RoundAmount(this.Fee, this.Currency );
-           this.FeeAcba = Utility.RoundAmount(this.FeeAcba, this.Currency);
-           this.TransferFee = Utility.RoundAmount(this.TransferFee, "AMD");
-           if (this.Type != OrderType.CashInternationalTransfer)
-           {
-               this.CardFee = customer.GetCardFee(this);
-           }
+            this.Fee = Utility.RoundAmount(this.Fee, this.Currency);
+            this.FeeAcba = Utility.RoundAmount(this.FeeAcba, this.Currency);
+            this.TransferFee = Utility.RoundAmount(this.TransferFee, "AMD");
+            if (this.Type != OrderType.CashInternationalTransfer)
+            {
+                this.CardFee = customer.GetCardFee(this);
+            }
 
             //ARUS
             if (this.SubType == 23)
@@ -773,7 +779,7 @@ namespace ExternalBanking
             return FastTransferPaymentOrderDB.GetFastTransferFeeAcbaPercent(transferType);
         }
 
-        
+
         /// <summary>
         /// Միջազգային վճարման հանձնարարականի ստուգում
         /// </summary>
@@ -794,7 +800,7 @@ namespace ExternalBanking
             result.Errors.AddRange(Validation.ValidateAttachmentDocument(this));
             if (this.TransferAdditionalData != null)
             {
-                result.Errors.AddRange(Validation.ValidateTransferAdditionalData(this.TransferAdditionalData,this.Amount));
+                result.Errors.AddRange(Validation.ValidateTransferAdditionalData(this.TransferAdditionalData, this.Amount));
             }
 
             if (this.SubType == 23)
@@ -935,7 +941,7 @@ namespace ExternalBanking
 
                 }
 
-              
+
             }
             else if (this.Type == OrderType.FastTransferPaymentOrder)
             {
@@ -1021,7 +1027,7 @@ namespace ExternalBanking
                 //Փոխանցման համակարգը ընտրված չէ
                 result.Add(new ActionError(778));
             }
-            if (string.IsNullOrEmpty(this.Receiver ))
+            if (string.IsNullOrEmpty(this.Receiver))
             {
                 //Ստացողի տվյալները բացակայում են:
                 result.Add(new ActionError(87));
@@ -1039,9 +1045,9 @@ namespace ExternalBanking
 
             byte codeMaxLength = FastTransferPaymentOrderDB.GetFastTransferCodeLength(this.SubType, 2);
             byte codeMinLength = FastTransferPaymentOrderDB.GetFastTransferCodeLength(this.SubType, 1);
-            
 
-            if (string.IsNullOrEmpty(this.Code ))
+
+            if (string.IsNullOrEmpty(this.Code))
             {
                 if (this.SubType != 23)
                 {
@@ -1049,12 +1055,12 @@ namespace ExternalBanking
                     result.Add(new ActionError(708, new string[] { codeMaxLength == codeMinLength ? codeMinLength.ToString() : codeMinLength.ToString() + "-" + codeMaxLength.ToString() }));
                 }
             }
-            else if (this.Code.Length > codeMaxLength || this.Code.Length <codeMinLength)
+            else if (this.Code.Length > codeMaxLength || this.Code.Length < codeMinLength)
             {
                 //Փոխանցման կոդի երկարությունը պետք է լինի ՝ 
                 result.Add(new ActionError(708, new string[] { codeMaxLength == codeMinLength ? codeMinLength.ToString() : codeMinLength.ToString() + "-" + codeMaxLength.ToString() }));
             }
- 
+
             if (string.IsNullOrEmpty(this.DescriptionForPayment))
             {
                 //Վճարման մանրամասները բացակայում են:
@@ -1075,7 +1081,7 @@ namespace ExternalBanking
             {
                 symbol = Utility.IsExistSwiftForbiddenCharacter(this.Receiver);
             }
-            if (symbol!="")
+            if (symbol != "")
             {
                 //Ստացողի տվյալներ դաշտի մեջ կա անթույլատրելի նշան` 
                 result.Add(new ActionError(591, new string[] { symbol }));
@@ -1096,16 +1102,16 @@ namespace ExternalBanking
                 }
             }
 
-    
-            symbol = Utility.IsExistSwiftForbiddenCharacter(this.DescriptionForPayment );
-            if(symbol!="")
+
+            symbol = Utility.IsExistSwiftForbiddenCharacter(this.DescriptionForPayment);
+            if (symbol != "")
             {
                 //Վճարման մանրամասներ դաշտի մեջ կա անթույլատրելի նշան`  
                 result.Add(new ActionError(592, new string[] { symbol }));
             }
 
-            symbol = Utility.IsExistSwiftForbiddenCharacter(this.Sender  );
-            if(symbol!="")
+            symbol = Utility.IsExistSwiftForbiddenCharacter(this.Sender);
+            if (symbol != "")
             {
                 //Ուղարկողի անվանում դաշտի մեջ կա անթույլատրելի նշան`  
                 result.Add(new ActionError(593, new string[] { symbol }));
@@ -1117,8 +1123,8 @@ namespace ExternalBanking
             }
 
 
-            symbol = Utility.IsExistSwiftForbiddenCharacter(this.SenderAddress  );
-            if(symbol!="")
+            symbol = Utility.IsExistSwiftForbiddenCharacter(this.SenderAddress);
+            if (symbol != "")
             {
                 //Ուղարկողի հասցե դաշտի մեջ կա անթույլատրելի նշան`  
                 result.Add(new ActionError(594, new string[] { symbol }));
@@ -1147,15 +1153,15 @@ namespace ExternalBanking
                     //Ստացողի անձնագրի մեջ կա անթույլատրելի նշան
                     result.Add(new ActionError(1100));
                 }
-              
+
             }
 
-            if (string.IsNullOrEmpty(this.Country ) || this.Country=="0")
+            if (string.IsNullOrEmpty(this.Country) || this.Country == "0")
             {
                 //Երկիր դաշտը ընտրված չէ:
                 result.Add(new ActionError(81));
             }
-            
+
             if (string.IsNullOrEmpty(this.Sender))
             {
                 //Ուղարկողի անվանումը բացակայում է:
@@ -1166,7 +1172,7 @@ namespace ExternalBanking
                 //Ուղարկողի հասցեն բացակայում է:
                 result.Add(new ActionError(105));
             }
-            if (string.IsNullOrEmpty(this.SenderPhone ))
+            if (string.IsNullOrEmpty(this.SenderPhone))
             {
                 //Ուղարկողի հեռախոսը բացակայում է:
                 result.Add(new ActionError(136));
@@ -1177,15 +1183,15 @@ namespace ExternalBanking
                 //Ուղարկողի ծննդյան ամսաթիվը բացակայում է:
                 result.Add(new ActionError(108));
             }
-            if (string.IsNullOrEmpty(this.SenderPassport) )
+            if (string.IsNullOrEmpty(this.SenderPassport))
             {
                 //Ուղարկողի անձնագիրը բացակայում է:
                 result.Add(new ActionError(107));
             }
- 
+
 
             //Ռիսկային երկրների ստուգում
-            if (this.Country=="364" || this.Country=="760" || this.Country=="729" || this.Country=="728")
+            if (this.Country == "364" || this.Country == "760" || this.Country == "729" || this.Country == "728")
             {
                 //Ստացողի երկիրը ռիսկային է (ԻՐԱՆ, ՍԻՐԻԱ, ՍՈՒԴԱՆ, ՀԱՐԱՎԱՅԻՆ ՍՈՒԴԱՆ)
                 result.Add(new ActionError(626));
@@ -1197,7 +1203,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(640));
             }
 
-            if (this.FeeAcba==0)
+            if (this.FeeAcba == 0)
             {
                 //ACBA միջնորդավճարը բացակայում է
                 result.Add(new ActionError(709));
@@ -1224,7 +1230,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(544));
             }
 
-          return result;
+            return result;
         }
 
         /// <summary>
@@ -1365,7 +1371,7 @@ namespace ExternalBanking
 
         }
 
-        public static Dictionary<string, string> GetRemittanceContractDetails(string authorizedUserSessionToken, string userName, string clientIP, ulong docId) 
+        public static Dictionary<string, string> GetRemittanceContractDetails(string authorizedUserSessionToken, string userName, string clientIP, ulong docId)
         {
             Dictionary<string, string> detailsResult = new Dictionary<string, string>();
             detailsResult = FastTransferPaymentOrderDB.GetRemittanceContractDetails(docId);

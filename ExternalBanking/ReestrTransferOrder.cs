@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using System.Transactions;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking
 {
@@ -64,6 +63,16 @@ namespace ExternalBanking
             {
                 result = PaymentOrderDB.SaveCash(this, userName, source);
 
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -83,7 +92,7 @@ namespace ExternalBanking
                 }
 
                 result = base.SaveOrderAttachments();
-                               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -151,13 +160,13 @@ namespace ExternalBanking
             return result;
         }
 
-        public ActionResult ValidateReestr(User user, long id,TemplateType templateType = TemplateType.None)
+        public ActionResult ValidateReestr(User user, long id, TemplateType templateType = TemplateType.None)
         {
             ActionResult result = new ActionResult();
 
             if (Source == SourceType.AcbaOnline && this.Type == OrderType.RosterTransfer)
             {
-                result = CheckExcelRows(this.ReestrTransferAdditionalDetails, this.DebitAccount.AccountNumber, Languages.hy,id);
+                result = CheckExcelRows(this.ReestrTransferAdditionalDetails, this.DebitAccount.AccountNumber, Languages.hy, id);
             }
 
             if (this.Type != OrderType.TransitNonCashOutCurrencyExchangeOrder && this.Type != OrderType.TransitNonCashOut)
@@ -170,7 +179,7 @@ namespace ExternalBanking
                 result.Errors.AddRange(Validation.ValidateDocumentNumber(this, this.CustomerNumber));
 
 
-              //result.Errors.AddRange(Validation.ValidateOPPerson(this, this.ReceiverAccount, this.DebitAccount.AccountNumber));
+                //result.Errors.AddRange(Validation.ValidateOPPerson(this, this.ReceiverAccount, this.DebitAccount.AccountNumber));
             }
             if (this.TransferID != 0)
                 result.Errors.AddRange(Validation.ValidateForTransfer(this, user));
@@ -194,7 +203,7 @@ namespace ExternalBanking
                     return result;
                 }
 
-               
+
             }
 
             if (string.IsNullOrEmpty(this.Currency))
@@ -211,25 +220,13 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(25));
             }
 
-            byte customerType = 0;
-            if (this.CustomerNumber != 0)
-            {
-                using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-                {
-                    customerType = proxy.GetCustomerType(this.CustomerNumber);
-                }
-            }
-            else
-            {
-                customerType = 6;
-            }
-
+           
             if (this.Type == OrderType.RosterTransfer)
             {
                 ReestrTransferOrder reestrTransferOrder = (ReestrTransferOrder)this;
                 int index = 1;
 
-              
+
                 if (reestrTransferOrder.ReestrTransferAdditionalDetails == null || reestrTransferOrder.ReestrTransferAdditionalDetails.Count == 0)
                 {
                     //Մուտքագրեք փոխանցման տվյալները
@@ -255,12 +252,12 @@ namespace ExternalBanking
                             {
                                 if (string.IsNullOrEmpty(details.Description))
                                 {
-                                    if((Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.ArmSoft) && SubType == 1)
+                                    if ((Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.ArmSoft) && SubType == 1)
                                     {
                                         //{0} փոխանցման վճարման նպատակը մուտքագրված չէ
                                         result.Errors.Add(new ActionError(848, new string[] { "«" + details.Index.ToString() + "»" }));
                                     }
-                                    
+
                                 }
                                 else if (details.Description.Length > 130)
                                 {
@@ -329,7 +326,7 @@ namespace ExternalBanking
 
                 }
             }
-                       
+
             if (result.Errors.Count == 0)
             {
                 result.ResultCode = ResultCode.Normal;
@@ -338,7 +335,7 @@ namespace ExternalBanking
             {
                 result.ResultCode = ResultCode.ValidationError;
             }
-                        
+
             if ((this.GroupId != 0) ? !OrderGroup.CheckGroupId(this.GroupId) : false)
             {
                 //Նշված խումբը գոյություն չունի։
@@ -354,8 +351,8 @@ namespace ExternalBanking
         {
 
             this.CompleteReestr();
-            ActionResult result = this.ValidateReestr(user,this.Id);
-            
+            ActionResult result = this.ValidateReestr(user, this.Id);
+
             List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
@@ -373,10 +370,10 @@ namespace ExternalBanking
 
                 //**********                
                 //ulong orderId = base.Save(this, source, user);
-                
+
                 //Պահպանում է ռեեստրով փոխանցման տվյալները
-               // PaymentOrderDB.SaveReestrTransferDetails(this);
-                
+                // PaymentOrderDB.SaveReestrTransferDetails(this);
+
                 LogOrderChange(user, action);
                 scope.Complete();
             }
@@ -386,7 +383,7 @@ namespace ExternalBanking
 
         protected void CompleteReestr()
         {
-            
+
 
             if (this.DebitAccount != null && ((!this.ValidateForTransit && this.ValidateDebitAccount) || this.Type == OrderType.CardServiceFeePayment))
             {
@@ -399,19 +396,19 @@ namespace ExternalBanking
             if ((this.OrderNumber == null || this.OrderNumber == ""))
                 this.OrderNumber = GenerateNextOrderNumber(this.CustomerNumber);
 
-            if(Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.ArmSoft)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.ArmSoft)
             {
-                if(ReestrTransferAdditionalDetails != null)
+                if (ReestrTransferAdditionalDetails != null)
                 {
                     //this.Amount = ReestrTransferAdditionalDetails.Sum(x => x.Amount);
                 }
-                
+
             }
         }
 
-        public static ActionResult CheckExcelRows(List<ReestrTransferAdditionalDetails> reestrTransferAdditionalDetails,string debetAccount, Languages languages,long id = 0 )
+        public static ActionResult CheckExcelRows(List<ReestrTransferAdditionalDetails> reestrTransferAdditionalDetails, string debetAccount, Languages languages, long id = 0)
         {
-            return PaymentOrderDB.CheckExcelRows(reestrTransferAdditionalDetails, debetAccount,languages,id);
+            return PaymentOrderDB.CheckExcelRows(reestrTransferAdditionalDetails, debetAccount, languages, id);
         }
 
 

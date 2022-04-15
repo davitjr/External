@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -67,12 +64,12 @@ namespace ExternalBanking
         /// <summary>
         ///  Պետ. տուրքի գումար
         /// </summary>
-        public decimal TaxAmount { get; set; }      
+        public decimal TaxAmount { get; set; }
 
         /// <summary>
         /// Պետ. տուրքի փոխանցման ամսաթիվ
         /// </summary>
-        public DateTime? TransferRegistrationDate { get; set; }    
+        public DateTime? TransferRegistrationDate { get; set; }
 
         /// <summary>
         /// Պետ. տուրքի փոխանցման համար
@@ -108,7 +105,7 @@ namespace ExternalBanking
         /// Համաձայն դատարանի որոշման ում կողմից է մարվում պետ. տուրքը
         /// </summary>
         public TaxCourtDecision TaxCourtDecision { get; set; }
-        
+
         /// <summary>
         /// Պետ. տուրքի վարկի ունիկալ համար
         /// </summary>
@@ -126,6 +123,6 @@ namespace ExternalBanking
             problemLoanTax.FilialCodeName = FilialList[problemLoanTax.FilialCode.ToString()];
             return problemLoanTax;
         }
-        
+
     }
 }

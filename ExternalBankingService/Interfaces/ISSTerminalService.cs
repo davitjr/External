@@ -1,12 +1,7 @@
-﻿using System;
+﻿using ExternalBanking;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
-using ExternalBanking;
-
-using ACBALibrary;
 
 namespace ExternalBankingService.Interfaces
 {
@@ -62,7 +57,7 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         List<ExchangeRate> GetExchangeRates(int filialCode);
- 
+
         [OperationContract]
         Loan GetLoanByLoanFullNumber(string loanFullNumber);
 
@@ -116,7 +111,7 @@ namespace ExternalBankingService.Interfaces
         Account GetCreditCodeAccountForMature(string creditCode, string loanCurrency, string amountCurrency);
 
         [OperationContract]
-        ActionResult SendSMS(string phoneNumber, string messageText, int messageTypeID,  SourceType sourceType);
+        ActionResult SendSMS(string phoneNumber, string messageText, int messageTypeID, SourceType sourceType);
 
         [OperationContract]
         ushort GetTerminalFilial(string TerminalID);

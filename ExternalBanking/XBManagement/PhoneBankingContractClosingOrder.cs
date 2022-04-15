@@ -1,11 +1,5 @@
-﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.DBManager.XBManagement;
 using System.Transactions;
-using ExternalBanking.DBManager.XBManagement;
 
 
 namespace ExternalBanking.XBManagement
@@ -32,7 +26,7 @@ namespace ExternalBanking.XBManagement
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PhoneBankingContractClosingOrderDB.Save(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

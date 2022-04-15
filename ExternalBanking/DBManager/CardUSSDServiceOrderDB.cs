@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 using System.Web.Configuration;
 
 
@@ -32,7 +31,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     cmd.Parameters.Add("@product_app_Id", SqlDbType.Float).Value = order.ProductID;
-                    cmd.Parameters.Add("@mobilePhone", SqlDbType.NVarChar,15).Value = order.MobilePhone;
+                    cmd.Parameters.Add("@mobilePhone", SqlDbType.NVarChar, 15).Value = order.MobilePhone;
                     cmd.Parameters.Add("@actionType", SqlDbType.TinyInt).Value = order.ActionType;
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
@@ -112,7 +111,7 @@ namespace ExternalBanking.DBManager
 
         internal static CardUSSDServiceOrder GetCardUSSDServiceOrder(CardUSSDServiceOrder order)
         {
-          
+
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
@@ -134,11 +133,11 @@ namespace ExternalBanking.DBManager
                                             on dt.doc_id=hb.doc_ID
                                             WHERE hb.doc_ID=@docID AND hb.customer_number=case WHEN @customer_number = 0 THEN hb.customer_number ELSE @customer_number END";
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(sqlString, conn);
+                using SqlCommand cmd = new SqlCommand(sqlString, conn);
                 cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
 
-               using SqlDataReader dr = cmd.ExecuteReader();
+                using SqlDataReader dr = cmd.ExecuteReader();
 
 
                 if (dr.Read())
@@ -156,7 +155,7 @@ namespace ExternalBanking.DBManager
                     order.ActionType = short.Parse(dr["action_type"].ToString());
                 }
 
-                
+
             }
             return order;
         }
@@ -206,7 +205,7 @@ namespace ExternalBanking.DBManager
                             service.RequestFileName = row["requestFileName"].ToString();
                             listCardUSSDServiceHistory.Add(service);
                         }
-                        
+
                     }
                 }
             }

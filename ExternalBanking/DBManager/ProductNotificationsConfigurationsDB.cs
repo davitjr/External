@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
@@ -28,14 +27,14 @@ namespace ExternalBanking.DBManager
                                                           INNER JOIN tbl_types_of_product_notification_language l
                                                           ON l.id=n.language
                                                           WHERE n.product_id=@productID", conn);
-                                                        
-                cmd.Parameters.Add("@productID", SqlDbType.Float).Value = productId; 
+
+                cmd.Parameters.Add("@productID", SqlDbType.Float).Value = productId;
                 DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
                 }
-                foreach (DataRow row  in dt.Rows)
+                foreach (DataRow row in dt.Rows)
                 {
                     ProductNotificationConfigurations config = SetProductNotificationConfiguration(row);
                     if (config.NotificationOption == 2 || config.NotificationOption == 5)
@@ -45,7 +44,7 @@ namespace ExternalBanking.DBManager
                     lstProductNotificationConfigurations.Add(config);
                 }
 
-                
+
             }
             return lstProductNotificationConfigurations;
         }
@@ -113,7 +112,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-        private static  ProductNotificationConfigurations SetProductNotificationConfiguration(DataRow  row)
+        private static ProductNotificationConfigurations SetProductNotificationConfiguration(DataRow row)
         {
             ProductNotificationConfigurations config = new ProductNotificationConfigurations();
             if (row != null)
@@ -121,10 +120,10 @@ namespace ExternalBanking.DBManager
                 config.ID = int.Parse(row["ID"].ToString());
                 config.ProductId = Convert.ToUInt64(row["product_ID"].ToString());
                 config.ProductType = Convert.ToInt16(row["product_type"].ToString());
-                
-                config.InformationType = Convert.ToByte(row["information_type"].ToString()); 
-                config.NotificationOption = Convert.ToByte(row["notification_option"].ToString()); 
-                config.NotificationFrequency = Convert.ToByte(row["notification_frequency"].ToString()); 
+
+                config.InformationType = Convert.ToByte(row["information_type"].ToString());
+                config.NotificationOption = Convert.ToByte(row["notification_option"].ToString());
+                config.NotificationFrequency = Convert.ToByte(row["notification_frequency"].ToString());
 
 
 
@@ -134,7 +133,7 @@ namespace ExternalBanking.DBManager
                 //  config.EmailID = Convert.ToInt32(row["CustomerEmailId"].ToString());
                 //}
                 //config.EmailAddress = row["emailAddress"].ToString();
-                config.Language = Convert.ToByte(row["language"].ToString()); 
+                config.Language = Convert.ToByte(row["language"].ToString());
                 if (row["registration_date"] != DBNull.Value)
                 {
                     config.RegistrationDate = Convert.ToDateTime(row["registration_date"].ToString());
@@ -143,7 +142,7 @@ namespace ExternalBanking.DBManager
                 {
                     config.ApplicationDate = Convert.ToDateTime(row["application_date"].ToString());
                 }
-                config.NotificationOptionDescription =Utility.ConvertAnsiToUnicode(row["optionDesc"].ToString());
+                config.NotificationOptionDescription = Utility.ConvertAnsiToUnicode(row["optionDesc"].ToString());
                 config.InformationTypeDescription = Utility.ConvertAnsiToUnicode(row["notInfoDesc"].ToString());
                 config.NotificationFrequencyDescription = Utility.ConvertAnsiToUnicode(row["frequencyDesc"].ToString());
                 config.LanguageDescription = Utility.ConvertAnsiToUnicode(row["languageDesc"].ToString());

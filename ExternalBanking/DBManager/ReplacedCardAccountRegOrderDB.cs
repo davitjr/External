@@ -116,7 +116,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-               using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id,
+                using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id,
                                                           D.card_account,
                                                           D.overdraft_account,
                                                           D.add_inf,

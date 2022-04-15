@@ -1,12 +1,6 @@
-﻿using ExternalBanking;
-using ExternalBanking.ARUSDataService;
+﻿using ExternalBanking.ARUSDataService;
 using ExternalBankingService.InfSecServiceReference;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
 
 namespace ExternalBankingService.Interfaces
 {
@@ -15,7 +9,7 @@ namespace ExternalBankingService.Interfaces
     [ServiceKnownType(typeof(R2ARequest))]
     [ServiceKnownType(typeof(AuthorizedUser))]
     [ServiceKnownType(typeof(LoginInfo))]
-    
+
     public interface ISTAKService
     {
 

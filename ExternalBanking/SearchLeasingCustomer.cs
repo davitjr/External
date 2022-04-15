@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -23,7 +19,7 @@ namespace ExternalBanking
         /// <summary>
         /// Անվանում
         /// </summary>
-        public string OrganizationName { get; set;}
+        public string OrganizationName { get; set; }
         /// <summary>
         /// ՀՀՎՀ
         /// </summary>
@@ -34,7 +30,7 @@ namespace ExternalBanking
         public string PassportNumber { get; set; }
 
         public static List<SearchLeasingCustomer> Search(SearchLeasingCustomer searchParams)
-        {       
+        {
             List<SearchLeasingCustomer> leasingCustomers = LeasingDB.GetLeasingCustomers(searchParams);
             return leasingCustomers;
         }

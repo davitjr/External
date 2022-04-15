@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Transactions;
-using ExternalBanking.UtilityPaymentsManagment;
 using ExternalBanking.ServiceClient;
+using ExternalBanking.UtilityPaymentsManagment;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -913,7 +913,7 @@ namespace ExternalBanking
 
                 }
             }
-            if (Source != SourceType.AcbaOnline && Source != SourceType.AcbaOnlineXML && Source != SourceType.ArmSoft && Source != SourceType.MobileBanking)
+            if (Source != SourceType.AcbaOnline && Source != SourceType.AcbaOnlineXML && Source != SourceType.ArmSoft && Source != SourceType.MobileBanking && Source != SourceType.AcbaMat)
             {
                 if (Account.IsUserAccounts(user.userCustomerNumber, this.DebitAccount.AccountNumber, this.ReceiverAccount.AccountNumber))
                 {
@@ -2295,12 +2295,22 @@ namespace ExternalBanking
 
                     if (result.ResultCode == ResultCode.ValidationError)
                         return result;
-                   
+
                     if (this.AdditionalParametrs != null && this.AdditionalParametrs.Exists(m => m.AdditionValue == "LeasingAccount"))
                     {
                         LeasingDB.SaveLeasingPaymentDetails(this);
                     }
                 }
+
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
 
                 ActionResult res = new ActionResult();
 

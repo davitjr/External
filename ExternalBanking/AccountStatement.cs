@@ -51,6 +51,6 @@ namespace ExternalBanking
             Transactions = new List<AccountStatementDetail>();
             TotalsByDays = new List<AccountStatementTotalsByDays>();
         }
-        
+
     }
 }

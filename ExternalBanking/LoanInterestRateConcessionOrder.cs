@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -50,7 +46,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             LoanInterestRateConcessionOrder concessionOrder = LoanInterestRateConcessionOrderDB.GetLoanInterestRateConcessionDetailsDB(ProductAppId);
-            if(concessionOrder.Quality == (OrderQuality)3 || concessionOrder.Quality == (OrderQuality)30)
+            if (concessionOrder.Quality == (OrderQuality)3 || concessionOrder.Quality == (OrderQuality)30)
             {
                 ActionError actionError = new ActionError
                 {
@@ -88,7 +84,7 @@ namespace ExternalBanking
 
             this.Complete();
             ActionResult result = this.Validate(user);
-           // List<ActionError> warnings = new List<ActionError>();
+            // List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -130,7 +126,7 @@ namespace ExternalBanking
                     base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
                     base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
                     LogOrderChange(user, Action.Update);
-                   scope.Complete();
+                    scope.Complete();
                 }
                 else
                 {

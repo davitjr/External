@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using ExternalBanking.DBManager;
-using System.Data;
 
 
 namespace ExternalBanking
@@ -36,7 +33,7 @@ namespace ExternalBanking
         /// </summary>
         public string Currency { get; set; }
 
-        
+
 
     }
 }

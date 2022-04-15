@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -16,7 +13,7 @@ namespace ExternalBanking
         /// Հաճախորդի համար
         /// </summary>
         public double CustomerNumber { get; set; }
-        
+
         /// <summary>
         /// Վարկի տրամադրման մասնաճյուղ
         /// </summary>
@@ -64,7 +61,7 @@ namespace ExternalBanking
         /// <summary>
         /// Վաճառքի փուլեր
         /// </summary>
-        public int SaleStage {get; set; }
+        public int SaleStage { get; set; }
 
         public List<LoanEquipment> GetSearchedLoanEquipments()
         {

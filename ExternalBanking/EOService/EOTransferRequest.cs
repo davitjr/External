@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.DBManager;
-using ExternalBanking;
+﻿using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -49,7 +42,7 @@ namespace ExternalBanking
             response.Amount = Amount;//????
 
             CardIdentificationData sourceCard = new CardIdentificationData();
-            
+
             Card destinationCard = new Card();
             Account cardAccount = new Account(this.Account.ToString());
             destinationCard = Card.GetCardWithOutBallance(cardAccount.AccountNumber);
@@ -82,17 +75,17 @@ namespace ExternalBanking
             if (response.ErrorCode != 1)
             {
 
-                
+
                 order.OrderID = this.ParentID;
                 order.Amount = this.Amount;
                 order.Currency = "AMD";
 
-                
+
                 order.DestinationCardNumber = destinationCard.CardNumber;
-                order.Receiver = ""; 
+                order.Receiver = "";
                 sourceCard.Init(Partner.CustomerNumber);
                 order.SourceCard = sourceCard;
-                order.SourceID = CashTerminal.GetTerminalID(Partner.CustomerNumber); 
+                order.SourceID = CashTerminal.GetTerminalID(Partner.CustomerNumber);
                 order.Status = 0;
                 order.TransferID = 0;
 
@@ -114,7 +107,7 @@ namespace ExternalBanking
 
             }
 
-            
+
 
             EOServiceDB.SaveEOMakeTransferResponse(response);
 

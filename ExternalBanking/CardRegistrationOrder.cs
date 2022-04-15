@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Transactions;
-using ExternalBanking.ArcaDataServiceReference;
+﻿using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -50,7 +50,7 @@ namespace ExternalBanking
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
-           
+
             if (this.Card.SupplementaryType != SupplementaryType.Main)
             {
                 Card mainCard = ExternalBanking.Card.GetCard(this.Card.MainCardNumber);

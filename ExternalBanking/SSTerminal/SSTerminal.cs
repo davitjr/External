@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using ExternalBanking.ArcaDataServiceReference;
+﻿using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -46,10 +40,10 @@ namespace ExternalBanking
         {
             return SSTerminalDB.GetTerminalFilial(TerminalID);
         }
-        public static short  CheckTerminalAuthorization(string terminalID, string ipAddress, string password)
+        public static short CheckTerminalAuthorization(string terminalID, string ipAddress, string password)
         {
             short result;
-            result=SSTerminalDB.CheckTerminalAuthorization(terminalID, ipAddress, password);
+            result = SSTerminalDB.CheckTerminalAuthorization(terminalID, ipAddress, password);
             return result;
         }
         public static Account GetOperationSystemTransitAccount(string terminalNumber, string currency)

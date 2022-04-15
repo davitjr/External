@@ -1,13 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
-using System.Data.SqlClient;
+using System.Linq;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 
 namespace ExternalBanking.XBManagement
@@ -39,7 +35,7 @@ namespace ExternalBanking.XBManagement
         {
             return HBActivationOrderDB.GetHBRequests(customerNumber);
         }
-       
+
 
 
         /// <summary>
@@ -79,7 +75,7 @@ namespace ExternalBanking.XBManagement
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = HBActivationOrderDB.SaveHBActivationOrder(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -139,7 +135,7 @@ namespace ExternalBanking.XBManagement
                         request.ServiceFee = 0;
                     }
                 }
-                
+
             }
 
 
@@ -240,7 +236,7 @@ namespace ExternalBanking.XBManagement
                 return result;
             }
 
-            if (this.Amount>0)
+            if (this.Amount > 0)
             {
                 result.Errors.AddRange(Validation.SetAmountsForCheckBalance(this));
             }
@@ -260,7 +256,7 @@ namespace ExternalBanking.XBManagement
             return result;
         }
 
-       
+
 
         public void Get()
         {

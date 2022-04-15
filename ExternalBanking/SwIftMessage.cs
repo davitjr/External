@@ -1,12 +1,11 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using System.Transactions;
 using System.Data;
 using System.Dynamic;
+using System.Linq;
+using System.Text;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -278,7 +277,7 @@ namespace ExternalBanking
             PeriodicTransfer swiftMessagePeriodicTransfer = new PeriodicTransfer();
             swiftMessagePeriodicTransfer = PeriodicTransfer.GetPeriodicTransfer(periodicTransferId);
 
-            SwiftMessage swiftMessage=null;
+            SwiftMessage swiftMessage = null;
             if (swiftMessagePeriodicTransfer != null)
             {
                 swiftMessage = new SwiftMessage();
@@ -374,7 +373,7 @@ namespace ExternalBanking
             return result;
 
         }
-        
+
 
         /// <summary>
         /// Վերադարձնում է SwiftMessage-ի քաղվածքը
@@ -383,7 +382,7 @@ namespace ExternalBanking
         /// <param name="dateTo"></param>
         /// <param name="accountNumber"></param>
         /// <returns></returns>
-        public static string GetSwiftMessageStatement(DateTime dateFrom, DateTime dateTo,string accountNumber, SourceType source)
+        public static string GetSwiftMessageStatement(DateTime dateFrom, DateTime dateTo, string accountNumber, SourceType source)
         {
             string statement = "";
             DateTime dateStatement = DateTime.Now.Date;
@@ -519,7 +518,7 @@ namespace ExternalBanking
 
                     dynamic transactionDescriptionDetails = AccountDB.GetTransactionDescriptionForSwiftMessage(transactionsList[currentRowInStatement].TransactionsGroupNumber, transactionsList[currentRowInStatement].DebitCredit);
 
-                    extractReference = extractReference.Substring(0, (extractReference.Length > 34 ) ? 34 : extractReference.Length);
+                    extractReference = extractReference.Substring(0, (extractReference.Length > 34) ? 34 : extractReference.Length);
 
                     //operationAmount = 0;
                     //if (accountCurrency == "AMD")
@@ -934,7 +933,7 @@ namespace ExternalBanking
                                 swiftMessagePeriodicTransfer.AddPeriodicTransferLog(1, "Կատարված է։");
                             }
                             result = actionResult;
-                            
+
                         }
                         scope.Complete();
                     }
@@ -976,7 +975,7 @@ namespace ExternalBanking
             periodicTransfer.CloseExpiredPeriodicTransfers(currentOperDay, statementDate);
             return result;
         }
-        
+
         internal static string ReplaceSymbols(string str)
         {
             string[] symbols = new string[] { "~", "!", "@", "«", "»", "#", "$", ";", "%", "^", "&", "*", "=", "{", "}", "[", "]", "_", "<", ">", "№", "“", "”", "”", "\\", "\"" };

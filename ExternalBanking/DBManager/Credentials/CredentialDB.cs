@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -182,7 +182,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@"select A.assign_id, D.* from Tbl_assigns A inner join TBL_Assignees Ass on A.assign_id = Ass.assign_id
+                using SqlCommand cmd = new SqlCommand(@"select A.assign_id, D.* from Tbl_assigns A inner join TBL_Assignees Ass on A.assign_id = Ass.assign_id
                                                   inner join dbo.TBl_Assignee_Identification D on Ass.id = D.assignee_id 
                                                   where D.doc_id = @docId ", conn);
 

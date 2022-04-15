@@ -1,9 +1,5 @@
 ﻿using ExternalBanking.DBManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -50,7 +46,7 @@ namespace ExternalBanking
         /// <summary>
         /// Աղբահանության ծառայության դիմաց վճար
         /// </summary>
-        Trash=9,
+        Trash = 9,
 
         /// <summary>
         /// ՋՕԸ ծառայության դիմաց վճար
@@ -70,12 +66,12 @@ namespace ExternalBanking
         /// Կոմունալի տեսակ
         /// </summary>
         public CommunalTypes ComunalType { get; set; }
-        
+
         /// <summary>
         /// Աբոնենտի համար
         /// </summary>
         public string AbonentNumber { get; set; }
-               
+
         /// <summary>
         /// Աբոնենտի մասնաճյուղ
         /// </summary>
@@ -95,6 +91,11 @@ namespace ExternalBanking
         ///  Պարտք
         /// </summary>
         public double? Debt { get; set; }
+
+        /// <summary>
+        ///  Սպասարկման գումար
+        /// </summary>
+        public double? FeeDebt { get; set; }
 
         /// <summary>
         /// Աբոնենտի բանկային մասնաճյուղ

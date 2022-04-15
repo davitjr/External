@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -310,11 +307,11 @@ namespace ExternalBanking.DBManager
 
                         sender.Id = Convert.ToInt32(row["Id"]);
                         sender.CustomerNumber = Convert.ToUInt64(row["customer_number"]);
-                        if(sender.CustomerNumber > 0)
+                        if (sender.CustomerNumber > 0)
                         {
                             sender.FullName = language == Languages.hy ? Utility.ConvertAnsiToUnicode(Utility.GetCustomerDescription(sender.CustomerNumber)) : Utility.GetCustomerDescriptionEnglish(sender.CustomerNumber);
                         }
-                     
+
                         sender.Amount = Convert.ToDouble(row["amount"]);
                         sender.IsLinkPayment = Convert.ToBoolean(row["is_link_payment"]);
                         if (row["phone_number"] != DBNull.Value)
@@ -422,7 +419,7 @@ namespace ExternalBanking.DBManager
                         D.quality,D.currency,
                                             (select count(1) from TBl_bill_split_senders S where S.doc_id = D.doc_id) as sendersCount,
                                             (select count(1) from TBl_bill_split_senders S where S.doc_id = D.doc_id and status = 1) as completedSendersCount
-                                            from Tbl_HB_Documents D where D.customer_number = @customer_number  and D.document_Type = 245 and D.quality in (3,30)";
+                                            from Tbl_HB_Documents D where D.customer_number = @customer_number  and D.document_Type = 245 and D.quality in (3,30) order by D.doc_id desc";
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
 
@@ -498,7 +495,7 @@ namespace ExternalBanking.DBManager
 
                     cmd.CommandText = @"select D.[description], S.amount, d.currency, d.registration_date, s.[status], s.id, D.receiver_name, D.credit_account, D.credit_bank_code
 											from Tbl_BIll_split_senders S inner join TBl_HB_Documents D on S.doc_id = D.doc_id
-											where S.customer_number = @customer_number and status in (0,1) and D.quality in (3,30)";
+											where S.customer_number = @customer_number and status in (0,1) and D.quality in (3,30) order by D.doc_id desc";
 
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
@@ -650,7 +647,6 @@ namespace ExternalBanking.DBManager
 
         internal static void SendBillSplitSendersNotifications(long orderId)
         {
-            ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -681,14 +677,12 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
 
 
-                    cmd.CommandText = @"select D.[description], d.amount, d.currency, d.registration_date, s.[status], s.id, D.receiver_name, D.credit_account, D.credit_bank_code
+                    cmd.CommandText = @"select D.[description], s.amount, d.currency, d.registration_date, s.[status], s.id, D.receiver_name, D.credit_account, D.credit_bank_code
 											from Tbl_BIll_split_senders S inner join TBl_HB_Documents D on S.doc_id = D.doc_id
 											where S.id = @sender_id";
 
                     cmd.Parameters.Add("@sender_id", SqlDbType.Float).Value = billSplitSenderId;
 
-
-                    DataTable dt = new DataTable();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {

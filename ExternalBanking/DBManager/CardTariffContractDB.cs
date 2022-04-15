@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -45,7 +42,7 @@ namespace ExternalBanking.DBManager
             tariffContract.CardTariffs = new List<CardTariff>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-               using SqlCommand cmd = new SqlCommand(@"SELECT R.CardName + ' ' +  C.CardType as CardName, R.CardType,R.currency, R.CashRate, R.GracePeriod, R.Positive_Rate, R.loan_Rate, R.cash_rate_other,R.Quality, R.cardRateID , 
+                using SqlCommand cmd = new SqlCommand(@"SELECT R.CardName + ' ' +  C.CardType as CardName, R.CardType,R.currency, R.CashRate, R.GracePeriod, R.Positive_Rate, R.loan_Rate, R.cash_rate_other,R.Quality, R.cardRateID , 
                                                 R.Cash_rate_int,
                                                 CASE R.currency 
 	                                                WHEN 'AMD' THEN R.Min_fee_local_AMD 
@@ -92,8 +89,8 @@ namespace ExternalBanking.DBManager
                     tariffContract.CardTariffs.Add(cardTariff);
                 }
             }
-        }    
-        internal static List<CardTariffContract> GetCustomerCardTariffContracts(ulong customerNumber,ProductQualityFilter filter)
+        }
+        internal static List<CardTariffContract> GetCustomerCardTariffContracts(ulong customerNumber, ProductQualityFilter filter)
         {
             List<CardTariffContract> cardTariffContracts = new List<CardTariffContract>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
@@ -130,7 +127,7 @@ namespace ExternalBanking.DBManager
                             CardTariffContract cardTariffContract = SetCardTariffContract(row);
                             cardTariffContracts.Add(cardTariffContract);
                         }
-                    }                  
+                    }
                 }
             }
             return cardTariffContracts;
@@ -155,7 +152,7 @@ namespace ExternalBanking.DBManager
                 }
             }
             return hasCardTariffContract;
-        }        
+        }
         private static CardTariffContract SetCardTariffContract(DataRow dr)
         {
             CardTariffContract cardTariffContract = new CardTariffContract();
@@ -174,7 +171,7 @@ namespace ExternalBanking.DBManager
         }
 
 
-      internal static int GetActiveCardsCount(int contractId)
+        internal static int GetActiveCardsCount(int contractId)
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -208,7 +205,7 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.Read())
                         {
-                            list.Add((dr["USSD_fee"] != DBNull.Value)?float.Parse(dr["USSD_fee"].ToString()):0);
+                            list.Add((dr["USSD_fee"] != DBNull.Value) ? float.Parse(dr["USSD_fee"].ToString()) : 0);
                             list.Add((dr["USSD_fee_from_client"] != DBNull.Value) ? float.Parse(dr["USSD_fee_from_client"].ToString()) : 0);
                             list.Add((dr["USSD_fee_from_bank"] != DBNull.Value) ? float.Parse(dr["USSD_fee_from_bank"].ToString()) : 0);
                         }

@@ -1,12 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.CreditLineActivatorARCA;
+using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking.CreditLineActivatorARCA;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -19,7 +16,7 @@ namespace ExternalBanking
         /// <summary>
         /// Վարկային գծի ունիկալ համար
         /// </summary>
-        public ulong ProductAppID { get;set; }
+        public ulong ProductAppID { get; set; }
 
         /// <summary>
         /// 
@@ -88,7 +85,7 @@ namespace ExternalBanking
                     base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
                 }
 
-                Order.SaveOrderProductId(this.ProductAppID,this.Id);
+                Order.SaveOrderProductId(this.ProductAppID, this.Id);
 
                 LogOrderChange(user, action);
 
@@ -114,7 +111,7 @@ namespace ExternalBanking
 
             bool isCreditLineOnline = bool.Parse(ConfigurationManager.AppSettings["IsCreditLineOnline"].ToString());
 
-            if (result.ResultCode == ResultCode.Normal && this.Type == OrderType.CreditLineProlongationOrder && isCreditLineOnline == true && source == SourceType.Bank)
+            if (result.ResultCode == ResultCode.Normal && this.Type == OrderType.CreditLineProlongationOrder && isCreditLineOnline && source == SourceType.Bank)
             {
                 try
                 {
@@ -128,7 +125,7 @@ namespace ExternalBanking
                 catch (Exception ex)
                 {
                     warnings.AddRange(new List<ActionError> { new ActionError { Description = "Ուղարկվելու է ԱՐՔԱ՝ հերթական ֆայլով" } });
-                    
+
                     string message = (ex.Message != null ? ex.Message : " ") +
                                       Environment.NewLine + " InnerException:" + (ex.InnerException != null ? ex.InnerException.Message : "")
                                     + " stacktrace:" + (ex.StackTrace != null ? ex.StackTrace : " ");

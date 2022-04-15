@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -109,7 +109,7 @@ namespace ExternalBanking
         /// Վերջին ուղարկման ֆայլի ա/թ և ժամ
         /// </summary>
         /// <returns></returns>
-        public static DateTime?  GetLastSendedPaymentFileDate()
+        public static DateTime? GetLastSendedPaymentFileDate()
         {
             return CardActivationInArCaDB.GetLastSendedPaymentFileDate();
         }

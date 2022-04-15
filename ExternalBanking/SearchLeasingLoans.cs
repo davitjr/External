@@ -1,9 +1,7 @@
 ﻿using ExternalBanking.DBManager;
+using ExternalBanking.Leasing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -58,6 +56,66 @@ namespace ExternalBanking
         public static double GetPartlyMatureAmount(string contractNumber)
         {
             return LeasingDB.GetPartlyMatureAmount(contractNumber);
+        }
+
+        public static List<CustomerLeasingLoans> GetLeasings(ulong customerNumber)
+        {
+            return LeasingDB.GetLeasings(customerNumber);
+        }
+
+        public static LeasingLoanDetails GetLeasing(ulong productId)
+        {
+            return LeasingDB.GetLeasing(productId);
+        }
+
+        public static List<LeasingLoanRepayments> GetLeasingRepayments(ulong productId, byte firstReschedule = 0)
+        {
+            return LeasingDB.GetLeasingRepayments(productId, firstReschedule);
+        }       
+
+        public static List<LeasingLoanStatements> GetLeasingLoanStatements(ulong productId, DateTime dateFrom, DateTime dateTo, double minAmount = -1, double maxAmount = -1, int pageNumber = 1, int pageRowCount = 15, short orderByAscDesc = 0)
+        {
+            return LeasingDB.GetLeasingLoanStatements(productId, dateFrom, dateTo, minAmount, maxAmount, pageNumber, pageRowCount, orderByAscDesc);
+        }
+
+        public static List<LeasingPaymentsType> GetLeasingPaymentsType()
+        {
+            return LeasingDB.GetLeasingPaymentsType();
+        }
+
+        public static List<AdditionalDetails> GetLeasingDetailsByAppID(ulong productId, int leasingInsuranceId = 0)
+        {
+            return LeasingDB.GetLeasingDetailsByAppID(productId, leasingInsuranceId);
+        }
+
+        public static Account SetLeasingReceiver()
+        {
+            return LeasingDB.SetLeasingReceiver();
+        }
+
+        public static string GetLeasingPaymentDescription(short paymentType, short paymentSubType)
+        {
+            return LeasingDB.GetLeasingPaymentDescription(paymentType, paymentSubType);
+        }
+
+        public static LeasingLoanRepayments GetLeasingPaymentDetails(ulong productId)
+        {
+            return LeasingDB.GetLeasingPaymentDetails(productId);
+        }
+        
+        public static List<LeasingOverdueDetail> GetLeasingOverdueDetails(ulong productId)
+        {
+            return LeasingDB.GetLeasingOverdueDetails(productId);
+        }
+
+        public static ulong GetManagerCustomerNumber(ulong customerNumber)
+        {
+            return LeasingDB.GetManagerCustomerNumber(customerNumber);
+        }
+
+        public static List<LeasingInsurance> GetLeasingInsurances(ulong productId)
+        {
+            return LeasingDB.GetLeasingInsurances(productId);
         }
 
     }

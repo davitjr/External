@@ -88,7 +88,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
+                using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
                                                           H.customer_number,
                                                           H.document_number,
                                                           H.currency,
@@ -145,7 +145,7 @@ namespace ExternalBanking.DBManager
                                                         AND customer_number = @customerNumber";
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                     
+
 
                     using SqlDataReader rd = cmd.ExecuteReader();
 
@@ -178,34 +178,6 @@ namespace ExternalBanking.DBManager
                     return !(temp is null);
                 }
             }
-        }
-
-        internal static bool CheckCardRelatedOffice(CreditLineCardReplaceOrder order)
-        {
-            bool suitable = false;
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"Select *  from Tbl_cards_rates where office_id= @relOfficeID  and cardid=@cardSystem and cardtype=@cardType and currency=@cardCurrency and isnull(Quality,1)= 1";
-                    cmd.CommandType = CommandType.Text;
-
-                    cmd.Parameters.Add("@cardSystem", SqlDbType.Int).Value = order.Card.CardSystem;
-                    cmd.Parameters.Add("@cardType", SqlDbType.BigInt).Value = order.Card.Type;
-                    cmd.Parameters.Add("@cardCurrency", SqlDbType.NVarChar, 3).Value = order.Card.Currency;
-                    cmd.Parameters.Add("@relOfficeID", SqlDbType.Int).Value = order.RelatedOfficeNumber;
-
-                     
-                    using SqlDataReader rd = cmd.ExecuteReader();
-                    if (rd.Read())
-                    {
-                        suitable = true;
-                    }
-                }
-            }
-            return suitable;
         }
 
         /// <summary>

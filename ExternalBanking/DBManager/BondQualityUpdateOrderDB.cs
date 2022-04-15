@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -43,7 +39,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     cmd.Parameters.Add("@bond_id", SqlDbType.Int).Value = order.BondId;
 
-                    if(order.SubType == 3)
+                    if (order.SubType == 3)
                     {
                         cmd.Parameters.Add("@reason_id", SqlDbType.SmallInt).Value = order.ReasonId;
                         cmd.Parameters.Add("@reason_description", SqlDbType.NVarChar).Value = order.ReasonDescription;
@@ -134,8 +130,7 @@ namespace ExternalBanking.DBManager
         }
 
         internal static bool ExistsNotConfirmedBondQualityUpdateOrder(ulong customerNumber, byte subType, int bondId)
-        { 
-            ActionResult result = new ActionResult();
+        {
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())

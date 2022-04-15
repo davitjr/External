@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using ExternalBankingRESTService.XBS;
+﻿using ExternalBankingRESTService.XBS;
+using System.Collections.Generic;
 
 
 namespace ExternalBankingRESTService
 {
     public class PeriodicTransferHistoryRequestResponse
     {
-        public List<PeriodicTransferHistory>  PeriodicTransferHistory { get; set; }
+        public List<PeriodicTransferHistory> PeriodicTransferHistory { get; set; }
         public Result Result { get; set; }
 
         public PeriodicTransferHistoryRequestResponse()

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
-   public class EncryptionOperations
+    public class EncryptionOperations
     {
         private RSACryptoServiceProvider crypto { get; }
         private CspParameters cspParams { get; }

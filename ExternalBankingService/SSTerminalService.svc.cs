@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
-using ExternalBankingService.Interfaces;
+﻿using ACBALibrary;
 using ExternalBanking;
-using System.Web.Configuration;
+using ExternalBankingService.Interfaces;
 using NLog;
 using NLog.Targets;
-using ACBALibrary;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.ServiceModel;
+using System.Web.Configuration;
 
 namespace ExternalBankingService
 {
@@ -310,7 +307,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
- 
+
         /// <summary>
         /// Լրացնում հայտի ավտոմատ լրացվող դաշտերը
         /// </summary>
@@ -326,7 +323,7 @@ namespace ExternalBankingService
             order.TerminalAddress = "";
             order.FilialCode = AuthorizedSSTerminal.FilialCode;
         }
-        
+
 
         public Loan GetLoanByLoanFullNumber(string loanFullNumber)
         {
@@ -530,7 +527,7 @@ namespace ExternalBankingService
         }
         private void InitOrder(Order order)
         {
-            if (Source == SourceType.SSTerminal || Source == SourceType.CashInTerminal )
+            if (Source == SourceType.SSTerminal || Source == SourceType.CashInTerminal)
             {
                 order.CustomerNumber = AuthorizedCustomer.CustomerNumber;
                 AuthorizedSSTerminal.FilialCode = SSTerminal.GetTerminalFilial(AuthorizedSSTerminal.TerminalID);
@@ -809,7 +806,7 @@ namespace ExternalBankingService
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
             }
-        } 
+        }
 
         public Account GetOperationSystemAccount(string currency)
         {
@@ -822,7 +819,7 @@ namespace ExternalBankingService
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
             }
-        } 
+        }
 
         public Account GetOperationSystemTransitAccount(string currency)
         {
@@ -842,7 +839,6 @@ namespace ExternalBankingService
         }
         public double GetCardFee(PaymentToARCAOrder paymentOrder)
         {
-            double fee = 0;
             try
             {
                 XBService service = new XBService(ClientIp, Language, AuthorizedCustomer, User, Source);

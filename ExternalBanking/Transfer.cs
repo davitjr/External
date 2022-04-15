@@ -1,18 +1,15 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
-{   
+{
     /// <summary>
     /// Հայտի/երի որոնման պարամետրեր
     /// </summary>
     public class Transfer
     {
- 
+
         public ulong Id { get; set; }
 
         /// <summary>
@@ -41,12 +38,12 @@ namespace ExternalBanking
         /// </summary>
         public Account CreditAccount { get; set; }
 
-         /// <summary>
+        /// <summary>
         /// Միջնորդավճարի հաշիվ
         /// </summary>
         public Account DebForTransferPayment { get; set; }
 
-        
+
         /// <summary>
         /// ÂÕÃ³Ïó³ÛÇÝ դեբետ Ñ³ßÇí
         /// </summary>
@@ -100,7 +97,7 @@ namespace ExternalBanking
         /// <summary>     
         /// Հաստատման-մերժման ժամ 
         /// </summary>
-        public TimeSpan? ConfirmationTime{ get; set; }
+        public TimeSpan? ConfirmationTime { get; set; }
 
         /// <summary>
         /// Կասկածելիություն
@@ -173,7 +170,7 @@ namespace ExternalBanking
         /// </summary>
         public string Description { get; set; }
 
-       /// <summary>
+        /// <summary>
         /// Վճարման մանրամասներ
         /// </summary>
         public string DescriptionForPayment { get; set; }
@@ -353,12 +350,12 @@ namespace ExternalBanking
         /// Գումարը դեբետ հաշվի արժույթով
         /// </summary>
         public double AmountInDebCurrency { get; set; }
- 
+
         /// <summary>
         /// Փոխանցման աղբյուր
         /// </summary>
         public string TransferSource { get; set; }
-        
+
         /// <summary>
         // Արագ համակարգերով ÷áË³ÝóáõÙ
         /// </summary>
@@ -393,7 +390,7 @@ namespace ExternalBanking
 
         public int DocflowConfirmationId { get; set; }
 
-        public byte AcbaTransfer {get;set;}
+        public byte AcbaTransfer { get; set; }
 
         public string VOCode { get; set; }
 
@@ -513,15 +510,15 @@ namespace ExternalBanking
 
         public Transfer()
         {
-          CreditAccount = new Account();
-          DebitAccount = new Account();
-          DebForTransferPayment = new Account();
+            CreditAccount = new Account();
+            DebitAccount = new Account();
+            DebForTransferPayment = new Account();
         }
 
 
-        public void Get( ACBAServiceReference.User user = null)
+        public void Get(ACBAServiceReference.User user = null)
         {
-             TransferDB.Get(this, user);
+            TransferDB.Get(this, user);
 
             //ARUS
             if (TransferSystem == 23)
@@ -539,7 +536,7 @@ namespace ExternalBanking
 
         }
 
-         
+
         ///// <summary>
         ///// Վերադարձնում է տվյալ փոխանցմանը կցված փաստաթուղթը (առանց scan-ի)
         ///// </summary>
@@ -580,7 +577,7 @@ namespace ExternalBanking
 
 
 
-        public ActionResult UpdateTransferVerifiedStatus(int userId,int verified)
+        public ActionResult UpdateTransferVerifiedStatus(int userId, int verified)
         {
             ActionResult result = new ActionResult();
 

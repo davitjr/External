@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -30,7 +27,7 @@ namespace ExternalBanking
         /// <summary>
         /// Արժեկտրոնների հաշվարկման օր
         /// </summary>
-        public DateTime CouponRepaymentDate { get; set; }       
+        public DateTime CouponRepaymentDate { get; set; }
     }
 
 }

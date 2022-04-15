@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -18,7 +14,7 @@ namespace ExternalBanking
         /// <summary>
         /// Սպասարկան միջնորդավճար
         /// </summary>
-        public double ServiceFee { get; set;}
+        public double ServiceFee { get; set; }
         /// <summary>
         /// Սպասարկան սկիզբ
         /// </summary>

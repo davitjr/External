@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -166,7 +162,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                string str = @"select count(doc_id) as orderCount from TBl_HB_Documents   where document_type = 247 and quality in (3,30) and descr_for_payment = @senderId and registration_date = GetDate()";
+                string str = @"select count(doc_id) as orderCount from TBl_HB_Documents   where document_type = 247 and quality in (3,30) and descr_for_payment = @senderId and registration_date = convert(date, getdate())";
 
 
                 using (SqlCommand cmd = new SqlCommand(str, conn))

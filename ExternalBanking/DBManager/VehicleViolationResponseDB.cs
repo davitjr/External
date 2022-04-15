@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -130,8 +128,8 @@ namespace ExternalBanking.DBManager
                     dt.Load(dr);
                 }
 
-                    DataRow row = dt.Rows[0];
-                    response = SetVehicleViolation(row);
+                DataRow row = dt.Rows[0];
+                response = SetVehicleViolation(row);
             }
 
             return response;
@@ -153,9 +151,10 @@ namespace ExternalBanking.DBManager
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                       if (dr.Read())
-                        {   if (dr["errorHBNumber"]!= DBNull.Value)
-                            errorCode = short.Parse(dr["errorHBNumber"].ToString());
+                        if (dr.Read())
+                        {
+                            if (dr["errorHBNumber"] != DBNull.Value)
+                                errorCode = short.Parse(dr["errorHBNumber"].ToString());
                         }
                     }
                 }

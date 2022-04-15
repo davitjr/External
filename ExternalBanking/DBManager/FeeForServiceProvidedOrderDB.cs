@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -29,7 +28,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
                     cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
-                    cmd.Parameters.Add("@descr", SqlDbType.NVarChar,200).Value = order.Description;
+                    cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 200).Value = order.Description;
                     cmd.Parameters.Add("@service_type", SqlDbType.Int).Value = order.ServiceType;
                     cmd.Parameters.Add("@customer_residence", SqlDbType.Int).Value = order.CustomerResidence;
                     cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
@@ -38,7 +37,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     cmd.Parameters.Add("@TaxAccountProvision", SqlDbType.Bit).Value = order.TaxAccountProvision;
 
-                    
+
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
@@ -125,7 +124,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@serviceType", SqlDbType.Int).Value = feeForServiceProvidedOrder.ServiceType;
                     cmd.Parameters.Add("@customerResidence", SqlDbType.Int).Value = feeForServiceProvidedOrder.CustomerResidence;
                     cmd.Parameters.Add("@TaxAccountProvision", SqlDbType.Bit).Value = feeForServiceProvidedOrder.TaxAccountProvision;
-                    
+
                     cmd.ExecuteNonQuery();
 
                     result.ResultCode = ResultCode.Normal;

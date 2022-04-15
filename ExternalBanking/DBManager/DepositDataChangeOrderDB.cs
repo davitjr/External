@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -89,11 +86,11 @@ namespace ExternalBanking.DBManager
                 order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
                 order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
                 order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
-                order.FieldType= Convert.ToInt16(dt.Rows[0]["field_type"]);
+                order.FieldType = Convert.ToInt16(dt.Rows[0]["field_type"]);
                 order.FieldValue = dt.Rows[0]["field_value"].ToString();
                 order.FieldTypeDescription = Info.GetDepositDataChangeFieldTypeDescription((ushort)order.FieldType);
                 order.Deposit.ProductId = Convert.ToInt64(dt.Rows[0]["product_app_id"]);
-                order.CustomerNumber= Convert.ToUInt64(dt.Rows[0]["customer_number"]);
+                order.CustomerNumber = Convert.ToUInt64(dt.Rows[0]["customer_number"]);
 
 
             }

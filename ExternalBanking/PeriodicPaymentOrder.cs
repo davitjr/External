@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 namespace ExternalBanking
 {
     /// <summary>
@@ -55,7 +50,7 @@ namespace ExternalBanking
                 }
                 base.SaveOrderFee();
 
-               
+
                 LogOrderChange(user, action);
                 scope.Complete();
             }
@@ -87,11 +82,11 @@ namespace ExternalBanking
 
                     this.Fee = customer.GetPaymentOrderFee(this.PaymentOrder);
 
-                   
+
 
                 }
 
-                if(this.FeeAccount != null && !String.IsNullOrEmpty(this.FeeAccount.AccountNumber) && this.Fees == null)
+                if (this.FeeAccount != null && !String.IsNullOrEmpty(this.FeeAccount.AccountNumber) && this.Fees == null)
                 {
                     this.Fees = new List<OrderFee>();
                     OrderFee orderFee = new OrderFee();
@@ -183,7 +178,7 @@ namespace ExternalBanking
                 //    //ՏՀՏ կոդը լրացված չէ: Հարկային և մաքսային ծառայություններ փոխանցումներ կատարելու համար անհրաժեշտ է պարտադիր նշել տեսչության կոդը: Այլ փոխանցումների դեպքում պետք է լրացնել «99 Այլ»:
                 //    result.Errors.Add(new ActionError(356));
                 //}
-                if (Info.GetBank(Convert.ToInt16(this.PaymentOrder.ReceiverBankCode), Languages.hy) == "")
+                if (Info.GetBank(Convert.ToInt32(this.PaymentOrder.ReceiverBankCode), Languages.hy) == "")
                 {
                     //Ստացողի բանկը գտնված չէ:
                     result.Errors.Add(new ActionError(252));
@@ -338,7 +333,7 @@ namespace ExternalBanking
 
                     }
                 }
-                
+
 
                 if ((this.GroupId != 0) ? !OrderGroup.CheckGroupId(this.GroupId) : false)
                 {
@@ -347,7 +342,7 @@ namespace ExternalBanking
                 }
                 //**********************************************************************************
 
-                
+
             }
 
             if (this.PaymentOrder?.ReceiverAccount?.AccountNumber == Account.GetRAFoundAccount().AccountNumber)
@@ -593,5 +588,5 @@ namespace ExternalBanking
         }
     }
 
-  
+
 }

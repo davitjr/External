@@ -1,22 +1,22 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
 namespace ExternalBanking
 {
-    public class AccountRemovingOrder:Order
+    public class AccountRemovingOrder : Order
     {
         ///<summary>
         ///Հեռացման ենթակա հաշիվ
         /// </summary>
-       public  Account RemovingAccount { get; set; }
+        public Account RemovingAccount { get; set; }
 
         ///<summary>
         /// Հայտի ավտոմատ լրացվող դաշտերի ստացում 
         ///</summary>
-        private void Complete (SourceType source)
+        private void Complete(SourceType source)
         {
             this.RegistrationDate = DateTime.Now.Date;
-            this.Type = OrderType.AccountRemove ;
+            this.Type = OrderType.AccountRemove;
             //Հայտի համարի ստացում 
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
@@ -41,7 +41,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            if (RegistrationDate != DateTime.Now.Date )
+            if (RegistrationDate != DateTime.Now.Date)
             {
                 //Հաշվի բացման ամսաթիվը տարբերվում է այսօրվա ամսաթվից
                 result.Errors.Add(new ActionError(451));
@@ -80,7 +80,7 @@ namespace ExternalBanking
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                result = AccountRemovingOrderDB .RemoveAccountOrder(this, userName, source);
+                result = AccountRemovingOrderDB.RemoveAccountOrder(this, userName, source);
                 LogOrderChange(user, action);
                 scope.Complete();
             }

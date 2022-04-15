@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -135,9 +132,9 @@ namespace ExternalBanking
             return LoanMonitoringConclusionDB.GetConclusions(productId);
         }
 
-        public static LoanMonitoringConclusion GetLoanMonitoringConclusion(long monitoringId,long productId)
+        public static LoanMonitoringConclusion GetLoanMonitoringConclusion(long monitoringId, long productId)
         {
-            return LoanMonitoringConclusionDB.Get(monitoringId,productId);
+            return LoanMonitoringConclusionDB.Get(monitoringId, productId);
         }
 
         public void GetFactors()
@@ -147,7 +144,7 @@ namespace ExternalBanking
 
         public void GetProvisionQualityConclusion()
         {
-            this.ProvisionQualityConclusion = LoanMonitoringConclusionDB.GetProvisionQualityConclusion(this.MonitoringId,this.LoanProductId);
+            this.ProvisionQualityConclusion = LoanMonitoringConclusionDB.GetProvisionQualityConclusion(this.MonitoringId, this.LoanProductId);
         }
 
         public void GetLinkedMonitoringLoans()
@@ -157,13 +154,13 @@ namespace ExternalBanking
 
         public ActionResult Save(ACBAServiceReference.User user)
         {
-            return LoanMonitoringConclusionDB.SaveMonitoringConclusion(this,user.userID);
+            return LoanMonitoringConclusionDB.SaveMonitoringConclusion(this, user.userID);
         }
 
         public static ActionResult Approve(long monitoringId)
         {
             ActionResult result = Validate(monitoringId);
-            if (result.Errors.Count>0)
+            if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
@@ -181,7 +178,7 @@ namespace ExternalBanking
         {
             return LoanMonitoringConclusionDB.GetProvisionCoverCoefficient(productId);
         }
-        public static List<MonitoringConclusionLinkedLoan> GetLinkedLoans(long productId,ulong customerNumber)
+        public static List<MonitoringConclusionLinkedLoan> GetLinkedLoans(long productId, ulong customerNumber)
         {
             return LoanMonitoringConclusionDB.GetLinkedLoans(productId, customerNumber);
         }
@@ -202,7 +199,7 @@ namespace ExternalBanking
             return LoanMonitoringConclusionDB.IsSetProvisionConclusions(monitoringId);
         }
     }
-    
+
     public class MonitoringConclusionFactor
     {
         /// <summary>

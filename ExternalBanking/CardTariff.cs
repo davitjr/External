@@ -1,11 +1,4 @@
-﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
     /// <summary>
     /// Աշխատանքային ծրագրի սակագներ
@@ -26,7 +19,7 @@ namespace ExternalBanking
         /// Անվանում
         /// </summary>
         public string CardTypeDescription { get; set; }
-                
+
         /// <summary>
         /// Արժույթ
         /// </summary>
@@ -46,7 +39,7 @@ namespace ExternalBanking
         /// Այլ կետում կանխ % (Միջազգային)
         /// </summary>
         public double CashRateInternational { get; set; }
-        
+
         /// <summary>
         /// Ոչ տոկոսային ժ-ն
         /// </summary>
@@ -60,12 +53,12 @@ namespace ExternalBanking
         /// Բացասական %
         /// </summary>
         public double NegativeRate { get; set; }
-        
+
         /// <summary>
         /// Կարգավիճակ
         /// </summary>
         public byte Quality { get; set; }
-        
+
         /// <summary>
         /// Կանխիկացման նվազագույն գանձվող գումար տեղական 
         /// </summary>

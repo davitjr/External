@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Data;
 using System.Transactions;
-using ExternalBanking.ArcaDataServiceReference;
-using ExternalBanking.DBManager;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking
 {
@@ -22,7 +19,7 @@ namespace ExternalBanking
         /// <summary>
         /// Վերաբացման պատճառ
         /// </summary>
-        public string ReopenReasonString { get; set; }        
+        public string ReopenReasonString { get; set; }
 
         /// <summary>
         /// Վերաբացվող քարտ

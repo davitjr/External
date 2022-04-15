@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.DBManager;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 
 namespace ExternalBanking.XBManagement
@@ -20,13 +18,13 @@ namespace ExternalBanking.XBManagement
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
-            
+
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = HBApplicationQualityChangeDB.Save(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

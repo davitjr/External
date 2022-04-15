@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -98,12 +95,12 @@ namespace ExternalBanking
                 this.SubType = 1;
                 this.Currency = editablePeriodic.Currency;
                 this.RegistrationDate = DateTime.Now.Date;
-                if(editablePeriodic.Type >= 3 && editablePeriodic.Type <= 12)
+                if (editablePeriodic.Type >= 3 && editablePeriodic.Type <= 12)
                 {
                     this.Description = editablePeriodic.Description;
                     this.Periodicity = editablePeriodic.Periodicity;
                 }
-                if (editablePeriodic.Type >= 3 && editablePeriodic.Type <= 17 )
+                if (editablePeriodic.Type >= 3 && editablePeriodic.Type <= 17)
                 {
                     this.PayIfNoDebt = 1;
                 }
@@ -195,12 +192,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PeriodicTransferDataChangeOrderDB.SavePeriodicTransferDataChangeOrder(this);
-                //**********                
-                //ulong orderId = base.Save(this, source, user);
-                ulong orderId = 0;
-                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                //ActionResult res = BOOrderCustomer.Save(this, (ulong)this.Id, user);
-                //**********
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -211,13 +203,13 @@ namespace ExternalBanking
                 }
 
                 if (action == Action.Add)
-                  SaveOrderProductId(this.ProductId, this.Id);
+                    SaveOrderProductId(this.ProductId, this.Id);
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
                 }
-                
+
                 LogOrderChange(user, action);
                 scope.Complete();
 

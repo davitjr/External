@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
 
 namespace ExternalBanking
 {
@@ -44,7 +40,7 @@ namespace ExternalBanking
                 return result;
             }
             result = DocumentSignatureSettingDB.SaveBranchDocumentSignatureSetting(this);
-            
+
             return result;
         }
 

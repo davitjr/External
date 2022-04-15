@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
 
 
 namespace ExternalBanking.DBManager
@@ -15,14 +13,14 @@ namespace ExternalBanking.DBManager
         /// Դասակարգված վարկեր
         /// </summary>
         public static List<ClassifiedLoan> GetClassifiedLoans(SearchClassifiedLoan searchParams, out int RowCount)
-        { 
+        {
             List<ClassifiedLoan> credits = new List<ClassifiedLoan>();
             DataTable dt = new DataTable();
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 string sql = "pr_customers_products_classification_paging";
-               
+
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -37,7 +35,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@show_wrong_classified_loans", SqlDbType.Bit).Value = 0;
                         cmd.Parameters.Add("@show_not_out_loans", SqlDbType.Bit).Value = 1;
                     }
-                    
+
                     cmd.Parameters.Add("@from_tmp", SqlDbType.SmallInt).Value = 1;
                     cmd.Parameters.Add("@row_start", SqlDbType.Int).Value = searchParams.StartRow;
                     cmd.Parameters.Add("@row_end", SqlDbType.Int).Value = searchParams.EndRow;
@@ -49,11 +47,14 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@filialcode", SqlDbType.Int).Value = searchParams.FilialCode;
                     if (searchParams.Quality != 0)
                         cmd.Parameters.Add("@quality", SqlDbType.SmallInt).Value = searchParams.Quality;
-                    if(searchParams.CustomerNumber != 0)
+                    if (searchParams.CustomerNumber != 0)
                         cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = searchParams.CustomerNumber;
-                    if(searchParams.LoanFullNumber != 0)
-                        cmd.Parameters.Add("@loan_full_number", SqlDbType.VarChar,20).Value = searchParams.LoanFullNumber;
-                   
+                    if (searchParams.LoanFullNumber != 0)
+                        cmd.Parameters.Add("@loan_full_number", SqlDbType.VarChar, 20).Value = searchParams.LoanFullNumber;
+                    if (searchParams.AllData == true)
+                        cmd.Parameters.Add("@allData", SqlDbType.Bit).Value = 1;
+
+
                     conn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -77,7 +78,7 @@ namespace ExternalBanking.DBManager
                 }
             }
 
-            return credits; 
+            return credits;
         }
         /// <summary>
         /// Դասակարգված վարկի ինիցիալիզացում
@@ -95,13 +96,13 @@ namespace ExternalBanking.DBManager
                 loan.QualityDescription = row["quality_description"].ToString();
                 loan.Quality = short.Parse(row["quality"].ToString());
                 loan.Currency = row["currency"].ToString();
-                loan.StartCapital = double.Parse(row["start_capital"].ToString()); 
-                loan.CurrentCapital = double.Parse(row["current_capital"].ToString()); 
-                loan.StartDate = DateTime.Parse(row["date_of_beginning"].ToString());                                
-                loan.Filial = row["filialcode"].ToString(); 
-                loan.LoanTypeDescription= row["description"].ToString();
-                loan.ClassificationDate= Convert.ToDateTime(row["classification_date"].ToString());  
-                loan.LoanClassType =(RiskClassCode) short.Parse(row["class"].ToString());
+                loan.StartCapital = double.Parse(row["start_capital"].ToString());
+                loan.CurrentCapital = double.Parse(row["current_capital"].ToString());
+                loan.StartDate = DateTime.Parse(row["date_of_beginning"].ToString());
+                loan.Filial = row["filialcode"].ToString();
+                loan.LoanTypeDescription = row["description"].ToString();
+                loan.ClassificationDate = Convert.ToDateTime(row["classification_date"].ToString());
+                loan.LoanClassType = (RiskClassCode)short.Parse(row["class"].ToString());
                 loan.LoanAccount.AccountNumber = row["loan_full_number"].ToString();
                 loan.LoanClassTypeDescription = row["classDescription"].ToString();
                 loan.ProductType = short.Parse(row["product_type"].ToString());
@@ -158,7 +159,6 @@ namespace ExternalBanking.DBManager
 
         public static void CustomersClassification(ACBAServiceReference.User user, SourceType source)
         {
-            ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -168,12 +168,12 @@ namespace ExternalBanking.DBManager
                     cmd.CommandTimeout = 300;
                     cmd.CommandText = "pr_customers_classification";
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = user.userID;                    
-                    cmd.ExecuteNonQuery(); 
+                    cmd.Parameters.Add("@set_number", SqlDbType.Int).Value = user.userID;
+                    cmd.ExecuteNonQuery();
 
-                } 
+                }
             }
         }
-        
+
     }
 }

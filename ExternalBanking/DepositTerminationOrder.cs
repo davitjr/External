@@ -1,17 +1,14 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Transactions;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Ավանդի դադարեցում
     /// </summary>
-    public class DepositTerminationOrder:Order
+    public class DepositTerminationOrder : Order
     {
         /// <summary>
         /// Ավանդի ունիկալ համար
@@ -132,7 +129,7 @@ namespace ExternalBanking
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
                 result.Errors.Add(new ActionError(451));
             }
-            
+
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
@@ -185,17 +182,17 @@ namespace ExternalBanking
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.Type = OrderType.DepositTermination;
 
-            if(this.Source == SourceType.MobileBanking || this.Source == SourceType.AcbaOnline)
+            if (this.Source == SourceType.MobileBanking || this.Source == SourceType.AcbaOnline)
             {
                 Deposit deposit = Deposit.GetDeposit(this.ProductId, this.CustomerNumber);
-                if(deposit != null)
+                if (deposit != null)
                 {
                     this.DepositNumber = deposit.DepositNumber;
                     this.Balance = deposit.Balance;
                     this.Currency = deposit.Currency;
                     this.DepositAccount = new Account();
                     this.DepositAccount = deposit.DepositAccount;
-                    
+
                 }
             }
         }
@@ -231,7 +228,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = DepositDB.TerminateDepositOrder(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -253,7 +250,7 @@ namespace ExternalBanking
 
                 if (result.ResultCode == ResultCode.Normal)
                 {
-                    this.Quality = OrderQuality.Sent3 ;
+                    this.Quality = OrderQuality.Sent3;
                     base.SetQualityHistoryUserId(OrderQuality.Sent, user.userID);
                     base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
                     LogOrderChange(user, Action.Update);
@@ -262,7 +259,7 @@ namespace ExternalBanking
             }
 
             result = base.Confirm(user);
-          
+
             return result;
         }
     }

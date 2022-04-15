@@ -158,12 +158,7 @@ namespace ExternalBanking.XBManagement
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = this.Save(userName, source, user, schemaType);
-                //**********
-                //ulong docId = base.Save(this, source, user);
-                ulong docId = 0;
-                //Order.SaveLinkHBDocumentOrder(this.Id, docId);
-                //ActionResult res = BOOrderCustomer.Save(this, docId, user);
-                //**********
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -271,10 +266,10 @@ namespace ExternalBanking.XBManagement
                         {
                             bool EnabledOldMobileCompatibility = bool.Parse(ConfigurationManager.AppSettings["EnabledOldMobileCompatibility"]);
                             bool EnableSecurityService = bool.Parse(ConfigurationManager.AppSettings["EnableSecurityService"]);
-                             short typeOfCustomer = ACBAOperationService.GetCustomerType(this.CustomerNumber);
-                            if ((EnabledOldMobileCompatibility && HBtoken?.HBUser?.IsCas != true) || 
-                                (HBtoken?.HBUser?.IsCas != true && ( ServletAction == HBServletAction.DeactivateToken || ServletAction == HBServletAction.DeactivateUser )) ||
-                                (HBtoken?.HBUser?.IsCas != true &&  ServletAction == HBServletAction.UnlockToken  && typeOfCustomer != 6 ))
+                            short typeOfCustomer = ACBAOperationService.GetCustomerType(this.CustomerNumber);
+                            if ((EnabledOldMobileCompatibility && HBtoken?.HBUser?.IsCas != true) ||
+                                (HBtoken?.HBUser?.IsCas != true && (ServletAction == HBServletAction.DeactivateToken || ServletAction == HBServletAction.DeactivateUser)) ||
+                                (HBtoken?.HBUser?.IsCas != true && ServletAction == HBServletAction.UnlockToken && typeOfCustomer != 6))
                             {
                                 if (EnableSecurityService)
                                 {
@@ -296,7 +291,7 @@ namespace ExternalBanking.XBManagement
                                 base.SetQualityHistoryUserId(OrderQuality.Completed, user.userID);
                             }
                             else
-                            {                                
+                            {
                                 this.Quality = OrderQuality.Canceled;
                                 base.UpdateQuality(this.Quality);
                                 base.SetQualityHistoryUserId(this.Quality, user.userID);
@@ -406,7 +401,7 @@ namespace ExternalBanking.XBManagement
                     result.Errors.Add(err);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 result.ResultCode = ResultCode.Failed;
                 err.Description = $"Հարցումը ձախողվեց";
@@ -427,7 +422,7 @@ namespace ExternalBanking.XBManagement
             ActionError err = new ActionError();
             try
             {
-                if(Source == SourceType.Bank && order?.HBtoken?.IsRegistered != null)
+                if (Source == SourceType.Bank && order?.HBtoken?.IsRegistered != null)
                 {
                     order.HBtoken.IsRegistered = HBToken.HasCustomerOneActiveToken(order.CustomerNumber);
                 }
@@ -441,7 +436,7 @@ namespace ExternalBanking.XBManagement
 
                         else if (HBtoken.TokenType == HBTokenTypes.MobileBanking || HBtoken.TokenType == HBTokenTypes.MobileToken)
                             CasServletResult = TokenOperationsCasService.ActivateMobileToken(CasServletRequest, order.HBtoken.HBUser.Password, (TokenOperationsCasServiceReference.SourceType)order.Source, order.HBtoken.IsRegistered, order.PhoneNumber, order.CustomerNumber, order?.HBtoken?.HBUser?.Email?.email?.emailAddress, order.CustomerQuality);
-                            break;
+                        break;
 
                     case HBServletAction.UnlockToken:
                         CasServletResult = TokenOperationsCasService.UnlockToken(CasServletRequest);
@@ -507,7 +502,7 @@ namespace ExternalBanking.XBManagement
                             Description = CasServletResult.ResultValue
                         });
                     }
-                    else if(ServletAction == HBServletAction.ShowPINCode)
+                    else if (ServletAction == HBServletAction.ShowPINCode)
                     {
                         result.ResultCode = ResultCode.DoneAndReturnedValues;
                         result.Errors.Add(new ActionError
@@ -523,7 +518,7 @@ namespace ExternalBanking.XBManagement
                     result.Errors.Add(err);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 result.ResultCode = ResultCode.Failed;
                 err.Description = $"Հարցումը ձախողվեց";
@@ -547,7 +542,7 @@ namespace ExternalBanking.XBManagement
             ActionError err = new ActionError();
             try
             {
-                
+
                 InitSecServletRequest(order);
 
                 switch (ServletAction)
@@ -616,7 +611,7 @@ namespace ExternalBanking.XBManagement
                     result.Errors.Add(err);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 result.ResultCode = ResultCode.Failed;
                 err.Description = $"Հարցումը ձախողվեց";

@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace ExternalBanking
 {
@@ -24,7 +19,7 @@ namespace ExternalBanking
         /// <summary>
         /// Գործարքի տեսակ 'd' -դեբետային, 'c' -կրեդիտային 
         /// </summary>
-        public string  DebitCredit { get; set; }
+        public string DebitCredit { get; set; }
 
         /// <summary>
         /// Գործարքը կատարած քարտի համարը
@@ -34,7 +29,7 @@ namespace ExternalBanking
         /// <summary>
         /// Միջնորդավճար	
         /// </summary>
-        public decimal  TransactionFee { get; set; }
+        public decimal TransactionFee { get; set; }
 
         /// <summary>
         /// Գործարքի նկարագրություն

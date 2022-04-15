@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -24,7 +21,7 @@ namespace ExternalBanking
         /// Լիազորագրի տեսակ
         /// </summary>
         public ushort CredentialType { get; set; }
-                
+
         /// <summary>
         ///  Փակման պատճառ
         /// </summary>
@@ -48,26 +45,21 @@ namespace ExternalBanking
             {
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
-            }            
+            }
 
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = CredentialOrderDB.SaveCredentialTerminationOrder(this, userName, source);
-                //**********                
-                //ulong orderId = base.Save(this, source, user);
-                ulong orderId = 0;
+
                 result = CredentialOrderDB.SaveCredentialTerminationOrderDetails(this, this.Id);
-                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                //BOOrderProduct.Save(this, (ulong)this.Id);
-                //ActionResult res = BOOrderCustomer.Save(this, (ulong)this.Id, user);
-                //**********
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
                 }
-                result = base.SaveOrderOPPerson();                
+                result = base.SaveOrderOPPerson();
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -92,7 +84,7 @@ namespace ExternalBanking
             result = base.Confirm(user);
             return result;
         }
-        
+
         /// <summary>
         /// Լրացնում է հայտի ավտոմատ լրացվող դաշտերը
         /// </summary>
@@ -129,8 +121,8 @@ namespace ExternalBanking
             if (res == 1)
             {
                 warnings.Add(Info.GetTerm(1015, new string[] { }, culture.Language));
-            }           
-            
+            }
+
             return warnings;
         }
     }

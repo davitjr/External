@@ -1,7 +1,5 @@
 ﻿using ExternalBankingRESTService.XBS;
 
-using System.Collections.Generic;
-
 namespace ExternalBankingRESTService
 {
     public class TransferCallContractRequestResponse

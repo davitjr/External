@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking;
-using System.Threading.Tasks;
+﻿using ExternalBanking.DBManager;
+using ExternalBanking.ServiceClient;
 using ExternalBanking.XBManagement;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.DocFlowManagement
 {
@@ -17,33 +11,29 @@ namespace ExternalBanking.DocFlowManagement
             var memoType = user.filialCode == 22000 ? 690 : 691;
             var memoDocument = new MemoDocument();
             memoDocument.MemoFields = DocFlowManagement.Utility.ConstructHBApplicationMemoDocument(order, memoType);
-            var memoResult = memoDocument.SaveAndSend(user, memoType,user.filialCode);
+            var memoResult = memoDocument.SaveAndSend(user, memoType, user.filialCode);
             return DocFlowDB.SendHBApplicationOrderToConfirm(order.Id, memoResult.Id);
 
-       }
+        }
 
         public static ActionResult SendCardClosingOrderToConfirm(CardClosingOrder order, ACBAServiceReference.User user, short schemaType, string clientIp)
         {
             int filialCode = Card.GetCardServicingFilialCode(order.ProductId);
-            if(filialCode == 22000)
+            if (filialCode == 22000)
             {
                 filialCode = 22059;
             }
             var memoType = 769;
             var memoDocument = new MemoDocument();
             memoDocument.MemoFields = DocFlowManagement.Utility.ConstructCardClosingOrderMemoDocument(order, schemaType, memoType, clientIp);
-            var memoResult = memoDocument.SaveAndSend(user,memoType,filialCode);
+            var memoResult = memoDocument.SaveAndSend(user, memoType, filialCode);
             return DocFlowDB.SendToConfirm(order.Id, memoResult.Id);
         }
 
         public static ActionResult SendPlasticCardOrderToConfirm(PlasticCardOrder order, ACBAServiceReference.User user, short schemaType)
         {
-            ACBAServiceReference.Customer customer;
-            using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-            {
-                customer = (ACBAServiceReference.Customer)proxy.GetCustomer(order.CustomerNumber);
-            }
-            int filialCode = customer.filial.key;
+            int filialCode = ACBAOperationService.GetCustomerFilial(order.CustomerNumber).key;
+
             if (filialCode == 22000)
             {
                 filialCode = 22059;
@@ -54,7 +44,7 @@ namespace ExternalBanking.DocFlowManagement
             var memoResult = memoDocument.SaveAndSend(user, memoType, filialCode);
             for (int i = 0; i < order.Attachments.Count; i++)
             {
-                DocFlowDB.SaveUploadedFiles(order.Attachments[i],memoResult.Id);
+                DocFlowDB.SaveUploadedFiles(order.Attachments[i], memoResult.Id);
             }
             return DocFlowDB.SendToConfirm(order.Id, memoResult.Id);
         }

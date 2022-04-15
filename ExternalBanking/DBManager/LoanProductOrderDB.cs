@@ -1,12 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.ContractServiceRef;
+using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using System.Data.SqlTypes;
-using System.IO;
-using ExternalBanking.ContractServiceRef;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace ExternalBanking.DBManager
@@ -111,6 +108,12 @@ namespace ExternalBanking.DBManager
                     else if (actionResult == 0 || actionResult == 8)
                     {
                         result.ResultCode = ResultCode.Failed;
+                        result.Id = -1;
+                        result.Errors.Add(new ActionError((short)actionResult));
+                    }
+                    else
+                    {
+                        result.ResultCode = ResultCode.ValidationError;
                         result.Id = -1;
                         result.Errors.Add(new ActionError((short)actionResult));
                     }
@@ -250,6 +253,12 @@ namespace ExternalBanking.DBManager
                         result.Id = -1;
                         result.Errors.Add(new ActionError((short)actionResult));
                     }
+                    else
+                    {
+                        result.ResultCode = ResultCode.ValidationError;
+                        result.Id = -1;
+                        result.Errors.Add(new ActionError((short)actionResult));
+                    }
 
                     return result;
                 }
@@ -335,7 +344,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@" SELECT
+                using SqlCommand cmd = new SqlCommand(@" SELECT
                                                    
                                                     d.amount,
                                                     d.currency,
@@ -1040,7 +1049,6 @@ namespace ExternalBanking.DBManager
         /// <returns></returns>
         internal static byte[] GetDepositLoanOrDepositCreditLineContract(string loanAccount, byte type)
         {
-            byte[] arr = null;
             int docid = 0;
             string sql = "";
             int attachType = 0;
@@ -1161,6 +1169,7 @@ namespace ExternalBanking.DBManager
             result = Contracts.RenderContract(contractName, parameters, "ConsumeLoan.pdf", contract);
             return result;
         }
+
 
         internal static bool CheckActiveCreditLine(string loanAccountNumber, ulong customerNumber)
         {

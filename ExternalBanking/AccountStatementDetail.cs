@@ -112,6 +112,6 @@ namespace ExternalBanking
         /// Քաղվածքի մեկ օրվա կրեդիտային շրջանառության գումար ազգային արժույթով (AMD) 
         /// </summary>
         public double DayTotalCreditAmountBase { get; set; }
-        
+
     }
 }

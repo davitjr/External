@@ -2,7 +2,7 @@
 
 namespace ExternalBanking
 {
-	public class LoanStatementDetail
+    public class LoanStatementDetail
     {
         //Գործարքի ամսաթիվ	
         public DateTime OperationDate { get; set; }

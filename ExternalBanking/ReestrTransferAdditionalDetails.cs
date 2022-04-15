@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -40,7 +37,7 @@ namespace ExternalBanking
         /// Արգելադրման նպատակ
         /// </summary>
         public ushort PaymentType { get; set; }
-        
+
         /// <summary>
         /// HBDocument-ի Ռեեստրով փոխանցման ստուգման արդյունք
         /// </summary>
@@ -62,7 +59,7 @@ namespace ExternalBanking
 
 
 
-        public static DataTable ConvertAdditionalReestrDetailsToDataTable(List<ReestrTransferAdditionalDetails> reestrTransferAdditionalDetails,Languages languages, long orderId = 0)
+        public static DataTable ConvertAdditionalReestrDetailsToDataTable(List<ReestrTransferAdditionalDetails> reestrTransferAdditionalDetails, Languages languages, long orderId = 0)
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("u_ID");
@@ -89,7 +86,7 @@ namespace ExternalBanking
                     dr["amount"] = (double)detail.Amount;
                     dr["reason"] = !String.IsNullOrEmpty(detail.Description) ? detail.Description.ToString() : "";
                     dr["del_status"] = 0;
-                    dr["bank_code"] = detail.CreditAccount.AccountNumber.Substring(0,5).ToString();
+                    dr["bank_code"] = detail.CreditAccount.AccountNumber.Substring(0, 5).ToString();
                     dr["bank_name"] = Info.GetBank(Convert.ToInt32(detail.CreditAccount.AccountNumber.Substring(0, 5).ToString()), (Languages)languages);
                     dt.Rows.Add(dr);
                 }

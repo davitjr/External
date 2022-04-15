@@ -1,9 +1,4 @@
 ﻿using ExternalBanking.DBManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,7 +6,7 @@ namespace ExternalBanking
     /// <summary>
     /// Բյուջե փոխանցման ձևանմուշ
     /// </summary>
-    public class BudgetPaymentOrderTemplate: Template
+    public class BudgetPaymentOrderTemplate : Template
     {
         /// <summary>
         /// Մարամասների ունիկալ համար
@@ -69,7 +64,7 @@ namespace ExternalBanking
                         if (result.Errors.Count == 0)
                         {
                             if (TemplateType == TemplateType.CreatedAsGroupService)
-                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo,result.Id,action);
+                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo, result.Id, action);
                             ActionResult resultOrderFee = base.SaveTemplateFee(this.BudgetPaymentOrder);
                         }
 
@@ -127,7 +122,7 @@ namespace ExternalBanking
 
 
             //Եթե փոխանցում է ՀՀ տարածքում,որոշում ենք փոխանցման ենթատեսակը
-            if ((this.BudgetPaymentOrder.Type == OrderType.RATransfer || this.BudgetPaymentOrder.Type == OrderType.CashForRATransfer) && this.BudgetPaymentOrder.SubType != 3 && this.BudgetPaymentOrder.ReceiverAccount!= null && this.BudgetPaymentOrder.ReceiverAccount.AccountNumber != "0")
+            if ((this.BudgetPaymentOrder.Type == OrderType.RATransfer || this.BudgetPaymentOrder.Type == OrderType.CashForRATransfer) && this.BudgetPaymentOrder.SubType != 3 && this.BudgetPaymentOrder.ReceiverAccount != null && this.BudgetPaymentOrder.ReceiverAccount.AccountNumber != "0")
             {
                 if (this.BudgetPaymentOrder.ReceiverAccount.AccountNumber.Length > 5)
                 {
@@ -169,7 +164,7 @@ namespace ExternalBanking
                 this.BudgetPaymentOrder.OPPerson = Order.SetOrderOPPerson(this.BudgetPaymentOrder.CustomerNumber);
             }
 
-    
+
             if (this.BudgetPaymentOrder.Type == OrderType.RATransfer && this.BudgetPaymentOrder.SubType == 3 && this.BudgetPaymentOrder.Source == SourceType.MobileBanking)
             {
                 this.BudgetPaymentOrder.ReceiverAccount = Account.GetAccount(this.BudgetPaymentOrder.ReceiverAccount.AccountNumber);

@@ -1,17 +1,14 @@
-﻿using xb = ExternalBanking;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
-using System.Web;
-using System.Web.Configuration;
 using System.ServiceModel.Web;
-using System.Net;
+using xb = ExternalBanking;
 //using ExternalBanking;
 
 namespace ExternalBankingService.Filters
@@ -42,7 +39,7 @@ namespace ExternalBankingService.Filters
 
 
                 var currentService = (STAKService)instanceContext.GetServiceInstance();
-               
+
                 if (currentService == null)
                 {
                     return null;
@@ -58,11 +55,11 @@ namespace ExternalBankingService.Filters
 
                 return null;
             }
-            catch (WebFaultException ex)
+            catch (WebFaultException)
             {
                 throw new WebFaultException(HttpStatusCode.Unauthorized);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
                 //throw new WebFaultException(HttpStatusCode.Unauthorized);

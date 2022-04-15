@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
-{   
+{
     /// <summary>
     /// Հայտի/երի որոնման պարամետրեր
     /// </summary>
@@ -16,51 +12,51 @@ namespace ExternalBanking
         /// Հանձնարարականի ունիկալ համար (Id)
         /// </summary>
         public long Id { get; set; }
-        
+
         /// <summary>
         /// Հաճախորդի համար
         /// </summary>
-       public ulong CustomerNumber {get;set;}
+        public ulong CustomerNumber { get; set; }
 
         /// <summary>
         /// Սկիզբ (հայտի ա/թ)
         /// </summary>
-       public DateTime? DateFrom {get;set;}
+        public DateTime? DateFrom { get; set; }
 
         /// <summary>
-       /// Վերջ (հայտի ա/թ)
+        /// Վերջ (հայտի ա/թ)
         /// </summary>
-       public DateTime? DateTo {get;set;}
+        public DateTime? DateTo { get; set; }
 
         /// <summary>
         /// Հայտի կարգավիճակ
         /// </summary>
-       public OrderQuality OrderQuality { get; set; }
-        
-       /// <summary>
-       /// Հայտի տեսակ 
-       /// </summary>
-       public OrderType Type { get; set; }
+        public OrderQuality OrderQuality { get; set; }
 
-       /// <summary>
-       /// Տվյալների աղբյուր
-       /// </summary>
-       public SourceType Source { get; set; }
+        /// <summary>
+        /// Հայտի տեսակ 
+        /// </summary>
+        public OrderType Type { get; set; }
 
-       /// <summary>
-       /// Աշխատակիցի համարը
-       /// </summary>
-       public int RegisteredUserID { get; set; }
+        /// <summary>
+        /// Տվյալների աղբյուր
+        /// </summary>
+        public SourceType Source { get; set; }
+
+        /// <summary>
+        /// Աշխատակիցի համարը
+        /// </summary>
+        public int RegisteredUserID { get; set; }
 
         /// <summary>
         /// Հայտը պահպանած մասնաճյուղ
         /// </summary>
-       public int OperationFilialCode { get; set; }
+        public int OperationFilialCode { get; set; }
 
-       /// <summary>
-       /// Գումար
-       /// </summary>
-       public double Amount { get; set; }
+        /// <summary>
+        /// Գումար
+        /// </summary>
+        public double Amount { get; set; }
 
         /// <summary>
         /// ԱԳՍ-ով փոխանցումների գործարքներ
@@ -88,17 +84,17 @@ namespace ExternalBanking
         /// Ազգանուն
         /// </summary>
         public string LastName { get; set; }
-        
+
         /// <summary>
         /// Անուն
         /// </summary>
         public string FirstName { get; set; }
-        
+
         /// <summary>
         /// Հայրանուն
         /// </summary>
         public string MiddleName { get; set; }
-        
+
         /// <summary>
         /// Անվանում
         /// </summary>

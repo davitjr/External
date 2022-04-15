@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -15,7 +14,7 @@ namespace ExternalBanking.DBManager
         /// <param name="userName"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        internal static ActionResult Save(ChequeBookOrder order, string userName,SourceType source)
+        internal static ActionResult Save(ChequeBookOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
@@ -38,14 +37,14 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@service_fee", SqlDbType.Float).Value = order.FeeAmount;
                     cmd.Parameters.Add("@username", SqlDbType.NChar, 20).Value = userName;
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (int)source;
-                    cmd.Parameters.Add("@receiverName", SqlDbType.NVarChar,50).Value = order.PersonFullName;
+                    cmd.Parameters.Add("@receiverName", SqlDbType.NVarChar, 50).Value = order.PersonFullName;
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     if (order.GroupId != 0)
                     {
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
                     }
-                    
+
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
@@ -57,16 +56,16 @@ namespace ExternalBanking.DBManager
                     ushort actionResult = Convert.ToUInt16(cmd.Parameters["@result"].Value);
 
                     if (actionResult == 1 || actionResult == 9)
-                    {                        
+                    {
                         order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                         order.Quality = OrderQuality.Draft;
-                        result.Id = order.Id;                        
+                        result.Id = order.Id;
                         result.ResultCode = ResultCode.Normal;
                     }
                     else if (actionResult == 10)
                     {
-                        result.Id = order.Id;                        
-                        result.ResultCode = ResultCode.Normal;                 
+                        result.Id = order.Id;
+                        result.ResultCode = ResultCode.Normal;
                     }
                     else if (actionResult == 0)
                     {
@@ -105,13 +104,13 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 dt.Load(cmd.ExecuteReader());
-                if (dt.Rows.Count>0)
+                if (dt.Rows.Count > 0)
                 {
                     order.ChequeBookAccount = Account.GetAccount(Convert.ToUInt64(dt.Rows[0]["debet_account"]));
                     order.ChequeBookAccount.AccountTypeDescription = Utility.ConvertAnsiToUnicode(order.ChequeBookAccount.AccountTypeDescription);
                     order.FeeAmount = dt.Rows[0]["amount"].ToString();
                     order.FeeAccount = Account.GetAccount(Convert.ToUInt64(dt.Rows[0]["deb_for_transfer_payment"]));
-                    if (order.FeeAccount!=null)
+                    if (order.FeeAccount != null)
                     {
                         order.FeeAccount.AccountTypeDescription = Utility.ConvertAnsiToUnicode(order.FeeAccount.AccountTypeDescription);
                     }
@@ -130,6 +129,6 @@ namespace ExternalBanking.DBManager
             return order;
         }
 
-       
+
     }
 }

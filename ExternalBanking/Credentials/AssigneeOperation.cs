@@ -1,7 +1,5 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -15,9 +13,9 @@ namespace ExternalBanking
         public bool AllAccounts { get; set; }
         public List<Account> AccountList { get; set; }
 
-        public AssigneeOperation() 
+        public AssigneeOperation()
         {
-            AccountList = new List<Account>();            
+            AccountList = new List<Account>();
         }
 
         public void Save(uint id)
@@ -31,7 +29,7 @@ namespace ExternalBanking
             {
                 this.AccountList.ForEach(oneAccount =>
                     {
-                        CredentialOrderDB.SaveAssigneeOperationAccountsDetails(ulong.Parse(oneAccount.AccountNumber),this.Id);
+                        CredentialOrderDB.SaveAssigneeOperationAccountsDetails(ulong.Parse(oneAccount.AccountNumber), this.Id);
                     }
                 );
             }
@@ -42,6 +40,6 @@ namespace ExternalBanking
             return AssigneeOperationDB.GetAccountsForCredential(customerNumber, operationType);
         }
 
-        
+
     }
 }

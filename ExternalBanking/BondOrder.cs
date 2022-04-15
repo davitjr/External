@@ -33,15 +33,14 @@ namespace ExternalBanking
 
             Complete();
 
-            if ((GetCustomerTypeAndResidence(CustomerNumber).Item1 == false
-                && Bond.CustomerDepositaryAccount.AccountNumber == 0 && Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.Exists) == false)
+            if (!(!GetCustomerTypeAndResidence(CustomerNumber).Item1
+                && Bond.CustomerDepositaryAccount.AccountNumber == 0 && Bond.DepositaryAccountExistenceType == DepositaryAccountExistence.Exists))
             {
                 if (Bond.DepositaryAccountExistenceType != DepositaryAccountExistence.ExistsInOtherOperator)
                     SetDepositaryInfo();
             }
 
             result = Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {

@@ -1,9 +1,5 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,7 +7,7 @@ namespace ExternalBanking
     /// <summary>
     /// Կենսաթոշակային քարտի դիմում
     /// </summary>
-    public class PensionApplicationOrder:Order
+    public class PensionApplicationOrder : Order
     {
         /// <summary>
         /// Կենսաթոշակ
@@ -31,13 +27,13 @@ namespace ExternalBanking
                 return result;
             }
 
-            
+
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PensionApplicationOrderDB.SavePensionApplicationOrder(this, userName, source);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

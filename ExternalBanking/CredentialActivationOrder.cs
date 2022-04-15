@@ -1,20 +1,14 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Լիազորագրի ատիվացման հայտ
     /// </summary>
-    public class CredentialActivationOrder:Order
+    public class CredentialActivationOrder : Order
     {
         /// <summary>
         /// Լիազորագիր
@@ -69,7 +63,7 @@ namespace ExternalBanking
                 this.Fees = new List<OrderFee>();
                 this.Fees.Add(fee);
             }
-            
+
         }
 
 
@@ -117,7 +111,6 @@ namespace ExternalBanking
 
             this.Complete();
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -140,15 +133,11 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = CredentialOrderDB.SaveCredentialActivationOrder(this, userName);
-                //**********                
-                //ulong orderId = base.Save(this, source, user);
-                ulong orderId = 0;
+
                 result = SaveCredentialDetails(this.Id);
-                //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
 
                 result = this.SaveOrderFee();
-                //ActionResult res = BOOrderCustomer.Save(this, (ulong)this.Id, user);
-                //**********
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

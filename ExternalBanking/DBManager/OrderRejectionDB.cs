@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -22,14 +19,14 @@ namespace ExternalBanking.DBManager
 
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = "pr_Reject_Document"; 
+                    cmd.CommandText = "pr_Reject_Document";
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = rejection.CustomerNumber; 
+                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = rejection.CustomerNumber;
                     cmd.Parameters.Add("@doc_id", SqlDbType.Int).Value = rejection.OrderId;
                     cmd.Parameters.Add("@reject_reason", SqlDbType.NVarChar, 255).Value = rejection.RejectReason;
                     cmd.Parameters.Add("@user_name", SqlDbType.NVarChar, 30).Value = rejection.UserName;
                     cmd.Parameters.Add("@lang_id", SqlDbType.SmallInt).Value = language == Languages.hy ? 0 : 1;
-                  
+
 
                     SqlParameter param = new SqlParameter("@msg", SqlDbType.NVarChar, int.MaxValue);
                     param.Direction = ParameterDirection.Output;

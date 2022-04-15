@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,9 +7,9 @@ namespace ExternalBanking
     /// <summary>
     /// Փոխանցում հաշվին հայտ
     /// </summary>
-    public class CTPaymentOrder:CTOrder
+    public class CTPaymentOrder : CTOrder
     {
-       
+
         /// <summary>
         /// Կրեդիտագրվող հաշիվ
         /// </summary>
@@ -36,7 +32,7 @@ namespace ExternalBanking
                     base.Approve(1, userName);
                     scope.Complete();
                 }
-            } 
+            }
             return result;
         }
         public PaymentRegistrationResult SaveAndApproveCTPaymentOrder(string userName)
@@ -48,8 +44,8 @@ namespace ExternalBanking
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
                 {
                     result = CTOrderDB.SaveCTPaymentOrder(this, userName);
-                    base.Approve(1, userName); 
-                    base.Confirm(); 
+                    base.Approve(1, userName);
+                    base.Confirm();
                     scope.Complete();
                 }
             }
@@ -85,11 +81,11 @@ namespace ExternalBanking
             {
                 this.Type = OrderType.LoanMatureByOtherCashTerminal;
 
-                    this.Description = this.CTCustomerDescription + " " + "Վարկի մարում գրաֆիկով այլ կանխիկ տերմինալով: "+this?.Description ;
+                this.Description = this.CTCustomerDescription + " " + "Վարկի մարում գրաֆիկով այլ կանխիկ տերմինալով: " + this?.Description;
             }
             else
             {
-                    this.Description = this.CTCustomerDescription + " " + "Մուտք հաշվին այլ կանխիկ տերմինալով: " + this?.Description; 
+                this.Description = this.CTCustomerDescription + " " + "Մուտք հաշվին այլ կանխիկ տերմինալով: " + this?.Description;
             }
             this.Quality = OrderQuality.Draft;
             this.CreditAccount = Account.GetAccount(this.CreditAccount.AccountNumber);
@@ -118,7 +114,7 @@ namespace ExternalBanking
         {
             CTOrderDB.GetCTPaymentOrder(this);
         }
-         
+
 
     }
 }

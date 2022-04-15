@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
     public class ProvisionLoan
     {
@@ -19,7 +13,7 @@ namespace ExternalBanking
         /// <summary>
         /// Վարի հաճախորդի նկարագրություն
         /// </summary>
-        public string LoanCustomerDescription{ get; set; }
+        public string LoanCustomerDescription { get; set; }
         /// <summary>
         /// Վարկային հաշիվ
         /// </summary>
@@ -47,6 +41,6 @@ namespace ExternalBanking
         /// <summary>
         /// գումար
         /// </summary>
-        public double StartCapital { get; set;}
+        public double StartCapital { get; set; }
     }
 }

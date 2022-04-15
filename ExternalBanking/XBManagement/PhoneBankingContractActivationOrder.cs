@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 
 namespace ExternalBanking.XBManagement
 {
-    public class PhoneBankingContractActivationOrder:Order
+    public class PhoneBankingContractActivationOrder : Order
     {
         /// <summary>
         /// Ակտիվացման դիմումի մանրամասներ
@@ -63,7 +56,7 @@ namespace ExternalBanking.XBManagement
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = HBActivationOrderDB.SavePhoneBankingContractActivationOrder(this, userName, source);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -109,7 +102,7 @@ namespace ExternalBanking.XBManagement
             //Հայտի համար   
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-            this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);           
+            this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
         }
 
         /// <summary>
@@ -130,7 +123,7 @@ namespace ExternalBanking.XBManagement
         public ActionResult ValidateForSend()
         {
             ActionResult result = new ActionResult();
-            
+
             if (this.Quality != OrderQuality.Draft)
             {
                 //Տվյալ կարգավիճակով փաստաթուղթը հնարավոր չէ ուղարկել:
@@ -142,7 +135,7 @@ namespace ExternalBanking.XBManagement
             {
                 result.Errors.AddRange(Validation.SetAmountsForCheckBalance(this));
             }
-            
+
 
             if (result.Errors.Count > 0)
             {

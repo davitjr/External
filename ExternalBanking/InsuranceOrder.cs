@@ -1,11 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
-using System.ServiceModel;
 
 namespace ExternalBanking
 {
@@ -39,14 +34,14 @@ namespace ExternalBanking
 
 
         // -- Hayk Khachatryan//
-        
+
 
         public static Dictionary<string, string> GetInsuranceContractTypes(bool isLoanProduct, bool isSeparatelyProduct, bool isProvision)
         {
             return OtherInsuranceOrderDB.GetInsuranceContractTypes(isLoanProduct, isSeparatelyProduct, isProvision);
         }
 
-        public static Dictionary<string, string> GetInsuranceTypesByContractType(int insuranceContractType,bool isLoanProduct, bool isSeparatelyProduct, bool isProvision)
+        public static Dictionary<string, string> GetInsuranceTypesByContractType(int insuranceContractType, bool isLoanProduct, bool isSeparatelyProduct, bool isProvision)
         {
             return OtherInsuranceOrderDB.GetInsuranceTypesByContractType(insuranceContractType, isLoanProduct, isSeparatelyProduct, isProvision);
         }
@@ -67,17 +62,17 @@ namespace ExternalBanking
             {
                 this.DebitAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), this.DebitAccount.Currency, user.filialCode);
             }
-            if(this.DebitAccount!= null)
+            if (this.DebitAccount != null)
             {
                 this.Currency = this.DebitAccount.Currency;
             }
-            if(this.DebitAccount == null)
+            if (this.DebitAccount == null)
             {
                 this.Currency = null;
             }
-            
 
-            
+
+
             this.ReceiverAccount = Insurance.GetInsuraceCompanySystemAccount(this.Insurance.Company, this.Insurance.InsuranceType);
 
 
@@ -133,7 +128,7 @@ namespace ExternalBanking
                 return result;
             }
 
-            if(this.Insurance.InsuranceContractType != 2)
+            if (this.Insurance.InsuranceContractType != 2)
             {
                 if (this.Type == OrderType.InsuranceOrder)
                 {
@@ -146,14 +141,14 @@ namespace ExternalBanking
                 }
             }
 
-            
+
 
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = InsuranceOrderDB.SaveInsuranceOrder(this, userName, source);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

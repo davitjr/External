@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -15,7 +14,7 @@ namespace ExternalBanking.DBManager
         internal static List<AssigneeOperation> GetAssigneeOperationsList(uint assigneeId)
         {
             List<AssigneeOperation> availableOperationsList = new List<AssigneeOperation>();
-           
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
@@ -46,7 +45,7 @@ namespace ExternalBanking.DBManager
                     availableOperationsList.Add(oneOperation);
                 }
 
-            }                        
+            }
 
             return availableOperationsList;
         }
@@ -56,7 +55,7 @@ namespace ExternalBanking.DBManager
             AssigneeOperation oneOperation = new AssigneeOperation();
 
             if (row != null)
-            {                
+            {
                 oneOperation.Id = uint.Parse(row["id"].ToString());
                 oneOperation.AllAccounts = bool.Parse(row["allAccounts"].ToString());
                 oneOperation.OperationType = ushort.Parse(row["type"].ToString());
@@ -68,7 +67,7 @@ namespace ExternalBanking.DBManager
             return oneOperation;
         }
 
-        
+
 
 
         /// <summary>
@@ -77,7 +76,7 @@ namespace ExternalBanking.DBManager
         internal static List<Account> GetAssigneeOperationAccounts(uint operationId)
         {
             List<Account> accountsList = new List<Account>();
-            
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
@@ -107,7 +106,7 @@ namespace ExternalBanking.DBManager
                     accountsList.Add(oneAccount);
                 }
 
-            }            
+            }
 
             return accountsList;
         }

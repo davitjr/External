@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ArcaDataServiceReference;
 
 namespace ExternalBanking
 {
@@ -19,9 +14,9 @@ namespace ExternalBanking
         /// Վճարման գրանցման արդյունքի նկարագրություն
         /// </summary>
         public string ResultCodeDescription { get; set; }
-        
+
         public string ResponseCode { get; set; }
-        
+
         public string ResponseCodeDescription { get; set; }
 
         /// <summary>
@@ -39,7 +34,7 @@ namespace ExternalBanking
 
         public string AuthorizationIdResponse { get; set; }
 
-       
+
 
 
     }

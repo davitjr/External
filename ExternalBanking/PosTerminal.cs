@@ -1,13 +1,7 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace ExternalBanking
@@ -77,13 +71,13 @@ namespace ExternalBanking
         public static List<PosRate> GetPosRates(int terminalId)
         {
 
-            return PosTerminalDB.GetPosRates(terminalId); 
+            return PosTerminalDB.GetPosRates(terminalId);
         }
 
         public static List<PosCashbackRate> GetPosCashbackRates(int terminalId)
         {
 
-            return PosTerminalDB.GetPosCashbackRates(terminalId); 
+            return PosTerminalDB.GetPosCashbackRates(terminalId);
         }
 
         public string GetStatement(string cardAccount, DateTime dateFrom, DateTime dateTo, byte option)

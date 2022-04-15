@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Transactions;
-using System.Threading.Tasks;
+﻿using ExternalBanking.CreditLineActivatorARCA;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System;
+using System.Collections.Generic;
 using System.Configuration;
-using ExternalBanking.CreditLineActivatorARCA;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -50,7 +46,7 @@ namespace ExternalBanking
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
-            {              
+            {
                 result = CreditLineDB.SaveCreditLineTerminationOrder(this, userName, source, user.filialCode);
 
                 if (result.ResultCode != ResultCode.Normal)
@@ -83,7 +79,7 @@ namespace ExternalBanking
                 }
             }
 
-            if(this.Source != SourceType.AcbaOnline && this.Source != SourceType.MobileBanking)
+            if (this.Source != SourceType.AcbaOnline && this.Source != SourceType.MobileBanking)
             {
                 result = base.Confirm(user);
             }
@@ -92,7 +88,7 @@ namespace ExternalBanking
 
             bool isCreditLineOnline = bool.Parse(ConfigurationManager.AppSettings["IsCreditLineOnline"].ToString());
 
-            if (result.ResultCode == ResultCode.Normal && this.Type == OrderType.CreditLineMature && isCreditLineOnline == true && source == SourceType.Bank)
+            if (result.ResultCode == ResultCode.Normal && this.Type == OrderType.CreditLineMature && isCreditLineOnline && source == SourceType.Bank)
             {
                 try
                 {
@@ -208,7 +204,6 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-                Action action = this.Id == 0 ? Action.Add : Action.Update;
 
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
@@ -240,7 +235,6 @@ namespace ExternalBanking
         public ActionResult ValidateForSend()
         {
             ActionResult result = new ActionResult();
-            DateTime nextOperDay = Utility.GetNextOperDay().Date;
             if (RegistrationDate.AddDays(30).Date < DateTime.Now.Date || this.RegistrationDate.Date > DateTime.Now.Date)
             {
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
@@ -248,17 +242,16 @@ namespace ExternalBanking
             }
 
             if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
-            {             
+            {
                 //ԱրՔա - ում հաշվի ստուգում               
-                    try
-                    {
-                        if (!ChangeExceedLimitRequest.ChekArCaBalance(this.ProductId))
-                            result.Errors.Add(new ActionError(1829));
-                    }
-                    catch { }
-                
+                try
+                {
+                    if (!ChangeExceedLimitRequest.ChekArCaBalance(this.ProductId))
+                        result.Errors.Add(new ActionError(1829));
+                }
+                catch { }
 
-                CreditLine creditLine = CreditLineDB.GetCreditLine(this.ProductId, this.CustomerNumber);
+
                 string cardNumber = CreditLine.GetCreditLineCardNumber(this.ProductId);
                 int cardType = Card.GetCardType(cardNumber, this.CustomerNumber);
 

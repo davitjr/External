@@ -1,10 +1,7 @@
 ﻿using ExternalBanking.ACBAServiceReference;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.ServiceClient
 {
@@ -23,7 +20,7 @@ namespace ExternalBanking.ServiceClient
 
         public static ACBAServiceReference.KeyValue GetCustomerFilial(ulong customerNumber)
         {
-            ACBAServiceReference.KeyValue filial = new KeyValue(); 
+            ACBAServiceReference.KeyValue filial = new KeyValue();
             ACBAOperationService.Use(client =>
             {
                 filial = client.GetCustomerFilial(customerNumber);
@@ -183,7 +180,7 @@ namespace ExternalBanking.ServiceClient
             return results;
         }
 
-        public static Dictionary<uint, List<SearchCustomers>> FindCustomers(SearchCustomers search,int pageNumber)
+        public static Dictionary<uint, List<SearchCustomers>> FindCustomers(SearchCustomers search, int pageNumber)
         {
             var results = new Dictionary<uint, List<SearchCustomers>>();
 
@@ -203,7 +200,7 @@ namespace ExternalBanking.ServiceClient
 
             ACBAOperationService.Use(client =>
             {
-                result = client.GetCustomerDocumentList(identityId,1);
+                result = client.GetCustomerDocumentList(identityId, 1);
             });
 
             return result;
@@ -277,17 +274,17 @@ namespace ExternalBanking.ServiceClient
                 ((IClientChannel)client).Close();
                 success = true;
             }
-            catch (FaultException ex)
+            catch (FaultException)
             {
                 ((IClientChannel)client).Close();
 
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
 
@@ -304,7 +301,7 @@ namespace ExternalBanking.ServiceClient
             }
         }
 
-        public static ViolationRequestResponse RegisterPayment(CBViolationPayment policePayment,ACBAServiceReference.User user)
+        public static ViolationRequestResponse RegisterPayment(CBViolationPayment policePayment, ACBAServiceReference.User user)
         {
             var results = new ViolationRequestResponse();
 
@@ -355,7 +352,7 @@ namespace ExternalBanking.ServiceClient
         {
             IExternalOperations client = ProxyManager<IExternalOperations>.GetProxy(nameof(IExternalOperations));
 
-            client.SetUser(user,"");
+            client.SetUser(user, "");
 
             bool success = false;
 
@@ -365,17 +362,17 @@ namespace ExternalBanking.ServiceClient
                 ((IClientChannel)client).Close();
                 success = true;
             }
-            catch (FaultException ex)
+            catch (FaultException)
             {
                 ((IClientChannel)client).Close();
 
                 throw;
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ((IClientChannel)client).Abort();
 
@@ -390,6 +387,20 @@ namespace ExternalBanking.ServiceClient
                 }
                 ((IClientChannel)client).Dispose();
             }
+        }
+
+
+        /// <summary>
+        /// Ստուգում է օրենսդրական ծանուցումների ստացման եղանակների առկայությունը «SAP CRM» ծրագրում
+        /// </summary>
+        public static bool HasLegalCommunication(ulong customerNumber)
+        {
+            bool hasLegalCommunication = false;
+            Use(client =>
+            {
+                hasLegalCommunication = client.HasLegalCommunication(customerNumber);
+            });
+            return hasLegalCommunication;
         }
     }
 }

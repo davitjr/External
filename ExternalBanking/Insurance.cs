@@ -1,8 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using ExternalBanking.DBManager;
-using System.Data;
-using System.Linq;
 
 namespace ExternalBanking
 {
@@ -204,7 +202,7 @@ namespace ExternalBanking
             Account companySystemAccount = null;
             uint systemAccountNumber = GetInsuranceCompanySystemAccountNumber(companyID, insuranceType);
 
-            if (systemAccountNumber!=0)
+            if (systemAccountNumber != 0)
                 companySystemAccount = Account.GetSystemAccountByNN(systemAccountNumber);
 
             return companySystemAccount;

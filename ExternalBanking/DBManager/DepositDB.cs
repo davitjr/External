@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Configuration;
 using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
@@ -49,6 +49,7 @@ namespace ExternalBanking.DBManager
                                                     ,case when d.date_of_beginning > = '01/Jan/2008' then d.tax else 0 end as tax
                                                     ,taxed_profit
                                                     ,isvariation
+                                                    ,CASE WHEN d.date_of_beginning >= '02/Oct/2021' THEN 0 ELSE 1 END AS has_communication
                                                     from [tbl_deposits;] d 
 													inner join [tbl_type_of_deposits;] t 
                                                     on d.type=t.code 
@@ -200,7 +201,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
 
 
-                string sql = depositSelectScript + @" WHERE A.customer_number=@customerNumber and d.quality=0 and not (d.type=14 and d.capital=0)";
+                string sql = depositSelectScript + @" WHERE A.customer_number=@customerNumber and d.quality=0 and not (d.type=14 and d.capital=0) order by date_of_normal_end desc";
 
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -217,7 +218,7 @@ namespace ExternalBanking.DBManager
                     if (dt.Rows.Count > 0)
                         deposits = new List<Deposit>();
 
-                    for (int i = 0; i < dt.Rows.Count; i++)
+                    for (int i = 0; i < (dt.Rows.Count >= 300 ? 300 : dt.Rows.Count); i++)
                     {
 
                         DataRow row = dt.Rows[i];
@@ -277,7 +278,10 @@ namespace ExternalBanking.DBManager
 
                 deposit.TotalRateValue = decimal.Parse(row["total_profit"].ToString());
                 deposit.EffectiveInterestRate = Convert.ToDecimal(row["interest_rate_effective"]);
-                deposit.StatementDeliveryType = Convert.ToByte(row["for_extract_sending"]);
+
+                if (row["for_extract_sending"] != DBNull.Value)
+                    deposit.StatementDeliveryType = Convert.ToByte(row["for_extract_sending"]);
+
                 deposit.ProfitOnMonthFirstDay = Convert.ToDecimal(row["transfer_from_acc"]);
                 deposit.DayOfRateCalculation = DateTime.Parse(row["date_of_operation"].ToString());
                 deposit.AllowAmountAddition = int.Parse(row["penalty_rate"].ToString()) == 10 ? false : true;
@@ -316,6 +320,11 @@ namespace ExternalBanking.DBManager
                 deposit.TaxedProfit = Convert.ToDecimal(row["taxed_profit"]);
 
                 deposit.IsVariation = row["isvariation"] != DBNull.Value ? byte.Parse(row["isvariation"].ToString()) : (byte)0;
+
+                //հաղորդակցման եղանակ դաշտի հեռացում
+                if (row.Table.Columns.Contains("has_communication"))
+                    deposit.HasCommunicationType = byte.Parse(row["has_communication"].ToString());
+
 
             }
             return deposit;
@@ -410,14 +419,6 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@recontract_possibility", SqlDbType.Bit).Value = ((short)recontractPossibility) - 1;
 
 
-                    if (InfoDB.CommunicationTypeExistence(order.CustomerNumber) == 1)
-                    {
-                        cmd.Parameters.Add("@statement_by_email", SqlDbType.SmallInt).Value = DBNull.Value;
-                    }
-                    else
-                    {
-                        cmd.Parameters.Add("@statement_by_email", SqlDbType.SmallInt).Value = order.Deposit.StatementDeliveryType;
-                    }
 
 
 
@@ -1021,7 +1022,7 @@ namespace ExternalBanking.DBManager
 
                     List<DepositOption> optionList = new List<DepositOption>();
                     List<DepositOption> businesDepositOptions = Deposit.GetBusinesDepositOptions();
-                    DepositOption option;
+
                     if (order.DepositType == DepositType.BusinesDeposit)
                     {
                         if (allowAddition == 1 && allowDecreasing == 0)
@@ -1792,7 +1793,10 @@ namespace ExternalBanking.DBManager
 
                 deposit.TotalRateValue = decimal.Parse(row["total_profit"].ToString());
                 deposit.EffectiveInterestRate = decimal.Parse(row["interest_rate_effective"].ToString());
-                deposit.StatementDeliveryType = Convert.ToByte(row["for_extract_sending"]);
+
+                if (row["for_extract_sending"] != DBNull.Value)
+                    deposit.StatementDeliveryType = Convert.ToByte(row["for_extract_sending"]);
+
                 deposit.ProfitOnMonthFirstDay = Convert.ToDecimal(row["transfer_from_acc"]);
                 deposit.DayOfRateCalculation = DateTime.Parse(row["date_of_operation"].ToString());
                 deposit.AllowAmountAddition = int.Parse(row["penalty_rate"].ToString()) == 10 ? false : true;

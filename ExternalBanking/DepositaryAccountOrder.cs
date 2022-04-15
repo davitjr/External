@@ -1,5 +1,4 @@
 ﻿using ExternalBanking.DBManager;
-using System.Collections.Generic;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -7,7 +6,7 @@ namespace ExternalBanking
     public class DepositaryAccountOrder : Order
     {
         public DepositaryAccount AccountNumber { get; set; }
-        
+
         public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
             Complete();
@@ -167,7 +166,7 @@ namespace ExternalBanking
         }
 
         public static ActionResult UpdateDepositoryAccountOrder(DepositaryAccountOrder order)
-        {          
+        {
             return DepositaryAccountOrderDB.UpdateDepositoryAccountOrder(order);
         }
     }

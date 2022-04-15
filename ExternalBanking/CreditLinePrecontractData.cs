@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -19,17 +15,17 @@ namespace ExternalBanking
         {
 
             CreditLinePrecontractData result = new CreditLinePrecontractData();
-             DataTable dt = new DataTable();
-                dt = CreditLine.GetCreditLinePrecontractData(startDate, endDate, interestRate, repaymentPercent, cardNumber, currency, amount, loanType);
-                if (dt.Rows.Count > 0)
-                {
-                    result.InterestRate = Convert.ToDouble(dt.Rows[0][0]);
-                    result.InterestRateEffectiveWithoutAccountServiceFee = Convert.ToDouble(dt.Rows[0][1]);
-                    result.RepaymentRate = Convert.ToDouble(dt.Rows[0][2]);             
-                }
+            DataTable dt = new DataTable();
+            dt = CreditLine.GetCreditLinePrecontractData(startDate, endDate, interestRate, repaymentPercent, cardNumber, currency, amount, loanType);
+            if (dt.Rows.Count > 0)
+            {
+                result.InterestRate = Convert.ToDouble(dt.Rows[0][0]);
+                result.InterestRateEffectiveWithoutAccountServiceFee = Convert.ToDouble(dt.Rows[0][1]);
+                result.RepaymentRate = Convert.ToDouble(dt.Rows[0][2]);
+            }
 
-                return result;
-           
+            return result;
+
         }
     }
 }

@@ -1,11 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -37,13 +32,13 @@ namespace ExternalBanking
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
-           
+
             Action action = Action.Add;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = MembershipRewardsOrderDB.SaveCardMembershipRewardsOrder(this, userName);
-              
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -78,7 +73,7 @@ namespace ExternalBanking
         private void Complete()
         {
             if ((this.OrderNumber == null || this.OrderNumber == "") && this.Id == 0)
-                this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);          
+                this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
         }
 
         public ActionResult Validate()

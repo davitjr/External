@@ -57,19 +57,19 @@ namespace ExternalBanking
                     {
                         result = PaymentOrderTemplateDB.SavePaymentOrderTemplate(this, action);
 
-                        if(result.Errors.Count == 0)
+                        if (result.Errors.Count == 0)
                         {
                             if (TemplateType == TemplateType.CreatedAsGroupService)
-                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo,result.Id,action);
+                                OrderGroupDB.SaveGroupTemplateShortInfo(GroupTemplateShrotInfo, result.Id, action);
                             ActionResult resultOrderFee = base.SaveTemplateFee(this.PaymentOrder);
                         }
 
-                       
+
                         scope.Complete();
                     }
                 }
             }
-          
+
             Localization.SetCulture(result, new Culture(Languages.hy));
             return result;
         }
@@ -84,7 +84,7 @@ namespace ExternalBanking
             this.PaymentOrder.Type = this.TemplateDocumentType;
             this.PaymentOrder.SubType = this.TemplateDocumentSubType;
 
-            if(TemplateType == TemplateType.CreatedAsGroupService)
+            if (TemplateType == TemplateType.CreatedAsGroupService)
             {
                 GroupTemplateShrotInfo shortinfo = new GroupTemplateShrotInfo
                 {

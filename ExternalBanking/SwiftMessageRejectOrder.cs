@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.DBManager;
 using System.Transactions;
 
 
@@ -12,7 +8,7 @@ namespace ExternalBanking
     {
         public int SwiftMessageId { get; set; }
 
-        public  ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
+        public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
             this.Complete();
 
@@ -28,7 +24,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = SwiftMessageDB.SaveSwiftMessageRejectOrder(this, userName, source, user.filialCode);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -68,10 +64,10 @@ namespace ExternalBanking
             return result;
         }
 
- 
 
 
-        
+
+
         public ActionResult Validate(ACBAServiceReference.User user)
         {
             ActionResult result = new ActionResult();
@@ -85,11 +81,11 @@ namespace ExternalBanking
             {
                 result.Errors.Add(new ActionError(1450));
             }
-           
+
             return result;
         }
 
-        
+
         protected void Complete()
         {
             this.SubType = 1;

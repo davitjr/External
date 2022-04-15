@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
     public class FTPRateDB
     {
 
-       
+
         internal static FTPRate GetFTPRateDetails(FTPRateType rateType)
         {
             FTPRate FTPRate = new FTPRate();
@@ -86,7 +86,7 @@ namespace ExternalBanking.DBManager
 
         private static FTPRateDetail SetFTPRateDetail(DataRow row)
         {
-            FTPRateDetail  rate = new FTPRateDetail();
+            FTPRateDetail rate = new FTPRateDetail();
 
             if (row != null)
             {
@@ -165,7 +165,7 @@ namespace ExternalBanking.DBManager
 
         }
 
-      
+
 
     }
 }

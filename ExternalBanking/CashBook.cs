@@ -2,9 +2,6 @@
 using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -83,19 +80,19 @@ namespace ExternalBanking
 
         public bool IsClosed { get; set; }
 
-		public double MaturedAmount {get; set;}
+        public double MaturedAmount { get; set; }
 
-		/// <summary>
-		/// Դեբետ հաշիվ
-		/// </summary>
-		public string DebetAccount { get; set; }
+        /// <summary>
+        /// Դեբետ հաշիվ
+        /// </summary>
+        public string DebetAccount { get; set; }
 
-		/// <summary>
-		/// Կրեդիտ հաշիվ
-		/// </summary>
-		public string CreditAccount { get; set; }
+        /// <summary>
+        /// Կրեդիտ հաշիվ
+        /// </summary>
+        public string CreditAccount { get; set; }
 
-		const int CHIEF_ACCOUNTANT_GROUP_1 = 2;
+        const int CHIEF_ACCOUNTANT_GROUP_1 = 2;
         const int CHIEF_ACCOUNTANT_GROUP_2 = 503;
 
         public static ActionResult SaveCashBooks(List<CashBook> cashBooks, ExternalBanking.ACBAServiceReference.User user)
@@ -142,7 +139,7 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="filialCode"></param>
         /// <returns></returns>
-        public static int GetCorrespondentSetNumber(int filialCode,bool isEncashmentDepartment=false)
+        public static int GetCorrespondentSetNumber(int filialCode, bool isEncashmentDepartment = false)
         {
             return CashBookDB.GetCorrespondentSetNumber(filialCode, isEncashmentDepartment);
         }
@@ -173,7 +170,7 @@ namespace ExternalBanking
             {
                 //if (user.AdvancedOptions["isHeadCashBook"] != "1")
                 //{
-                    FillialCode = user.filialCode;
+                FillialCode = user.filialCode;
                 //}
             }
 
@@ -185,7 +182,7 @@ namespace ExternalBanking
             {
                 CorrespondentSetNumber = CashBook.GetCashBookSetnumber(ID);
             }
-         
+
         }
 
         /// <summary>
@@ -219,7 +216,7 @@ namespace ExternalBanking
         {
             return CashBookDB.GetCashBookFilialCodeByLinkedRow(linkedRowID);
         }
-        
+
 
         /// <summary>
         /// Հեռացնել գրառումը
@@ -245,7 +242,7 @@ namespace ExternalBanking
             {
                 searchParams.SearchUserID = user.userID;
             }
-            
+
 
             List<KeyValuePair<int, double>> rest = new List<KeyValuePair<int, double>>();
             rest.Add(new KeyValuePair<int, double>(0, CashBookDB.GetRestTransactions(searchParams)));//մուտքագրված և ելքագրված գումարների տարբերությունը հաշվախահական գործարքներից
@@ -289,19 +286,19 @@ namespace ExternalBanking
         /// <param name="id"></param>
         public static void DeleteCashBook(int Id)
         {
-             CashBookDB.DeleteCashBook(Id);
+            CashBookDB.DeleteCashBook(Id);
         }
 
 
-		public static double GetCashBookAmount(int cashBookID)
-		{
-			return CashBookDB.GetCashBookAmount(cashBookID);
-		}
+        public static double GetCashBookAmount(int cashBookID)
+        {
+            return CashBookDB.GetCashBookAmount(cashBookID);
+        }
 
 
-		public static bool HasUnconfirmedOrder(int cashBookID)
-		{
-			return CashBookDB.HasUnconfirmedOrder(cashBookID);
-		}
-	}
+        public static bool HasUnconfirmedOrder(int cashBookID)
+        {
+            return CashBookDB.HasUnconfirmedOrder(cashBookID);
+        }
+    }
 }

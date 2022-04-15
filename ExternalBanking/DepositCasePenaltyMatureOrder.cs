@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 
 namespace ExternalBanking
@@ -15,7 +8,7 @@ namespace ExternalBanking
     /// <summary>
     /// Պահատուփի տուժանքի մարման հայտ
     /// </summary>
-    public class DepositCasePenaltyMatureOrder:Order
+    public class DepositCasePenaltyMatureOrder : Order
     {
         /// <summary>
         /// Պրոդուկտի ունիկալ համար
@@ -58,7 +51,7 @@ namespace ExternalBanking
         public ActionResult Validate()
         {
             ActionResult result = new ActionResult();
-            result.Errors.AddRange(Validation.ValidateDepositCasePenaltyMatureOrder(this,this.user));
+            result.Errors.AddRange(Validation.ValidateDepositCasePenaltyMatureOrder(this, this.user));
             return result;
         }
 
@@ -128,7 +121,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = DepositCasePenaltyMatureOrderControllerDB.SaveDepositCasePenaltyMatureOrder(this, userName);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

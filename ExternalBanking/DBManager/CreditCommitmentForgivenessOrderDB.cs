@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SqlClient;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SqlClient;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -331,14 +328,14 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     cmd.Connection = conn;
 
-                    
+
                     cmd.CommandText = "pr_get_credit_commitment_forgiveness";
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@app_id", SqlDbType.BigInt).Value = creditCommitmentForgiveness.AppId;
                     cmd.Parameters.Add("@loan_type", SqlDbType.Int).Value = creditCommitmentForgiveness.LoanType;
                     cmd.Parameters.Add("@customer_number", SqlDbType.BigInt).Value = creditCommitmentForgiveness.CustomerNumber;
 
-                   using  SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
 
                     if (dr.Read())
                     {

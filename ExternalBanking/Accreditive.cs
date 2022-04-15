@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
+using System.Collections.Generic;
 
 namespace ExternalBanking
 {
-   public class Accreditive:Loan
+    public class Accreditive : Loan
     {
         /// <summary>
         /// Բենեֆիցիար

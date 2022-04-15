@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -74,7 +71,7 @@ namespace ExternalBanking
                 }
             });
 
-            if(this.Source != SourceType.Bank)
+            if (this.Source != SourceType.Bank)
             {
                 this.SubType = 1;
             }
@@ -135,10 +132,9 @@ namespace ExternalBanking
                         }
 
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-
-                        throw;
+                        throw ex;
                     }
                 }
 
@@ -153,28 +149,27 @@ namespace ExternalBanking
                 ArcaDataServiceReference.CardLimitChangeResponse cardLimitChangeResponse = new CardLimitChangeResponse();
                 try
                 {
-                        CardLimitChangeOrderData data = new CardLimitChangeOrderData();
-                        data.Limits = new List<ArcaDataServiceReference.CardLimit>();
-                        data.DocId = result.Id;
-                        data.CardNumber = this.Card.CardNumber;
-                        data.IPAddress = this.IPAddress;
-                        data.ExpDate = this.Card.ValidationDate.ToString("yyyyMM");
+                    CardLimitChangeOrderData data = new CardLimitChangeOrderData();
+                    data.Limits = new List<ArcaDataServiceReference.CardLimit>();
+                    data.DocId = result.Id;
+                    data.CardNumber = this.Card.CardNumber;
+                    data.IPAddress = this.IPAddress;
+                    data.ExpDate = this.Card.ValidationDate.ToString("yyyyMM");
 
-                        ArcaDataServiceReference.CardLimit cardLimit = new ArcaDataServiceReference.CardLimit();
 
-                        this.Limits.ForEach(item =>
-                        {
-                            data.Limits.Add(
-                                            new ArcaDataServiceReference.CardLimit()
-                                            {
-                                                LimitValue = Convert.ToUInt32(item.LimitValue),
-                                                LimitArcaType = item.LimitArcaType
-                                            }
-                                        );
-                        });
+                    this.Limits.ForEach(item =>
+                    {
+                        data.Limits.Add(
+                                        new ArcaDataServiceReference.CardLimit()
+                                        {
+                                            LimitValue = Convert.ToUInt32(item.LimitValue),
+                                            LimitArcaType = item.LimitArcaType
+                                        }
+                                    );
+                    });
 
-                        //Order approvment
-                        cardLimitChangeResponse = ArcaDataService.ChangeCardLimit(data);
+                    //Order approvment
+                    cardLimitChangeResponse = ArcaDataService.ChangeCardLimit(data);
                 }
                 catch (Exception e)
                 {
@@ -275,7 +270,6 @@ namespace ExternalBanking
                     data.IPAddress = this.IPAddress;
                     data.ExpDate = this.Card.ValidationDate.ToString("yyyyMM");
 
-                    ArcaDataServiceReference.CardLimit cardLimit = new ArcaDataServiceReference.CardLimit();
 
                     this.Limits.ForEach(item =>
                     {
@@ -329,7 +323,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             result.Errors.AddRange(Validation.ValidateCardLimitChangeOrder(this));
-            return result; 
+            return result;
         }
 
         private void SetRejectReasonFromArca(long docID, string rejectReason)

@@ -1,18 +1,15 @@
-﻿using ExternalBanking.DBManager;
-using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Transactions;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
     /// <summary>
     /// Ռեեստրով կոմունալ փոխանցում
     /// </summary>
-    public class ReestrUtilityPaymentOrder:UtilityPaymentOrder
+    public class ReestrUtilityPaymentOrder : UtilityPaymentOrder
     {
         /// <summary>
         /// ՋՕԸ-ի ռեեստրի տվյալներ
@@ -36,12 +33,12 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            
+
 
 
             if (this.Type == OrderType.ReestrCashCommunalPayment || this.Type == OrderType.ReestrCommunalPayment)
             {
-                if (this.COWaterReestrDetails==null || this.COWaterReestrDetails.Count==0)
+                if (this.COWaterReestrDetails == null || this.COWaterReestrDetails.Count == 0)
                 {
                     //Ներբեռնեք Excel-ի ֆայլը:
                     result.Errors.Add(new ActionError(966));
@@ -51,7 +48,7 @@ namespace ExternalBanking
                     //Որոնման դաշտում նշեք մասնաճյուղը:
                     result.Errors.Add(new ActionError(317));
                 }
-                else if (this.AbonentFilialCode==0)
+                else if (this.AbonentFilialCode == 0)
                 {
                     //Որոնման դաշտում նշեք ՋՕԸ-ի մասնաճյուղը:
                     result.Errors.Add(new ActionError(967));
@@ -78,7 +75,7 @@ namespace ExternalBanking
 
             }
 
-            if(result.Errors.Count==0)
+            if (result.Errors.Count == 0)
                 result.Errors.AddRange(base.Validate(user).Errors);
 
 
@@ -134,8 +131,17 @@ namespace ExternalBanking
                 UtilityPaymentOrderDB.SaveReestrUtilityPaymentOrderDetails(this);
 
                 base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
-                
+
                 result = base.SaveOrderOPPerson();
+
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -177,7 +183,7 @@ namespace ExternalBanking
             {
 
             }
-            
+
             result.Errors = warnings;
 
             return result;

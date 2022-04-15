@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -102,7 +99,7 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
 
-            result.Errors.AddRange(Validation.ValidateCardRemovalOrder(this, user.filialCode));
+            result.Errors.AddRange(Validation.ValidateCardRemovalOrder(this, user));
             return result;
         }
 
@@ -116,10 +113,11 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="appID"></param>
         /// <returns></returns>
-        public static PlasticCardSentToArcaStatus PlasticCardSentToArca(long productId)
+        public static PlasticCardSentToArcaStatus PlasticCardSentToArca(long productId, CardChangeType cardChangeType)
         {
-            return PlasticCardRemovalOrderDB.PlasticCardSentToArca(productId);
+            return PlasticCardRemovalOrderDB.PlasticCardSentToArca(productId, cardChangeType);
         }
+
         /// <summary>
         /// Ստուգում ենք Արքա ուղղարկման ֆայլի ձևավորման պրոցեսը սկսել է թե ոչ
         /// </summary>
@@ -127,6 +125,32 @@ namespace ExternalBanking
         public static bool CheckForArcaFileGenerationProcess()
         {
             return PlasticCardRemovalOrderDB.CheckForArcaFileGenerationProcess();
+        }
+
+        public static List<string> CheckPlasticCardRemovalOrder(PlasticCardRemovalOrder order, bool fromCardDepartment)
+        {
+            List<string> messages = new List<string>();
+            order.Card.CardChangeType = (CardChangeType)Card.GetCardChangeType(order.Card.ProductId);
+            List<Card> supplementaryCards = new List<Card>();
+            supplementaryCards.AddRange(CardDB.GetLinkedCards(order.Card.CardNumber));
+            if (supplementaryCards.Count > 0 && (order.Card.CardChangeType == CardChangeType.RenewWithSameType || order.Card.CardChangeType == CardChangeType.RenewWithNewType))
+            {
+                messages.Add("Նշված քարտի համար առկա են կից/լրացուցիչ քարտեր: Շարունակե՞լ ");
+            }
+
+            if (fromCardDepartment && (order.Card.CardChangeType == CardChangeType.RenewWithSameType || order.Card.CardChangeType == CardChangeType.RenewWithNewType))
+            {
+                if (PlasticCardSentToArca(order.Card.ProductId, order.Card.CardChangeType) == PlasticCardSentToArcaStatus.SentToArca)
+                {
+                    messages.Add("Քարտի վերաթողարկման ֆայլն ուղարկված է ԱրՔա։ Շարունակե՞լ");
+                }
+            }
+            if (order.Card.CardChangeType == CardChangeType.New)
+            {
+                messages.Add("Քարտի հեռացման հետ մեկտեղ հեռացվելու են նաև քարտին կցված հաշիվները: Շարունակե՞լ");
+            }
+
+            return messages;
         }
     }
 }

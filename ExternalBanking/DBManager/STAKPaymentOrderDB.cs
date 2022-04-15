@@ -2,13 +2,9 @@
 using ExternalBanking.ARUSDataService;
 using ExternalBanking.ServiceClient;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -493,25 +489,15 @@ namespace ExternalBanking.DBManager
                     try
                     {
                         cmd.ExecuteNonQuery();
-                        //actionResult.ResultCode = ResultCode.Normal;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        //if (((System.Data.SqlClient.SqlException)ex).Class == 11)
-                        //{
-                        //    actionResult.Errors.Add(new ActionError(ex.Message));
-                        //    actionResult.ResultCode = ResultCode.Failed;
-                        //}
-                        //else
-                        //{
                         throw;
-                        //}
                     }
 
                 }
             }
 
-            //return actionResult;
         }
     }
 }

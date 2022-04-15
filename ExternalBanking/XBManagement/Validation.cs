@@ -1,14 +1,8 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using ExternalBanking.ServiceClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.XBManagement.Interfaces;
-using ExternalBanking.ACBAServiceReference;
-using System.Text.RegularExpressions;
-using ExternalBanking.ServiceClient;
-using System.Configuration;
-using ExternalBanking.DBManager;
 using System.Web.Configuration;
 
 namespace ExternalBanking.XBManagement
@@ -23,6 +17,7 @@ namespace ExternalBanking.XBManagement
             {
                 //Խումբը բացակայում է
                 result.Add(new ActionError(914));
+                return result;
             }
 
             if (group.BelongsToSchema())
@@ -56,15 +51,15 @@ namespace ExternalBanking.XBManagement
                 result.Add(new ActionError(958));
             }
 
-            else if(group.HBUsers != null)
+            else if (group.HBUsers != null)
             {
-                foreach(HBUser hbUser in group.HBUsers)
+                foreach (HBUser hbUser in group.HBUsers)
                 {
-                    if(hbUser.HBAppID != appId)
+                    if (hbUser.HBAppID != appId)
                     {
                         result.Add(new ActionError(1039, new string[] { hbUser.UserName }));
                     }
-                }              
+                }
             }
 
             return result;
@@ -92,7 +87,7 @@ namespace ExternalBanking.XBManagement
             List<ActionError> result = new List<ActionError>();
 
             if (token.TransLimit > token.DayLimit)
-            { 
+            {
                 result.Add(new ActionError(1036)); //Գործարքի սահմանաչափը չի կարող մեծ լինել օրական սահմանաչափից
             }
 
@@ -103,7 +98,7 @@ namespace ExternalBanking.XBManagement
 
             if (!token.CheckTokenNumberAvailability())
             {
-               result.Add(new ActionError(1113, new string[] { token.TokenNumber }));//Տվյալ տոկենի համարը զբաղված է, ընտրեք այլ համար:
+                result.Add(new ActionError(1113, new string[] { token.TokenNumber }));//Տվյալ տոկենի համարը զբաղված է, ընտրեք այլ համար:
             }
 
             return result;
@@ -116,11 +111,11 @@ namespace ExternalBanking.XBManagement
             {
                 result.Add(new ActionError(1036)); //Գործարքի սահմանաչափը չի կարող մեծ լինել օրական սահմանաչափից
             }
-            
+
             return result;
         }
-        
-        public static List<ActionError> ValidateHBUserForSave(HBUser user,ulong customerNumber)
+
+        public static List<ActionError> ValidateHBUserForSave(HBUser user, ulong customerNumber)
         {
             List<ActionError> result = new List<ActionError>();
 
@@ -129,7 +124,7 @@ namespace ExternalBanking.XBManagement
 
             return result;
         }
-            
+
 
 
         public static List<ActionError> ValidateApprovementSchema(ApprovementSchema schema, ulong customerNumber)
@@ -158,14 +153,14 @@ namespace ExternalBanking.XBManagement
             //bool isOldGroup = false;
             bool isOldStepOrder = false;
 
-            if(schemaDetails.Id > 0)
+            if (schemaDetails.Id > 0)
             {
                 ApprovementSchemaDetails oldSchemaDetails = ApprovementSchemaDetails.GetApprovementSchemaDetailsById(schemaDetails.Id);
                 //if(oldSchemaDetails.Group.Id == schemaDetails.Group.Id)
                 //{
                 //    isOldGroup = true;
                 //}
-                if(oldSchemaDetails.Order == schemaDetails.Order)
+                if (oldSchemaDetails.Order == schemaDetails.Order)
                 {
                     isOldStepOrder = true;
                 }
@@ -178,16 +173,16 @@ namespace ExternalBanking.XBManagement
             //    result.Add(new ActionError(915));
             //}
 
-            else if(schemaDetails.Group.HBUsers == null || schemaDetails.Group.HBUsers.Count < 1)
+            else if (schemaDetails.Group.HBUsers == null || schemaDetails.Group.HBUsers.Count < 1)
             {
                 //Նշված խմբում առկա չեն օգտագործողներ։
                 result.Add(new ActionError(960));
             }
 
-            if(schemaId > 0)
+            if (schemaId > 0)
             {
                 ApprovementSchema schema = ApprovementSchema.Get(customerNumber);
-                foreach(ApprovementSchemaDetails schemaDetail in schema.SchemaDetails)
+                foreach (ApprovementSchemaDetails schemaDetail in schema.SchemaDetails)
                 {
                     if (!isOldStepOrder && (schemaDetail.Order == schemaDetails.Order))
                     {
@@ -195,9 +190,9 @@ namespace ExternalBanking.XBManagement
                         result.Add(new ActionError(961));
                         break;
                     }
-                }              
+                }
             }
-          
+
 
             return result;
         }
@@ -238,7 +233,7 @@ namespace ExternalBanking.XBManagement
                 //Սխեմայի մանրամասները բացակայում են
                 result.Add(new ActionError(962));
             }
-       
+
             return result;
         }
 
@@ -246,7 +241,7 @@ namespace ExternalBanking.XBManagement
         {
             List<ActionError> result = new List<ActionError>();
 
-           
+
             short customerType = Customer.GetCustomerType(order.CustomerNumber);
 
 
@@ -263,7 +258,7 @@ namespace ExternalBanking.XBManagement
                 result.Add(new ActionError(1022));
             }
 
-            if(order.DayLimitToOwnAccount <= 0 || order.DayLimitToAnothersAccount <= 0)
+            if (order.DayLimitToOwnAccount <= 0 || order.DayLimitToAnothersAccount <= 0)
             {
                 //Գործարքի օրական սահմանաչափը մուտքագրված չէ:
                 result.Add(new ActionError(1023));
@@ -281,7 +276,7 @@ namespace ExternalBanking.XBManagement
                 result.Add(new ActionError(1025));
             }
 
-            if(order.EmailId <= 0)
+            if (order.EmailId <= 0)
             {
                 //Էլ.հասցեն մուտքագրված չէ:
                 result.Add(new ActionError(1026));
@@ -293,7 +288,7 @@ namespace ExternalBanking.XBManagement
                 result.Add(new ActionError(1027));
             }
 
-            if(order.QuestionAnswers != null)
+            if (order.QuestionAnswers != null)
             {
                 //i համարի հարցի պատասխանը մուտքագրված չէ:
                 for (int i = 0; i < order.QuestionAnswers.Count; i++)
@@ -305,11 +300,11 @@ namespace ExternalBanking.XBManagement
                 }
             }
 
-            if(order.DayLimitToOwnAccount > 10000000)
+            if (order.DayLimitToOwnAccount > 10000000)
             {
                 //Գործարքի օրական սահմանաչափը չի կարող գերազանցել սահմանված 10,000,000  ՀՀ դրամ օրական սահմանաչափը:
                 result.Add(new ActionError(1030, new string[] { "10,000,000" }));
-            }         
+            }
 
             if (order.DayLimitToAnothersAccount > 1500000)
             {
@@ -317,13 +312,13 @@ namespace ExternalBanking.XBManagement
                 result.Add(new ActionError(1030, new string[] { "1,500,000" }));
             }
 
-            if(order.OneTransactionLimitToOwnAccount > order.DayLimitToOwnAccount || order.OneTransactionLimitToAnothersAccount > order.DayLimitToAnothersAccount)
+            if (order.OneTransactionLimitToOwnAccount > order.DayLimitToOwnAccount || order.OneTransactionLimitToAnothersAccount > order.DayLimitToAnothersAccount)
             {
                 //Օրական սահմանաչափի արժեքը պետք է լինի մեծ կամ հավասար Գործարքի համապատասխան սահմանաչափին
                 result.Add(new ActionError(1032));
             }
 
-        
+
             return result;
         }
 
@@ -352,8 +347,8 @@ namespace ExternalBanking.XBManagement
 
             //if (HBApplicationOrder.isExistsNotConfirmedHBOrder(order.CustomerNumber))
             //    result.Add(new ActionError(1041)); //Տվյալ հաճախորդի համար արդեն գոյություն ունի ուղարկված և դեռևս չհաստատված հեռահար բանկինգի մուտքագրման/փոփոխության կամ ակտիվացման հայտ կամ չակտիվացված ծառայություն:         
-            
-           if (order.Type == OrderType.HBApplicationOrder && HBApplicationOrder.IsExistsHB(order.CustomerNumber))
+
+            if (order.Type == OrderType.HBApplicationOrder && HBApplicationOrder.IsExistsHB(order.CustomerNumber))
                 result.Add(new ActionError(1042)); //Տվյալ հաճախորդը արդեն ունի հեռահար բանկինգի ծառայություն:
 
             //Օգտագործողները
@@ -380,18 +375,18 @@ namespace ExternalBanking.XBManagement
 
             var list = from hbuser in hbuserlist_add
                        join hbtoken in hbtokenlist_add
-                       on hbuser.ID equals hbtoken.HBUser.ID                                                   
+                       on hbuser.ID equals hbtoken.HBUser.ID
                        select new { hbuser };
 
             List<HBUser> listofhbnewuserswithnewtokens = list.Select(o => o.hbuser).Distinct().ToList();
-            
-            if (listofhbnewuserswithnewtokens.Count < hbuserlist_add.Count()) 
+
+            if (listofhbnewuserswithnewtokens.Count < hbuserlist_add.Count())
                 result.Add(new ActionError(1045));//Գոյություն ունի մուտքագրված օգտագործող առանց տոկենի:Կցեք տոկեն կամ հեռացրեք տվյալ օգտագործողին:
 
-            
-        var listT = from token in hbtokenlist_all group token.TokenNumber by token.TokenNumber into g where g.Count()>1 select new { g.Key };
-            
-            if (listT.ToList().Count > 0) 
+
+            var listT = from token in hbtokenlist_all group token.TokenNumber by token.TokenNumber into g where g.Count() > 1 select new { g.Key };
+
+            if (listT.ToList().Count > 0)
                 result.Add(new ActionError(1115));//Հայտում հայտնաբերվել է կրկնվող համարով տոկեն:
 
 
@@ -400,11 +395,11 @@ namespace ExternalBanking.XBManagement
                 var list2 = from hbuser in hbuserlist_all
                             join hbtoken in hbtokenlist_all
                             on hbuser.ID equals hbtoken.HBUser.ID
-                            where hbuser.AllowDataEntry == true && (hbtoken.DayLimit == 0 || hbtoken.TransLimit == 0) && hbtoken.Quality!=HBTokenQuality.Deactivated
+                            where hbuser.AllowDataEntry == true && (hbtoken.DayLimit == 0 || hbtoken.TransLimit == 0) && hbtoken.Quality != HBTokenQuality.Deactivated
                             select new { hbtoken };
 
-            List<HBToken> listofuserswithwronglimits = list2.Select(o => o.hbtoken).Distinct().ToList();
-                if(listofuserswithwronglimits.Count>0)
+                List<HBToken> listofuserswithwronglimits = list2.Select(o => o.hbtoken).Distinct().ToList();
+                if (listofuserswithwronglimits.Count > 0)
                     result.Add(new ActionError(1096));//Տոկենի սահմանաչափերը սխալ են
 
                 var list3 = from hbuser in hbuserlist_all
@@ -437,7 +432,7 @@ namespace ExternalBanking.XBManagement
                 //Գոյություն ունի ՀԲ ի սպասարկման հայտ:
                 result.Add(new ActionError(699));
             }
-            
+
 
             else //if (order.HBActivationRequest.RequestType == 1)
             {
@@ -467,7 +462,7 @@ namespace ExternalBanking.XBManagement
                             //Լրացրեք տոկենի համարը:
                             result.Add(new ActionError(722));
                         }
-                       
+
                     }
                 }
             }
@@ -501,7 +496,7 @@ namespace ExternalBanking.XBManagement
         public static List<ActionError> ValidateHBServletRequestOrder(HBServletOrder ServletOrder)
         {
             List<ActionError> result = new List<ActionError>();
-            if(ServletOrder.Source != SourceType.MobileBanking && HBApplicationDB.GetHBApplication(ServletOrder.CustomerNumber)?.PermissionType == 2)
+            if (ServletOrder.Source != SourceType.MobileBanking && HBApplicationDB.GetHBApplication(ServletOrder.CustomerNumber)?.PermissionType == 2)
             {
                 //Ուշադրություն! Տվյալ փոփոխությունը հնարավոր չէ իրականացնել սահմանափակ հասանելիությամբ հեռահար բանկիգ ծառայության համար։
                 result.Add(new ActionError(1803));
@@ -509,7 +504,7 @@ namespace ExternalBanking.XBManagement
 
             if (ServletOrder.ServletAction == HBServletAction.ActivateToken)
             {
-                 if(string.IsNullOrEmpty(ServletOrder.HBtoken.HBUser.Email.email.emailAddress))
+                if (string.IsNullOrEmpty(ServletOrder.HBtoken.HBUser.Email.email.emailAddress))
                     //Էլեկտրոնային հասցեն մուտքագրված չէ:
                     result.Add(new ActionError(446));
             }
@@ -523,7 +518,7 @@ namespace ExternalBanking.XBManagement
                     result.Add(new ActionError(1238));
 
             }
-            
+
             if ((ServletOrder.GroupId != 0) ? !OrderGroup.CheckGroupId(ServletOrder.GroupId) : false)
             {
                 //Նշված խումբը գոյություն չունի։
@@ -567,7 +562,7 @@ namespace ExternalBanking.XBManagement
             {
                 return result;
             }
-         
+
             return result;
 
         }
@@ -581,8 +576,8 @@ namespace ExternalBanking.XBManagement
 
             if (hb == HasHB.Yes)
                 result.Add(new ActionError(1278)); //Տվյալ հաճախորդն արդեն ունի հեռախոսային բանկինգի ծառայություն
-            
-             var customer = ACBAOperationService.GetCustomer(order.CustomerNumber);
+
+            var customer = ACBAOperationService.GetCustomer(order.CustomerNumber);
 
             if (order.FilialCode != customer.filial.key)
             {

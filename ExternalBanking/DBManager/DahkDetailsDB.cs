@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Linq;
+using System.Data.SqlClient;
 using System.Globalization;
+using System.Linq;
 
 namespace ExternalBanking.DBManager
 {
@@ -490,52 +490,26 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// Վերադարձնում է ԴԱՀԿ գործատուներին
         /// </summary>
-        internal static List<DahkEmployer> GetDahkEmployers(ulong customerNumber,ProductQualityFilter quality, string inquestId = "")
+        internal static List<DahkEmployer> GetDahkEmployers(ulong customerNumber, ProductQualityFilter quality, string inquestId = "")
         {
 
             List<DahkEmployer> employers = new List<DahkEmployer>();
 
-            string sql = "";
-
-            if (quality == ProductQualityFilter.Opened)
-            {
-                //                sql = sql + " AND closing_date is null";
-                sql = @"SELECT ID, customer_number, MESSAGEID as msg_number, INQUESTID as inquestID, registration_date,  CAST(arm_number AS BIGINT) arm_number, closing_date 
-			            FROM (SELECT e.*, null as closing_date FROM Tbl_DAHK_employers_acc e 
-						            LEFT JOIN DAHK_Base.dbo.Tbl_CheckMsg_Response_FreeAttach f ON f.INQUESTID = e.INQUESTID AND f.MESSAGEID_key=RIGHT(e.MESSAGEID,9) 
-						            WHERE f.MESSAGEID IS NULL 
-						            UNION ALL 
-						            SELECT h.* FROM Tbl_DAHK_employers_acc_hystory h 
-						            LEFT JOIN DAHK_Base.dbo.Tbl_CheckMsg_Response_FreeAttach f ON f.INQUESTID = h.INQUESTID AND f.MESSAGEID_key=RIGHT(h.MESSAGEID,9) 
-						            LEFT JOIN (SELECT MAX(MESSAGEID_key) AS lastMessageKey, inquestID 
-											    FROM DAHK_Base.dbo.Tbl_CheckMsg_Response_Attach 
-											    GROUP BY inquestID)  A ON A.inquestID = h.inquestID 
-											    WHERE f.MESSAGEID IS NULL AND A.lastMessageKey = RIGHT(h.MESSAGEID,9)) UN 
-                        WHERE customer_number = @customerNumber ";
-            }
-            else
-            {
-                sql = @"SELECT ID, customer_number, MESSAGEID as msg_number, INQUESTID as inquestID, registration_date, arm_number, closing_date FROM Tbl_DAHK_employers_acc_hystory WHERE customer_number = @customerNumber ";
-            }
-
-            if (!String.IsNullOrEmpty(inquestId))
-            {
-                sql = sql + " AND INQUESTID = @inquestId";
-            }
-
-            sql = sql + " ORDER BY INQUESTID";
-
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using (SqlCommand cmd = new SqlCommand())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    cmd.Connection = conn;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = @"pr_GetDahkEmployersAccounts";
+
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
+                    cmd.Parameters.Add("@inquestIdQuality", SqlDbType.TinyInt).Value = Convert.ToInt16(quality);
 
                     if (!String.IsNullOrEmpty(inquestId))
                     {
-                        cmd.Parameters.Add("@inquestId", SqlDbType.NVarChar).Value = inquestId;
+                        cmd.Parameters.Add("@inquestId", SqlDbType.VarChar).Value = inquestId;
                     }
 
                     DataTable dt = new DataTable();
@@ -550,18 +524,9 @@ namespace ExternalBanking.DBManager
 
                         DahkEmployer employer = new DahkEmployer();
                         employer.CustomerNumber = ulong.Parse(row["customer_number"].ToString());
-                        employer.RequestNumber = Utility.ConvertAnsiToUnicode(row["msg_number"].ToString());
-                        employer.InquestCode = row["inquestID"].ToString();
-                        employer.AccountNumber = row["arm_number"].ToString();
-                        if (row["closing_date"] == DBNull.Value)
-                        {
-                            employer.ClosingDate = default(DateTime?);
-                        }
-                        else
-                        {
-                            employer.ClosingDate = Convert.ToDateTime(row["closing_date"].ToString());
-                        }
-
+                        employer.RequestNumber = Utility.ConvertAnsiToUnicode(row["MESSAGEID"].ToString());
+                        employer.InquestCode = row["INQUESTID"].ToString();
+                        employer.AccountNumber = row["EMPLOYERACC"].ToString();
 
                         employers.Add(employer);
                     }
@@ -807,7 +772,7 @@ namespace ExternalBanking.DBManager
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
 
-                 DataTable dt = new DataTable();
+                DataTable dt = new DataTable();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     dt.Load(dr);
@@ -825,7 +790,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
 
-                    if(dahk.ActiveDahkList.Count > 0)
+                    if (dahk.ActiveDahkList.Count > 0)
                         dahk.HasNewDAHK = true;
 
                 }

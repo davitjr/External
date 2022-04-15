@@ -5,7 +5,6 @@ using NLog.Targets;
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-using System.Text;
 using System.Web.Configuration;
 using infsec = ExternalBankingService.InfSecServiceReference;
 
@@ -350,5 +349,52 @@ namespace ExternalBankingService
             }
         }
 
+        public ulong GetCardHolderCustomerNumber(long productID)
+        {
+            try
+            {
+                ulong customerNumber;
+                customerNumber = Card.GetCardHolderCustomerNumber(productID);
+                if (customerNumber == 0)
+                {
+                    customerNumber = PlasticCard.GetCardCustomerNumber(productID);
+
+                }
+                return customerNumber;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveAndApproveCardNotRenew(CardNotRenewOrder order)
+        {
+            try
+            {
+                SetUser(AuthorizedCustomer, Language, ClientIp, User, Source);
+                return XBService.SaveAndApproveCardNotRenewOrder(order);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult SaveCardAdditionalData(CardAdditionalDataOrder order)
+        {
+            try
+            {
+                SetUser(AuthorizedCustomer, Language, ClientIp, User, Source);
+                return XBService.SaveCardAdditionalDataOrder(order);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
     }
 }

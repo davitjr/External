@@ -1,14 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Xml;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
-using System.Configuration;
 using System.Web.Configuration;
+using System.Xml;
 
 namespace ExternalBanking
 {
@@ -28,7 +26,6 @@ namespace ExternalBanking
             }
 
             string result = "";
-            int strLen = str.Length;
             for (int i = 0; i <= str.Length - 1; i++)
             {
                 int charCode = (int)str[i];
@@ -688,7 +685,7 @@ namespace ExternalBanking
                 || ((orderType == OrderType.CashCredit || orderType == OrderType.CashCreditConvertation || orderType == OrderType.CashOutFromTransitAccountsOrder) && orderAccountType == OrderAccountType.CreditAccount)
                 || orderType == OrderType.CashConvertation || orderType == OrderType.TransitCashOutCurrencyExchangeOrder || orderType == OrderType.TransitCashOut || orderType == OrderType.ReceivedFastTransferPaymentOrder
                 || ((orderType == OrderType.CashCredit || orderType == OrderType.CashDebit || orderType == OrderType.ChequeBookOrder || orderType == OrderType.ChequeBookReceiveOrder
-                || orderType == OrderType.ReferenceOrder || orderType == OrderType.SwiftCopyOrder || orderType == OrderType.DepositCaseActivationOrder 
+                || orderType == OrderType.ReferenceOrder || orderType == OrderType.SwiftCopyOrder || orderType == OrderType.DepositCaseActivationOrder
                 || orderType == OrderType.CashDebitConvertation
                 || orderType == OrderType.CashTransitCurrencyExchangeOrder) && orderAccountType == OrderAccountType.FeeAccount)
                 || orderType == OrderType.CashOutFromTransitAccountsOrder)
@@ -1313,6 +1310,101 @@ namespace ExternalBanking
         {
             return UtilityDB.GetBuyKursForDate(currency, filialCode);
         }
+
+        /// <summary>
+        /// Միաչափ զանգվածի էլեմենտների բոլոր հնարավոր զուգորդությունների ստեղծում։
+        /// </summary>
+        /// <param name="names"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        internal static IList<string> MakeCombination(string[] names, int start, int end, IList<string> list)
+        {
+            if (start == end)
+            {
+                string data = string.Empty;
+                foreach (var item in names)
+                {
+                    data += " " + item;
+                }
+                list.Add(data.Trim());
+            }
+            else
+            {
+                for (int i = start; i <= end; i++)
+                {
+                    Swap(ref names[start], ref names[i]);
+                    MakeCombination(names, start + 1, end, list);
+                    Swap(ref names[start], ref names[i]);
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Փոփոխականների արժեքների փոխվերագրում։
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        internal static void Swap(ref string a, ref string b)
+        {
+            var temp = a;
+            a = b;
+            b = temp;
+        }
+
+        /// <summary>
+        /// Տեքստերի համեմատում ըստ Լեվենշտեինի ալգորիթմի։
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dest"></param>
+        /// <returns></returns>
+        internal static int LevenshteinDistance(string src, string dest)
+        {
+            int[,] d = new int[src.Length + 1, dest.Length + 1];
+            int i, j, cost;
+            char[] str1 = src.ToCharArray();
+            char[] str2 = dest.ToCharArray();
+
+            for (i = 0; i <= str1.Length; i++)
+            {
+                d[i, 0] = i;
+            }
+            for (j = 0; j <= str2.Length; j++)
+            {
+                d[0, j] = j;
+            }
+            for (i = 1; i <= str1.Length; i++)
+            {
+                for (j = 1; j <= str2.Length; j++)
+                {
+
+                    if (str1[i - 1] == str2[j - 1])
+                        cost = 0;
+                    else
+                        cost = 1;
+
+                    d[i, j] =
+                        Math.Min(
+                            d[i - 1, j] + 1,              // Deletion
+                            Math.Min(
+                                d[i, j - 1] + 1,          // Insertion
+                                d[i - 1, j - 1] + cost)); // Substitution
+
+                    if ((i > 1) && (j > 1) && (str1[i - 1] ==
+                        str2[j - 2]) && (str1[i - 2] == str2[j - 1]))
+                    {
+                        d[i, j] = Math.Min(d[i, j], d[i - 2, j - 2] + cost);
+                    }
+                }
+            }
+
+            return d[str1.Length, str2.Length];
+        }
+
+
     }
 
 }

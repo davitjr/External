@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
-   public class LoanProductTerminationOrder:Order
+    public class LoanProductTerminationOrder : Order
     {
         /// <summary>
         /// Դադարեցվող երաշխիքի ունիկալ համար
@@ -39,7 +34,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = LoanProductTerminationOrderDB.SaveLoanProductTerminationOrder(this, userName, source, user.filialCode);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

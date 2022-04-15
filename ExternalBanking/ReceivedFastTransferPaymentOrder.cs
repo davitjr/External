@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ARUSDataService;
-using System.Globalization;
+using ExternalBanking.DBManager;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
-
+using System.Globalization;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -309,7 +308,7 @@ namespace ExternalBanking
                 GetCodeNames(authorizedUserSessionToken, userName, clientIP);
             }
 
-            if(source == SourceType.AcbaOnline || source == SourceType.MobileBanking ||
+            if (source == SourceType.AcbaOnline || source == SourceType.MobileBanking ||
                 source == SourceType.AcbaOnlineXML || source == SourceType.ArmSoft)
             {
                 double coeficent = 0;
@@ -441,7 +440,7 @@ namespace ExternalBanking
 
             this.FilialCode = user.filialCode;
 
-            if(Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)
+            if (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)
             {
                 this.RegistrationDate = DateTime.Now.Date;
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
@@ -525,12 +524,22 @@ namespace ExternalBanking
             {
 
                 result = ReceivedFastTransferPaymentOrderDB.Save(this, userName, source, Convert.ToUInt16(isCallCenter));
-             
+
                 if (this.TransferAdditionalData != null)
                 {
                     this.TransferAdditionalData.OrderId = result.Id;
                     TransferAdditionalDataDB.Save(this.TransferAdditionalData);
                 }
+
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
 
                 if (result.ResultCode != ResultCode.Normal)
                 {
@@ -710,12 +719,20 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
 
-            if(this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
+            if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
             {
                 if (string.IsNullOrEmpty(this.Code))
                 {
                     result.Errors.Add(new ActionError(1631));
                 }
+
+
+                if (ReceivedFastTransferPaymentOrderDB.IsExistReceivedFastTransferWithURN(this.Code, this.CustomerNumber))
+                {
+                    //Նշված փոխանցման հսկիչ համարով արդեն իսկ առկա է Բանկ ուղարկված կամ կատարված հանձնարարական:
+                    result.Errors.Add(new ActionError(2042));
+                }
+
 
             }
 
@@ -726,7 +743,7 @@ namespace ExternalBanking
             result.Errors.AddRange(Validation.ValidateDocumentNumber(this, this.CustomerNumber));
             // result.Errors.AddRange(Validation.CheckCustomerDebts(this.CustomerNumber));
             result.Errors.AddRange(ValidateData(isCallCenter));
-            
+
             if (this.TransferAdditionalData != null)
             {
                 result.Errors.AddRange(Validation.ValidateTransferAdditionalData(this.TransferAdditionalData, this.Amount));
@@ -944,7 +961,7 @@ namespace ExternalBanking
                 }
             }
 
-            
+
 
 
             if (this.FeeAcba == 0 && (this.SubType == 12 || (!(isCallCenter == 1 && this.Type == OrderType.ReceivedFastTransferPaymentOrder) && (this.SubType == 21 || this.SubType == 17))))
@@ -1009,7 +1026,7 @@ namespace ExternalBanking
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
-            //todo bacel hetagayum stugeluc heto COMMENT E ARVEL 07/08/18  Babken Makaryan
+
             Account receiverAccount = Account.GetAccount(order.ReceiverAccount.AccountNumber);
             if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 namespace ExternalBanking.DBManager
 {
     internal static class BudgetPaymentOrderDB
@@ -18,8 +15,9 @@ namespace ExternalBanking.DBManager
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = @"Select rs.description as ReasonIdDescription ,D.*, F.id as fee_ID, F.FeeAmount, F.Currency as FeeCurrency, F.FeeType, TD.* ,change_time
+                    cmd.CommandText = @"Select rs.description as ReasonIdDescription ,D.*, F.id as fee_ID, F.FeeAmount, F.Currency as FeeCurrency, F.FeeType, TD.* ,change_time, p.*
                                                             from Tbl_Hb_Documents D  left join Tbl_Transfer_Fees F on D.doc_ID = F.doc_ID left join Tbl_New_Transfer_Doc TD on D.doc_ID = TD.Doc_id   left join tbl_type_of_card_debit_reasons rs on d.reason_type = rs.type 
+															LEFT JOIN (SELECT ID, violation_ID, violation_date, badge_number FROM Tbl_Police_Response_Details) p on D.police_response_details_ID = p.id
                                                                      outer apply (select top 1 CONVERT(VARCHAR(5),change_date, 108) change_time  from Tbl_HB_quality_history where doc_ID=D.doc_ID  order by quality )time
                                                             where D.doc_id=@id and customer_number=case when @customerNumber = 0 then customer_number else @customerNumber end ";
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
@@ -35,7 +33,7 @@ namespace ExternalBanking.DBManager
 
                             order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
 
-                                                order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+                            order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
 
 
                             order.Type = (OrderType)Convert.ToInt16((dr["document_type"]));
@@ -62,15 +60,24 @@ namespace ExternalBanking.DBManager
                             }
 
                             order.ReceiverAccount = new Account();
+
+
+                            order.ViolationID = dr["violation_ID"] != DBNull.Value ? Utility.ConvertAnsiToUnicode(dr["violation_ID"].ToString()) : string.Empty;
+                            order.ViolationDate = dr["violation_date"] != DBNull.Value ? Convert.ToDateTime(dr["violation_date"]) : default(DateTime?);
+                            order.BadgeNumber = dr["badge_number"] != DBNull.Value ? Utility.ConvertAnsiToUnicode(dr["badge_number"].ToString()) : string.Empty;
+                            if (!string.IsNullOrEmpty(order.BadgeNumber))
+                                order.IsPoliceInspectorAct = true;
+
+
                             if (dr["credit_account"] != DBNull.Value)
                             {
                                 string creditAccount = dr["credit_account"].ToString();
 
-                               
+
 
                                 if (order.Type == OrderType.RATransfer || order.Type == OrderType.CashForRATransfer)
                                 {
-                                    if (order.Source != SourceType.MobileBanking && order.Source != SourceType.AcbaOnline)
+                                    if ((order.Source != SourceType.MobileBanking && order.Source != SourceType.AcbaOnline) || order.IsPoliceInspectorAct)
                                     {
                                         creditAccount = dr["credit_bank_code"].ToString() + creditAccount;
                                     }
@@ -104,7 +111,7 @@ namespace ExternalBanking.DBManager
 
                             order.OrderNumber = dr["document_number"].ToString();
 
-                       if (dr["description"] != DBNull.Value)
+                            if (dr["description"] != DBNull.Value)
                                 order.Description = Utility.ConvertAnsiToUnicode(dr["description"].ToString());
 
                             if (dr["rate_sell_buy"] != DBNull.Value)
@@ -192,8 +199,8 @@ namespace ExternalBanking.DBManager
 
                             if (dr["Debitor_Death_Document"] != DBNull.Value)
                             {
-                                order.CreditorDeathDocument  = dr["Debitor_Death_Document"].ToString();
-                                 
+                                order.CreditorDeathDocument = dr["Debitor_Death_Document"].ToString();
+
                             }
                             if (dr["change_time"] != DBNull.Value)
                             {
@@ -259,11 +266,14 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
                     cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
                     cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
-                    if (!String.IsNullOrEmpty(order.ViolationID))
-                        order.Description += ", որոշում " + order.ViolationID;
-                    if (order.ViolationDate.HasValue)
-                        order.Description += " " + order.ViolationDate.Value.ToString("dd/MM/yy");
- 
+                    if (source != SourceType.AcbaOnline && source != SourceType.MobileBanking)
+                    {
+                        if (!String.IsNullOrEmpty(order.ViolationID))
+                            order.Description += ", որոշում " + order.ViolationID;
+                        if (order.ViolationDate.HasValue)
+                            order.Description += " " + order.ViolationDate.Value.ToString("dd/MM/yy");
+                    }
+
                     cmd.Parameters.Add("@descr", SqlDbType.NVarChar, 4000).Value = order.Description;
                     cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 50).Value = order.Receiver;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
@@ -328,7 +338,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@DebitorName", SqlDbType.NVarChar).Value = order.CreditorDescription;
                     }
 
-                    if (order.CreditorDeathDocument!=null)
+                    if (order.CreditorDeathDocument != null)
                     {
                         cmd.Parameters.Add("@debitor_Death_Document", SqlDbType.NVarChar).Value = order.CreditorDeathDocument;
                     }
@@ -381,7 +391,7 @@ namespace ExternalBanking.DBManager
                     if (order.FeeAccount != null && order.FeeAccount.AccountNumber != "0" && order.TransferFee != 0)
                     {
                         cmd.Parameters.Add("@fee_currency3", SqlDbType.NVarChar).Value = order.FeeAccount.Currency;
-                        cmd.Parameters.Add("@fee_type3", SqlDbType.TinyInt).Value =  20;
+                        cmd.Parameters.Add("@fee_type3", SqlDbType.TinyInt).Value = 20;
                     }
 
                     cmd.Parameters.Add("@urgent", SqlDbType.TinyInt).Value = Convert.ToByte(order.UrgentSign);
@@ -397,7 +407,14 @@ namespace ExternalBanking.DBManager
                     if (order.GroupId != 0)
                     {
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
-                    }        
+                    }
+
+                    if (order.IsPoliceInspectorAct)
+                    {
+                        cmd.Parameters.Add("@violation_id", SqlDbType.NVarChar, 20).Value = order.ViolationID;
+                        cmd.Parameters.Add("@violation_date", SqlDbType.DateTime).Value = order.ViolationDate;
+                        cmd.Parameters.Add("@badge_number", SqlDbType.NVarChar, 20).Value = order.BadgeNumber;
+                    }
 
                     cmd.ExecuteNonQuery();
 
@@ -683,8 +700,8 @@ namespace ExternalBanking.DBManager
 
                     order.Id = Convert.ToInt64(cmd.ExecuteScalar());
                 }
-                   
-                
+
+
                 result.ResultCode = ResultCode.Normal;
                 return result;
             }
@@ -700,7 +717,7 @@ namespace ExternalBanking.DBManager
 
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO Tbl_BO_payment_budget_details(order_id, LTA_code, urgent, creditor_status, police_code) VALUES(@orderId, @LTACode, @urgent, @creditorStatus, @policeCode)";                    
+                    cmd.CommandText = "INSERT INTO Tbl_BO_payment_budget_details(order_id, LTA_code, urgent, creditor_status, police_code) VALUES(@orderId, @LTACode, @urgent, @creditorStatus, @policeCode)";
 
                     cmd.Parameters.Add("@orderId", SqlDbType.Int).Value = orderId;
                     cmd.Parameters.Add("@LTACode", SqlDbType.SmallInt).Value = budgetPaymentOrder.LTACode;
@@ -717,9 +734,9 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static int GetPoliceResponseDetailsIDWithoutRequest(string violationID, DateTime? violationDate, int responseDetailsID=0) 
+        internal static int GetPoliceResponseDetailsIDWithoutRequest(string violationID, DateTime? violationDate, string badgeNumber, int responseDetailsID = 0)
         {
-            
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -729,10 +746,11 @@ namespace ExternalBanking.DBManager
                     cmd.Connection = conn;
                     cmd.CommandText = "pr_police_response_details_without_request";
                     cmd.CommandType = CommandType.StoredProcedure;
-                    
+
                     cmd.Parameters.Add("@violation_id", SqlDbType.NVarChar, 50).Value = violationID;
                     cmd.Parameters.Add("@violation_date", SqlDbType.SmallDateTime).Value = violationDate;
-                    if (responseDetailsID!=0)
+                    cmd.Parameters.Add("@badge_number", SqlDbType.NVarChar, 50).Value = badgeNumber;
+                    if (responseDetailsID != 0)
                         cmd.Parameters.Add("@details_id", SqlDbType.Int).Value = responseDetailsID;
                     SqlParameter param = new SqlParameter("@response_details_ID", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -748,7 +766,7 @@ namespace ExternalBanking.DBManager
 
         internal static string GetOrderViolationId(long policeResponseId)
         {
-            using(SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
@@ -757,13 +775,10 @@ namespace ExternalBanking.DBManager
                                         where ID = @policeResponseId";
                 cmd.Parameters.Add("@policeResponseId", SqlDbType.Int).Value = policeResponseId;
                 conn.Open();
-
                 using SqlDataReader rd = cmd.ExecuteReader();
 
                 if (rd.Read())
-                {
                     return rd["violation_id"].ToString();
-                }
             }
             return null;
         }

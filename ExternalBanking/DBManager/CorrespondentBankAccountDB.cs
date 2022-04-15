@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -23,16 +23,16 @@ namespace ExternalBanking.DBManager
                 whereCond = whereCond + " and Acba_Transfer<>0 ";
             }
 
-            if (!String.IsNullOrEmpty (filter.Currency ))
+            if (!String.IsNullOrEmpty(filter.Currency))
             {
-               
+
                 whereCond = whereCond + " and currency= '" + filter.Currency + "' ";
             }
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand(@" SELECT Code_Account,Name_of_bank, currency, arm_number, isnull(transfersystem,0) transfersystem , swift_code FROM [Tbl_of_armenians_banks;] " + whereCond + " GROUP BY Code_Account,Name_of_bank, currency, arm_number, transfersystem, swift_code ", conn);
- 
+
                 dt.Load(cmd.ExecuteReader());
                 if (dt.Rows.Count > 0)
                 {
@@ -40,11 +40,11 @@ namespace ExternalBanking.DBManager
                     {
                         CorrespondentBankAccount account = new CorrespondentBankAccount();
                         account.CodeAccount = row["Code_Account"].ToString();
-                        account.BankName  = Utility.ConvertAnsiToUnicode ( row["Name_of_bank"].ToString());
-                        account.Currency  = row["currency"].ToString();
+                        account.BankName = Utility.ConvertAnsiToUnicode(row["Name_of_bank"].ToString());
+                        account.Currency = row["currency"].ToString();
                         account.Account = row["arm_number"].ToString();
                         account.TransferSystem = short.Parse(row["transfersystem"].ToString());
-                        account.SwiftCode  = row["swift_code"].ToString(); 
+                        account.SwiftCode = row["swift_code"].ToString();
 
                         accounts.Add(account);
                     }

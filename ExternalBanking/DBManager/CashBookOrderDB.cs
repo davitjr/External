@@ -8,7 +8,7 @@ namespace ExternalBanking
 {
     internal class CashBookOrderDB
     {
-        public static ActionResult Save(CashBookOrder order, List<CashBook> cashBooks, string userName,short userId, SourceType source)
+        public static ActionResult Save(CashBookOrder order, List<CashBook> cashBooks, string userName, short userId, SourceType source)
         {
             ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
@@ -20,7 +20,7 @@ namespace ExternalBanking
                                                     VALUES(@registrationDate,@documentType,
                                                     @documentNumber,@documentSubType,@debetAccount,
                                                     @creditAccount, @quality,
-                                                    @sourceType,@operationFilialCode,@oper_day,@filial) SELECT @ID = SCOPE_IDENTITY()",conn))
+                                                    @sourceType,@operationFilialCode,@oper_day,@filial) SELECT @ID = SCOPE_IDENTITY()", conn))
                 {
                     cmd.Parameters.AddWithValue("@operationFilialCode", (short)order.FilialCode);
                     cmd.Parameters.AddWithValue("@filial", (short)order.FilialCode);
@@ -58,11 +58,11 @@ namespace ExternalBanking
                         cmd.Parameters.AddWithValue("@docID", order.Id);
 
                         cmd.Parameters.AddWithValue("@amount", cashBook.Amount);
-						
 
 
 
-						if (String.IsNullOrWhiteSpace(cashBook.Description))
+
+                        if (String.IsNullOrWhiteSpace(cashBook.Description))
                         {
                             cmd.Parameters.AddWithValue("@addinf", DBNull.Value);
                         }
@@ -75,8 +75,8 @@ namespace ExternalBanking
                         cmd.Parameters.AddWithValue("@filialcode", cashBook.FillialCode);
                         cmd.Parameters.AddWithValue("@debetAccount", order.DebitAccount.AccountNumber);
                         cmd.Parameters.AddWithValue("@creditAccount", order.CreditAccount.AccountNumber);
-                        
-                        if (cashBook.Type == 1 || cashBook.Type == 3) 
+
+                        if (cashBook.Type == 1 || cashBook.Type == 3)
                         {
                             cmd.Parameters.AddWithValue("@status", 2);
                         }
@@ -114,7 +114,7 @@ namespace ExternalBanking
                                 cmd.Parameters.AddWithValue("@cor_set_number", cashBook.CorrespondentSetNumber);
                                 cmd.Parameters.AddWithValue("@set_number", 0);
                             }
-                            else if (cashBook.Type == 4 && (order.Type == OrderType.CashBookSurPlusDeficitClosing  || order.Type == OrderType.CashBookSurPlusDeficitPartiallyClosing))
+                            else if (cashBook.Type == 4 && (order.Type == OrderType.CashBookSurPlusDeficitClosing || order.Type == OrderType.CashBookSurPlusDeficitPartiallyClosing))
                             {
                                 cmd.Parameters.AddWithValue("@cor_set_number", 0);
                                 //cmd.Parameters.AddWithValue("@set_number", cashBook.CorrespondentSetNumber);
@@ -151,13 +151,13 @@ namespace ExternalBanking
                         cmd.ExecuteNonQuery();
                     }
                 }
-                   
+
             }
             result.ResultCode = ResultCode.Normal;
             return result;
         }
 
-       
+
         public static List<double> GetOperationAccounts(CashBook cashBook, int userFilialCode = 0, string isHeadCashBook = "")
         {
             double debitAccountNumber = 0;
@@ -237,7 +237,7 @@ namespace ExternalBanking
                         cmd.Parameters["@accountType"].Value = 1913;
                     }
                     //*************//
-                    
+
 
 
                     if (cashBook.FillialCode == -1)
@@ -290,7 +290,7 @@ namespace ExternalBanking
                     cmd.Parameters.AddWithValue("@old_status", oldStatus);
                     cmd.ExecuteNonQuery();
                 }
-                  
+
             }
             result.ResultCode = ResultCode.Normal;
             return result;
@@ -323,7 +323,7 @@ namespace ExternalBanking
                         }
                     }
                 }
-                   
+
             }
             return account;
         }
@@ -356,7 +356,7 @@ namespace ExternalBanking
                         }
                     }
                 }
-                  
+
             }
             return account;
         }
@@ -385,7 +385,7 @@ namespace ExternalBanking
                         }
                     }
                 }
-                   
+
             }
             return correspondentAccountType;
         }
@@ -425,7 +425,7 @@ namespace ExternalBanking
                 }
 
             }
-            order.CashBooks=GetCashBookOrderData(order);
+            order.CashBooks = GetCashBookOrderData(order);
             return order;
         }
 
@@ -436,7 +436,7 @@ namespace ExternalBanking
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"SELECT id FROM tbl_Cash_book WHERE linked_row_id=@linkedRowID",conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT id FROM tbl_Cash_book WHERE linked_row_id=@linkedRowID", conn))
                 {
                     cmd.Parameters.Add("@linkedRowID", SqlDbType.Int).Value = linkedRowID;
                     if (cmd.ExecuteReader().Read())
@@ -444,8 +444,8 @@ namespace ExternalBanking
                         secondApproveOrReject = true;
                     }
                 }
-                   
-                
+
+
             }
             return secondApproveOrReject;
         }
@@ -454,7 +454,7 @@ namespace ExternalBanking
         {
 
             List<CashBook> cashBooks = new List<CashBook>();
-            
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
 
@@ -481,10 +481,10 @@ namespace ExternalBanking
                         cashBook.Description = row["addinf"] != DBNull.Value ? row["addinf"].ToString() : null;
                         cashBook.ID = row["cash_book_ID"] != DBNull.Value ? Convert.ToInt32(row["cash_book_ID"]) : 0;
                         cashBook.RegisteredUserID = Convert.ToInt32(row["set_number"]);
-						cashBook.DebetAccount = row["debet_account"] != DBNull.Value ? row["debet_account"].ToString() : null;
-						cashBook.CreditAccount = row["credit_account"] != DBNull.Value ? row["credit_account"].ToString() : null;
+                        cashBook.DebetAccount = row["debet_account"] != DBNull.Value ? row["debet_account"].ToString() : null;
+                        cashBook.CreditAccount = row["credit_account"] != DBNull.Value ? row["credit_account"].ToString() : null;
 
-						cashBooks.Add(cashBook);
+                        cashBooks.Add(cashBook);
                     }
                 }
             }
@@ -496,7 +496,7 @@ namespace ExternalBanking
 
         public static bool IsExistUnconfirmedOrder(int cashBookID)
         {
-           
+
             bool status = false;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
@@ -514,9 +514,9 @@ namespace ExternalBanking
                             status = true;
                         }
                     }
-                       
+
                 }
-                   
+
             }
             return status;
         }

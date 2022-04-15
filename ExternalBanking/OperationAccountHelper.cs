@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -80,21 +75,21 @@ namespace ExternalBanking
 
         public OperationAccountHelper(PaymentOrder order, short feeType)
         {
-            if (order.Type == OrderType.CashCredit || order.Type == OrderType.CashForRATransfer 
-                || order.Type == OrderType.CashDebit || order.Type == OrderType.RATransfer || order.Type==OrderType.TransitCashOut
+            if (order.Type == OrderType.CashCredit || order.Type == OrderType.CashForRATransfer
+                || order.Type == OrderType.CashDebit || order.Type == OrderType.RATransfer || order.Type == OrderType.TransitCashOut
                 || order.Type == OrderType.ReestrTransferOrder || order.Type == OrderType.CashOutFromTransitAccountsOrder
                 || order.Type == OrderType.CashDebitConvertation
                 || order.Type == OrderType.CashTransitCurrencyExchangeOrder)
             {
                 this.AccountType = OperationAccountHelper.GetOperationSystemAccountTypeForFee(order, feeType);
-                if (order.Type == OrderType.CashForRATransfer && feeType == 5 
-                    || order.Type == OrderType.CashDebitConvertation 
+                if (order.Type == OrderType.CashForRATransfer && feeType == 5
+                    || order.Type == OrderType.CashDebitConvertation
                     || order.Type == OrderType.CashTransitCurrencyExchangeOrder)
                     this.Currency = "AMD";
                 else
                     this.Currency = order.Currency;
 
-                if(feeType == 28 || feeType == 29)
+                if (feeType == 28 || feeType == 29)
                 {
                     this.CustomerNumber = order.CustomerNumber;
                 }
@@ -163,7 +158,7 @@ namespace ExternalBanking
             OperationAccountHelper helper = new OperationAccountHelper();
 
 
-            if (order.Type == OrderType.CashCredit || order.Type == OrderType.CashForRATransfer 
+            if (order.Type == OrderType.CashCredit || order.Type == OrderType.CashForRATransfer
                 || order.Type == OrderType.CashDebit || order.Type == OrderType.RATransfer
                 || order.Type == OrderType.TransitCashOut || order.Type == OrderType.ReestrTransferOrder
                 || order.Type == OrderType.CashOutFromTransitAccountsOrder
@@ -192,7 +187,7 @@ namespace ExternalBanking
                 helper = new OperationAccountHelper(cashInternationalTransfer, feeType);
             }
             else if
-                (order.Type == OrderType.TransitPaymentOrder)
+                (order.Type == OrderType.TransitPaymentOrder || order.Type == OrderType.NonCashTransitPaymentOrder)
             {
                 TransitPaymentOrder tranzitPaymentOrder = (TransitPaymentOrder)order;
                 helper = new OperationAccountHelper(tranzitPaymentOrder, feeType);
@@ -219,7 +214,8 @@ namespace ExternalBanking
         /// <param name="currency"></param>
         /// <param name="filialCode"></param>
         /// <returns></returns>
-        public static Account GetOperationSystemAccountForLeasing(string operationCurrency, ushort filialCode) {
+        public static Account GetOperationSystemAccountForLeasing(string operationCurrency, ushort filialCode)
+        {
             return Account.GetOperationSystemAccount(3014, operationCurrency, filialCode);
         }
     }

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -52,7 +48,6 @@ namespace ExternalBanking
 
             this.Complete();
             ActionResult result = this.Validate();
-            List<ActionError> warnings = new List<ActionError>();
 
             if (result.Errors.Count > 0)
             {
@@ -120,7 +115,7 @@ namespace ExternalBanking
 
         public void Get()
         {
-            CardUSSDServiceOrder  order = CardUSSDServiceOrderDB.GetCardUSSDServiceOrder(this);
+            CardUSSDServiceOrder order = CardUSSDServiceOrderDB.GetCardUSSDServiceOrder(this);
             order.CardNumber = Card.GetCardWithOutBallance(order.ProductID).CardNumber;
         }
 

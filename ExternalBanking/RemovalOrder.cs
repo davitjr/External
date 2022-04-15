@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -30,6 +27,10 @@ namespace ExternalBanking
         /// </summary>
         public string RemovingReasonAdd { get; set; }
 
+        /// <summary>
+        /// Վերլուծության մերժման հիմքեր
+        /// </summary>
+        public byte RefuseReasonType { get; set; }
 
         /// <summary>
         /// Պահպանման ստուգումներ
@@ -63,7 +64,7 @@ namespace ExternalBanking
                 OrderQuality removableOrderQuality = Order.GetOrderQualityByDocID(this.RemovingOrderId);
                 removableOrderType = GetOrderType(this.RemovingOrderId);
 
-                if (removableOrderQuality == OrderQuality.Sent3 || removableOrderType == OrderType.LinkPaymentOrder)
+                if (removableOrderQuality == OrderQuality.Sent3 || removableOrderType == OrderType.LinkPaymentOrder || removableOrderType == OrderType.ConsumeLoanApplicationOrder || removableOrderType == OrderType.ConsumeLoanSettlementOrder)
                 {
                     Type = OrderType.CancelTransaction;
                 }
@@ -76,7 +77,7 @@ namespace ExternalBanking
             return removableOrderType;
 
         }
-        
+
         /// <summary>
         /// Գործարքի հեռացման հայտի պահպանում և ուղղարկում
         /// </summary>
@@ -96,7 +97,7 @@ namespace ExternalBanking
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
-                       
+
             Action action = this.Id == 0 ? Action.Add : Action.Update;
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
@@ -119,11 +120,11 @@ namespace ExternalBanking
                     return result;
                 }
 
-                
+
                 LogOrderChange(user, action);
 
                 result = base.Approve(schemaType, userName);
-                
+
                 if (result.ResultCode == ResultCode.Normal)
                 {
                     this.Quality = OrderQuality.Sent3;
@@ -135,13 +136,13 @@ namespace ExternalBanking
             }
 
             ConfirmationSourceType confirmationSourceType = ConfirmationSourceType.None;
-            if (removableOrderType == OrderType.LinkPaymentOrder && (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking))
+            if ((removableOrderType == OrderType.LinkPaymentOrder || removableOrderType == OrderType.CardLessCashOrder || removableOrderType == OrderType.ConsumeLoanApplicationOrder) && (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking))
             {
                 confirmationSourceType = ConfirmationSourceType.FromACBADigital;
             }
 
             result = base.Confirm(user, confirmationSourceType);
-            
+
 
             return result;
         }

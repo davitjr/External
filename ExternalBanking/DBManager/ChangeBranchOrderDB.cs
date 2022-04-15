@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -36,16 +32,16 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.AddWithValue("@amount", Math.Round(order.Card.PositiveRate, 2));
                     }
                     cmd.Parameters.AddWithValue("@currency", order.Card.Currency);
-                    cmd.Parameters.AddWithValue("@app_ID", (double)order.ProductId);
+                    cmd.Parameters.AddWithValue("@app_ID", order.ProductId);
                     //cmd.Parameters.AddWithValue("@credit_account", order.Account.AccountNumber);
                     cmd.Parameters.AddWithValue("@source_type", (short)source);//
                     cmd.Parameters.AddWithValue("@document_subtype", (short)order.SubType);//
                     cmd.Parameters.AddWithValue("@username", userName);//
                     cmd.Parameters.AddWithValue("@oper_day", order.OperationDate);
 
-                    cmd.Parameters.AddWithValue("@filial_code", (int)order.Filial);
-                    cmd.Parameters.AddWithValue("@cardnumber", (long)order.CardNumber);//Convert.ToInt64(order.Card.CardNumber));  
-                    cmd.Parameters.AddWithValue("@moved_filial_code", (int)order.MovedFilial);
+                    cmd.Parameters.AddWithValue("@filial_code", order.Filial);
+                    cmd.Parameters.AddWithValue("@cardnumber", order.CardNumber);//Convert.ToInt64(order.Card.CardNumber));  
+                    cmd.Parameters.AddWithValue("@moved_filial_code", order.MovedFilial);
 
                     cmd.Parameters.Add("@ID", SqlDbType.BigInt);
                     cmd.Parameters["@ID"].Direction = ParameterDirection.Output;

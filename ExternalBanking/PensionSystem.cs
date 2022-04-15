@@ -1,10 +1,8 @@
 ﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.PensionSystemRef;
+using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -47,7 +45,7 @@ namespace ExternalBanking
         /// ՀԾՀ
         /// </summary>
         public long PSN { get; set; }
-        
+
 
         /// <summary>
         /// Վերադարձնում է կենսաթոշակային ֆոնդի մնացորդը
@@ -57,14 +55,8 @@ namespace ExternalBanking
         public void GetPensionBalance(ulong customerNumber)
         {
             Errors = new List<ActionError>();
-            ACBAServiceReference.Customer customer;
-            short customerType;
-            using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-            {
-                customer = (ACBAServiceReference.Customer)proxy.GetCustomer(customerNumber);
-                customerType = customer.customerType.key;
-                
-            }
+            ACBAServiceReference.Customer customer = ACBAOperationService.GetCustomer(customerNumber);
+            short customerType = customer.customerType.key;
 
             if (customerType == (short)CustomerTypes.physical)
             {
@@ -119,7 +111,7 @@ namespace ExternalBanking
                         Balance = null;
                         ResultCode = ResultCode.Normal;
                     }
-                }       
+                }
             }
             else
             {

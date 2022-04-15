@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using ExternalBanking.DBManager;
 
 
 namespace ExternalBanking
@@ -52,6 +50,6 @@ namespace ExternalBanking
         /// <summary>
         /// Գործողության տեսակ
         /// </summary>
-        public string  ActionDescription { get; set; }
+        public string ActionDescription { get; set; }
     }
 }

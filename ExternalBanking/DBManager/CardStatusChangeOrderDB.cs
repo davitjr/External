@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -91,7 +89,7 @@ namespace ExternalBanking.DBManager
                     order.ProductId = Convert.ToUInt64(dr["product_app_Id"].ToString());
                     if (dr["AdditionValue"] != DBNull.Value)
                         order.CardStatus.Reason = dr["AdditionValue"].ToString();
-                    order.CardStatus.Status= Convert.ToInt16(dr["card_status"].ToString());
+                    order.CardStatus.Status = Convert.ToInt16(dr["card_status"].ToString());
                     switch (order.CardStatus.Status)
                     {
                         case 1:

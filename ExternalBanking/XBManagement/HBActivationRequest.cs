@@ -1,23 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.XBManagement
-{   
+{
     /// <summary>
     /// ՀԲ/Մոբայլ ակտիվացման/փոփոխման դիմում
     /// </summary>
     public class HBActivationRequest
     {
         public long Id { get; set; }
-        
+
         /// <summary>
         /// Փոփոխման տեսակ
         /// </summary>

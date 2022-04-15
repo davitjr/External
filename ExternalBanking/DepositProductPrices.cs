@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -135,7 +132,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public static ActionResult DeleteDepositProductPrices(int id, int registrationSetNumber)
         {
-            return DepositProductPricesDB.DeleteDepositProductPrices(id,registrationSetNumber);
+            return DepositProductPricesDB.DeleteDepositProductPrices(id, registrationSetNumber);
         }
         /// <summary>
         ///Վերադարձնում է ավելացրած դեպոզիտային պրոդուկտի արժեքը

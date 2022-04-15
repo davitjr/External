@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -863,7 +861,6 @@ namespace ExternalBanking.DBManager
         //}
         internal static void RemoveCredentialOrderBODetails(long orderId)
         {
-            ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -880,7 +877,6 @@ namespace ExternalBanking.DBManager
         }
         internal static void RemoveCredentialOrderDetails(long orderId)
         {
-            ActionResult result = new ActionResult();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())

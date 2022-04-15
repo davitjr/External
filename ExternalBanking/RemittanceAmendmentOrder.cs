@@ -1,12 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.ARUSDataService;
+using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
-using ExternalBanking.ARUSDataService;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -30,7 +27,7 @@ namespace ExternalBanking
         /// <summary>
         /// Փոփոխման գործողության պատճառի անվանում
         /// </summary>
-        public string AmendmentReasonName { get; set; }    
+        public string AmendmentReasonName { get; set; }
 
         /// <summary>
         /// Ստացողի ազգանունը՝ նախքան փոփոխությունը
@@ -175,12 +172,12 @@ namespace ExternalBanking
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
-            if(!String.IsNullOrEmpty(AmendmentReasonCode))
+            if (!String.IsNullOrEmpty(AmendmentReasonCode))
             {
                 DataTable reasons = ARUSInfo.GetAmendmentReasons(Transfer.MTOAgentCode, authorizedUserSessionToken, userName, clientIP);
                 AmendmentReasonName = reasons.Select("code = '" + AmendmentReasonCode + "'")[0]["name"].ToString();
             }
-           
+
         }
 
         /// <summary>
@@ -224,7 +221,7 @@ namespace ExternalBanking
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
 
-            
+
 
             return result;
         }

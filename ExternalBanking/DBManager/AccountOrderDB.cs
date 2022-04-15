@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Text;
-using System.Collections;
-using System.Data.SqlTypes;
-using System.IO;
+using System.Data.SqlClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -22,7 +18,6 @@ namespace ExternalBanking.DBManager
         internal static ActionResult Save(AccountOrder order, string userName, SourceType source)
         {
             ActionResult result = new ActionResult();
-            Account account = new Account();
 
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
@@ -79,14 +74,6 @@ namespace ExternalBanking.DBManager
                     }
 
 
-                    if (InfoDB.CommunicationTypeExistence(order.CustomerNumber) == 1)
-                    {
-                        cmd.Parameters.Add("@statement_type", SqlDbType.SmallInt).Value = DBNull.Value;
-                    }
-                    else
-                    {
-                        cmd.Parameters.Add("@statement_type", SqlDbType.SmallInt).Value = order.StatementDeliveryType;
-                    }
 
                     if (order.RestrictionGroup == 2)
                     {
@@ -100,9 +87,9 @@ namespace ExternalBanking.DBManager
                     }
 
                     List<KeyValuePair<ulong, string>> jointCustomerList = new List<KeyValuePair<ulong, string>>();
-                    if(order.JointCustomers != null)
+                    if (order.JointCustomers != null)
                     {
-                        jointCustomerList.AddRange(order.JointCustomers);   
+                        jointCustomerList.AddRange(order.JointCustomers);
                     }
                     if (order.AccountType == 2 || order.AccountType == 3)
                     {
@@ -237,7 +224,7 @@ namespace ExternalBanking.DBManager
                     order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
                     order.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
 
-                    if(Convert.ToInt16(dt.Rows[0]["statement_type"]) != -1)
+                    if (Convert.ToInt16(dt.Rows[0]["statement_type"]) != -1)
                     {
                         order.StatementDeliveryType = short.Parse(dt.Rows[0]["statement_type"].ToString());
                     }
@@ -246,7 +233,7 @@ namespace ExternalBanking.DBManager
                         order.StatementDeliveryType = null;
                     }
 
-                    
+
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);
 
@@ -393,7 +380,6 @@ namespace ExternalBanking.DBManager
 
         internal static byte[] GetOpenedAccountContract(string accountNumber)
         {
-            byte[] arr = null;
             int docid = 0;
             short documentType = 0;
             byte sourceType = 0;

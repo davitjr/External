@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using System.Collections.Generic;
-using ExternalBanking.ACBAServiceReference;
 
 
 namespace ExternalBanking.DBManager
@@ -20,7 +20,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
 
-                using (SqlCommand cmd =new SqlCommand(@"select dbo.Fnc_Countries_For_checking_By_Customer(@customerNumber,@productType) as result",conn))
+                using (SqlCommand cmd = new SqlCommand(@"select dbo.Fnc_Countries_For_checking_By_Customer(@customerNumber,@productType) as result", conn))
                 {
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
                     cmd.Parameters.Add("@productType", SqlDbType.Int).Value = productType;
@@ -74,7 +74,7 @@ namespace ExternalBanking.DBManager
         }
 
         public static bool IsDAHKAvailability(ulong customerNumber)
-        {                   
+        {
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
                 conn.Open();
@@ -139,7 +139,7 @@ namespace ExternalBanking.DBManager
             return check;
         }
 
-        public static void ValidateCashOperationAvailability(Order order, string debitCredit,string currency, User user)
+        public static void ValidateCashOperationAvailability(Order order, string debitCredit, string currency, User user)
         {
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
@@ -338,7 +338,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
 
-                  
+
 
 
                 return check;
@@ -718,7 +718,7 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        
+
 
         public static bool CheckLoanDelete(ulong appId)
         {
@@ -734,7 +734,7 @@ namespace ExternalBanking.DBManager
                     {
                         if (dr.Read())
                         {
-                            result = Convert.ToBoolean(dr["result"]);                            
+                            result = Convert.ToBoolean(dr["result"]);
                         }
                     }
                 }

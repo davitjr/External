@@ -3,8 +3,6 @@ using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 using static ExternalBanking.ReceivedBillSplitRequest;
 
@@ -321,7 +319,6 @@ namespace ExternalBanking
             result.ResultCode = validationResult.ResultCode;
             if (validationResult.ResultCode == ResultCode.Normal)
             {
-                Action action = Id == 0 ? Action.Add : Action.Update;
 
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                 {
@@ -552,7 +549,7 @@ namespace ExternalBanking
             SentBillSplitRequest request = BillSplitOrderDB.GetSentBillSplitRequest(customerNumber, orderId, culture.Language);
             if (request != null)
             {
-                request.Senders = BillSplitOrder.GetBillSplitSenders(request.OrderId);
+                request.Senders = BillSplitOrder.GetBillSplitSenders(request.OrderId, 0, culture.Language);
                 List<OrderAttachment> attachments = Order.GetFullOrderAttachments(request.OrderId);
                 request.Attachment = (attachments != null && attachments.Count > 0) ? attachments[0] : null;
             }

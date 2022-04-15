@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -24,9 +20,9 @@ namespace ExternalBanking.DBManager
                     cmd.CommandText = "pr_submit_payment_order_template";
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    string creditAccountNumber="";
-                   
-                        
+                    string creditAccountNumber = "";
+
+
                     if (template.PaymentOrder.ReceiverBankCode == 10300 && template.PaymentOrder.ReceiverAccount.AccountNumber.ToString().Substring(0, 1) == "9")
                     {
                         creditAccountNumber = template.PaymentOrder.ReceiverAccount.AccountNumber.ToString();
@@ -35,14 +31,14 @@ namespace ExternalBanking.DBManager
                     {
                         creditAccountNumber = template.PaymentOrder.ReceiverAccount.AccountNumber.ToString().Substring(5);
                     }
-                   
+
 
                     cmd.Parameters.Add("@tmpl_Name", SqlDbType.NVarChar).Value = template.TemplateName;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = template.TemplateCustomerNumber;
                     cmd.Parameters.Add("@descr", SqlDbType.NVarChar).Value = template.PaymentOrder.Description;
-                    cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar,50).Value = template.PaymentOrder.Receiver;
+                    cmd.Parameters.Add("@receiver_name", SqlDbType.NVarChar, 50).Value = template.PaymentOrder.Receiver;
                     cmd.Parameters.Add("@debit_acc", SqlDbType.Float).Value = template.PaymentOrder.DebitAccount.AccountNumber;
-                    
+
                     cmd.Parameters.Add("@credit_acc", SqlDbType.VarChar).Value = creditAccountNumber;
                     cmd.Parameters.Add("@credit_bank_code", SqlDbType.VarChar).Value = template.PaymentOrder.ReceiverBankCode.ToString();
                     cmd.Parameters.Add("@type", SqlDbType.SmallInt).Value = template.TemplateType;
@@ -77,7 +73,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@DebitorHVHH", SqlDbType.NVarChar).Value = template.PaymentOrder.CreditorDocumentNumber;
                     }
 
-               
+
 
                     if (template.PaymentOrder.CreditorStatus != 0)
                     {
@@ -91,7 +87,7 @@ namespace ExternalBanking.DBManager
 
                     if (template.TemplateType == TemplateType.CreatedAsGroupService)
                     {
-                        cmd.Parameters.Add("@fee_acc", SqlDbType.NVarChar,50).Value = template.PaymentOrder.FeeAccount.AccountNumber;
+                        cmd.Parameters.Add("@fee_acc", SqlDbType.NVarChar, 50).Value = template.PaymentOrder.FeeAccount.AccountNumber;
                         cmd.Parameters.Add("@Transfer_Fee", SqlDbType.Float).Value = template.PaymentOrder.TransferFee;
                     }
 
@@ -186,7 +182,7 @@ namespace ExternalBanking.DBManager
                                 template.TemplateDebetAccount = new Account();
                                 template.TemplateDebetAccount.AccountNumber = dr["debet_account"].ToString();
                             }
-            
+
                             //Ձևանմուշի մանրամասներ
                             template.PaymentOrderTemplateId = Convert.ToInt32(dr["id"].ToString());
 
@@ -202,7 +198,7 @@ namespace ExternalBanking.DBManager
                             if (dr["debet_account"] != DBNull.Value)
                             {
                                 string debitAccount = dr["debet_account"].ToString();
-                                
+
                                 template.PaymentOrder.DebitAccount = Account.GetAccount(debitAccount);
                             }
 
@@ -222,13 +218,13 @@ namespace ExternalBanking.DBManager
                                 {
                                     template.PaymentOrder.ReceiverAccount = Account.GetAccount(creditAccount);
                                 }
-                               
+
                                 else
                                 {
                                     template.PaymentOrder.ReceiverAccount.AccountNumber = creditAccount;
-                                    template.PaymentOrder.ReceiverAccount.OpenDate = default(DateTime?);    
-                                    template.PaymentOrder.ReceiverAccount.ClosingDate = default(DateTime?); 
-                                    template.PaymentOrder.ReceiverAccount.FreezeDate = default(DateTime?);  
+                                    template.PaymentOrder.ReceiverAccount.OpenDate = default(DateTime?);
+                                    template.PaymentOrder.ReceiverAccount.ClosingDate = default(DateTime?);
+                                    template.PaymentOrder.ReceiverAccount.FreezeDate = default(DateTime?);
                                 }
                             }
 
@@ -242,7 +238,7 @@ namespace ExternalBanking.DBManager
                                 template.PaymentOrder.Amount = Convert.ToDouble(dr["amount"]);
 
                             //if (dr["currency"] != DBNull.Value)
-                              //  template.PaymentOrder.Currency = dr["currency"].ToString();
+                            //  template.PaymentOrder.Currency = dr["currency"].ToString();
 
 
                             template.PaymentOrder.SubType = Convert.ToByte(dr["document_subtype"]);
@@ -257,7 +253,7 @@ namespace ExternalBanking.DBManager
 
                             //if (dr["rate_sell_buy_cross"] != DBNull.Value)
                             //    template.PaymentOrder.ConvertationRate1 = Convert.ToDouble(dr["rate_sell_buy_cross"]);
-                           
+
 
                             if (dr["SintAccDetailsValue"] != DBNull.Value)
                             {
@@ -306,7 +302,7 @@ namespace ExternalBanking.DBManager
                     }
                 }
             }
-            
+
 
             return template;
         }

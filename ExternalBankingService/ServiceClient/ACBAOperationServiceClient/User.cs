@@ -28,19 +28,19 @@ namespace ACBALibrary
         /// <summary>
         /// Փոփոխություն կատարելու հասանելիություններ
         /// </summary>
-        public Dictionary<string,string> AdvancedOptions { get; set; }
+        public Dictionary<string, string> AdvancedOptions { get; set; }
     }
 
     public class AuthorizedUser
     {
-        public int transRight{ get; set; }
-        public ushort filialCode{ get; set; }
-        public ulong userCustomerNumber{ get; set; }
-        public short userID{ get; set; }
-        public short positionID{ get; set; }
-        public short departmentID{ get; set; }
-        public string userName{ get; set; }
+        public int transRight { get; set; }
+        public ushort filialCode { get; set; }
+        public ulong userCustomerNumber { get; set; }
+        public short userID { get; set; }
+        public short positionID { get; set; }
+        public short departmentID { get; set; }
+        public string userName { get; set; }
     }
 
- 
+
 }

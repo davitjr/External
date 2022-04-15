@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
+﻿using ExternalBanking.DBManager;
 using ExternalBanking.UtilityPaymentsManagment;
-using ExternalBanking.UtilityPaymentsServiceReference;
+using System.Collections.Generic;
 
 namespace ExternalBanking
 {

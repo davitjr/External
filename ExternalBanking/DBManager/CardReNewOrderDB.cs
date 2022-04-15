@@ -11,7 +11,7 @@ namespace ExternalBanking.DBManager
         /// <summary>
         /// Քարտի վերաթողարկման հայտի տվյալների պահպանում
         /// </summary>
-        internal static ActionResult Save(CardRenewOrder order, SourceType source, ACBAServiceReference.User user)
+        internal static ActionResult Save(CardRenewOrder order, SourceType source)
         {
             ActionResult result = new ActionResult();
 
@@ -26,7 +26,6 @@ namespace ExternalBanking.DBManager
 
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (int)source;
-                    cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = user.userName;
                     cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = (int)order.Type;
                     cmd.Parameters.Add("@order_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
                     cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate.Date;
@@ -34,7 +33,6 @@ namespace ExternalBanking.DBManager
                     if (order.Card.CreditLine != null)
                     {
                         cmd.Parameters.Add("@renew_with_credit_line_closing", SqlDbType.Bit).Value = order.WithCreditLineClosing;
-                        cmd.Parameters.Add("@credit_line_app_id", SqlDbType.Float).Value = order.Card.CreditLine.ProductId;
                     }
                     cmd.Parameters.Add("@is_new_card_type", SqlDbType.Bit).Value = order.RenewWithCardNewType;
                     cmd.Parameters.Add("@organisation_name", SqlDbType.NVarChar).Value = !string.IsNullOrEmpty(order.OrganisationNameEng) ? (object)order.OrganisationNameEng : DBNull.Value;
@@ -48,6 +46,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@delivery_address", SqlDbType.NVarChar).Value = order.DeliveryAddress;
                     cmd.Parameters.Add("@phone", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(order.CardSMSPhone) ? "37400000000" : order.CardSMSPhone;
                     cmd.Parameters.Add("@cardReceivingType", SqlDbType.Int).Value = order.CardReceivingType;
+                    if (order.CardNewType != null) cmd.Parameters.Add("@newCardType", SqlDbType.SmallInt).Value = order.CardNewType;
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -87,7 +86,7 @@ namespace ExternalBanking.DBManager
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
-               using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
+                using SqlCommand cmd = new SqlCommand(@" SELECT D.app_id AS app_id,
                                                           H.customer_number,
                                                           H.document_number,
                                                           H.currency,
@@ -101,7 +100,6 @@ namespace ExternalBanking.DBManager
                                                           D.is_new_card_type,
                                                           D.card_PIN_code_receiving_type,
                                                           D.phone,
-                                                          D.credit_line_app_id,
 														  VA.cardNumber,
 														  S.CardSystemType + ' ' + Upper(TP.CardType) + ', ' + currency  AS CardType
                                                     FROM dbo.Tbl_HB_documents H 
@@ -132,7 +130,6 @@ namespace ExternalBanking.DBManager
                     order.Quality = (OrderQuality)dt.Rows[0]["quality"];
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                     order.CardPINCodeReceivingType = dt.Rows[0]["card_PIN_code_receiving_type"] != DBNull.Value ? int.Parse(dt.Rows[0]["card_PIN_code_receiving_type"].ToString()) : 0;
-                    order.CreditLineProductId = dt.Rows[0]["credit_line_app_id"] != DBNull.Value ? long.Parse(dt.Rows[0]["credit_line_app_id"].ToString()) : 0;
 
                     if (dt.Rows[0]["renew_with_credit_line_closing"] != DBNull.Value)
                     {
@@ -301,7 +298,7 @@ namespace ExternalBanking.DBManager
                     }
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                    
+
 
                     using SqlDataReader rd = cmd.ExecuteReader();
 
@@ -375,52 +372,6 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static int GetRelatedOfficeQuality(long productId, int officeID, bool withNewType)
-        {
-            int quality = -1;
-
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
-            {
-                string sql;
-
-                sql = @"SELECT Quality FROM Tbl_VISA_applications V 
-                                       INNER JOIN  Tbl_cards_rates CR
-                                       ON CR.CardType = ";
-                if (withNewType)
-                {
-                    sql += "46 ";
-                }
-                else
-                {
-                    sql += @"CASE WHEN V.cardType = 17 THEN 36
-                                  WHEN V.cardType = 19 THEN 37
-                                  WHEN V.cardType = 25 THEN 38
-                                  WHEN V.cardType = 20 THEN 41
-                                  WHEN V.cardType = 23 THEN 40
-                                  ELSE V.cardType END ";
-                }
-                sql += @"AND V.BillingCurrency = CR.currency
-                         WHERE App_ID = @productId AND office_id = @officeId";
-
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@productId", SqlDbType.Float).Value = productId;
-                    cmd.Parameters.Add("@officeId", SqlDbType.Int).Value = officeID;
-
-                    conn.Open();
-
-                    var temp = cmd.ExecuteScalar();
-
-                    if (temp != null)
-                    {
-                        quality = Convert.ToInt16(temp);
-                    }
-                }
-            }
-            return quality;
-        }
-
         /// <summary>
         /// Նշված քարտի համար արդեն կատարվել է փոխարինման/վերաթողարկման գործողություն:
         /// </summary>
@@ -448,6 +399,45 @@ namespace ExternalBanking.DBManager
                     return temp != null;
                 }
             }
+        }
+
+        /// <summary>
+        /// Տվյալ քարտը վերաթողարկվել է այլ տեսակով, թե ոչ
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        internal static bool IsCardRenewedWithNewType(long productId)
+        {
+            bool result = false;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                string sql = @"SELECT TOP 1 ISNULL(is_new_card_type,0) AS is_new_card_type
+                            FROM Tbl_CardChanges CC
+                            LEFT JOIN Tbl_Card_Renew_Order_Details RD ON RD.app_id= CC.old_app_id
+                            LEFT JOIN Tbl_HB_Documents D ON D.doc_id = RD.doc_id
+                            WHERE CC.app_id=@app_id AND D.quality IN (30,50)
+                            ORDER BY RD.doc_id DESC";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+
+                    cmd.Parameters.Add("@app_id", SqlDbType.Float).Value = productId;
+
+                    conn.Open();
+
+                    var temp = cmd.ExecuteScalar();
+
+                    if (temp != null)
+                    {
+                        if (Convert.ToBoolean(temp))
+                        {
+                            result = true;
+                        }
+                    }
+                }
+            }
+            return result;
         }
     }
 }

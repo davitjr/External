@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.ServiceClient;
+using System;
 
 namespace ExternalBanking
 {
@@ -53,7 +49,7 @@ namespace ExternalBanking
             response.TransferID = transferID;
             try
             {
-                if(transferID != 0)
+                if (transferID != 0)
                 {
                     TransactionStatusRequest req = new TransactionStatusRequest();
                     req.ExtensionID = (ulong)transferID;

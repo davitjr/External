@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 
 namespace ExternalBanking.DBManager
@@ -34,7 +33,7 @@ namespace ExternalBanking.DBManager
                     }
 
                     cmd.Parameters.Add("@debit_account", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
-                    cmd.Parameters.Add("@transit_account", SqlDbType.VarChar,20).Value = order.TransitAccount.AccountNumber;
+                    cmd.Parameters.Add("@transit_account", SqlDbType.VarChar, 20).Value = order.TransitAccount.AccountNumber;
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                     cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
                     cmd.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = order.RegistrationDate.Date;
@@ -56,9 +55,9 @@ namespace ExternalBanking.DBManager
                     order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
                     order.Quality = OrderQuality.Draft;
                     result.Id = order.Id;
-                   
+
                 }
-                             
+
                 return result;
             }
         }
@@ -88,7 +87,7 @@ namespace ExternalBanking.DBManager
                     order.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
                     order.Quality = (OrderQuality)Convert.ToInt16(dt.Rows[0]["quality"]);
                     order.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
-                    order.TransitAccountType =(TransitAccountTypes)int.Parse(dt.Rows[0]["transit_account_type"].ToString());
+                    order.TransitAccountType = (TransitAccountTypes)int.Parse(dt.Rows[0]["transit_account_type"].ToString());
                     order.DebitAccount = Account.GetSystemAccount(dt.Rows[0]["debet_account"].ToString());
                     order.TransitAccount = Account.GetSystemAccount(dt.Rows[0]["credit_account"].ToString());
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
@@ -113,8 +112,8 @@ namespace ExternalBanking.DBManager
 
                 if (dr.Read())
                 {
-                    accountType =ushort.Parse(dr["order_account_type"].ToString());
-                 }
+                    accountType = ushort.Parse(dr["order_account_type"].ToString());
+                }
 
             }
             return accountType;

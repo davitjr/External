@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.ContractServiceRef;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ContractServiceRef;
 
 namespace ExternalBanking
 {
@@ -60,31 +57,31 @@ namespace ExternalBanking
             //try
             //{
 
-                if (contract == null)
+            if (contract == null)
+            {
+                contract = new Contract();
+                contract.ParametersList = new List<StringKeyValue>();
+                contract.ContractName = contractName;
+            }
+
+
+            if (parameters != null)
+            {
+                foreach (KeyValuePair<string, string> param in parameters)
                 {
-                    contract = new Contract();
-                    contract.ParametersList = new List<StringKeyValue>();
-                    contract.ContractName = contractName;
+                    StringKeyValue oneParam = new StringKeyValue();
+                    oneParam.Key = param.Key;
+                    oneParam.Value = param.Value;
+                    contract.ParametersList.Add(oneParam);
                 }
+            }
+            using (ContractOerationServiceClient proxy = new ContractOerationServiceClient())
+            {
 
+                fileContent = proxy.DownloadContract(contract, "HB", "0");
+            }
 
-                if (parameters != null)
-                {
-                    foreach (KeyValuePair<string, string> param in parameters)
-                    {
-                        StringKeyValue oneParam = new StringKeyValue();
-                        oneParam.Key = param.Key;
-                        oneParam.Value = param.Value;
-                        contract.ParametersList.Add(oneParam);
-                    }
-                }
-                using (ContractOerationServiceClient proxy = new ContractOerationServiceClient())
-                {
-
-                    fileContent = proxy.DownloadContract(contract, "HB", "0");
-                }
-
-                return fileContent;
+            return fileContent;
 
             //}
             //catch (Exception ex)

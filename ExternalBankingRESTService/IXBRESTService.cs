@@ -1,8 +1,7 @@
-﻿using System.ServiceModel;
-using System.ServiceModel.Web;
+﻿using ExternalBankingRESTService.XBS;
 using System;
-using ExternalBankingRESTService.XBS;
-using System.Collections.Generic;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 using static ExternalBankingRESTService.Enumerations;
 
 namespace ExternalBankingRESTService

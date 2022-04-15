@@ -1,9 +1,5 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
@@ -34,12 +30,12 @@ namespace ExternalBanking
         /// <summary>
         /// Ֆոնդի միջոցների տրամադրման պայմաններ
         /// </summary>
-        public List <FondProvidingDetail> ProvidingDetails { get; set; }
+        public List<FondProvidingDetail> ProvidingDetails { get; set; }
 
         /// <summary>
         /// Վերադարձնում է բոլոր ֆոնդերը
         /// </summary>
-           /// <returns></returns>
+        /// <returns></returns>
         public static List<Fond> GetFonds(ProductQualityFilter filter)
         {
             List<Fond> fonds = new List<Fond>();
@@ -53,7 +49,7 @@ namespace ExternalBanking
                 fonds.AddRange(FondDB.GetClosedFonds());
             }
 
-                      
+
             return fonds;
         }
         /// <summary>

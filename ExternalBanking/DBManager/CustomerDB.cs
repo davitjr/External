@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
-using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.ServiceClient;
 
 namespace ExternalBanking.DBManager
 {
@@ -271,31 +269,6 @@ namespace ExternalBanking.DBManager
             return cashOut;
         }
 
-
-        internal static List<CustomerDocument> GetCustomerDocumentList(ulong customerNumber)
-        {
-            ACBAServiceReference.Customer customer;
-            short customerType;
-            List<CustomerDocument> customerDocuments;
-
-            using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-            {
-                customer = (ACBAServiceReference.Customer)proxy.GetCustomer(customerNumber);
-                customerType = customer.customerType.key;
-            }
-
-            if (customerType == (short)CustomerTypes.physical)
-            {
-                customerDocuments = (customer as PhysicalCustomer).person.documentList;
-            }
-            else
-            {
-                customerDocuments = (customer as LegalCustomer).Organisation.documentList;
-
-            }
-            return customerDocuments;
-        }
-
         internal static double GetCustomerAvailableAmount(ulong customerNumber, string currency)
         {
             double availableAmount = 0;
@@ -411,7 +384,7 @@ namespace ExternalBanking.DBManager
         internal static string GetEmailForCustomerDataOrder(uint identityId)
         {
             string Email = "";
-  
+
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 conn.Open();
@@ -424,7 +397,7 @@ namespace ExternalBanking.DBManager
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@identityId", SqlDbType.Int).Value = identityId;
 
-                  using  SqlDataReader dr = cmd.ExecuteReader();
+                    using SqlDataReader dr = cmd.ExecuteReader();
 
                     while (dr.Read())
                     {
@@ -455,7 +428,7 @@ namespace ExternalBanking.DBManager
 
                     if (dr.Read())
                     {
-                        IsEmployee = int.Parse(dr["count"].ToString()) == 1 ? true : false;
+                        IsEmployee = int.Parse(dr["count"].ToString()) == 1;
                     }
                 }
             }
@@ -504,7 +477,7 @@ namespace ExternalBanking.DBManager
                                                   FROM tbl_customer_documents_current d
                                                   INNER JOIN tbl_customers c
                                                   ON d.identityid = c.identityid
-                                                  WHERE customer_number = @customer_number AND document_type = 19",conn);
+                                                  WHERE customer_number = @customer_number AND document_type = 19", conn);
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                 conn.Open();
                 HVHH = cmd.ExecuteScalar().ToString();

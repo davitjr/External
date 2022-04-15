@@ -1,13 +1,10 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking
 {
-   public class Factoring
+    public class Factoring
     {
         /// <summary>
         /// Ֆակտորինգի ունիկալ համար
@@ -59,17 +56,17 @@ namespace ExternalBanking
         /// Ֆակտորինգի տեսակ ըստ գործունեության
         /// </summary>
         public short FactoringType { get; set; }
-        
+
         /// <summary>
         /// Ֆակտորինգի տեսակի նկարագրություն
         /// </summary>
         public string FactoringTypeDescription { get; set; }
-        
+
         /// <summary>
         /// Ֆակտորինգի տեսակ
         /// </summary>
         public short FactoirngRegresType { get; set; }
-        
+
         /// <summary>
         /// Ֆակտորինգի տեսակի նկարագրություն
         /// </summary>
@@ -85,14 +82,14 @@ namespace ExternalBanking
         /// </summary>
         public float CommissionPercent { get; set; }
 
-        
+
         /// <summary>
         /// Ստանում է հաճախորդի ֆակտորինգները
         /// </summary>
         /// <param name="customerNumber"></param>
         /// <param name="filter"></param>
         /// <returns></returns>
-       public static List<Factoring> GetFactorings(ulong customerNumber,ProductQualityFilter filter)
+        public static List<Factoring> GetFactorings(ulong customerNumber, ProductQualityFilter filter)
         {
             List<Factoring> factorings = new List<Factoring>();
             if (filter == ProductQualityFilter.Opened || filter == ProductQualityFilter.NotSet)
@@ -116,10 +113,10 @@ namespace ExternalBanking
         /// <param name="customerNumber"></param>
         /// <param name="productId"></param>
         /// <returns></returns>
-       public static Factoring GetFactoring(ulong customerNumber,ulong productId)
-       {
-           return FactoringDB.GetFactoring( customerNumber,productId);
-       }
+        public static Factoring GetFactoring(ulong customerNumber, ulong productId)
+        {
+            return FactoringDB.GetFactoring(customerNumber, productId);
+        }
         /// <summary>
         /// Ստուգում է ռեգրեսային տեսակի ֆակտորինգի համար  հաճախորդի կողմից երաշխավորության առկայությունը
         /// </summary>

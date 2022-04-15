@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -21,7 +19,7 @@ namespace ExternalBanking
         public string ProductTypeDescription { get; set; }
 
         /// <summary>
-        /// Պրոդուկտի ունիկալ համար
+        /// Պրոդուկտի ունիկալ համար (app_id)
         /// </summary>
         public ulong ProductId { get; set; }
 
@@ -29,6 +27,11 @@ namespace ExternalBanking
         /// Տևողություն
         /// </summary>
         public int Duration { get; set; }
+
+        /// <summary>
+        /// Վերլուծության մերժման հիմքեր
+        /// </summary>
+        public byte RefuseReasonType { get; set; }
 
         public ActionResult Save(string userName, SourceType source, ACBAServiceReference.User user)
         {
@@ -94,6 +97,10 @@ namespace ExternalBanking
         public void GetConsumeLoanApplicationOrder()
         {
             ConsumeLoanApplicationOrderDB.GetConsumeLoanApplicationOrder(this);
+            List<OrderHistory> orderHistory = Order.GetOrderHistory(this.Id);
+            this.SentDate = orderHistory.Where(m => m.Quality == OrderQuality.Sent3)?.FirstOrDefault()?.ChangeDate;
+            this.RejectionDate = orderHistory.Where(m => m.Quality == OrderQuality.Declined)?.FirstOrDefault()?.ChangeDate;
+            this.CancellationDate = orderHistory.Where(m => m.Quality == OrderQuality.Canceled)?.FirstOrDefault()?.ChangeDate;
         }
 
         /// <summary>
@@ -107,5 +114,24 @@ namespace ExternalBanking
         {
             return ConsumeLoanApplicationOrderDB.ExistsConsumeLoanApplicationOrder(customerNumber, qualities);
         }
+
+        /// <summary>
+        /// Ստուգում է արդյոք app_id-ն առկա է [Tbl_Short_time_loans;]-ում թե ոչ
+        /// </summary>
+        /// <param name="docId"></param>
+        /// <returns></returns>
+        internal static bool CheckConsumeLoanApplicationAppId(long docId) => ConsumeLoanApplicationOrderDB.CheckConsumeLoanApplicationAppId(docId);
+
+        internal static bool ExistsRefusedConsumeLoanApplication(ulong productId) => ConsumeLoanApplicationOrderDB.ExistsRefusedConsumeLoanApplication(productId);
+
+        /// <summary>
+        /// Tbl_HB_Products_Identity-ից app_id-ի դաշտի ստացում
+        /// </summary>
+        /// <param name="docId"></param>
+        /// <returns></returns>
+        internal static ulong GetConsumeLoanApplicationAppId(long docId) => ConsumeLoanApplicationOrderDB.GetConsumeLoanApplicationAppId(docId);
+
+        internal static void ValidateSetConsumeLoanApplicationOrder(ConsumeLoanApplicationOrder order) =>
+            ConsumeLoanApplicationOrderDB.ValidateSetConsumeLoanApplicationOrder(order);
     }
 }

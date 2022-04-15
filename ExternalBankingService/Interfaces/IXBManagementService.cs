@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ServiceModel;
-using ExternalBanking;
-using System.Data;
+﻿using ExternalBanking;
 using ExternalBanking.XBManagement;
+using System;
+using System.Collections.Generic;
+using System.ServiceModel;
 using acba = ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBankingService.Interfaces
@@ -155,7 +151,7 @@ namespace ExternalBankingService.Interfaces
         ActionResult AddEmailForCustomer(string emailAddress, ulong customerNumber);
 
         [OperationContract]
-        ulong GetHBUserCustomerNumber(string userName);    
+        ulong GetHBUserCustomerNumber(string userName);
 
         [OperationContract]
         AuthorizedCustomer GetXBMTestMobileBankingUser();

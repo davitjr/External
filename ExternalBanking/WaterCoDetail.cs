@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
     /// <summary>
     /// ՋՕԸ - ների տվյալներ
@@ -14,7 +8,7 @@ namespace ExternalBanking
         /// <summary>
         /// Համար
         /// </summary>
-        public ushort Number { get;set;}
+        public ushort Number { get; set; }
 
         /// <summary>
         /// Կոդ

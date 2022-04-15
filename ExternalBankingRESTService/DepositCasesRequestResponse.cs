@@ -6,10 +6,10 @@ namespace ExternalBankingRESTService
 {
     public class DepositCasesRequestResponse
     {
-         public List<DepositCase> DepositCases { get; set; }
-       public Result Result { get; set; }
+        public List<DepositCase> DepositCases { get; set; }
+        public Result Result { get; set; }
 
-       public DepositCasesRequestResponse()
+        public DepositCasesRequestResponse()
         {
             Result = new Result();
         }

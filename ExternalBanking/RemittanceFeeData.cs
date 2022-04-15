@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.ARUSDataService;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ARUSDataService;
 
 namespace ExternalBanking
 {
@@ -34,7 +31,7 @@ namespace ExternalBanking
         /// </summary>
         public decimal SendingFee { get; set; }
 
-      
+
         //**********************Հետևյալ դաշտերը տրվում են նաև որպես մուտքային պարամետր
         /// <summary>
         /// ARUS-ի կոդ կամ հատուկ MTO(Դրամական Փոխանցման Օպերատոր)-ի կոդ
@@ -191,64 +188,64 @@ namespace ExternalBanking
             return MTOList;
         }
     }
+    /// <summary>
+    /// ARUS համակարգից ստացված փոխանցման միջնորդավճարի հարցման պատասխան
+    /// </summary>
+    public class RemittanceFeeDataRequestResponse
+    {
         /// <summary>
-        /// ARUS համակարգից ստացված փոխանցման միջնորդավճարի հարցման պատասխան
+        /// Փոխանցման միջնորդավճար
         /// </summary>
-        public class RemittanceFeeDataRequestResponse
-        {
-            /// <summary>
-            /// Փոխանցման միջնորդավճար
-            /// </summary>
-            public RemittanceFeeData RemittanceFeeData { get; set; }
+        public RemittanceFeeData RemittanceFeeData { get; set; }
 
-            /// <summary>
-            /// Հարցման պատասխանի արդյունք
-            /// </summary>
-            public ActionResult ActionResult { get; set; }
-        }
-
-        public class RemittanceFeeInput
-        {
-            /// <summary>
-            /// ARUS-ի կոդ կամ հատուկ MTO(Դրամական Փոխանցման Օպերատոր)-ի կոդ
-            /// </summary>
-            public string MTOAgentCode { get; set; }
-
-
-            /// <summary>
-            /// Փոխանցման ստացման տեսակի կոդ
-            /// </summary>
-            public string PayoutDeliveryCode { get; set; }
-
-            /// <summary>
-            /// Արժույթի կոդ (3 նիշ, ISO)
-            /// </summary>
-            public string CurrencyCode { get; set; }
-
-            /// <summary>
-            /// Ուղարկողի երկրի կոդ (3 նիշ, ISO)
-            /// </summary>
-            public string SendingCountryCode { get; set; }
-
-            /// <summary>
-            /// Ստացողի երկրի կոդ (3 նիշ, ISO)
-            /// </summary>
-            public string BeneficiaryCountryCode { get; set; }
-
-            /// <summary>
-            /// Փոխանցման գումար (#############.##)
-            /// </summary>
-            public decimal PrincipalAmount { get; set; }
-
-            /// <summary>
-            /// Promo կոդ 
-            /// </summary>
-            public string PromotionCode { get; set; }
-
-            /// <summary>
-            /// Փոխանցման ստացումն իրականացնող Agent-ի կոդ 
-            /// </summary>
-            public string PayOutAgentCode { get; set; }
-        }
-
+        /// <summary>
+        /// Հարցման պատասխանի արդյունք
+        /// </summary>
+        public ActionResult ActionResult { get; set; }
     }
+
+    public class RemittanceFeeInput
+    {
+        /// <summary>
+        /// ARUS-ի կոդ կամ հատուկ MTO(Դրամական Փոխանցման Օպերատոր)-ի կոդ
+        /// </summary>
+        public string MTOAgentCode { get; set; }
+
+
+        /// <summary>
+        /// Փոխանցման ստացման տեսակի կոդ
+        /// </summary>
+        public string PayoutDeliveryCode { get; set; }
+
+        /// <summary>
+        /// Արժույթի կոդ (3 նիշ, ISO)
+        /// </summary>
+        public string CurrencyCode { get; set; }
+
+        /// <summary>
+        /// Ուղարկողի երկրի կոդ (3 նիշ, ISO)
+        /// </summary>
+        public string SendingCountryCode { get; set; }
+
+        /// <summary>
+        /// Ստացողի երկրի կոդ (3 նիշ, ISO)
+        /// </summary>
+        public string BeneficiaryCountryCode { get; set; }
+
+        /// <summary>
+        /// Փոխանցման գումար (#############.##)
+        /// </summary>
+        public decimal PrincipalAmount { get; set; }
+
+        /// <summary>
+        /// Promo կոդ 
+        /// </summary>
+        public string PromotionCode { get; set; }
+
+        /// <summary>
+        /// Փոխանցման ստացումն իրականացնող Agent-ի կոդ 
+        /// </summary>
+        public string PayOutAgentCode { get; set; }
+    }
+
+}

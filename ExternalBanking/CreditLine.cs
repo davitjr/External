@@ -1,12 +1,12 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using ExternalBanking.DBManager;
-using System.Threading.Tasks;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
-    public class CreditLine:LoanProduct
+    public class CreditLine : LoanProduct
     {
         /// <summary>
         /// Վարկային գծի տեսակ
@@ -70,20 +70,20 @@ namespace ExternalBanking
         /// <param name="customerNumber"></param>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public static List<CreditLine> GetCreditLines(ulong customerNumber,ProductQualityFilter filter)
+        public static List<CreditLine> GetCreditLines(ulong customerNumber, ProductQualityFilter filter)
         {
             List<CreditLine> creditLines = new List<CreditLine>();
-            if (filter==ProductQualityFilter.Opened || filter==ProductQualityFilter.NotSet)
+            if (filter == ProductQualityFilter.Opened || filter == ProductQualityFilter.NotSet)
             {
                 creditLines.AddRange(CreditLineDB.GetCreditLines(customerNumber));
             }
 
-            if (filter==ProductQualityFilter.Closed)
+            if (filter == ProductQualityFilter.Closed)
             {
                 creditLines.AddRange(CreditLineDB.GetClosedCreditLines(customerNumber));
             }
 
-            if (filter==ProductQualityFilter.All)
+            if (filter == ProductQualityFilter.All)
             {
                 creditLines.AddRange(CreditLineDB.GetCreditLines(customerNumber));
                 creditLines.AddRange(CreditLineDB.GetClosedCreditLines(customerNumber));
@@ -151,7 +151,7 @@ namespace ExternalBanking
 
         public static List<CreditLine> GetCardClosedCreditLines(ulong customerNumber, string cardNumber)
         {
-            return CreditLineDB.GetCardClosedCreditLines(customerNumber,cardNumber);
+            return CreditLineDB.GetCardClosedCreditLines(customerNumber, cardNumber);
         }
 
         public static List<LoanMainContract> GetCreditLineMainContract(ulong customerNumber)
@@ -238,10 +238,10 @@ namespace ExternalBanking
         {
             return CreditLineDB.GetCreditLineballance(productId);
         }
-        
-        public static void SaveCreditLineByApiGate(long docId, double productId,ulong orderId)
+
+        public static void SaveCreditLineByApiGate(long docId, double productId, ulong orderId)
         {
-            CreditLineDB.SaveCreditLineByApiGate(docId, productId,orderId);
+            CreditLineDB.SaveCreditLineByApiGate(docId, productId, orderId);
         }
         public static bool IsCreditLineActivateOnApiGate(long docId)
         {

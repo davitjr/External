@@ -2,6 +2,9 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C2F928AE-9BC3-468C-95A7-628406671596}</ProjectGuid>
@@ -53,7 +56,6 @@
     <Reference Include="ExcelFinancialFunctions, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ExcelFinancialFunctions.2.4.1\lib\portable-net45+netcore45+wpa81+wp8\ExcelFinancialFunctions.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>\\web1021\wwwroot\ExternalBanking\bin\Newtonsoft.Json.dll</HintPath>
@@ -61,6 +63,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
@@ -76,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Acbamat\AcbamatThirdPartyWithdrawalOrder.cs" />
     <Compile Include="Account.cs" />
     <Compile Include="AccountOpeningClosingDetail.cs" />
     <Compile Include="AccountAdditionalDataRemovableOrder.cs" />
@@ -110,6 +114,9 @@
     <Compile Include="BondIssueFilter.cs" />
     <Compile Include="BondOrder.cs" />
     <Compile Include="BondQualityUpdateOrder.cs" />
+    <Compile Include="Borrower.cs" />
+    <Compile Include="BrokerContractSurvey.cs" />
+    <Compile Include="DBManager\BorrowerDB.cs" />
     <Compile Include="CancelDelayOrder.cs" />
     <Compile Include="Card3DSecureService.cs" />
     <Compile Include="Card3DSecureServiceOrder.cs" />
@@ -119,13 +126,14 @@
     <Compile Include="CardAdditionalDataOrder.cs" />
     <Compile Include="CardAdditionalInfo.cs" />
     <Compile Include="CardDeliveryOrder.cs" />
+    <Compile Include="CardDesign.cs" />
     <Compile Include="CardHolderAndCardType.cs" />
+    <Compile Include="CardlessCashoutCancellationOrder.cs" />
     <Compile Include="CardLessCashOutOrder.cs" />
     <Compile Include="CardNotRenewOrder.cs" />
     <Compile Include="CardRenewOrder.cs" />
     <Compile Include="CardRetainHistory.cs" />
     <Compile Include="CardReOpenOrder.cs" />
-    <Compile Include="CardRetainHistory.cs" />
     <Compile Include="CardStatementAddInf.cs" />
     <Compile Include="CardTariffAdditionalInformation.cs" />
     <Compile Include="CardToCardOrder.cs" />
@@ -135,10 +143,12 @@
     <Compile Include="CashBookOrder.cs" />
     <Compile Include="CashierCashLimit.cs" />
     <Compile Include="ChangeBranchOrder.cs" />
+    <Compile Include="ChangeDetails.cs" />
     <Compile Include="CheckCustomerArrests.cs" />
     <Compile Include="ClassifiedLoan.cs" />
     <Compile Include="ClassifiedLoanActionOrders.cs" />
     <Compile Include="ConsumeLoanApplicationOrder.cs" />
+    <Compile Include="ConsumeLoanSettlementOrder.cs" />
     <Compile Include="Contracts.cs" />
     <Compile Include="CouponRepaymentDateCollection.cs" />
     <Compile Include="CreditCommitmentForgivenessOrder.cs" />
@@ -165,11 +175,13 @@
     <Compile Include="CustomerArrestInfo.cs" />
     <Compile Include="DAHKFreezing.cs" />
     <Compile Include="DataRowExtensions.cs" />
+    <Compile Include="DBManager\Acbamat\AcbamatSharedDB.cs" />
+    <Compile Include="DBManager\Acbamat\AcbamatThirdPartyWithdrawalOrderDB.cs" />
+    <Compile Include="DBManager\Acbamat\AcbamatExchangeOrderDB.cs" />
     <Compile Include="DBManager\AccountRemovingOrderDB.cs" />
     <Compile Include="DBManager\BillSplitOrderDB.cs" />
     <Compile Include="DBManager\BillSplitOrderRejectionDB.cs" />
     <Compile Include="DBManager\BillSplitReminderOrderDB.cs" />
-    <Compile Include="DBManager\AccountRemovingOrderDB.cs" />
     <Compile Include="DBManager\BondAmountChargeOrderDB.cs" />
     <Compile Include="BondCertificateDetails.cs" />
     <Compile Include="DBManager\BondDB.cs" />
@@ -183,6 +195,7 @@
     <Compile Include="DBManager\CardAdditionalDataDB.cs" />
     <Compile Include="DBManager\CardAdditionalDataOrderDB.cs" />
     <Compile Include="DBManager\CardDeliveryOrderDB.cs" />
+    <Compile Include="DBManager\CardlessCashoutCancellationOrderDB.cs" />
     <Compile Include="DBManager\CardLessCashOutOrderDB.cs" />
     <Compile Include="DBManager\CardNotRenewOrderDB.cs" />
     <Compile Include="DBManager\CardRenewOrderDB.cs" />
@@ -207,6 +220,7 @@
     <Compile Include="DBManager\DemandDepositRateChangeOrderDB.cs" />
     <Compile Include="DBManager\DemandDepositRateDB.cs" />
     <Compile Include="DBManager\DepositaryAccountDB.cs" />
+    <Compile Include="DBManager\BrokerContractOrderDB.cs" />
     <Compile Include="DBManager\DepositaryAccountOrderDB.cs" />
     <Compile Include="DBManager\DepositCaseStoppingPenaltyCalculationOrderDB.cs" />
     <Compile Include="DBManager\DepositDataChangeOrderDB.cs" />
@@ -231,6 +245,7 @@
     <Compile Include="DBManager\InterestMargin\InterestMarginDB.cs" />
     <Compile Include="DBManager\InterestMargin\InterestMarginOrderDB.cs" />
     <Compile Include="DBManager\LeasingAccountDB.cs" />
+    <Compile Include="DBManager\LeasingCredentialDB.cs" />
     <Compile Include="DBManager\LeasingCustomerClassificationDB.cs" />
     <Compile Include="DBManager\LinkPaymentOrderDB.cs" />
     <Compile Include="DBManager\LoanApplicationDB.cs" />
@@ -270,6 +285,10 @@
     <Compile Include="DBManager\ReplacedCardAccountRegOrderDB.cs" />
     <Compile Include="DBManager\SberTransfers\Order\SberIncomingTransferOrderDB.cs" />
     <Compile Include="DBManager\SberTransfers\SberTransfersDB.cs" />
+    <Compile Include="DBManager\SecuritiesTrading\SecuritiesMarketTradingOrderDB.cs" />
+    <Compile Include="DBManager\SecuritiesTrading\SecuritiesTradingDB.cs" />
+    <Compile Include="DBManager\SecuritiesTradingOrderDB.cs" />
+    <Compile Include="DBManager\SecuritiesTrading\SecuritiesTradingOrderCancellationOrderDB.cs" />
     <Compile Include="DBManager\STAKPaymentOrderDB.cs" />
     <Compile Include="DBManager\Templates\BudgetPaymentOrderTemplateDB.cs" />
     <Compile Include="DBManager\Templates\CardToCardOrderTemplateDB.cs" />
@@ -280,14 +299,17 @@
     <Compile Include="DBManager\Templates\TemplateDB.cs" />
     <Compile Include="DBManager\Templates\UtiilityPaymentOrderTemplateDB.cs" />
     <Compile Include="DBManager\ThirdPersonAccountRightsTransferOrderDB.cs" />
+    <Compile Include="DBManager\TransactionTypeByAMLDB.cs" />
     <Compile Include="DBManager\UploadedFileDB.cs" />
     <Compile Include="DBManager\UtilityPaymentsManagment\UtilityOptionsDB.cs" />
     <Compile Include="DBManager\UtilityPaymentsManagment\UtilityOptionsFilterDB.cs" />
+    <Compile Include="DBManager\VehicleInsuranceOrderDB.cs" />
     <Compile Include="DBManager\VirtualCardDetailsDB.cs" />
     <Compile Include="DBManager\VisaAliasDB.cs" />
     <Compile Include="DBManager\XBManagement\HBApplicationFullPermissionsGrantingDB.cs" />
     <Compile Include="DeleteLoanOrder.cs" />
     <Compile Include="DeleteLoanOrderDetails.cs" />
+    <Compile Include="BrokerContractOrder.cs" />
     <Compile Include="DepositRateTariff.cs" />
     <Compile Include="DepositRepaymentRequest.cs" />
     <Compile Include="DigitalAccountRestConfigurationItem.cs" />
@@ -321,7 +343,15 @@
     <Compile Include="Interfaces\IAttachedCard.cs" />
     <Compile Include="InternationalOrderPrefilledData․cs.cs" />
     <Compile Include="LeasingAccountsDetails.cs" />
+    <Compile Include="LeasingCredential.cs" />
     <Compile Include="LeasingCustomerClassification.cs" />
+    <Compile Include="Leasing\CustomerLeasingLoans.cs" />
+    <Compile Include="Leasing\LeasingInsurance.cs" />
+    <Compile Include="Leasing\LeasingLoanDetails.cs" />
+    <Compile Include="Leasing\LeasingLoanRepayments.cs" />
+    <Compile Include="Leasing\LeasingLoanStatements.cs" />
+    <Compile Include="Leasing\LeasingOverdueDetail.cs" />
+    <Compile Include="Leasing\LeasingPaymentsType.cs" />
     <Compile Include="LinkPaymentOrder.cs" />
     <Compile Include="LoanDelayOrder.cs" />
     <Compile Include="LoanInterestRateChangeHistory.cs" />
@@ -331,6 +361,8 @@
     <Compile Include="LoanStatement.cs" />
     <Compile Include="LoanStatementDetail.cs" />
     <Compile Include="MRDataChangeOrder.cs" />
+    <Compile Include="Acbamat\AcbamatExchangeOrder.cs" />
+    <Compile Include="NewPosLocationOrder.cs" />
     <Compile Include="NonCreditLineCardReplaceOrder.cs" />
     <Compile Include="OperDayModeFilter.cs" />
     <Compile Include="DBManager\OperDayModeFilterDB.cs" />
@@ -634,6 +666,11 @@
     <Compile Include="SearchParams.cs" />
     <Compile Include="SearchPreOrderDetails.cs" />
     <Compile Include="SearchReceivedTransfer.cs" />
+    <Compile Include="SecuritiesTradingOrder.cs" />
+    <Compile Include="SecuritiesTrading\SecuritiesMarketTradingOrder.cs" />
+    <Compile Include="SecuritiesTrading\SecuritiesTrading.cs" />
+    <Compile Include="SecuritiesTrading\SecuritiesTradingFilter.cs" />
+    <Compile Include="SecuritiesTrading\SecuritiesTradingOrderCancellationOrder.cs" />
     <Compile Include="Service References\ACBAServiceReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -716,6 +753,7 @@
     <Compile Include="ThirdPersonAccountRightsTransferOrder.cs" />
     <Compile Include="TransactionDetail.cs" />
     <Compile Include="TransactionSwiftConfirmOrder.cs" />
+    <Compile Include="TransactionTypeByAML.cs" />
     <Compile Include="Transfer.cs" />
     <Compile Include="LeasingLoan.cs">
       <SubType>Code</SubType>
@@ -856,6 +894,7 @@
     <Compile Include="UtilityPaymentsManagment\VivaCellBTFCheckDetails.cs" />
     <Compile Include="UtilityPaymentsManagment\VivaCellSubscriberSearch.cs" />
     <Compile Include="Validation.cs" />
+    <Compile Include="VehicleInsuranceOrder.cs" />
     <Compile Include="VehicleViolationResponse.cs" />
     <Compile Include="VirtualCardDetails.cs" />
     <Compile Include="VirtualCardStatusChangeOrder.cs" />

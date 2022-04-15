@@ -4,8 +4,6 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -62,7 +60,7 @@ namespace ExternalBanking.DBManager
             {
                 posLocation.Id = Convert.ToInt32(dr["Location_id"]);
                 posLocation.Description = Utility.ConvertAnsiToUnicode(dr["location_name"].ToString());
-                posLocation.OpenDate=Convert.ToDateTime(dr["open_date"]);
+                posLocation.OpenDate = Convert.ToDateTime(dr["open_date"]);
                 posLocation.ClosedDate = dr["closing_date"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dr["closing_date"]);
                 posLocation.Address = Utility.ConvertAnsiToUnicode(dr["location_adress"].ToString());
                 posLocation.Phone = Utility.ConvertAnsiToUnicode(dr["location_phone"].ToString());
@@ -101,7 +99,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-                   
+
             }
         }
 
@@ -111,7 +109,7 @@ namespace ExternalBanking.DBManager
             posLocation.Posterminals = new List<PosTerminal>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                using (SqlCommand cmd =new SqlCommand(@"SELECT * FROM Tbl_ARCA_points_list WHERE Location_id=@posLocationId", conn))
+                using (SqlCommand cmd = new SqlCommand(@"SELECT * FROM Tbl_ARCA_points_list WHERE Location_id=@posLocationId", conn))
                 {
                     cmd.Parameters.AddWithValue("@posLocationId", posLocation.Id);
 
@@ -135,9 +133,174 @@ namespace ExternalBanking.DBManager
                         }
                     }
                 }
-    
+
             }
         }
+
+        internal static ActionResult SaveNewPosLocationOrder(NewPosLocationOrder order, string userName, SourceType source)
+        {
+            ActionResult result = new ActionResult();
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = "pr_Save_Pos_Terminal_Insert_Order";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
+                    cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (int)order.Type;
+                    cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+                    cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = DateTime.Now.Date;
+                    cmd.Parameters.Add("@username", SqlDbType.NVarChar, 20).Value = userName;
+                    cmd.Parameters.Add("@doc_sub_type", SqlDbType.NVarChar, 20).Value = order.SubType;
+                    cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (short)source;
+                    cmd.Parameters.Add("@operation_filial_code", SqlDbType.Int).Value = order.user.filialCode;
+                    cmd.Parameters.Add("@Doc_ID", SqlDbType.Int).Value = order.Id;
+                    cmd.Parameters.Add("@Phone", SqlDbType.NVarChar, 20).Value = order.FullPhoneNumber;
+                    cmd.Parameters.Add("@Name_Eng", SqlDbType.NVarChar).Value = order.NameEng;
+                    cmd.Parameters.Add("@Name_Arm", SqlDbType.NVarChar).Value = order.NameArm;
+                    cmd.Parameters.Add("@Activity_Sphere", SqlDbType.NVarChar, 20).Value = order.ActivitySphere;
+                    cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar).Value = order.Mail;
+                    cmd.Parameters.Add("@Contact_Person", SqlDbType.NVarChar, 20).Value = order.ContactPerson;
+                    cmd.Parameters.Add("@Contact_Person_Phone", SqlDbType.NVarChar, 20).Value = order.ContactPersonPhone;
+                    cmd.Parameters.Add("@Pos_Count", SqlDbType.Int).Value = order.PosCount;
+                    cmd.Parameters.Add("@Pos_Serial_number", SqlDbType.NVarChar).Value = order.PosSerialNumber;
+                    cmd.Parameters.Add("@PosType", SqlDbType.SmallInt).Value = order.PosType;
+                    cmd.Parameters.Add("@Pay_Without_Card", SqlDbType.Bit).Value = order.PayWithoutCard;
+                    cmd.Parameters.Add("@All_Terminals", SqlDbType.Bit).Value = order.AllTerminals;
+                    cmd.Parameters.Add("@SiteOrApp", SqlDbType.NVarChar).Value = order.SiteOrApp;
+                    cmd.Parameters.Add("@TerminalType", SqlDbType.SmallInt).Value = order.TerminalType;
+                    cmd.Parameters.Add("@AccountNumber", SqlDbType.NVarChar).Value = order.AccountNumber;
+                    cmd.Parameters.Add("@Necessity", SqlDbType.NVarChar).Value = order.Necessity;
+                    cmd.Parameters.Add("@NewHdm", SqlDbType.Bit).Value = order.NewHdm;
+
+                    DataTable TableForParam = GetCardSystemForServiceDataTable(order.CardSystemForService);
+
+                    cmd.Parameters.Add("@TerminalServiceCardSystemTypes", SqlDbType.Structured).Value = TableForParam;
+
+
+                    SqlParameter res = new SqlParameter("@result", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+
+                    SqlParameter param = new SqlParameter("@id", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(param);
+                    cmd.ExecuteNonQuery();
+                    result.ResultCode = ResultCode.Normal;
+                    order.Id = Convert.ToInt64(cmd.Parameters["@id"].Value);
+                    result.Id = order.Id;
+
+                    return result;
+                }
+            }
+        }
+
+        private static DataTable GetCardSystemForServiceDataTable(List<int> CardSystemForService)
+        {
+            DataTable dt = new DataTable();
+
+            dt.Columns.Add("Arca");
+            dt.Columns.Add("Visa");
+            dt.Columns.Add("MasterCard");
+            dt.Columns.Add("AMEX");
+            dt.Columns.Add("Jcb");
+            dt.Columns.Add("Upi");
+            dt.Columns.Add("Mir");
+
+            if (CardSystemForService.Any())
+            {
+                DataRow dr = dt.NewRow();
+                foreach (var item in CardSystemForService)
+                {
+                    if (item == 9)
+                    {
+                        dr["Arca"] = 1;
+                    }
+                    else if (item == 4)
+                    {
+                        dr["Visa"] = 1;
+                    }
+                    else if (item == 5)
+                    {
+                        dr["MasterCard"] = 1;
+                    }
+                    else if (item == 3)
+                    {
+                        dr["AMEX"] = 1;
+                    }
+                    else if (item == 7)
+                    {
+                        dr["Jcb"] = 1;
+                    }
+                    else if (item == 8)
+                    {
+                        dr["Upi"] = 1;
+                    }
+                    else if (item == 2)
+                    {
+                        dr["Mir"] = 1;
+                    }
+                }
+                dt.Rows.Add(dr);
+            }
+
+            return dt;
+        }
+
+        internal static NewPosLocationOrder NewPosApplicationOrderDetails(long orderId)
+        {
+            NewPosLocationOrder result = new NewPosLocationOrder();
+            DataTable dt = new DataTable();
+
+            string sql = @"SELECT   hb.customer_number,
+                                    hb.registration_date, 
+                                    hb.doc_ID,
+                                    hb.document_subtype,
+                                    hb.quality,
+                                    hb.operation_date,
+                                    hb.source_type,
+                                    hb.document_type,
+                                    hb.filial,
+                                    hb.sender_phone,
+                                    hb.reason_type_description,
+                                    dbo.fnc_convertAnsiToUnicode(q.description_arm) description_arm
+                                        FROM Tbl_HB_documents hb inner join Tbl_types_of_HB_quality q on q.quality = hb.quality
+                                        WHERE hb.Doc_ID = @DocID";
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    conn.Open();
+
+                    cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = orderId;
+
+                    dt.Load(cmd.ExecuteReader());
+
+                    result.Id = Convert.ToInt64(dt.Rows[0]["doc_ID"].ToString());
+                    result.RegistrationDate = Convert.ToDateTime(dt.Rows[0]["registration_date"]);
+                    result.Type = (OrderType)(dt.Rows[0]["document_type"]);
+                    result.SubType = Convert.ToByte(dt.Rows[0]["document_subtype"]);
+                    result.Quality = (OrderQuality)(dt.Rows[0]["quality"]);
+                    result.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
+                    result.Source = (SourceType)Convert.ToInt16(dt.Rows[0]["source_type"]);
+                    result.QualityDescription = dt.Rows[0]["description_arm"].ToString();
+                    result.CustomerNumber = Convert.ToUInt64(dt.Rows[0]["customer_number"].ToString());
+
+                    // result.FilialCode = Convert.ToUInt16(dt.Rows[0]["filial"]);
+                }
+
+                return result;
+            }
+        }
+
+
 
     }
 }

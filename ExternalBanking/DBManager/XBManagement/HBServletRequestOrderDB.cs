@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.XBManagement;
+using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using ExternalBanking.XBManagement;
-using System.Configuration;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.DBManager
 {

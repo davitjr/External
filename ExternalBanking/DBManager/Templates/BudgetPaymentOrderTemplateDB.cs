@@ -262,7 +262,7 @@ namespace ExternalBanking.DBManager
                             template.BudgetPaymentOrder.SubType = Convert.ToByte(dr["document_subtype"]);
 
                             if (dr["description"] != DBNull.Value)
-                                template.BudgetPaymentOrder.Description = Utility.ConvertAnsiToUnicode(dr["description"].ToString());                 
+                                template.BudgetPaymentOrder.Description = Utility.ConvertAnsiToUnicode(dr["description"].ToString());
 
                             if (dr["SintAccDetailsValue"] != DBNull.Value)
                             {
@@ -301,11 +301,11 @@ namespace ExternalBanking.DBManager
 
                             if (dr["police_code"] != DBNull.Value)
                             {
-                               template.BudgetPaymentOrder.PoliceCode = Convert.ToInt32(dr["police_code"]);
+                                template.BudgetPaymentOrder.PoliceCode = Convert.ToInt32(dr["police_code"]);
                             }
 
                             if (dr["reg_code"] != DBNull.Value)
-                                template.BudgetPaymentOrder.LTACode = Convert.ToInt16(dr["reg_code"].ToString());                         
+                                template.BudgetPaymentOrder.LTACode = Convert.ToInt16(dr["reg_code"].ToString());
 
                             if (dr["Soc_NoSoc_Number"] != DBNull.Value)
                             {

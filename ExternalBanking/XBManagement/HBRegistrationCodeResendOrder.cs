@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.DBManager;
 using System.Transactions;
-using ExternalBanking.DBManager;
 
 namespace ExternalBanking.XBManagement
 {
-    public class HBRegistrationCodeResendOrder:Order
+    public class HBRegistrationCodeResendOrder : Order
     {
         /// <summary>
         /// Տոկեն
@@ -39,7 +34,7 @@ namespace ExternalBanking.XBManagement
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = HBTokenDB.SaveHBRegistrationCodeResendOrder(this, userName, source);
-                
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -71,7 +66,7 @@ namespace ExternalBanking.XBManagement
             result = base.Confirm(user);
 
             return result;
-            
+
         }
         private void Complete()
         {

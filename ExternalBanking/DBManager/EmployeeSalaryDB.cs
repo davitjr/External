@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -32,9 +29,9 @@ namespace ExternalBanking.DBManager
 
                     dt.Load(cmd.ExecuteReader());
 
-                    if(dt.Rows.Count > 0)
+                    if (dt.Rows.Count > 0)
                     {
-                        foreach ( DataRow row in dt.Rows)
+                        foreach (DataRow row in dt.Rows)
                         {
                             EmployeeSalary employeeSalary = new EmployeeSalary();
                             employeeSalary.ID = int.Parse(row["Id"].ToString());

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExternalBanking.ACBAServiceReference;
+using ExternalBanking.XBManagement;
+using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using ExternalBanking.XBManagement;
-using System.Configuration;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.DBManager
 {
@@ -75,13 +74,13 @@ namespace ExternalBanking.DBManager
                 phoneBankingContract.SetName = Utility.ConvertAnsiToUnicode(Utility.GetUserFullName(phoneBankingContract.SetID));
 
                 phoneBankingContract.StatusChangeSetID = row["status_change_set_id"] != DBNull.Value ? Convert.ToInt32(row["status_change_set_id"].ToString()) : default(int);
-                phoneBankingContract.ContractDate = row["contract_date"] != DBNull.Value ? Convert.ToDateTime(row["contract_date"]) : default(DateTime?);                 
-                phoneBankingContract.ApplicationDate = row["application_date"] != DBNull.Value ? Convert.ToDateTime(row["application_date"]) : default(DateTime?);       
+                phoneBankingContract.ContractDate = row["contract_date"] != DBNull.Value ? Convert.ToDateTime(row["contract_date"]) : default(DateTime?);
+                phoneBankingContract.ApplicationDate = row["application_date"] != DBNull.Value ? Convert.ToDateTime(row["application_date"]) : default(DateTime?);
                 phoneBankingContract.StatusChangeDate = row["status_change_date"] != DBNull.Value ? Convert.ToDateTime(row["status_change_date"]) : default(DateTime?);
                 phoneBankingContract.DayLimitToOwnAccount = !row.IsNull("limit_of_day_own_account") ? Convert.ToDouble(row["limit_of_day_own_account"].ToString()) : 0;
-                phoneBankingContract.DayLimitToAnothersAccount = !row.IsNull("limit_of_day_other_account")  ? Convert.ToDouble(row["limit_of_day_other_account"].ToString()) : 0;
+                phoneBankingContract.DayLimitToAnothersAccount = !row.IsNull("limit_of_day_other_account") ? Convert.ToDouble(row["limit_of_day_other_account"].ToString()) : 0;
                 phoneBankingContract.OneTransactionLimitToOwnAccount = !row.IsNull("limit_of_one_transaction_own_account") ? Convert.ToDouble(row["limit_of_one_transaction_own_account"].ToString()) : 0;
-                phoneBankingContract.OneTransactionLimitToAnothersAccount = !row.IsNull("limit_of_one_transaction_other_account")  ? Convert.ToDouble(row["limit_of_one_transaction_other_account"].ToString()) : 0;
+                phoneBankingContract.OneTransactionLimitToAnothersAccount = !row.IsNull("limit_of_one_transaction_other_account") ? Convert.ToDouble(row["limit_of_one_transaction_other_account"].ToString()) : 0;
 
             }
             return phoneBankingContract;
@@ -89,7 +88,7 @@ namespace ExternalBanking.DBManager
 
         internal static DataTable GetQuestionAnswers(int phoneBankingContractId)
         {
-           
+
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBLoginsConn"].ToString()))
             {
@@ -108,7 +107,7 @@ namespace ExternalBanking.DBManager
                     {
                         dt.Load(dr);
                     }
-                }             
+                }
 
             }
             return dt;
@@ -147,7 +146,7 @@ namespace ExternalBanking.DBManager
 
             }
             return email;
-           
+
         }
 
         internal static CustomerPhone GetPhoneBankingContractPhone(ulong customerNumber)

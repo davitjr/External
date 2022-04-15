@@ -1,10 +1,6 @@
 ﻿using ExternalBanking.DBManager;
-using ExternalBanking.ServiceClient;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -109,6 +105,19 @@ namespace ExternalBanking
 
         public static string ConfirmTransactionReject(HBDocuments documents)
         {
+            if (documents.Type == (int)OrderType.VehicleInsuranceOrder)
+            {
+                ActionResult _result = VehicleInsuranceOrder.CheckInASWA(documents.TransactionCode, (ulong)documents.CustomerNumber);
+                if (_result.ResultCode != ResultCode.ValidationError)
+                {
+                    if (_result.ResultCode == ResultCode.Normal)
+                    {
+                        _result.Errors.Add(new ActionError(2061, new string[] { documents.TransactionQuality.ToString(), documents.TransactionCode.ToString() }));
+                    }
+                    Localization.SetCulture(_result, new Culture(Languages.hy));
+                    return _result.Errors.First().Description;
+                }
+            }
             return HBDocumentsDB.ConfirmTransactionReject(documents);
         }
 
@@ -157,7 +166,7 @@ namespace ExternalBanking
             return HBDocumentsDB.SaveInternationalPaymentAddresses(order);
         }
 
-        public static List<HBMessages> GetHBMessages(ushort filalCode,string WatchAllMessages)
+        public static List<HBMessages> GetHBMessages(ushort filalCode, string WatchAllMessages)
         {
             return HBDocumentsDB.GetHBMessages(filalCode, WatchAllMessages);
         }

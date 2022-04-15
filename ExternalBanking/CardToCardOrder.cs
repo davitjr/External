@@ -1,13 +1,8 @@
-﻿using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.ArcaDataServiceReference;
+﻿using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -311,7 +306,7 @@ namespace ExternalBanking
                     //result.Errors[0].Description = transactionResult.ResponseCodeDescription;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 this.Quality = OrderQuality.Declined;
                 base.UpdateQuality(this.Quality);
@@ -409,6 +404,10 @@ namespace ExternalBanking
             UpdateQuality(OrderQuality.Declined);
             return SetQualityHistoryUserId(OrderQuality.Declined, user.userID);
         }
+        private string GetSourceCardholderName(int docId)
+        {
+            return CardToCardOrderDB.GetSourceCardholderName(docId);
+        }
         public ActionResult ApproveAttachedCardToCardOrder()
         {
             ActionResult result = new ActionResult();
@@ -422,13 +421,13 @@ namespace ExternalBanking
                     MerchanId = ConfigurationManager.AppSettings["MerchantId"],
                     TerminalId = ConfigurationManager.AppSettings["TerminalId"],
                     DestinationCardIdentification = new CardIdentification
-                    {                      
+                    {
                         CardNumber = CreditCardNumber
                     },
                     Sender = new PersonMoneySendType(),
                     Recepient = new PersonMoneySendType
                     {
-                        Name = EmbossingName
+                        Name = GetSourceCardholderName((int)Id)
                     }
                 };
                 var response = ArcaDataService.CreditCardEcommerce(ecommerce);
@@ -455,9 +454,9 @@ namespace ExternalBanking
             }
             return result;
         }
-        private ActionResult SaveAttachedCardToCardArcaResponseData(CreditCardEcommerceResponse response, ulong ArcaExtensionID)
+        private void SaveAttachedCardToCardArcaResponseData(CreditCardEcommerceResponse response, ulong ArcaExtensionID)
         {
-            return CardToCardOrderDB.SaveAttachedCardToCardArcaResponseData((ulong)Id, ArcaExtensionID, response);
+            CardToCardOrderDB.SaveAttachedCardToCardArcaResponseData((ulong)Id, ArcaExtensionID, response);
         }
     }
 }

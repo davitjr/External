@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Transactions;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ServiceClient;
-using System.Web.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ExternalBanking
 {
-    public class AccountOrder:Order 
+    public class AccountOrder : Order
     {
         /// <summary>
         /// Որոշում է հաշիվը համատեղ է թե ոչ
@@ -23,7 +17,7 @@ namespace ExternalBanking
         /// <summary>
         /// Համատեղ հաճախորդի համարը  
         /// </summary>
-        public List<KeyValuePair<ulong,string>> JointCustomers { get; set; }
+        public List<KeyValuePair<ulong, string>> JointCustomers { get; set; }
 
         /// <summary>
         /// Քաղվածքի սատցման եղանակ
@@ -88,7 +82,7 @@ namespace ExternalBanking
         public ActionResult Validate()
         {
             ActionResult result = new ActionResult();
-            if (RestrictionGroup != 18) 
+            if (RestrictionGroup != 18)
             {
                 result.Errors.AddRange(Validation.ValidateAccountOrderDocument(this));
             }
@@ -139,7 +133,6 @@ namespace ExternalBanking
             {
                 if (result.ResultCode == ResultCode.Normal)
                 {
-                    Action action = this.Id == 0 ? Action.Add : Action.Update;
 
                     using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
                     {
@@ -170,7 +163,7 @@ namespace ExternalBanking
         public ActionResult ValidateForSend()
         {
             ActionResult result = new ActionResult();
-        
+
             if (RegistrationDate.AddDays(30).Date < DateTime.Now.Date || this.RegistrationDate.Date > DateTime.Now.Date)
             {
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
@@ -179,17 +172,12 @@ namespace ExternalBanking
 
             if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
             {
-                if (InfoDB.CommunicationTypeExistence(this.CustomerNumber) == 1 && this.StatementDeliveryType != 0)
-                {
-                    //Դիմումը հնարավոր չէ ուղարկել, քանի որ հաղորդակցման եղանակը սխալ է ընտրված։ Անհրաժեշտ է մուտքագրել նոր դիմում։
-                    result.Errors.Add(new ActionError(1732));
-                }
                 if (AccountDB.HasAccountOrder(this.Currency, this.CustomerNumber))
                     // Նշված արժույթով ընթացիկ հաշիվ արդեն առկա է: Նույն արժույթով ևս մեկ ընթացիկ հաշիվ բացելու համար անհրաժեշտ է մոտենալ Բանկի Ձեզ սպասարկող մասնաճյուղ:
                     result.Errors.Add(new ActionError(1816));
             }
 
-                
+
 
             if (result.Errors.Count > 0)
             {
@@ -220,14 +208,14 @@ namespace ExternalBanking
                 this.JointCustomers = new List<KeyValuePair<ulong, string>>();
             }
 
-            if ((this.AccountType == 2 || this.AccountType == 3) && (this.JointCustomers.Count>0))
+            if ((this.AccountType == 2 || this.AccountType == 3) && (this.JointCustomers.Count > 0))
             {
                 ACBAServiceReference.Customer jointCustomer;
                 short jointCustomerType;
 
                 List<KeyValuePair<ulong, string>> jointList = new List<KeyValuePair<ulong, string>>();
 
-               
+
                 this.JointCustomers.ForEach(m =>
                 {
                     if (m.Key.ToString().Length == 12)
@@ -241,7 +229,7 @@ namespace ExternalBanking
                         if (jointCustomer.identityId != 0 && jointCustomerType == (short)CustomerTypes.physical)
                         {
                             jointCustomerFullName = (jointCustomer as PhysicalCustomer).person.fullName.firstName + " " + (jointCustomer as PhysicalCustomer).person.fullName.lastName;
-                           
+
                         }
 
                         jointList.Add(new KeyValuePair<ulong, string>(key: m.Key, value: jointCustomerFullName));
@@ -249,9 +237,9 @@ namespace ExternalBanking
                 });
 
                 this.JointCustomers = jointList;
-                
-                
-            }           
+
+
+            }
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
         }
 
@@ -263,7 +251,7 @@ namespace ExternalBanking
         /// <param name="user">Օգտագործող</param>
         /// <param name="schemaType"></param>
         /// <returns></returns>
-        public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType,bool forRestrictedAccount = false)
+        public ActionResult SaveAndApprove(string userName, SourceType source, ACBAServiceReference.User user, short schemaType, bool forRestrictedAccount = false)
         {
 
             this.Complete(source);
@@ -288,7 +276,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = AccountOrderDB.Save(this, userName, source);
-               
+
                 //if (Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
                 //{
                 //    //**********  
@@ -303,7 +291,7 @@ namespace ExternalBanking
                 else
                 {
                     base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
-                   
+
                 }
 
                 result = base.SaveOrderOPPerson();
@@ -333,9 +321,9 @@ namespace ExternalBanking
 
 
 
-            if(Source != SourceType.AcbaOnline)
+            if (Source != SourceType.AcbaOnline)
             {
-                if (forRestrictedAccount == true)
+                if (forRestrictedAccount)
                 {
                     result = OrderDB.ConfirmRestrictedOrder(this.Id, user);
                 }
@@ -354,7 +342,7 @@ namespace ExternalBanking
                 result.Errors = warnings;
             }
 
-            
+
 
             return result;
         }
@@ -365,26 +353,26 @@ namespace ExternalBanking
         /// <param name="productId"></param>
         /// <param name="customerNumber"></param>
         /// <returns></returns>
-        public static List<string> GetAccountOpenWarnings(ulong customerNumber,Culture culture)
+        public static List<string> GetAccountOpenWarnings(ulong customerNumber, Culture culture)
         {
-            
-            List<string> warnings = new List<string>();            
+
+            List<string> warnings = new List<string>();
             short customerType;
             ActionResult result = new ActionResult();
 
             customerType = ACBAOperationService.GetCustomerType(customerNumber);
-            
+
             if (customerType == (short)CustomerTypes.physical || customerType == (short)CustomerTypes.physCustomerUndertakings)
             {
-                result.Errors.AddRange(Validation.ValidateCustomerDocument(customerNumber));               
+                result.Errors.AddRange(Validation.ValidateCustomerDocument(customerNumber));
                 Localization.SetCulture(result, culture);
 
                 result.Errors.ForEach(m =>
-                    {
-                        warnings.Add(m.Description);
-                    }
+                {
+                    warnings.Add(m.Description);
+                }
                 );
-            }            
+            }
             return warnings;
         }
 
@@ -392,29 +380,31 @@ namespace ExternalBanking
         {
             List<ActionError> result = new List<ActionError>();
 
-            ACBAServiceReference.Customer customer = ACBAOperationService.GetCustomer(order.CustomerNumber);
 
-            if (customer.riskQuality.key == 3)
+            if (ACBAOperationService.GetCustomerRiskQuality(order.CustomerNumber).key == 3)
             {
                 //Հաշիվը կսառեցվի, քանի որ հաճախորդը բարձր ռիսկային է
-                result.Add(new ActionError(637, new string[] {" հաճախորդը բարձր ռիսկային է" }));
+                result.Add(new ActionError(637, new string[] { " հաճախորդը բարձր ռիսկային է" }));
             }
 
-            if (customer.customerType.key != (short)CustomerTypes.physical && ((order.Type == OrderType.CurrentAccountReOpen && order.AccountStatus==0) || (order.Type == OrderType.CurrentAccountOpen && order.AccountStatus==1)))
+            if (ACBAOperationService.GetCustomerType(order.CustomerNumber) != (short)CustomerTypes.physical)
             {
-                //Հաշիվը կսառեցվի, քանի որ հաստատված ստորագրության նմուշը բացակայում է
-                result.Add(new ActionError(638));
-            }
-            if (customer.customerType.key != (short)CustomerTypes.physical)
-            {
+
+                if ((order.Type == OrderType.CurrentAccountReOpen && order.AccountStatus == 0) || (order.Type == OrderType.CurrentAccountOpen && order.AccountStatus == 1))
+                {
+                    //Հաշիվը կսառեցվի, քանի որ հաստատված ստորագրության նմուշը բացակայում է
+                    result.Add(new ActionError(638));
+                }
+
                 //Հաշիվը կսառեցվի, քանի որ հաշիվը հարկային տեսչություն ուղարկման ենթակա է
                 result.Add(new ActionError(720));
             }
+
             return result;
         }
 
 
-        public static KeyValuePair <uint,uint> GetRestrictionType(uint restGroup)
+        public static KeyValuePair<uint, uint> GetRestrictionType(uint restGroup)
         {
             KeyValuePair<uint, uint> result = new KeyValuePair<uint, uint>();
             if (restGroup == 1)
@@ -441,7 +431,7 @@ namespace ExternalBanking
 
             return result;
         }
-        public  static byte[] GetOpenedAccountContract(string accountNumber)
+        public static byte[] GetOpenedAccountContract(string accountNumber)
         {
             return AccountOrderDB.GetOpenedAccountContract(accountNumber);
         }

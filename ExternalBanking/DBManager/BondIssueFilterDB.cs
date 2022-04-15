@@ -121,7 +121,7 @@ namespace ExternalBanking.DBManager
                                 PeriodType = dr["issue_period_type"] != DBNull.Value ? (BondIssuePeriod)Convert.ToInt16(dr["issue_period_type"].ToString()) : default,
                                 PeriodTypeDescription = dr["PeriodTypeDescription"].ToString(),
                                 IssueDate = Convert.ToDateTime(dr["issue_date"]),
-                                ShareType = (SharesTypes)Convert.ToInt32(dr["share_type"]),
+                                ShareType = dr["share_type"] != DBNull.Value ? (SharesTypes)Convert.ToInt32(dr["share_type"]) : SharesTypes.None,
                                 IssueSeria = dr["issue_seria"] != DBNull.Value ? Convert.ToInt32(dr["issue_seria"]) : default,
                                 ReplacementFactualEndDate = dr["replacement_factual_end_date"] != DBNull.Value ? Convert.ToDateTime(dr["replacement_factual_end_date"]) : default,
                                 PlacementPrice = dr["placement_price"] != DBNull.Value ? Convert.ToInt32(dr["placement_price"]) : default,
@@ -133,8 +133,8 @@ namespace ExternalBanking.DBManager
                                 {
                                     AccountNumber = dr["non_resident_bank_account_number"] != DBNull.Value ? Convert.ToString(dr["non_resident_bank_account_number"]) : default
                                 },
-                                SetNumber = dr["set_number"] != DBNull.Value ? Convert.ToInt32(dr["set_number"]) : default                     
-                        };
+                                SetNumber = dr["set_number"] != DBNull.Value ? Convert.ToInt32(dr["set_number"]) : default
+                            };
 
                             if (result.IssuerType == BondIssuerType.ACBA)
                             {

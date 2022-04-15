@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExternalBanking
+﻿namespace ExternalBanking
 {
     public class SearchPreOrderDetails : SearchParams
     {
         /// <summary>
         /// Նախնական հայտի կարգավիճակ
         /// </summary>
-        public PreOrderQuality Quality{ get; set; }
+        public PreOrderQuality Quality { get; set; }
         /// <summary>
         /// Հաճախորդի համար
         /// </summary>
@@ -23,7 +17,7 @@ namespace ExternalBanking
         /// <summary>
         /// Նախնական հայտի տեսակ
         /// </summary>
-        public PreOrderType Type{ get; set; }
+        public PreOrderType Type { get; set; }
 
     }
 }

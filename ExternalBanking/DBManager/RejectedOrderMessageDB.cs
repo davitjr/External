@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
 {
     internal static class RejectedOrderMessageDB
     {
-        internal static List<RejectedOrderMessage> GetRejectedMessages(int userId,int filter,int start=0,int end=0)
+        internal static List<RejectedOrderMessage> GetRejectedMessages(int userId, int filter, int start = 0, int end = 0)
         {
             var initialCount = 3;
             List<RejectedOrderMessage> userMessages = new List<RejectedOrderMessage>();
@@ -25,7 +22,7 @@ namespace ExternalBanking.DBManager
                     if (filter == 2)
                     {
                         limitedRows = " TOP(@initialCount) ";
-                    }                   
+                    }
                     sql = @"SELECT " + limitedRows + @" m.Id,m.subject,m.message,m.message_type,m.userId,m.read_date,m.registration_date,d.doc_Id,t.description 
                                      FROM Tbl_user_messages AS m
                                      INNER JOIN Tbl_user_message_document AS d
@@ -44,9 +41,9 @@ namespace ExternalBanking.DBManager
                     sql = sql + " ORDER BY Id DESC";
 
                 }
-                else if((start != 0 || end != 0) && filter==2)
+                else if ((start != 0 || end != 0) && filter == 2)
                 {
-                    string whereCondition = "";  
+                    string whereCondition = "";
                     whereCondition = " AND m.read_date IS NOT  NULL";
                     sql = @"SELECT * FROM(SELECT ROW_NUMBER() OVER (ORDER BY m.Id desc) as row , m.Id,m.subject,m.message,m.message_type,m.userId,m.read_date,m.registration_date,d.doc_Id,t.description
                                                   FROM Tbl_user_messages AS m
@@ -54,7 +51,7 @@ namespace ExternalBanking.DBManager
                                                   on m.Id=d.message_Id
                                                   INNER JOIN Tbl_message_types AS t
                                                   on m.message_type=t.Id
-                                                  WHERE m.userId=@userId"+ whereCondition+ ")AS result " +
+                                                  WHERE m.userId=@userId" + whereCondition + ")AS result " +
                                                  " WHERE result.row >  (@initialCount + @start)   and result.row <= (@initialCount + @end)";
                 }
 
@@ -106,7 +103,7 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     cmd.ExecuteNonQuery();
                 }
-             
+
             }
         }
 

@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.DBManager
 {
@@ -95,7 +92,7 @@ namespace ExternalBanking.DBManager
 
         internal static ServicePaymentNoteOrder GetDelatedServicePaymentNoteOrder(ServicePaymentNoteOrder order)
         {
-           using DataTable dt = new DataTable();
+            using DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
@@ -162,8 +159,8 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = servicePaymentNoteOrder.FilialCode;
                     cmd.Parameters.Add("@note_action", SqlDbType.SmallInt).Value = (Int16)servicePaymentNoteOrder.Note.NoteActionType;
                     cmd.Parameters.Add("@note_reason", SqlDbType.SmallInt).Value = (Int16)servicePaymentNoteOrder.Note.NoteReason;
-                    cmd.Parameters.Add("@note_reason_description", SqlDbType.NVarChar,255).Value = servicePaymentNoteOrder.Note.NoteReasonDescription;
-                    cmd.Parameters.Add("@note_description", SqlDbType.NVarChar,255).Value = servicePaymentNoteOrder.Note.AdditionalDescription != null ? servicePaymentNoteOrder.Note.AdditionalDescription : ""; 
+                    cmd.Parameters.Add("@note_reason_description", SqlDbType.NVarChar, 255).Value = servicePaymentNoteOrder.Note.NoteReasonDescription;
+                    cmd.Parameters.Add("@note_description", SqlDbType.NVarChar, 255).Value = servicePaymentNoteOrder.Note.AdditionalDescription != null ? servicePaymentNoteOrder.Note.AdditionalDescription : "";
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -200,7 +197,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = (Int16)servicePaymentNoteOrder.Type;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = servicePaymentNoteOrder.OperationDate;
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = servicePaymentNoteOrder.FilialCode;
-               
+
 
 
                     cmd.Parameters.Add("@note_id", SqlDbType.Int).Value = servicePaymentNoteOrder.Note.Id;
@@ -236,7 +233,8 @@ namespace ExternalBanking.DBManager
             return note;
         }
 
-        internal static bool IsExistCurrentDayNote(ServicePaymentNoteOrder order) {
+        internal static bool IsExistCurrentDayNote(ServicePaymentNoteOrder order)
+        {
             int result = 0;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -250,13 +248,14 @@ namespace ExternalBanking.DBManager
                 result = Convert.ToInt32(cmd.ExecuteScalar());
 
             }
-            if (result !=0)
+            if (result != 0)
                 return true;
             else
                 return false;
         }
 
-        internal static bool IsRemovableNote(ServicePaymentNoteOrder order) {
+        internal static bool IsRemovableNote(ServicePaymentNoteOrder order)
+        {
             int result = 0;
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
@@ -272,6 +271,6 @@ namespace ExternalBanking.DBManager
             else
                 return false;
         }
-         
+
     }
 }

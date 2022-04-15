@@ -1,12 +1,8 @@
 ﻿using ExternalBanking.XBManagement;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Configuration;
 
 namespace ExternalBanking.DBManager
@@ -16,10 +12,10 @@ namespace ExternalBanking.DBManager
         internal static ActionResult Save(ApprovementSchemaDetails schemaDetails, int schemaId, long orderId)
         {
             ActionResult result = new ActionResult();
-           
+
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["HBBaseConn"].ToString()))
             {
-               
+
                 using (SqlCommand cmd = new SqlCommand())
                 {
                     cmd.CommandText = "pr_submit_approvement_schema_details";
@@ -57,9 +53,9 @@ namespace ExternalBanking.DBManager
                         result.Id = -1;
                     }
 
-                }               
+                }
             }
-           
+
             return result;
         }
 

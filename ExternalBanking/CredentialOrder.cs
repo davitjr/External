@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Transactions;
-using System.Linq;
+using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Transactions;
 
 namespace ExternalBanking
 {
@@ -19,7 +19,7 @@ namespace ExternalBanking
 
         public ActionResult Approve(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
         {
-            
+
             ActionResult result = new ActionResult();
 
             result = this.ValidateForSend(user);
@@ -62,7 +62,7 @@ namespace ExternalBanking
             Action action = this.Id == 0 ? Action.Add : Action.Update;
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
-                
+
                 List<OrderAttachment> ExistingAttachments = Order.GetOrderAttachments(this.Id);
                 result = CredentialOrderDB.Save(this, userName, source);
                 long ResultId = result.Id;
@@ -73,20 +73,13 @@ namespace ExternalBanking
                 //**********
                 if (action == Action.Add)
                 {
-                    //ulong orderId = base.Save(this, source, user);
-                    ulong orderId = 0;
                     result = SaveCredentialDetails(this, this.Id);
-                    //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
-
                 }
                 else
                 {
-                    //ulong orderId = BOOrderPaymentDetails.GetOrderId(this.Id);
                     CredentialOrderDB.RemoveCredentialOrderDetails(this.Id);
                     CredentialOrderDB.RemoveCredentialOrderBODetails(this.Id);
                     result = SaveCredentialDetails(this, this.Id, Action.Update);
-                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
                 }
 
                 //**********
@@ -110,7 +103,7 @@ namespace ExternalBanking
                                 break;
                             }
                         }
-                        if (HasFile == false)
+                        if (!HasFile)
                             OrderDB.DeleteOrderAttachment(existingItem.Id);
                     }
                 }
@@ -162,9 +155,9 @@ namespace ExternalBanking
                             double feeAccountBalance = Account.GetAcccountAvailableBalance(fee.Account.AccountNumber);
 
                             if (feeAccountBalance < feeAmount)
-                            {                            
+                            {
                                 //հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար
-                                result.Errors.Add(new ActionError(788, new string[] { fee.Account.AccountNumber }));                               
+                                result.Errors.Add(new ActionError(788, new string[] { fee.Account.AccountNumber }));
                             }
                         }
                     }
@@ -197,25 +190,18 @@ namespace ExternalBanking
                 {
                     return result;
                 }
-                //**********                
+
                 if (action == Action.Add)
                 {
-                    //ulong orderId = base.Save(this, source, user);
-                    ulong orderId = 0;
                     result = SaveCredentialDetails(this, this.Id);
-                    //Order.SaveLinkHBDocumentOrder(this.Id, orderId);
-                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
-
                 }
                 else
                 {
-                    //ulong orderId = BOOrderPaymentDetails.GetOrderId(this.Id);
                     CredentialOrderDB.RemoveCredentialOrderDetails(this.Id);
                     CredentialOrderDB.RemoveCredentialOrderBODetails(this.Id);
                     result = SaveCredentialDetails(this, this.Id, Action.Update);
-                    //result = BOOrderCustomer.Save(this, (ulong)this.Id, user);
                 }
-                //**********
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -259,14 +245,14 @@ namespace ExternalBanking
             if (Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
             {
                 result = base.Confirm(user);
-            }   
+            }
             return result;
         }
 
         public ActionResult SaveCredentialDetails(CredentialOrder credentialOrder, long orderId, Action actionType = Action.Add)
         {
             ActionResult result = new ActionResult();
-            result = CredentialOrderDB.SaveCredentialOrderDetails(credentialOrder, orderId);
+            result = CredentialOrderDB.SaveCredentialOrderDetails(credentialOrder, orderId, actionType);
             credentialOrder.Credential.Id = (uint)result.Id;
             if (credentialOrder.Credential.AssigneeList != null)
             {
@@ -301,7 +287,7 @@ namespace ExternalBanking
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
-            if(Source ==SourceType.AcbaOnline || Source == SourceType.MobileBanking)
+            if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
 
                 if (this.Credential != null)
@@ -322,18 +308,14 @@ namespace ExternalBanking
                 this.RegistrationDate = DateTime.Now;
                 this.FilialCode = 22000;
 
-                if(Credential.AssigneeList != null)
+                if (Credential.AssigneeList != null)
                 {
                     Assignee assignee = Credential.AssigneeList[0];
 
                     //Բոլոր լիազորությունները
                     if (assignee.AllOperations)
                     {
-                        byte customerType;
-                        using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-                        {
-                            customerType = proxy.GetCustomerType(CustomerNumber);
-                        }
+                        byte customerType = (byte)ACBAOperationService.GetCustomerType(CustomerNumber);
 
                         List<AssigneeOperation> operationList = new List<AssigneeOperation>();
 
@@ -344,7 +326,7 @@ namespace ExternalBanking
                         {
                             ushort groupId = Convert.ToUInt16(group["id"].ToString());
                             string groupDescription = Utility.ConvertAnsiToUnicode(group["description"].ToString());
-                           
+
                             //ԳՈՐԾՈՂՈՒԹՅԱՆ ԽՄԲԻ ՏԵՍԱԿՆԵՐ
                             DataTable operationTypes = Info.GetAssigneeOperationTypes(groupId, customerType);
 
@@ -382,7 +364,7 @@ namespace ExternalBanking
                                 operationList.Add(operation);
                             }
 
-                           
+
                         }
                         Credential.AssigneeList[0].OperationList = operationList;
                     }
@@ -407,13 +389,7 @@ namespace ExternalBanking
                     Credential.AssigneeList[0].AllOperations = true;
                     Assignee assignee = Credential.AssigneeList[0];
                     List<AssigneeOperation> credentialOperationList = assignee.OperationList;
-                    byte customerType;
-                    using (ACBAOperationServiceClient proxy = new ACBAOperationServiceClient())
-                    {
-                        customerType = proxy.GetCustomerType(CustomerNumber);
-                    }
-
-                    List<AssigneeOperation> operationList = new List<AssigneeOperation>();
+                    byte customerType = (byte)ACBAOperationService.GetCustomerType(CustomerNumber);
 
                     //ԳՈՐԾՈՂՈՒԹՅԱՆ ԽՄԲԵՐ
                     DataTable groups = Info.GetAssigneeOperationGroupTypes(customerType);
@@ -421,9 +397,8 @@ namespace ExternalBanking
                     foreach (DataRow group in groups.AsEnumerable())
                     {
                         ushort groupId = Convert.ToUInt16(group["id"].ToString());
-                        string groupDescription = Utility.ConvertAnsiToUnicode(group["description"].ToString());
 
-                        if(credentialOperationList.Find(m => m.GroupId == groupId) == null)
+                        if (credentialOperationList.Find(m => m.GroupId == groupId) == null)
                         {
                             Credential.AssigneeList[0].AllOperations = false;
                             break;
@@ -462,19 +437,19 @@ namespace ExternalBanking
                                 }
                                 else
                                 {
-                                    if(operationType.Item4)
+                                    if (operationType.Item4)
                                     {
                                         if (credentialOperationList.Find(m => m.OperationType == (ushort)operationType.Item2)?.AllAccounts == false)
                                         {
                                             Credential.AssigneeList[0].AllOperations = false;
                                             break;
                                         }
-                                    }                               
+                                    }
                                 }
                             }
                         }
 
-                       
+
                     }
                 }
 

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
-using System.Linq;
-using ExternalBanking.ServiceClient;
-using System.Configuration;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.CreditLineActivatorARCA;
+using ExternalBanking.DBManager;
+using ExternalBanking.ServiceClient;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 
 namespace ExternalBanking
 {
@@ -159,6 +159,21 @@ namespace ExternalBanking
         /// </summary>
         public DateTime? ConfirmationDate { get; set; }
 
+        /// <summary>
+        /// Գործարքի ուղարկման (quality = 3) ամսաթիվ
+        /// </summary>
+        public DateTime? SentDate { get; set; }
+
+        /// <summary>
+        /// Գործարքի հրաժարման (quality = 32) ամսաթիվ 
+        /// </summary>
+        public DateTime? CancellationDate { get; set; }
+
+        /// <summary>
+        /// Գործարքի մերժման (quality = 31) ամսաթիվ 
+        /// </summary>
+        public DateTime? RejectionDate { get; set; }
+
 
         /// <summary>
         /// Տարանցիկ հաշվի ստուգման անհրաժեշտություն
@@ -274,6 +289,12 @@ namespace ExternalBanking
         /// </summary>
         internal bool SendDillingConfirm { get; private set; }
 
+        /// <summary>
+        /// Գործարքի տեսակ
+        /// Գործարքի տեսակ ըստ Ֆինանսական անվտանգության բաժնի
+        /// </summary>
+        public TransactionTypeByAML TransactionTypeByAML { get; set; }
+
 
         /// <summary>
         /// Վերադարձնում է տվյալ ժամանակահատվածում պահպանած և խմբագրվող կարգավիճակով հանձնարարականները
@@ -367,8 +388,7 @@ namespace ExternalBanking
         internal OrderQuality GetNextQuality(short schemaType)
         {
             OrderQuality result;
-            Account debitAccount = new Account();
-            if (Source == SourceType.Bank || Source == SourceType.ExternalCashTerminal || Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking 
+            if (Source == SourceType.Bank || Source == SourceType.ExternalCashTerminal || Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking
                                     || Source == SourceType.ArmSoft || Source == SourceType.AcbaOnlineXML || Source == SourceType.STAK)
             {
 
@@ -549,18 +569,9 @@ namespace ExternalBanking
 
             }
 
-            ////Գործարքների օրեկան սահմանաչափի ստուգում stugum@ hanvel e barelavman dzev 6920
-            //if (this.Source == SourceType.MobileBanking && Order.GetDayOrdersAmount(this.CustomerNumber, this.Id, DateTime.Now) > this.DailyTransactionsLimit)
-            //{
-            //    ////Դուք գերազանցում եք կատարվող գործարքների օրեկան սահմանաչափը:
-            //    result.Errors.Add(new ActionError(74));
-            //    return result;
-            //}
-            //else
-            //{
-
             OrderQuality nextQuality;
-            if ((this.Source == SourceType.Bank || this.Source == SourceType.PhoneBanking || this.Source == SourceType.ExternalCashTerminal || this.Source == SourceType.STAK) || this.Type == OrderType.RemoveTransaction || this.Type == OrderType.CancelTransaction)
+            if (this.Source == SourceType.Bank || this.Source == SourceType.PhoneBanking || this.Source == SourceType.ExternalCashTerminal ||
+                this.Source == SourceType.STAK || this.Source == SourceType.AcbaMat || this.Type == OrderType.RemoveTransaction || this.Type == OrderType.CancelTransaction)
             {
                 nextQuality = GetNextQuality(schemaType);
             }
@@ -622,7 +633,7 @@ namespace ExternalBanking
                 {
                     OrderDB.ChangeQuality(Id, nextQuality, userName);
                 }
-                if (Source != SourceType.ExternalCashTerminal && Source!=SourceType.CashInTerminal)
+                if (Source != SourceType.ExternalCashTerminal && Source != SourceType.CashInTerminal)
                 {
                     if (nextQuality == OrderQuality.Sent)
                     {
@@ -660,8 +671,7 @@ namespace ExternalBanking
                     if (Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
                     {
                         //Տվյալ գումարի ձևակերպման իրավունք չկա: Գործարքը կգրանցվի հաստատման համար: 
-                        ActionError err = new ActionError(624);
-                        result.Errors.Add(err);
+                        result.Errors.Add(new ActionError(624));
                     }
 
 
@@ -672,8 +682,7 @@ namespace ExternalBanking
                     SetQualityHistoryUserId(OrderQuality.TransactionLimitApprovement, user.userID);
                     OrderDB.ChangeBOOrderQuality(Id, OrderQuality.TransactionLimitApprovement, user);
                     //Տվյալ քարտային հաշվից գումարի ելքագրման իրավունք չկա: Գործարքը կգրանցվի հասատատման համար: 
-                    ActionError err = new ActionError(754);
-                    result.Errors.Add(err);
+                    result.Errors.Add(new ActionError(754));
 
                 }
                 else if (amlResult == 1 && this.Source == SourceType.Bank)
@@ -682,8 +691,7 @@ namespace ExternalBanking
                     SetQualityHistoryUserId(OrderQuality.TransactionLimitApprovement, user.userID);
                     OrderDB.ChangeBOOrderQuality(Id, OrderQuality.TransactionLimitApprovement, user);
                     //Նշված փոխանցումը կասկածելի է, պահանջում է AML բաժնի կողմից հաստատում 
-                    ActionError err = new ActionError(803);
-                    result.Errors.Add(err);
+                    result.Errors.Add(new ActionError(803));
 
                 }
 
@@ -701,7 +709,6 @@ namespace ExternalBanking
             {
                 UpdateApprovementProcess(Convert.ToInt32(this.Id), userName);
             }
-            //}
 
             return result;
         }
@@ -710,7 +717,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            if (CheckDocumentID(Id, CustomerNumber) == false)
+            if (!CheckDocumentID(Id, CustomerNumber))
             {
                 //Փաստաթուղթը գոյություն չունի
                 result.Errors.Add(new ActionError(477));
@@ -725,6 +732,17 @@ namespace ExternalBanking
                 {
                     if (Quality == OrderQuality.Draft)
                     {
+                        if (this.Type == OrderType.ConsumeLoanApplicationOrder)
+                        {
+                            ConsumeLoanApplicationOrder order = new ConsumeLoanApplicationOrder();
+                            order.user = this.user;
+                            order.Id = this.Id;
+                            order.CustomerNumber = this.CustomerNumber;
+                            order.ProductId = ConsumeLoanApplicationOrder.GetConsumeLoanApplicationAppId(Id);
+                            if (order.ProductId != 0)
+                                ConsumeLoanApplicationOrder.ValidateSetConsumeLoanApplicationOrder(order);
+                        }
+
                         OrderDB.ChangeQuality(Id, OrderQuality.Removed, userName);
                         result.ResultCode = ResultCode.Normal;
                     }
@@ -752,8 +770,7 @@ namespace ExternalBanking
         /// <returns>Վերադարձնում է true, եթե համատեղելի են:</returns>
         internal static bool CheckDocumentID(long ID, ulong customerNumber)
         {
-            bool check = OrderDB.CheckDocumentID(ID, customerNumber);
-            return check;
+            return OrderDB.CheckDocumentID(ID, customerNumber);
         }
 
         /// <summary>
@@ -761,8 +778,7 @@ namespace ExternalBanking
         /// </summary>
         public static Order GetOrder(long orderId, ulong customerNumber)
         {
-            Order order = OrderDB.GetOrder(orderId, customerNumber);
-            return order;
+            return OrderDB.GetOrder(orderId, customerNumber);
         }
 
         /// <summary>
@@ -873,6 +889,14 @@ namespace ExternalBanking
                         {
                             if (!OnlySaveAndApprove)
                             {
+                                if (Type == OrderType.VehicleInsuranceOrder)
+                                {
+                                    ActionResult _result = VehicleInsuranceOrder.CheckInASWA(this.Id, this.CustomerNumber);
+                                    if (_result.ResultCode != ResultCode.Normal)
+                                    {
+                                        return _result;
+                                    }
+                                }
                                 if (Type == OrderType.VirtualCardStatusChangeOrder)
                                 {
                                     result = VirtualCardStatusChangeOrder.Confirm(this.Id, user);
@@ -1005,7 +1029,7 @@ namespace ExternalBanking
                     if (paymentOrder.ForDillingApprovemnt == true || paymentOrder.SendDillingConfirm)
                     {
                         int status = user.TransactionLimit == -1 ? 1 : 0;
-                        short direction = 0;
+                        short direction;
                         if (paymentOrder.DebitAccount.Currency == "AMD")
                         {
                             direction = 2;
@@ -1061,7 +1085,7 @@ namespace ExternalBanking
                 {
 
                     int status = user.TransactionLimit == -1 ? 1 : 0;
-                    short direction = 0;
+                    short direction;
                     if (exchangeOrder.DebitAccount.Currency == "AMD")
                     {
                         direction = 2;
@@ -1091,7 +1115,7 @@ namespace ExternalBanking
                 {
 
                     int status = user.TransactionLimit == -1 ? 1 : 0;
-                    short direction = 0;
+                    short direction;
                     if (exchangeOrder.DebitAccount.Currency == "AMD")
                     {
                         direction = 2;
@@ -1265,9 +1289,7 @@ namespace ExternalBanking
 
         internal static List<OrderFee> GetOrderFees(long orderId)
         {
-            List<OrderFee> fees = new List<OrderFee>();
-            fees = OrderDB.GetOrderFees(orderId);
-            return fees;
+            return OrderDB.GetOrderFees(orderId);
         }
 
         /// <summary>
@@ -1515,8 +1537,7 @@ namespace ExternalBanking
         }
         public static Order GetOrderDetails(long orderId)
         {
-            Order order = OrderDB.GetOrderDetails(orderId);
-            return order;
+            return OrderDB.GetOrderDetails(orderId);
         }
         public virtual bool CheckConditionForMakingTransactionIn24_7Mode()
         {
@@ -1529,15 +1550,13 @@ namespace ExternalBanking
         /// <returns></returns>
         internal static List<Order> GetOrders(OrderFilter searchParams, ulong customerNumber)
         {
-            List<Order> orders = OrderDB.GetOrders(searchParams, customerNumber);
-            return orders;
+            return OrderDB.GetOrders(searchParams, customerNumber);
         }
 
 
         internal static List<Order> GetOrdersList(ulong customerNumber, OrderListFilter orderListFilter)
         {
-            List<Order> orders = OrderDB.GetOrdersList(customerNumber, orderListFilter);
-            return orders;
+            return OrderDB.GetOrdersList(customerNumber, orderListFilter);
         }
 
         /// <summary>
@@ -1579,7 +1598,7 @@ namespace ExternalBanking
                     order.ConfirmOrderStep2(user);
                 }
             }
-           
+
             result.ResultCode = ResultCode.Normal;
             result.Id = docID;
 
@@ -1692,7 +1711,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public int GetOrderDailyCount()
         {
-            return OrderDB.GetOrderDailyCount((short)Type,SubType, RegistrationDate, CustomerNumber);
+            return OrderDB.GetOrderDailyCount((short)Type, SubType, RegistrationDate, CustomerNumber);
         }
 
         /// <summary>
@@ -1701,7 +1720,7 @@ namespace ExternalBanking
         /// <returns></returns>
         public double GetOrderDailyAmount()
         {
-            return OrderDB.GetOrderDailyAmount((short)Type,(short)SubType, RegistrationDate, CustomerNumber);
+            return OrderDB.GetOrderDailyAmount((short)Type, (short)SubType, RegistrationDate, CustomerNumber);
         }
 
         public ActionResult Reject(int rejectId, User user)
@@ -1713,9 +1732,9 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            if (   (this.Type == OrderType.CreditLineActivation && 
+            if ((this.Type == OrderType.CreditLineActivation &&
                     (Source == SourceType.Bank || Source == SourceType.EContract))
-                || (this.Type == OrderType.CreditLineSecureDeposit && 
+                || (this.Type == OrderType.CreditLineSecureDeposit &&
                    (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline))
                 || (this.Type == OrderType.FastOverdraftApplication &&
                    (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)))
@@ -1724,37 +1743,40 @@ namespace ExternalBanking
                 activationOrder.Id = Id;
                 activationOrder.Get();
 
-                Utility.SaveCreditLineLogs(activationOrder.ProductId,  "ConfirmOrderStep2", " ");
+                Utility.SaveCreditLineLogs(activationOrder.ProductId, "ConfirmOrderStep2", " ");
                 try
                 {
-                    result.Errors = ChangeExceedLimitRequest.ActivateCreditLine(activationOrder.CustomerNumber, activationOrder.ProductId, activationOrder.Id, user.userID,Source);
+                    result.Errors = ChangeExceedLimitRequest.ActivateCreditLine(activationOrder.CustomerNumber, activationOrder.ProductId, activationOrder.Id, user.userID, Source);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     result.Errors.AddRange(new List<ActionError> { new ActionError { Description = "Ուղարկվելու է ԱՐՔԱ՝ հերթական ֆայլով" } });
-                    
+
                     string message = (ex.Message != null ? ex.Message : " ") +
                     Environment.NewLine + " InnerException:" + (ex.InnerException != null ? ex.InnerException.Message : "")
-                    + " stacktrace:" +(ex.StackTrace != null?ex.StackTrace:" ") ;
-                    
+                    + " stacktrace:" + (ex.StackTrace != null ? ex.StackTrace : " ");
+
                     Utility.SaveCreditLineLogs(activationOrder.ProductId, " ", message);
                 }
             }
-            if (Type == OrderType.CardRenewOrder)
+            if (Type == OrderType.RenewedCardAccountRegOrder)
             {
-                CardRenewOrder cardRenewOrder = CardRenewOrder.GetCardRenewOrder(Id);
-                bool? withCreditLineClosing = cardRenewOrder.WithCreditLineClosing;
-                if (withCreditLineClosing is true)
+                RenewedCardAccountRegOrder order = new RenewedCardAccountRegOrder();
+                order = order.GetRenewedCardAccountRegOrder(Id);
+                if (order.CreditLineProductId != 0)
                 {
-                    try
+                    List<LoanProductProlongation> list = LoanProduct.GetLoanProductProlongations((ulong)order.CreditLineProductId);
+                    if (list is null)
                     {
-                        long creditLineAppId = cardRenewOrder.CreditLineProductId;
-                        string expiryDate = Card.GetCardExpireDateActivatedInArCa(cardRenewOrder.Card.CardNumber);
-                        result.Errors = ChangeExceedLimitRequest.CloseCreditLine(CustomerNumber, (ulong)creditLineAppId, Id, user.userID, expiryDate);
-                    }
-                    catch
-                    {
-                        result.Errors.AddRange(new List<ActionError> { new ActionError { Description = "Ուղարկվելու է ԱՐՔԱ՝ հերթական ֆայլով" } });
+                        try
+                        {
+                            string expiryDate = Card.GetExDate(order.Card.CardNumber);
+                            result.Errors = ChangeExceedLimitRequest.CloseCreditLine(CustomerNumber, (ulong)order.CreditLineProductId, Id, user.userID, expiryDate);
+                        }
+                        catch
+                        {
+                            result.Errors.AddRange(new List<ActionError> { new ActionError { Description = "Ուղարկվելու է ԱՐՔԱ՝ հերթական ֆայլով" } });
+                        }
                     }
                 }
             }
@@ -1762,7 +1784,7 @@ namespace ExternalBanking
             if (this.Type == OrderType.CreditLineMature &&
                 (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline))
             {
-                
+
                 Utility.SaveCreditLineLogs(Convert.ToUInt64(OrderNumber), "ConfirmOrderStepTerm2", " ");
                 try
                 {
@@ -1824,6 +1846,28 @@ namespace ExternalBanking
         public static OrderType GetOrderType(long id)
         {
             return OrderDB.GetOrderType(id);
+        }
+        public ActionResult SaveTransactionTypeByAML(Order order)
+        {
+            ActionResult actionResult = new ActionResult();
+            actionResult = TransactionTypeByAML.Validate(order);
+
+            if (actionResult.ResultCode == ResultCode.Normal && order.TransactionTypeByAML != null)
+            {
+                TransactionTypeByAML.SaveTransactionTypeByAML(order.Id);
+            }
+
+            return actionResult;
+        }
+
+        /// <summary>
+        /// Ստուգում է՝ արդյոք տվյալ հաշվեհամարի դեպքում ՀՀ տարածքում փոխանցման միջնորդավճար սահմանված է, թե ոչ
+        /// </summary>
+        /// <param name="accountNumber">Հաշվեհամար</param>
+        /// <returns></returns>
+        public static bool CheckAccountForNonFee(string accountNumber)
+        {
+            return OrderDB.CheckAccountForNonFee(accountNumber);
         }
 
     }

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
     internal class DepositCaseDB
     {
 
-        private static string depositCaseSelectScript= @"SELECT
+        private static string depositCaseSelectScript = @"SELECT
                                                                 customer_number,
                                                                 app_id,
                                                                 date_of_beginning,
@@ -31,7 +31,7 @@ namespace ExternalBanking.DBManager
                                                                 change_set_number
                                                                 FROM
                                                                 Tbl_deposit_case_contracts ";
-                                                                
+
 
 
         internal static List<DepositCase> GetDepositCases(ulong customerNumber)
@@ -43,7 +43,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.Connection = conn;
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = depositCaseSelectScript+ " WHERE (customer_number=@customer_number or add_customer_number=@customer_number) and quality<>40";
+                    cmd.CommandText = depositCaseSelectScript + " WHERE (customer_number=@customer_number or add_customer_number=@customer_number) and quality<>40";
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
                     conn.Open();
@@ -78,7 +78,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.Connection = conn;
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = depositCaseSelectScript+" WHERE (customer_number=@customer_number or add_customer_number=@customer_number) and quality=40";
+                    cmd.CommandText = depositCaseSelectScript + " WHERE (customer_number=@customer_number or add_customer_number=@customer_number) and quality=40";
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
 
                     conn.Open();
@@ -161,7 +161,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.Connection = conn;
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = depositCaseSelectScript+ " WHERE (customer_number=@customer_number or add_customer_number=@customer_number) and app_id=@product_id";
+                    cmd.CommandText = depositCaseSelectScript + " WHERE (customer_number=@customer_number or add_customer_number=@customer_number) and app_id=@product_id";
                     cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
                     cmd.Parameters.Add("@product_id", SqlDbType.Float).Value = productId;
                     conn.Open();
@@ -369,7 +369,7 @@ namespace ExternalBanking.DBManager
 
         }
 
-        
+
 
 
 

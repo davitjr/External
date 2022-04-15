@@ -1,15 +1,11 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Transactions;
 
 namespace ExternalBanking
 {
-    public class StatmentByEmailOrder:Order
+    public class StatmentByEmailOrder : Order
     {
         /// <summary>
         /// Email ների ցանկ
@@ -128,17 +124,17 @@ namespace ExternalBanking
             StatmentByEmailOrderDB.Get(this);
         }
 
-         /// <summary>
+        /// <summary>
         /// Լրացնում է վճարման հանձնարարականի ավտոմատ լրացվող դաշտերը
         /// </summary>
         private void Complete()
         {
-            if (this.OrderNumber == null || this.OrderNumber == "") 
+            if (this.OrderNumber == null || this.OrderNumber == "")
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.SubType = 1;
 
-            if(Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)
+            if (Source == SourceType.MobileBanking || Source == SourceType.AcbaOnline)
             {
                 this.RegistrationDate = DateTime.Now;
             }
@@ -205,10 +201,10 @@ namespace ExternalBanking
                     scope.Complete();
                 }
             }
-            result=base.Confirm(user);
-           
+            result = base.Confirm(user);
 
-            if(Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
+
+            if (Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
             {
                 result = base.Confirm(user);
 
@@ -216,6 +212,6 @@ namespace ExternalBanking
 
             return result;
         }
-          
+
     }
 }

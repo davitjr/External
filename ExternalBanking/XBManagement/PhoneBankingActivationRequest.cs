@@ -1,13 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Data.SqlClient;
-using System.Transactions;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking.XBManagement
 {
@@ -32,7 +23,7 @@ namespace ExternalBanking.XBManagement
         /// Փոփոխման ա/թ
         /// </summary>
         public DateTime RequestDate { get; set; }
-        
+
         /// <summary>
         /// Սպասարկման գումար
         /// </summary>

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 
 namespace ExternalBanking.DBManager
 {
@@ -35,16 +35,16 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@reg_date", SqlDbType.DateTime).Value = order.RegistrationDate.Date;
                     cmd.Parameters.Add("@username", SqlDbType.NChar, 20).Value = userName;
                     cmd.Parameters.Add("@source_type", SqlDbType.Int).Value = (int)source;
-                    cmd.Parameters.Add("@phone", SqlDbType.NVarChar, 70).Value = order.HomePhoneNumber!=null?order.HomePhoneNumber:"";
-                    cmd.Parameters.Add("@mobile", SqlDbType.NVarChar, 70).Value = order.MobilePhoneNumber!=null?order.MobilePhoneNumber:"";
+                    cmd.Parameters.Add("@phone", SqlDbType.NVarChar, 70).Value = order.HomePhoneNumber != null ? order.HomePhoneNumber : "";
+                    cmd.Parameters.Add("@mobile", SqlDbType.NVarChar, 70).Value = order.MobilePhoneNumber != null ? order.MobilePhoneNumber : "";
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
                     if (order.GroupId != 0)
                     {
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
                     }
                     string Email = "";
-                    int count=0;
-                    for (int j = 0; j < order.EmailAddress.Count;j++ )
+                    int count = 0;
+                    for (int j = 0; j < order.EmailAddress.Count; j++)
                     {
                         if (!string.IsNullOrEmpty(order.EmailAddress[j]))
                         {
@@ -60,7 +60,7 @@ namespace ExternalBanking.DBManager
                         }
                     }
                     cmd.Parameters.Add("@e_mail", SqlDbType.NVarChar, 100).Value = Email;
-                    cmd.Parameters.Add("@password", SqlDbType.NVarChar, 30).Value = order.Password!=null?order.Password:"";
+                    cmd.Parameters.Add("@password", SqlDbType.NVarChar, 30).Value = order.Password != null ? order.Password : "";
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
                     cmd.Parameters.Add(param);
@@ -126,7 +126,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = order.Id;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 dt.Load(cmd.ExecuteReader());
-                if (dt.Rows.Count>0)
+                if (dt.Rows.Count > 0)
                 {
                     order.OrderNumber = dt.Rows[0]["document_number"].ToString();
                     order.Type = (OrderType)dt.Rows[0]["document_type"];

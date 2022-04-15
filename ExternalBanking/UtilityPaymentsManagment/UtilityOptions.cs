@@ -1,10 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -75,7 +71,7 @@ namespace ExternalBanking
 
 
 
-        public static List<string> GetExistsNotSentAndSettledRows(Dictionary<int,bool> keyValues)
+        public static List<string> GetExistsNotSentAndSettledRows(Dictionary<int, bool> keyValues)
         {
             List<string> list = UtilityOptionsDB.GetExistsNotSentAndSettledRows(keyValues);
 

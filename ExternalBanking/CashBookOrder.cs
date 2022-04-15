@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.ACBAServiceReference;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -135,10 +132,25 @@ namespace ExternalBanking
                     List<double> operationAccounts = CashBookOrderDB.GetOperationAccounts(cashbook);
                     DebitAccount = new Account();
                     DebitAccount.AccountNumber = operationAccounts[1].ToString();
-                    DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+                    if (user.isOnlineAcc)
+                    {
+                        DebitAccount = Account.GetSystemAccount(DebitAccount.AccountNumber);
+                    }
+                    else
+                    {
+                        DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+                    }
                     if (CorrespondentAccountType == 1)
                     {
-                        CreditAccount = Account.GetAccount(CreditAccount.AccountNumber);
+                        if (user.isOnlineAcc)
+                        {
+                            CreditAccount = Account.GetSystemAccount(CreditAccount.AccountNumber);
+                        }
+                        else
+                        {
+                            CreditAccount = Account.GetAccount(CreditAccount.AccountNumber);
+                        }
+                        
                     }
                     //else if (CorrespondentAccountType == 2)
                     //{
@@ -154,10 +166,29 @@ namespace ExternalBanking
                 {
                     List<double> operationAccounts = CashBookOrderDB.GetOperationAccounts(cashbook, user.filialCode, user.AdvancedOptions["isHeadCashBook"]);
                     DebitAccount.AccountNumber = operationAccounts[0].ToString();
-                    DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+
+                    if (user.isOnlineAcc)
+                    {
+                        DebitAccount = Account.GetSystemAccount(DebitAccount.AccountNumber);
+                    }
+                    else
+                    {
+                        DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+                    }
+
+                    
                     if (CorrespondentAccountType == 1)//Հաճախորդի հաշիվ
                     {
-                        CreditAccount = Account.GetAccount(CreditAccount.AccountNumber);
+                        if (user.isOnlineAcc)
+                        {
+                            CreditAccount = Account.GetSystemAccount(CreditAccount.AccountNumber);
+                        }
+                        else
+                        {
+                            CreditAccount = Account.GetAccount(CreditAccount.AccountNumber);
+                        }
+
+                            
                     }
                     else if (CorrespondentAccountType == 2)//Դրամարկղ
                     {
@@ -172,10 +203,28 @@ namespace ExternalBanking
                 {
                     List<double> operationAccounts = CashBookOrderDB.GetOperationAccounts(cashbook, user.filialCode, user.AdvancedOptions["isHeadCashBook"]);
                     CreditAccount.AccountNumber = operationAccounts[1].ToString();
-                    CreditAccount = Account.GetAccount(CreditAccount.AccountNumber);
+
+                    if (user.isOnlineAcc)
+                    {
+                        CreditAccount = Account.GetSystemAccount(CreditAccount.AccountNumber);
+                    }
+                    else
+                    {
+                        CreditAccount = Account.GetAccount(CreditAccount.AccountNumber);
+                    }
+
                     if (CorrespondentAccountType == 1)//Հաճախորդի հաշիվ
                     {
-                        DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+
+                        if (user.isOnlineAcc)
+                        {
+                            DebitAccount = Account.GetSystemAccount(DebitAccount.AccountNumber);
+                        }
+                        else
+                        {
+                            DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+                        }
+                        
                     }
                     else if (CorrespondentAccountType == 2)//Դրամարկղ
                     {
@@ -189,7 +238,16 @@ namespace ExternalBanking
                     CreditAccount = Account.GetAccount(CreditAccount.AccountNumber);
                     if (CorrespondentAccountType == 1)
                     {
-                        DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+
+                        if (user.isOnlineAcc)
+                        {
+                            DebitAccount = Account.GetSystemAccount(DebitAccount.AccountNumber);
+                        }
+                        else
+                        {
+                            DebitAccount = Account.GetAccount(DebitAccount.AccountNumber);
+                        }
+                        
                     }
                     //else if (CorrespondentAccountType == 2)
                     //{
@@ -307,7 +365,7 @@ namespace ExternalBanking
             }
 
             if (this.Type == OrderType.CashBookSurPlusDeficitPartiallyClosing && (cashBookAmount - amount - maturedAmount) < 0)
-			{
+            {
 
                 result.Errors.Add(new ActionError(1514));
             }
@@ -326,7 +384,7 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1511));
 
             }
-            if ((this.Type == OrderType.CashBookSurPlusDeficitPartiallyClosing || this.Type == OrderType.CashBookSurPlusDeficitClosing) && CashBook.HasUnconfirmedOrder(cashbook.ID) == true)
+            if ((this.Type == OrderType.CashBookSurPlusDeficitPartiallyClosing || this.Type == OrderType.CashBookSurPlusDeficitClosing) && CashBook.HasUnconfirmedOrder(cashbook.ID))
             {
                 result.Errors.Add(new ActionError(1512));
             }

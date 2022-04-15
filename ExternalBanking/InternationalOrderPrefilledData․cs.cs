@@ -1,9 +1,6 @@
-﻿using System;
+﻿using ExternalBanking.ACBAServiceReference;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ACBAServiceReference;
 
 namespace ExternalBanking
 {
@@ -76,7 +73,7 @@ namespace ExternalBanking
                     Phone phone;
                     if (person.PhoneList.FindAll(m => m.priority.key == 1).Count != 0)
                     {
-                       phone = person.PhoneList.Find(m => m.priority.key == 1).phone;
+                        phone = person.PhoneList.Find(m => m.priority.key == 1).phone;
                     }
                     else
                         phone = person.PhoneList.Find(m => m.priority.key == 0).phone;
@@ -107,7 +104,7 @@ namespace ExternalBanking
             CustomerAddress defaultAddress = addressList.Find(m => m.priority.key == 1);
             this.SenderCountry = defaultAddress.address.Country.key;
 
-        } 
+        }
         #endregion
     }
 }

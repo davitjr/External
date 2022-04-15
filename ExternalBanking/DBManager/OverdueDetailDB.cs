@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
 namespace ExternalBanking.DBManager
 {
     static class OverdueDetailDB
@@ -92,7 +92,7 @@ namespace ExternalBanking.DBManager
                 {
                     detail.StartDate = DateTime.Parse(row["start_date"].ToString());
                 }
-               
+
                 if (!String.IsNullOrEmpty(row["end_date"].ToString()))
                 {
                     detail.EndDate = DateTime.Parse(row["end_date"].ToString());
@@ -100,7 +100,7 @@ namespace ExternalBanking.DBManager
             }
 
             return detail;
-  
+
         }
 
         /// <summary>

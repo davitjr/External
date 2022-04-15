@@ -1,9 +1,6 @@
 ﻿using ExternalBanking.DBManager;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking
 {
@@ -45,7 +42,7 @@ namespace ExternalBanking
         /// <param name="productId"></param>
         /// <param name="dateFrom"></param>
         /// <returns></returns>
-        public static List<LoanProductClassification> GetLoanProductClassifications(ulong productId,DateTime dateFrom)
+        public static List<LoanProductClassification> GetLoanProductClassifications(ulong productId, DateTime dateFrom)
         {
             List<LoanProductClassification> result = LoanProductClassificationDB.GetLoanProductClassifications(productId, dateFrom);
             return result;

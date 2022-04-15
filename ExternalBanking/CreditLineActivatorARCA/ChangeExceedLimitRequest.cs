@@ -2,9 +2,6 @@
 using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.CreditLineActivatorARCA
 {
@@ -135,7 +132,7 @@ namespace ExternalBanking.CreditLineActivatorARCA
                 request.CardIdentification = new CardIdentification();
                 string expDate;
                 request.CardIdentification.CardNumber = cardNumber;
-                if (expiryDate.Equals(""))
+                if (string.IsNullOrEmpty(expiryDate))
                 {
                     expDate = Card.GetExDate(cardNumber);
                 }
@@ -172,7 +169,7 @@ namespace ExternalBanking.CreditLineActivatorARCA
                     }
                     catch { }
                     CreditLine.UpdateCloseCreditLinesFnameOnline(productId);
-                    CreditLine.SaveCreditLineByApiGate(docId, productId,orderId);
+                    CreditLine.SaveCreditLineByApiGate(docId, productId, orderId);
                 }
                 else
                 {

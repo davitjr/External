@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExternalBanking.ARUSDataService;
+﻿using ExternalBanking.ARUSDataService;
 
 namespace ExternalBanking
 {
@@ -15,7 +10,7 @@ namespace ExternalBanking
         public string TransactionCode { get; set; }
 
 
-        public ActionResult ResponseConfirm(string authorizedUserSessionToken, string userName, string clientIP) 
+        public ActionResult ResponseConfirm(string authorizedUserSessionToken, string userName, string clientIP)
         {
             string transactionCode = "";
 

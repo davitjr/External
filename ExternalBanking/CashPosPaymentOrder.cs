@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -46,7 +45,16 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = CashPosPaymentOrderDB.Save(this, userName, source);
-               
+
+                if (source == SourceType.Bank || ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline) && bool.Parse(ConfigurationManager.AppSettings["TransactionTypeByAMLForMobile"].ToString())))
+                {
+                    result = base.SaveTransactionTypeByAML(this);
+                    if (result.ResultCode != ResultCode.Normal)
+                    {
+                        return result;
+                    }
+                }
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;
@@ -127,7 +135,7 @@ namespace ExternalBanking
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
             //Կանխիկացում POS  տերմինալով եթե մջնորդավճարը կանխիկ է 
-            if (this.Type == OrderType.CashPosPayment )
+            if (this.Type == OrderType.CashPosPayment)
             {
                 if (this.Fees != null)
                 {
@@ -143,9 +151,9 @@ namespace ExternalBanking
                 }
             }
 
-             this.PosAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), this.Currency, user.filialCode);
+            this.PosAccount = Account.GetOperationSystemAccount(Utility.GetOperationSystemAccountType(this, OrderAccountType.DebitAccount), this.Currency, user.filialCode);
 
-             if (this.CreditAccount != null && this.CreditAccount.Status == 7)
+            if (this.CreditAccount != null && this.CreditAccount.Status == 7)
             {
                 this.CreditAccount = Account.GetSystemAccount(this.CreditAccount.AccountNumber);
             }
@@ -158,13 +166,13 @@ namespace ExternalBanking
             List<ActionError> result = new List<ActionError>();
             if (this.Currency != "AMD" && this.Currency != "USD" && this.Currency != "EUR")
                 result.Add(new ActionError(667));
-            return result;  
+            return result;
         }
 
         private List<ActionError> ValidateCardNumber()
         {
             List<ActionError> result = new List<ActionError>();
-            if(this.CardNumber.Length!=15 || this.CardNumber.Length!=16 || this.CardNumber.Length!=19)
+            if (this.CardNumber.Length != 15 || this.CardNumber.Length != 16 || this.CardNumber.Length != 19)
                 result.Add(new ActionError(534));
             return result;
         }

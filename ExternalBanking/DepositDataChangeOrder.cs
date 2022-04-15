@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ExternalBanking.DBManager;
-using ExternalBanking.ACBAServiceReference;
+﻿using ExternalBanking.DBManager;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -11,7 +6,7 @@ namespace ExternalBanking
     /// <summary>
     /// Ավանդային տվյալների փոփոխման հայտ
     /// </summary>
-    public class DepositDataChangeOrder:Order
+    public class DepositDataChangeOrder : Order
     {
         /// <summary>
         /// Ավանդ
@@ -66,7 +61,7 @@ namespace ExternalBanking
                     break;
                 default:
                     break;
-                       
+
             }
 
         }
@@ -125,7 +120,7 @@ namespace ExternalBanking
                     OrderQuality nextQuality = GetNextQuality(schemaType);
 
                     result = base.Approve(schemaType, userName);
-                                       
+
                     if (result.ResultCode == ResultCode.Normal)
                     {
                         LogOrderChange(user, Action.Update);
@@ -148,11 +143,11 @@ namespace ExternalBanking
 
         public ActionResult SaveAndApprove(string userName, short schemaType)
         {
-          
+
             this.Complete();
             ActionResult result = this.Validate();
 
-            if(result.Errors.Count > 0)
+            if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
@@ -163,7 +158,7 @@ namespace ExternalBanking
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
             {
                 result = DepositDataChangeOrderDB.SaveDepositDataChangeOrder(this, userName);
-               
+
                 if (result.ResultCode != ResultCode.Normal)
                 {
                     return result;

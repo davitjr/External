@@ -3,11 +3,7 @@ using ExternalBankingService.Interfaces;
 using NLog;
 using NLog.Targets;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
 using System.Web.Configuration;
 using infsec = ExternalBankingService.InfSecServiceReference;
 
@@ -207,6 +203,49 @@ namespace ExternalBankingService
             }
 
         }
+
+        public ActionResult ConfirmLoanProductActivationOrder(LoanProductActivationOrder order)
+        {
+            try
+            {
+                //XBService service = new XBService(ClientIp, Language, AuthorizedCustomer, User, Source);
+                
+                return order.Confirm(User);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public long? CheckPreviousActivationOrderId(LoanProductActivationOrder order)
+        {
+            try
+            {
+                return LoanProductActivationOrder.CheckPreviousActivationOrderId(order);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public LoanProductActivationOrder GetLoanProductActivationOrder(LoanProductActivationOrder order)
+        {
+            try
+            {
+                order.Get();
+                return order;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
 
 
     }

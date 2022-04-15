@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ExternalBanking.CTPayment;
 using ExternalBanking.DBManager;
+using System;
 using System.Transactions;
-using ExternalBanking.CTPayment;
 
 namespace ExternalBanking
 {
@@ -18,7 +14,7 @@ namespace ExternalBanking
         /// Կրեդիտագրվող հաշիվ
         /// </summary>
         public Account CreditAccount { get; set; }
-        
+
         /// <summary>
         /// Փոխանակման փոխարժեք
         /// </summary>
@@ -81,7 +77,7 @@ namespace ExternalBanking
             {
                 this.RegistrationDate = DateTime.Now.Date;
 
-                this.Description = this.CTCustomerDescription + " " + "Վարկի մարում այլ կանխիկ տերմինալով: " + this?.Description; 
+                this.Description = this.CTCustomerDescription + " " + "Վարկի մարում այլ կանխիկ տերմինալով: " + this?.Description;
 
                 this.Quality = OrderQuality.Draft;
                 this.Type = OrderType.LoanMature;
@@ -132,5 +128,5 @@ namespace ExternalBanking
         {
             return Loan.GetLoan(loanFullNumber);
         }
-}
+    }
 }

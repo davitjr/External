@@ -19,7 +19,6 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@operationTypeId", SqlDbType.Int).Value = operationTypeId;
 
-                DataTable dt = new DataTable();
                 using SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())

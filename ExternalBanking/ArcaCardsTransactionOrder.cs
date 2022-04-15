@@ -1,13 +1,8 @@
-﻿using ExternalBanking.ACBAServiceReference;
-using ExternalBanking.ArcaDataServiceReference;
+﻿using ExternalBanking.ArcaDataServiceReference;
 using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking

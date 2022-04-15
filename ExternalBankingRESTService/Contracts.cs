@@ -1,8 +1,6 @@
-﻿using System;
+﻿using ExternalBankingRESTService.ContractServiceReference;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using ExternalBankingRESTService.ContractServiceReference;
 
 namespace ExternalBankingRESTService
 {
@@ -33,7 +31,7 @@ namespace ExternalBankingRESTService
 
                 using (ContractOerationServiceClient proxy = new ContractOerationServiceClient())
                 {
-                  
+
                     fileContent = proxy.DownloadContractHTML(contract, "MB", "0");
                 }
 
