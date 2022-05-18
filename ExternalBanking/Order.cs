@@ -629,7 +629,7 @@ namespace ExternalBanking
                 {
                     OrderDB.ChangeQuality(Id, OrderQuality.TransactionLimitApprovement, userName);
                 }
-                else
+                else 
                 {
                     OrderDB.ChangeQuality(Id, nextQuality, userName);
                 }
