@@ -23,9 +23,9 @@ namespace ExternalBanking
 
         private string PhoneCode { get; set; }
 
-        private string Phone { get; set; }
+        public string PosPhone { get; set; }
 
-        public string FullPhoneNumber => PhoneCode + Phone;
+        public string FullPhoneNumber => "374" + PosPhone;
 
         public string AccountNumber { get; set; }
 
@@ -39,6 +39,7 @@ namespace ExternalBanking
 
         public string ContactPersonPhone { get; set; }
 
+        public string ContactPersonFullPhone => $"374{ContactPersonPhone}";
         public byte TerminalType { get; set; }
 
         public int PosCount { get; set; }
@@ -51,7 +52,10 @@ namespace ExternalBanking
 
         public byte AllTerminals { get; set; }
 
-        public List<int> CardSystemForService { get; set; }
+        public string MainBank { get; set; }
+
+        public List<NewPosLocationServiceCardTypes> CardSystemForService { get; set; }
+
 
 
 
@@ -160,7 +164,10 @@ namespace ExternalBanking
             return PosLocationDB.NewPosApplicationOrderDetails(orderId);
         }
 
-
+        public List<string> GetPosTerminalActivitySphere()
+        {
+            return PosLocationDB.GetPosTerminalActivitySphere();
+        }
 
 
     }

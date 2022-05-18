@@ -11303,5 +11303,11 @@ namespace ExternalBanking
             return OrderDetail;
         }
 
+        //Davit Pos
+        public List<string> GetPosTerminalActivitySphere()
+        {
+            NewPosLocationOrder OrderDetail = new NewPosLocationOrder();
+            return OrderDetail.GetPosTerminalActivitySphere(); 
+        }
     }
 }

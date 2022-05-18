@@ -3688,5 +3688,9 @@ namespace ExternalBankingService.Interfaces
         [OperationContract]
         NewPosLocationOrder NewPosApplicationOrderDetails(long orderId);
 
+        [OperationContract]
+        List<string> GetPosTerminalActivitySphere();
+       
+
     }
 }

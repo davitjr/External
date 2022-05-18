@@ -19286,5 +19286,24 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
+
+        //Davit Pos
+        public List<string> GetPosTerminalActivitySphere()
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                return customer.GetPosTerminalActivitySphere();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+
+        
     }
 }

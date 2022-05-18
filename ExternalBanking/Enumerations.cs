@@ -1133,7 +1133,7 @@ namespace ExternalBanking
         /// <summary>
         /// POS տերմինալի մուտքագռման հայտ
         /// </summary>
-        NewPosTerminalInsertOrder = 266
+        NewPosTerminalInsertOrder = 268
     }
 
     /// <summary>

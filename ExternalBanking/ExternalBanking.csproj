@@ -363,6 +363,7 @@
     <Compile Include="MRDataChangeOrder.cs" />
     <Compile Include="Acbamat\AcbamatExchangeOrder.cs" />
     <Compile Include="NewPosLocationOrder.cs" />
+    <Compile Include="NewPosLocationServiceCardTypes.cs" />
     <Compile Include="NonCreditLineCardReplaceOrder.cs" />
     <Compile Include="OperDayModeFilter.cs" />
     <Compile Include="DBManager\OperDayModeFilterDB.cs" />

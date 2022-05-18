@@ -164,7 +164,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@Activity_Sphere", SqlDbType.NVarChar, 20).Value = order.ActivitySphere;
                     cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar).Value = order.Mail;
                     cmd.Parameters.Add("@Contact_Person", SqlDbType.NVarChar, 20).Value = order.ContactPerson;
-                    cmd.Parameters.Add("@Contact_Person_Phone", SqlDbType.NVarChar, 20).Value = order.ContactPersonPhone;
+                    cmd.Parameters.Add("@Contact_Person_Phone", SqlDbType.NVarChar, 20).Value = order.ContactPersonFullPhone;
                     cmd.Parameters.Add("@Pos_Count", SqlDbType.Int).Value = order.PosCount;
                     cmd.Parameters.Add("@Pos_Serial_number", SqlDbType.NVarChar).Value = order.PosSerialNumber;
                     cmd.Parameters.Add("@PosType", SqlDbType.SmallInt).Value = order.PosType;
@@ -175,6 +175,10 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@AccountNumber", SqlDbType.NVarChar).Value = order.AccountNumber;
                     cmd.Parameters.Add("@Necessity", SqlDbType.NVarChar).Value = order.Necessity;
                     cmd.Parameters.Add("@NewHdm", SqlDbType.Bit).Value = order.NewHdm;
+                    cmd.Parameters.Add("@Pos_Address", SqlDbType.NVarChar).Value = order.PosAddress;
+                    cmd.Parameters.Add("@Main_Bank", SqlDbType.NVarChar).Value = order.MainBank;
+
+
 
                     DataTable TableForParam = GetCardSystemForServiceDataTable(order.CardSystemForService);
 
@@ -201,53 +205,26 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        private static DataTable GetCardSystemForServiceDataTable(List<int> CardSystemForService)
+        private static DataTable GetCardSystemForServiceDataTable(List<NewPosLocationServiceCardTypes> CardSystemForService)
         {
             DataTable dt = new DataTable();
 
-            dt.Columns.Add("Arca");
-            dt.Columns.Add("Visa");
-            dt.Columns.Add("MasterCard");
-            dt.Columns.Add("AMEX");
-            dt.Columns.Add("Jcb");
-            dt.Columns.Add("Upi");
-            dt.Columns.Add("Mir");
+            dt.Columns.Add("CardsystemId");
+            dt.Columns.Add("Fee");
+            dt.Columns.Add("FeeInt");
 
             if (CardSystemForService.Any())
-            {
-                DataRow dr = dt.NewRow();
+            {             
                 foreach (var item in CardSystemForService)
                 {
-                    if (item == 9)
-                    {
-                        dr["Arca"] = 1;
-                    }
-                    else if (item == 4)
-                    {
-                        dr["Visa"] = 1;
-                    }
-                    else if (item == 5)
-                    {
-                        dr["MasterCard"] = 1;
-                    }
-                    else if (item == 3)
-                    {
-                        dr["AMEX"] = 1;
-                    }
-                    else if (item == 7)
-                    {
-                        dr["Jcb"] = 1;
-                    }
-                    else if (item == 8)
-                    {
-                        dr["Upi"] = 1;
-                    }
-                    else if (item == 2)
-                    {
-                        dr["Mir"] = 1;
-                    }
-                }
-                dt.Rows.Add(dr);
+                    DataRow dr = dt.NewRow();                  
+                   
+                        dr["CardsystemId"] = item.Id;
+                        dr["Fee"] = item.Fee;
+                        dr["FeeInt"] = item.FeeInt;
+
+                    dt.Rows.Add(dr);
+                }          
             }
 
             return dt;
@@ -300,7 +277,33 @@ namespace ExternalBanking.DBManager
             }
         }
 
+        internal static List<string> GetPosTerminalActivitySphere()
+        {
+            List<string> ActivitySphere = new List<string>();
 
+                DataTable dt = new DataTable();
+
+            string sql = @"SELECT Sphere FROM tbl_Pos_Terminals_Activity_Sphere ORDER BY ID";
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    conn.Open();
+
+                    dt.Load(cmd.ExecuteReader());
+
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        ActivitySphere.Add(dr["Sphere"].ToString());
+                    }
+                }
+
+                return ActivitySphere;
+            }
+        }
+
+       
 
     }
 }
