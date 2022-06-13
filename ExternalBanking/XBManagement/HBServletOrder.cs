@@ -486,7 +486,17 @@ namespace ExternalBanking.XBManagement
                             if (hasRisks)
                             {
                                 HBTokenDB.SaveMobileTokenActivationDetailsForRiskyChanges(CasServletResult.ResultValue);
-                                EmailMessagingOperations.SendMobileBankingCustomerDetailsRiskyChangeAlert(CasServletResult.ResultValue);
+                                string mailContent = EmailMessagingOperationsDB.GetRiskyChangesAlertMailContent(CasServletResult.ResultValue);
+
+                                EmailMessagingService.Email email = new EmailMessagingService.Email
+                                {
+                                    Content = mailContent,
+                                    Subject = "ACBA DIGITAL alert",
+                                    From = (int)EmailSenderProfiles.Notifications,
+                                    To = "digitalmonitoring@acba.am"
+                                };
+
+                                EmailMessagingOperations.SendEmail(email);
                             }
                         }
                         catch (Exception ex)

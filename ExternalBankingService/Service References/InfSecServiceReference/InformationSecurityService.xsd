@@ -1,22 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary.CustomerAuthorization" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary.CustomerAuthorization" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:complexType name="CustomertData">
+<xs:schema xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/Arrays" elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="ArrayOfKeyValueOfstringstring">
+    <xs:annotation>
+      <xs:appinfo>
+        <IsDictionary xmlns="http://schemas.microsoft.com/2003/10/Serialization/">true</IsDictionary>
+      </xs:appinfo>
+    </xs:annotation>
     <xs:sequence>
-      <xs:element minOccurs="0" name="BranchCode" type="xs:int" />
-      <xs:element minOccurs="0" name="CustomerNumber" type="xs:unsignedLong" />
-      <xs:element minOccurs="0" name="DailyTransactionsLimit" type="xs:double" />
-      <xs:element minOccurs="0" name="FullName" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="IsIdentified" type="xs:boolean" />
-      <xs:element minOccurs="0" name="IsPhoneBankingClient" type="xs:boolean" />
-      <xs:element minOccurs="0" name="LimitOfDayOtherAccount" type="xs:int" />
-      <xs:element minOccurs="0" name="LimitOfDayOwnAccount" type="xs:int" />
-      <xs:element minOccurs="0" name="LimitOfOneTransactionOtherAccount" type="xs:int" />
-      <xs:element minOccurs="0" name="LimitOfOneTransactionOwnAccount" type="xs:int" />
-      <xs:element minOccurs="0" name="OneTransactionLimit" type="xs:double" />
-      <xs:element minOccurs="0" name="PhoneNumber" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="SMSCode" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="SessionID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="KeyValueOfstringstring">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Key" nillable="true" type="xs:string" />
+            <xs:element name="Value" nillable="true" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="CustomertData" nillable="true" type="tns:CustomertData" />
+  <xs:element name="ArrayOfKeyValueOfstringstring" nillable="true" type="tns:ArrayOfKeyValueOfstringstring" />
+  <xs:complexType name="ArrayOfArrayOfKeyValueOfintstring">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfKeyValueOfintstring" nillable="true" type="tns:ArrayOfKeyValueOfintstring" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfArrayOfKeyValueOfintstring" nillable="true" type="tns:ArrayOfArrayOfKeyValueOfintstring" />
+  <xs:complexType name="ArrayOfKeyValueOfintstring">
+    <xs:annotation>
+      <xs:appinfo>
+        <IsDictionary xmlns="http://schemas.microsoft.com/2003/10/Serialization/">true</IsDictionary>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="KeyValueOfintstring">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Key" type="xs:int" />
+            <xs:element name="Value" nillable="true" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfKeyValueOfintstring" nillable="true" type="tns:ArrayOfKeyValueOfintstring" />
 </xs:schema>

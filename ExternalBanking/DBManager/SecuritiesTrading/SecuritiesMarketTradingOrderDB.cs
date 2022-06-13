@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace ExternalBanking.DBManager
 {
@@ -50,6 +51,8 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@confirm_order_user_name", SqlDbType.NVarChar, 200).Value = order.ConfirmOrderUserName;
                 cmd.Parameters.Add("@transaction_place", SqlDbType.NVarChar, 200).Value = order.TransactionPlace;
                 cmd.Parameters.Add("@residual_quantity", SqlDbType.Float).Value = order.ResidualQuantity;
+                cmd.Parameters.Add("@amount_for_payment", SqlDbType.Float).Value = order.TransferFee;
+                cmd.Parameters.Add("@acba_fee", SqlDbType.Float).Value = order.AcbaFee;
 
                 if (order.GroupId != 0)
                     cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
@@ -96,7 +99,7 @@ namespace ExternalBanking.DBManager
                 using SqlCommand cmd = new SqlCommand(@" SELECT *
 		                                           FROM Tbl_HB_documents HB 
                                                    INNER JOIN Tbl_securities_market_trading_order s ON hb.doc_ID = s.market_trading_order_id                                                 
-                                                   WHERE s.order_id=@DocID ", conn);
+                                                   WHERE s.order_id=@DocID AND HB.quality = 30", conn);
 
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = orderId;
                 dt.Load(cmd.ExecuteReader());
@@ -105,14 +108,25 @@ namespace ExternalBanking.DBManager
                 {
                     SecuritiesMarketTradingOrder order = new SecuritiesMarketTradingOrder();
                     order.Id = long.Parse(item["order_id"].ToString());
+                    order.CustomerNumber = ulong.Parse(item["customer_number"].ToString());
+                    order.GetSecuritiesTradingOrder(Languages.hy, false);
+
+                    order.ExpirationTypeDescription = order.ExpirationType == SecuritiesTradingOrderExpirationType.MarketDayEnd ? "GTD" : "GTC";
+                    order.TypeDescription = order.Type == OrderType.SecuritiesBuyOrder ? "Առք" : order.Type == OrderType.SecuritiesSellOrder ? "Վաճառք" : "Չեղարկում";
+
+                    order.OrderId = long.Parse(item["market_trading_order_id"].ToString());
+                    List<OrderHistory> orderHistory = Order.GetOrderHistory(order.OrderId);
+                    order.ConfirmDate = orderHistory.Where(m => m.Quality == OrderQuality.Completed)?.FirstOrDefault()?.ChangeDate != null ? orderHistory.Where(m => m.Quality == OrderQuality.Completed).FirstOrDefault().ChangeDate : default;
+
+
                     order.RegistrationDate = Convert.ToDateTime(item["registration_date"]);
                     order.Type = (OrderType)item["document_type"];
                     order.SubType = Convert.ToByte(item["document_subtype"]);
                     order.Quality = (OrderQuality)item["quality"];
+                    order.SecuritiTrandingOrderDate = Convert.ToDateTime(item["change_date"]);
 
-                    order.OrderId = long.Parse(item["market_trading_order_id"].ToString());
+
                     order.FullName = item["full_name"].ToString();
-                    order.ConfirmDate = Convert.ToDateTime(item["confirm_date"].ToString());
                     order.ActuallyQuantity = int.Parse(item["actually_quantity"].ToString());
                     order.UnitAmount = decimal.Parse(item["unit_amount"].ToString());
                     order.TotalVolume = decimal.Parse(item["total_volume"].ToString());
@@ -120,6 +134,8 @@ namespace ExternalBanking.DBManager
                     order.ConfirmOrderUserName = item["confirm_order_user_name"].ToString();
                     order.TransactionPlace = item["transaction_place"].ToString();
                     order.ResidualQuantity = decimal.Parse(item["residual_quantity"].ToString());
+                    order.TransferFee = double.Parse(item["amount_for_payment"].ToString());
+                    order.AcbaFee = double.Parse(item["acba_fee"].ToString());
 
                     result.Add(order);
                 }

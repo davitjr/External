@@ -140,7 +140,7 @@ namespace ExternalBanking
         /// Միջնորդավճարի գումար
         /// </summary>
         public double TransferFee { get; set; }
-        
+
         /// <summary>
         /// Բրոքերային կոդ
         /// </summary>
@@ -172,6 +172,16 @@ namespace ExternalBanking
         public string BrokerContractId { get; set; }
 
         /// <summary>
+        /// Ցուցակ
+        /// </summary>
+        public string ListingType { get; set; }
+
+        /// <summary>
+        /// Արտարժութային արժեթղթերի դեպքում հայտի մուտքագրման պահի ԿԲ փոխարժեք
+        /// </summary>
+        public double Rate { get; set; }
+
+        /// <summary>
         /// Արժեթղթերի առուվաճառքի հայտի պահպանում
         /// </summary>
         /// <param name="userName"></param>
@@ -196,10 +206,23 @@ namespace ExternalBanking
             {
 
                 result = SecuritiesTradingOrderDB.SaveSecuritiesTradingOrder(this, userName, source);
-                if (Type == OrderType.SecuritiesBuyOrder)
+                if (result.ResultCode == ResultCode.Normal)
                 {
-                    ActionResult resultOrderFee = SaveOrderFee();
+                    if (Type == OrderType.SecuritiesBuyOrder)
+                    {
+                        ActionResult resultOrderFee = SaveOrderFee();
+                    }
+
+
+                    ActionResult resultOpPerson = base.SaveOrderOPPerson();
+                    if (resultOpPerson.Errors.Count > 0)
+                    {
+                        resultOpPerson.ResultCode = ResultCode.Failed;
+                        return resultOpPerson;
+                    }
                 }
+                   
+
                 //**********
                 LogOrderChange(user, action);
                 scope.Complete();
@@ -210,7 +233,7 @@ namespace ExternalBanking
 
         public ActionResult Validate()
         {
-            ActionResult result = new ActionResult();          
+            ActionResult result = new ActionResult();
 
             if ((this.GroupId != 0) ? !OrderGroup.CheckGroupId(this.GroupId) : false)
             {
@@ -218,14 +241,14 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1628));
             }
 
-            if ((this.TradingOrderType == SecuritiesTradingOrderTypes.Stop || this.TradingOrderType == SecuritiesTradingOrderTypes.Limit) 
+            if ((this.TradingOrderType == SecuritiesTradingOrderTypes.Stop || this.TradingOrderType == SecuritiesTradingOrderTypes.Limit)
                 && !Utility.IsCorrectAmount(this.LimitPrice, this.Currency))
             {
                 //Մուտքագրված գինը սխալ է
                 result.Errors.Add(new ActionError(2067));
             }
-            
-           if (this.TradingOrderType == SecuritiesTradingOrderTypes.StopLimit)
+
+            if (this.TradingOrderType == SecuritiesTradingOrderTypes.StopLimit)
             {
                 if (!Utility.IsCorrectAmount(this.LimitPrice, this.Currency) || !Utility.IsCorrectAmount(this.StopPrice, this.Currency))
                 {
@@ -245,7 +268,22 @@ namespace ExternalBanking
                 //Ընտրված բանկային հաշվի արժույթը պետք է համընկնի արժեթղթի արժույթի հետ։
                 result.Errors.Add(new ActionError(2063));
             }
+            if (Type == OrderType.SecuritiesBuyOrder)
+            {
+                double DepositedAmount = GetSecuritiesTradingOrderDepositedAmount(this);
+                if (DepositedAmount != Amount)
+                {
+                    //Մուտքագրված գումարը սխալ է:
+                    result.Errors.Add(new ActionError(22));
+                }
 
+                (double TotalFee, double ACBA_Fee) = GetSecuritiesTradingOrderFee(0, ISIN, DepositedAmount, SecurityType, ListingType, Currency, 0, 1);
+                if (TotalFee != TransferFee)
+                {
+                    //Միջնորդավճարի գումարը սխալ է:
+                    result.Errors.Add(new ActionError(1423));
+                }
+            }
 
             return result;
         }
@@ -253,7 +291,16 @@ namespace ExternalBanking
         private void Complete(SourceType source)
         {
             this.RegistrationDate = DateTime.Now.Date;
-            this.SubType = 1;
+
+            if (SecurityType == SharesTypes.Bonds)
+            {
+                this.SubType = 1;
+            }
+            else
+            {
+                this.SubType = 2;
+            }
+
             this.ReferenceNumber = GenerateReferenceNumber();
             Utility.GetLastKeyNumber(86, this.FilialCode);
             //this.ExpirationType = SecuritiesTradingOrderExpirationType.MarketDayEnd;
@@ -261,7 +308,7 @@ namespace ExternalBanking
             //Հայտի համար   
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
-            this.Amount = this.Quantity * this.MarketPrice;
+            //this.Amount = this.Quantity * this.MarketPrice;
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             bool hasAccount = false;
@@ -282,9 +329,9 @@ namespace ExternalBanking
             }
         }
 
-        public void GetSecuritiesTradingOrder(Languages Language)
+        public void GetSecuritiesTradingOrder(Languages Language, bool getMarketTrandingOrder = true)
         {
-            SecuritiesTradingOrderDB.GetSecuritiesTradingOrder(this, Language);
+            SecuritiesTradingOrderDB.GetSecuritiesTradingOrder(this, Language, getMarketTrandingOrder);
             Fees = GetOrderFees(Id);
             //if (Fees.Exists(m => m.Type == 20))
             //{
@@ -299,10 +346,10 @@ namespace ExternalBanking
 
             if (result.ResultCode == ResultCode.Normal)
             {
-          
+
                 using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
                 {
-               
+
                     result = base.Approve(schemaType, userName);
 
                     if (result.ResultCode == ResultCode.Normal)
@@ -331,23 +378,66 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
-            //var debetAccountBalance = Account.GetAcccountAvailableBalance(DebitAccount.AccountNumber);
+            if (Type == OrderType.SecuritiesBuyOrder)
+            {
+                double debetAccountBalance = Account.GetAcccountAvailableBalance(DebitAccount.AccountNumber);
+                double feeAccountBalance = Account.GetAcccountAvailableBalance(FeeAccount.AccountNumber);
 
-            //if (debetAccountBalance < Amount)
-            //{
-            //        if (Account.AccountAccessible(DebitAccount.AccountNumber, user.AccountGroup))
-            //        {
-            //            //հաշվի մնացորդը չի բավարարում տվյալ փոխանցումը կատարելու համար:
-            //            result.Errors.Add(new ActionError(499, new string[] { DebitAccount.AccountNumber, debetAccountBalance.ToString("#,0.00") + " " + DebitAccount.Currency }));
-            //        }
-            //        else
-            //        {
-            //            //հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար
-            //            result.Errors.Add(new ActionError(788, new string[] { DebitAccount.AccountNumber }));
-            //        }
-            //}
+                if (debetAccountBalance < Amount)
+                {
+                    if (Account.AccountAccessible(this.DebitAccount.AccountNumber, user.AccountGroup))
+                    {
+                        //հաշվի մնացորդը չի բավարարում տվյալ փոխանցումը կատարելու համար:
+                        result.Errors.Add(new ActionError(499, new string[] { this.DebitAccount.AccountNumber, debetAccountBalance.ToString("#,0.00") + " " + this.DebitAccount.Currency, this.DebitAccount.Balance.ToString("#,0.00") + " " + this.DebitAccount.Currency }));
+                    }
+                    else
+                    {
+                        //հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար
+                        result.Errors.Add(new ActionError(788, new string[] { this.DebitAccount.AccountNumber }));
+                    }
+                }
 
-            if (result.Errors.Count == 0)
+                if (feeAccountBalance < TransferFee)
+                {
+                    if (Account.AccountAccessible(this.FeeAccount.AccountNumber, user.AccountGroup))
+                    {
+                        //հաշվի մնացորդը չի բավարարում տվյալ փոխանցումը կատարելու համար:
+                        result.Errors.Add(new ActionError(499, new string[] { this.FeeAccount.AccountNumber, debetAccountBalance.ToString("#,0.00") + " " + this.FeeAccount.Currency, this.FeeAccount.Balance.ToString("#,0.00") + " " + this.FeeAccount.Currency }));
+                    }
+                    else
+                    {
+                        //հաշվի մնացորդը չի բավարարում գործարքը կատարելու համար
+                        result.Errors.Add(new ActionError(788, new string[] { this.FeeAccount.AccountNumber }));
+                    }
+                }
+
+
+                (double TotalFee, double ACBA_Fee) = GetSecuritiesTradingOrderFee(0, ISIN, Amount, SecurityType, ListingType, Currency, 0, 1);
+                if (TotalFee != TransferFee)
+                {
+                    //Միջնորդավճարի գումարը սխալ է:
+                    result.Errors.Add(new ActionError(1423));
+                }
+
+            }
+
+            else
+            {
+                if(Currency != "AMD")
+                {
+                    if(Rate != Utility.GetCBKursForDate(DateTime.Now.Date, Currency))
+                    {
+                        //Հնարավոր չէ կատարել:Տեղի է ունեցել փոխարժեքի փոփոխություն:
+                        result.Errors.Add(new ActionError(121));
+                    }
+                }
+            }
+
+            if (result.Errors.Count > 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+            }
+            else
             {
                 result.ResultCode = ResultCode.Normal;
             }
@@ -393,9 +483,17 @@ namespace ExternalBanking
         /// <summary>
         /// Արժեթղթերի առուվաճառքի հայտի ստացում հայտի ունիկալ համարով
         /// </summary>
-        public static SecuritiesTradingOrder GetSecuritiesTradingOrderById(long docId, Languages Language) =>
-            SecuritiesTradingOrderDB.GetSecuritiesTradingOrderById(docId, Language);
+        public static SecuritiesTradingOrder GetSecuritiesTradingOrderById(long docId, Languages Language)
+        {
+            var securitiesTrandingOrder = SecuritiesTradingOrderDB.GetSecuritiesTradingOrderById(docId, Language);
 
+            List<OrderHistory> orderHistory = Order.GetOrderHistory(docId);
+            securitiesTrandingOrder.SentDate = orderHistory.Where(m => m.Quality == OrderQuality.Sent3)?.FirstOrDefault()?.ChangeDate;
+            securitiesTrandingOrder.RejectionDate = orderHistory.Where(m => m.Quality == OrderQuality.Declined)?.FirstOrDefault()?.ChangeDate;
+            securitiesTrandingOrder.CancellationDate = orderHistory.Where(m => m.Quality == OrderQuality.Canceled)?.FirstOrDefault()?.ChangeDate;
+
+            return securitiesTrandingOrder;
+        }
         private string GenerateReferenceNumber()
         {
             return "O-" + Utility.GetLastKeyNumber(86, this.FilialCode).ToString() + this.RegistrationDate.ToString("ddMMyyyy");
@@ -421,11 +519,7 @@ namespace ExternalBanking
                 return result;
             }
 
-
-            base.Confirm(user);
-            result = new ActionResult();
-            result.ResultCode = ResultCode.Normal;
-            return result;
+            return base.Confirm(user);
         }
 
         public virtual ActionResult Reject()
@@ -445,12 +539,75 @@ namespace ExternalBanking
             return result;
         }
 
-       public static void UpdateDeposited(ulong docId) => SecuritiesTradingOrderDB.UpdateDeposited(docId);
-       
-        
-        public static int GetCustomerSentSecuritiesTradingOrdersQuantity(string iSIN, ulong customerNumber) 
+        public static void UpdateDeposited(ulong docId) => SecuritiesTradingOrderDB.UpdateDeposited(docId);
+
+
+        public static int GetCustomerSentSecuritiesTradingOrdersQuantity(string iSIN, ulong customerNumber)
             => SecuritiesTradingOrderDB.GetCustomerSentSecuritiesTradingOrdersQuantity(iSIN, customerNumber);
 
-        
+        public virtual ActionResult CompleteSecuritiesTradingOrder()
+        {
+            ActionResult result = ValidateForComplete();
+            if (result.Errors.Count > 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+                Culture culture = new Culture(Languages.hy);
+                Localization.SetCulture(result, culture);
+                return result;
+            }
+
+            SecuritiesTradingOrderDB.CompleteSecuritiesTradingOrder(this.Id, user.userID);
+            result = new ActionResult();
+            result.ResultCode = ResultCode.Normal;
+            return result;
+        }
+
+        public ActionResult ValidateForComplete()
+        {
+            ActionResult result = new ActionResult();
+
+
+            if (Quality != OrderQuality.SBQprocessed)
+            {
+                //Տվյալ կարգավիճակով հայտի համար հնարավոր չէ իրականացնել Կատարել գործողությունը
+                result.Errors.Add(new ActionError(2069));
+            }
+
+
+            return result;
+        }
+        public static double GetSecuritiesTradingOrderDepositedAmount(SecuritiesTradingOrder order)
+        {
+            double DepositedAmount = 0;
+            if (order.TradingOrderType == SecuritiesTradingOrderTypes.Market)
+            {
+                DepositedAmount = order.Quantity * order.MarketPrice * 1.1;
+            }
+            else if (order.TradingOrderType == SecuritiesTradingOrderTypes.Limit)
+            {
+                DepositedAmount = order.Quantity * order.LimitPrice;
+            }
+            else if (order.TradingOrderType == SecuritiesTradingOrderTypes.Stop)
+            {
+                DepositedAmount = order.Quantity * order.LimitPrice * 1.1;
+            }
+            else if (order.TradingOrderType == SecuritiesTradingOrderTypes.StopLimit)
+            {
+                DepositedAmount = order.Quantity * order.LimitPrice;
+            }
+            if (order.Currency == "AMD")
+            {
+                return Math.Round(DepositedAmount, 1);
+            }
+            else
+            {
+                return Math.Round(DepositedAmount, 2);
+            }
+        }
+
+        public static (double, double) GetSecuritiesTradingOrderFee(long OrderId, string ISIN, double DepositedAmount, SharesTypes types, string ListingType, string Currency, int OperationQuantity, short CalculatingType)
+        {
+            return SecuritiesTradingOrderDB.GetSecuritiesTradingOrderFee(OrderId, ISIN, DepositedAmount, types, ListingType, Currency, OperationQuantity, CalculatingType);
+        }
     }
 }

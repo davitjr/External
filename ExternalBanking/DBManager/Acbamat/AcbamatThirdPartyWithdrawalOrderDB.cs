@@ -94,5 +94,42 @@ namespace ExternalBanking.DBManager.Acbamat
                 order.ThirdPartyOrganizationType = (ThirdPartyOrganizationTypes)Convert.ToInt16(dt.Rows[0]["organization_type"].ToString());
             }
         }
+
+        internal static ulong GetThirdPartyOrganizationAccount(ThirdPartyOrganizationTypes organizationType)
+        {
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 Account_Number FROM  [tbl_third_party_account_numbers] WHERE typeId = @organization_type", conn);
+            cmd.Parameters.AddWithValue("@organization_type", organizationType);
+
+            conn.Open();
+            ulong AccountNumber = Convert.ToUInt64(cmd.ExecuteScalar());
+
+            return AccountNumber;
+        }
+
+        internal static string GetThirdPartyOrganizationEmail(ThirdPartyOrganizationTypes organizationType)
+        {
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand(@"SELECT TOP 1 Emails FROM  [tbl_third_party_account_numbers] WHERE typeId = @organization_type", conn);
+            cmd.Parameters.AddWithValue("@organization_type", organizationType);
+
+            conn.Open();
+
+            return cmd.ExecuteScalar().ToString();
+        }
+
+        internal static double GetWithdrawnAmountForToday(string userId)
+        {
+            double sumAmount = 0;
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(@"SELECT dbo.get_sum_withdraw_for_today(@user_id)", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@user_id", SqlDbType.NVarChar, 15).Value = userId;
+                sumAmount = Convert.ToDouble(cmd.ExecuteScalar());
+            }
+            return sumAmount;
+        }
     }
 }

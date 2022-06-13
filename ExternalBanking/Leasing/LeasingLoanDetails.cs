@@ -193,5 +193,13 @@ namespace ExternalBanking.Leasing
         /// </summary>
         public short PaymentsCount { get; set; }
 
+        /// <summary>
+        /// Հերթական մարում
+        /// </summary>
+        public double OrdinalRepayment { get; set; }
+        public List<OtherPayments> Fees { get; set; }
+
+        public List<OtherPayments> OtherPayments { get; set; }
+
     }
 }

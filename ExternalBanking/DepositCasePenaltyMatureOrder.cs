@@ -29,6 +29,14 @@ namespace ExternalBanking
         private void Complete()
         {
             this.RegistrationDate = DateTime.Now.Date;
+            if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
+            {
+                this.FilialCode = (ushort)DepositCase.GetDepositCase(this.ProductId, this.CustomerNumber).FilialCode;
+                this.Description = "Անհատական պահատուփերի գծով մարում";
+
+
+            }
+            
             //Հայտի համար
             if ((this.OrderNumber == null || this.OrderNumber == "") && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
@@ -82,6 +90,15 @@ namespace ExternalBanking
         /// </summary>
         public void Get()
         {
+
+            Fees = GetOrderFees(Id);
+
+            if (Fees.Exists(m => m.Type == 7))
+            {
+               
+                Currency = this.Fees.Find(m => m.Type == 7).Currency;
+                Fees.Find(m => m.Type == 7).Account = this.DebitAccount;
+            }
             DepositCasePenaltyMatureOrderControllerDB.GetDepositCasePenaltyMatureOrder(this);
         }
 
@@ -162,6 +179,75 @@ namespace ExternalBanking
             return resultConfirm;
         }
 
+
+        public ActionResult Save(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
+        {
+            this.Complete();
+            ActionResult result = this.Validate();
+
+            if (result.Errors.Count > 0)
+            {
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+
+
+
+            Action action = this.Id == 0 ? Action.Add : Action.Update;
+
+           using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
+            {
+                result = DepositCasePenaltyMatureOrderControllerDB.SaveDepositCasePenaltyMatureOrder(this, userName);
+
+                if (result.ResultCode != ResultCode.Normal)
+                {
+                    return result;
+                }
+                else
+                {
+                    
+                        ActionResult resultOrderFee = SaveOrderFee();
+                 
+                    base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
+
+                }
+
+                result = base.SaveOrderOPPerson();
+
+                if (result.ResultCode != ResultCode.Normal)
+                {
+                    return result;
+                }
+
+                LogOrderChange(user, action);
+             scope.Complete();
+
+             }
+            result.Id = this.Id;
+            return result;
+        }
+
+
+        public ActionResult Approve(string userName, SourceType source, ACBAServiceReference.User user, short schemaType)
+        {
+
+            ActionResult result = new ActionResult();
+
+            if (this.Type == OrderType.DepositCasePenaltyMatureOrder)
+            {
+                result = this.ValidateForSend();
+                if (result.Errors.Count > 0)
+                {
+                    result.ResultCode = ResultCode.ValidationError;
+                    return result;
+                }
+            }
+
+              result = base.Approve(schemaType, userName);
+              result.Id = this.Id;
+
+            return result;
+        }
 
     }
 }

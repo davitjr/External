@@ -3,6 +3,7 @@ using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -127,6 +128,7 @@ namespace ExternalBanking
             {
                 Account.GetCurrentAccountContractBefore(Id, CustomerNumber, 3);
             }
+            
 
             if ((Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
                 || (((Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking) && OrderAttachment.HasAttachedFile(this.Id, 3))))
@@ -147,6 +149,10 @@ namespace ExternalBanking
             }
             if (result.Errors.Count > 0)
             {
+                this.Quality = OrderQuality.Declined;
+                base.UpdateQuality(this.Quality);
+                base.SetQualityHistoryUserId(this.Quality, user.userID);
+
                 result.ResultCode = ResultCode.ValidationError;
             }
             else
@@ -177,10 +183,18 @@ namespace ExternalBanking
                     result.Errors.Add(new ActionError(1816));
             }
 
+            if ((this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking) && this.RestrictionGroup != 18)
+            {
+
+                result.Errors.AddRange(Validation.ValidateKYCDocument(CustomerNumber,this.Source,true));
+
+            }
+
 
 
             if (result.Errors.Count > 0)
             {
+
                 result.ResultCode = ResultCode.ValidationError;
             }
             else

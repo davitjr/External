@@ -543,7 +543,7 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(785));
             }
 
-
+          
 
             if (this.Source == SourceType.PhoneBanking)
             {
@@ -629,7 +629,7 @@ namespace ExternalBanking
                 {
                     OrderDB.ChangeQuality(Id, OrderQuality.TransactionLimitApprovement, userName);
                 }
-                else 
+                else
                 {
                     OrderDB.ChangeQuality(Id, nextQuality, userName);
                 }
@@ -874,7 +874,8 @@ namespace ExternalBanking
                         || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.RemittanceCancellationOrder)
                         || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.FastTransferPaymentOrder && SubType == 23)
                          || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.RemittanceAmendmentOrder)
-                         || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.ArcaCardsTransactionOrder))
+                         || (Quality == OrderQuality.TransactionLimitApprovement && Type == OrderType.ArcaCardsTransactionOrder)
+                         || (Quality == OrderQuality.TransactionLimitApprovement && (Type == OrderType.SecuritiesBuyOrder || Type == OrderType.SecuritiesSellOrder)))
                     {
                         if (!IsAutomatConfirm(this.Type, this.SubType) && Source != SourceType.SSTerminal && this.Source != SourceType.CashInTerminal && ((this.Source == SourceType.Bank || this.Source == SourceType.SSTerminal || this.Source == SourceType.CashInTerminal) && this.Type != OrderType.RosterTransfer
                                                 && this.Type != OrderType.ReceivedFastTransferPaymentOrder && this.Type != OrderType.CredentialOrder && this.Type != OrderType.ArcaCardsTransactionOrder && this.Type != OrderType.CardLimitChangeOrder && this.Type != OrderType.BillSplitReminder && this.Type != OrderType.BillSplitSenderRejection) && this.Type != OrderType.DeleteLoanOrder && this.Type != OrderType.AccountRemove && this.Type != OrderType.ThirdPersonAccountRightsTransfer && this.Type != OrderType.MRDataChangeOrder)

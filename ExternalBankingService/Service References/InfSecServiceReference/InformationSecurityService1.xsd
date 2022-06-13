@@ -1,577 +1,329 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" />
-  <xs:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="https://authorizationservice-test/InformationSecurityService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary.CustomerAuthorization" />
-  <xs:element name="AutorizeUser">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="login" nillable="true" type="q1:LoginInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AutorizeUserResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="AutorizeUserResult" nillable="true" type="q2:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AuthorizeUserBySession">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AuthorizeUserBySessionResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="AuthorizeUserBySessionResult" nillable="true" type="q3:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AutorizeUserTablet">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="login" nillable="true" type="q4:LoginInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AutorizeUserTabletResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="AutorizeUserTabletResult" nillable="true" type="q5:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="ChangePassword">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="pInfo" nillable="true" type="q6:PasswordChangeInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="ChangePasswordResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="ChangePasswordResult" nillable="true" type="q7:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckProgramVersion">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="login" nillable="true" type="q8:LoginInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckProgramVersionResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="CheckProgramVersionResult" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetTransactionFingerprint">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="transactionInfo" nillable="true" type="q9:TransactionInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetTransactionFingerprintResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="GetTransactionFingerprintResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckTransactionFingerprint">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="transactionInfo" nillable="true" type="q10:TransactionInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckTransactionFingerprintResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="CheckTransactionFingerprintResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetDocumentsPermissions">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="groupID" type="xs:int" />
-        <xs:element minOccurs="0" name="documentName" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetDocumentsPermissionsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetDocumentsPermissionsResult" nillable="true" type="q11:ArrayOfDocumetsPermissions" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermissionForPage">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="cpInfo" nillable="true" type="q12:ClientPermissionsInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermissionForPageResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetPermissionForPageResult" nillable="true" type="q13:ArrayOfClientPermissions" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetVarPermissionForPage">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="cpInfo" nillable="true" type="q14:ClientPermissionsInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetVarPermissionForPageResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetVarPermissionForPageResult" nillable="true" type="q15:ClientPermissions" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetVarPermissionsForPageBySession">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetVarPermissionsForPageBySessionResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q16="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetVarPermissionsForPageBySessionResult" nillable="true" type="q16:ArrayOfKeyValueOfstringstring" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermissionsForForm">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="cpInfo" nillable="true" type="q17:ApplicationClientPermissionsInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermissionsForFormResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetPermissionsForFormResult" nillable="true" type="q18:ArrayOfApplicationClientPermissions" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetGridAccessListForForm">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="cpInfo" nillable="true" type="q19:ApplicationClientPermissionsInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetGridAccessListForFormResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetGridAccessListForFormResult" nillable="true" type="q20:ArrayOfApplicationClientPermissions" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetVarPermissionForForm">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="cpInfo" nillable="true" type="q21:ApplicationClientPermissionsInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetVarPermissionForFormResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetVarPermissionForFormResult" nillable="true" type="q22:ApplicationClientPermissions" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermitedBranches">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="UserID" type="xs:short" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermitedBranchesResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetPermitedBranchesResult" nillable="true" type="q23:ArrayOfPermitedBranches" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserAccessForCustomer">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="userSessionToken" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="customerSessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserAccessForCustomerResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetUserAccessForCustomerResult" nillable="true" type="q24:UserAccessForCustomer" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserAccessForCustomerByCustomerNumber">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="userSessionToken" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="customerNumber" type="xs:unsignedLong" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserAccessForCustomerByCustomerNumberResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetUserAccessForCustomerByCustomerNumberResult" nillable="true" type="q25:UserAccessForCustomer" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserAccessForCustomerBySession">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="uacSessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserAccessForCustomerBySessionResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetUserAccessForCustomerBySessionResult" nillable="true" type="q26:UserAccessForCustomer" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckProgramAccessBySession">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="progName" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckProgramAccessBySessionResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="CheckProgramAccessBySessionResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AutorizeWindowsUser">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="pInfo" nillable="true" type="q27:LoginInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AutorizeWindowsUserResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="AutorizeWindowsUserResult" nillable="true" type="q28:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="ChangeWindowsUserPassword">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q29="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="pInfo" nillable="true" type="q29:PasswordChangeInfo" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="ChangeWindowsUserPasswordResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="ChangeWindowsUserPasswordResult" nillable="true" type="q30:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetAllUsersFromCache">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetAllUsersFromCacheResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q31="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetAllUsersFromCacheResult" nillable="true" type="q31:ArrayOfAuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="DeleteUserFromCache">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="DeleteUserFromCacheResponse">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetOneUsersFromCache">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetOneUsersFromCacheResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q32="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetOneUsersFromCacheResult" nillable="true" type="q32:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetProgListByGroup">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="id" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetProgListByGroupResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q33="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetProgListByGroupResult" nillable="true" type="q33:ArrayOfArrayOfKeyValueOfintstring" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetEmployeesTempData">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="id" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetEmployeesTempDataResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q34="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetEmployeesTempDataResult" nillable="true" type="q34:GetEmployeesTempData" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetDBServerNamesForConnectionString">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="BaseID" type="xs:int" />
-        <xs:element minOccurs="0" name="fillialCode" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetDBServerNamesForConnectionStringResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q35="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetDBServerNamesForConnectionStringResult" nillable="true" type="q35:ArrayOfKeyValueOfstringstring" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermissionsGroupsLists">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPermissionsGroupsListsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q36="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetPermissionsGroupsListsResult" nillable="true" type="q36:ArrayOfPermissionsGroupsList" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AddEmployeesRequest">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q37="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="obj" nillable="true" type="q37:AddEmployeesRequest" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AddEmployeesRequestResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="AddEmployeesRequestResult" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetRequestData">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="id" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetRequestDataResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q38="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="GetRequestDataResult" nillable="true" type="q38:ArrayOfRequestData" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckOrderStatus">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="orderId" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckOrderStatusResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="CheckOrderStatusResult" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AddCashersOrderInstructions">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q39="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="obj" nillable="true" type="q39:CashersOrder" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AddCashersOrderInstructionsResponse">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPositionsByDepForOrderInstructions">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="dep_id" type="xs:int" />
-        <xs:element minOccurs="0" name="sec_id" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetPositionsByDepForOrderInstructionsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="GetPositionsByDepForOrderInstructionsResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckUserNameAndLogIn">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q40="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="obj" nillable="true" type="q40:UserNameAndLogIn" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckUserNameAndLogInResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="CheckUserNameAndLogInResult" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetGroupIdForEmp">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q41="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="obj" nillable="true" type="q41:GroupIdForEmp" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetGroupIdForEmpResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="GetGroupIdForEmpResult" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="NewConfigDBConnectionSString">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="NewConfigDBConnectionSStringResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="NewConfigDBConnectionSStringResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AuthorizeUserBySAPTicket">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="ticket" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="softName" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AuthorizeUserBySAPTicketResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q42="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" minOccurs="0" name="AuthorizeUserBySAPTicketResult" nillable="true" type="q42:AuthorizedUser" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AuthorizeCustomer">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="customerNumber" type="xs:unsignedLong" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AuthorizeCustomerResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q43="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary.CustomerAuthorization" minOccurs="0" name="AuthorizeCustomerResult" nillable="true" type="q43:CustomertData" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckCustomerAuthorization">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sessionID" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CheckCustomerAuthorizationResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q44="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary.CustomerAuthorization" minOccurs="0" name="CheckCustomerAuthorizationResult" nillable="true" type="q44:CustomertData" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CreateAssertionTicket">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="userSessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CreateAssertionTicketResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="CreateAssertionTicketResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CreateLogonTicket">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="userSessionToken" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="CreateLogonTicketResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="CreateLogonTicketResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/InformationSecurityLibrary" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="LoginInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="deviceKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="externalPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="filialCode" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="host" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ipAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="progID" type="xs:int" />
+      <xs:element minOccurs="0" name="progName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="progVersion" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="windowsLogin" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LoginInfo" nillable="true" type="tns:LoginInfo" />
+  <xs:complexType name="AuthorizedUser">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="configDBBaseName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="configDBPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="configDBServerName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="configDBUserName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="departmentID" type="xs:short" />
+      <xs:element minOccurs="0" name="departmentName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="filialCode" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="filialLogonAccess" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="filialName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="firstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="isAutorized" type="xs:boolean" />
+      <xs:element minOccurs="0" name="isReplacement" type="xs:boolean" />
+      <xs:element minOccurs="0" name="lastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="logedProgramName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="organizationID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="positionID" type="xs:short" />
+      <xs:element minOccurs="0" name="positionName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="replacementEmployeeNumber" type="xs:short" />
+      <xs:element minOccurs="0" name="replacementUserID" type="xs:short" />
+      <xs:element minOccurs="0" name="result" type="xs:int" />
+      <xs:element minOccurs="0" name="resultDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="resultDescriptionAM" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="transLimit" type="xs:int" />
+      <xs:element minOccurs="0" name="transRight" type="xs:int" />
+      <xs:element minOccurs="0" name="userAccountGroup" type="xs:long" />
+      <xs:element minOccurs="0" name="userCustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="userEmployeeID" type="xs:short" />
+      <xs:element minOccurs="0" name="userGroupID" type="xs:short" />
+      <xs:element minOccurs="0" name="userID" type="xs:short" />
+      <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userSessionToken" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AuthorizedUser" nillable="true" type="tns:AuthorizedUser" />
+  <xs:complexType name="PasswordChangeInfo">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:LoginInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="oldPassword" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="PasswordChangeInfo" nillable="true" type="tns:PasswordChangeInfo" />
+  <xs:complexType name="TransactionInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Amount" type="xs:double" />
+      <xs:element minOccurs="0" name="FingerPrint" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="FirstKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SecondKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TransactionDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="UserID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TransactionInfo" nillable="true" type="tns:TransactionInfo" />
+  <xs:complexType name="ArrayOfDocumetsPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DocumetsPermissions" nillable="true" type="tns:DocumetsPermissions" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDocumetsPermissions" nillable="true" type="tns:ArrayOfDocumetsPermissions" />
+  <xs:complexType name="DocumetsPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccessType" type="xs:int" />
+      <xs:element minOccurs="0" name="DocumentName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GroupID" type="xs:int" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DocumetsPermissions" nillable="true" type="tns:DocumetsPermissions" />
+  <xs:complexType name="ClientPermissionsInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="action" type="xs:short" />
+      <xs:element minOccurs="0" name="pageName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="progName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userGroupID" type="xs:short" />
+      <xs:element minOccurs="0" name="userID" type="xs:short" />
+      <xs:element minOccurs="0" name="varPropertyName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ClientPermissionsInfo" nillable="true" type="tns:ClientPermissionsInfo" />
+  <xs:complexType name="ArrayOfClientPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ClientPermissions" nillable="true" type="tns:ClientPermissions" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfClientPermissions" nillable="true" type="tns:ArrayOfClientPermissions" />
+  <xs:complexType name="ClientPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="nameOfControl" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="nameOfPermission" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="typeOfPermission" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="valueOfPermission" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ClientPermissions" nillable="true" type="tns:ClientPermissions" />
+  <xs:complexType name="ApplicationClientPermissionsInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="action" type="xs:short" />
+      <xs:element minOccurs="0" name="formName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="progName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="userGroupID" type="xs:short" />
+      <xs:element minOccurs="0" name="userID" type="xs:short" />
+      <xs:element minOccurs="0" name="varPropertyName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ApplicationClientPermissionsInfo" nillable="true" type="tns:ApplicationClientPermissionsInfo" />
+  <xs:complexType name="ArrayOfApplicationClientPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ApplicationClientPermissions" nillable="true" type="tns:ApplicationClientPermissions" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfApplicationClientPermissions" nillable="true" type="tns:ArrayOfApplicationClientPermissions" />
+  <xs:complexType name="ApplicationClientPermissions">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="nameOfControl" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="nameOfPermission" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="typeOfPermission" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="valueOfPermission" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ApplicationClientPermissions" nillable="true" type="tns:ApplicationClientPermissions" />
+  <xs:complexType name="ArrayOfPermitedBranches">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PermitedBranches" nillable="true" type="tns:PermitedBranches" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPermitedBranches" nillable="true" type="tns:ArrayOfPermitedBranches" />
+  <xs:complexType name="PermitedBranches">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="brachCode" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" name="branchName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="branchNameASCI" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PermitedBranches" nillable="true" type="tns:PermitedBranches" />
+  <xs:complexType name="UserAccessForCustomer">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CustomerAccessLevel" type="xs:short" />
+      <xs:element minOccurs="0" name="IsCustomerAccessible" type="xs:boolean" />
+      <xs:element minOccurs="0" name="ListOfAccessibleAccountsGroups" nillable="true" type="tns:ArrayOfAccessibleAccountsGroups" />
+      <xs:element minOccurs="0" name="ListOfAccessibleActions" nillable="true" type="tns:ArrayOfAccessibleActions" />
+      <xs:element minOccurs="0" name="ListOfAccessibleProducts" nillable="true" type="tns:ArrayOfAccessibleProducts" />
+      <xs:element minOccurs="0" name="SessionId" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserAccessForCustomer" nillable="true" type="tns:UserAccessForCustomer" />
+  <xs:complexType name="ArrayOfAccessibleAccountsGroups">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AccessibleAccountsGroups" nillable="true" type="tns:AccessibleAccountsGroups" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAccessibleAccountsGroups" nillable="true" type="tns:ArrayOfAccessibleAccountsGroups" />
+  <xs:complexType name="AccessibleAccountsGroups">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AccountGroup" type="xs:int" />
+      <xs:element minOccurs="0" name="AccountGroupDescription" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AccessibleAccountsGroups" nillable="true" type="tns:AccessibleAccountsGroups" />
+  <xs:complexType name="ArrayOfAccessibleActions">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AccessibleActions" nillable="true" type="tns:AccessibleActions" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAccessibleActions" nillable="true" type="tns:ArrayOfAccessibleActions" />
+  <xs:complexType name="AccessibleActions">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ActionDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ActionDescriptionEN" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ActionID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AccessibleActions" nillable="true" type="tns:AccessibleActions" />
+  <xs:complexType name="ArrayOfAccessibleProducts">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AccessibleProducts" nillable="true" type="tns:AccessibleProducts" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAccessibleProducts" nillable="true" type="tns:ArrayOfAccessibleProducts" />
+  <xs:complexType name="AccessibleProducts">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ProductDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProductID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AccessibleProducts" nillable="true" type="tns:AccessibleProducts" />
+  <xs:complexType name="ArrayOfAuthorizedUser">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AuthorizedUser" nillable="true" type="tns:AuthorizedUser" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAuthorizedUser" nillable="true" type="tns:ArrayOfAuthorizedUser" />
+  <xs:complexType name="GetEmployeesTempData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="access_comment" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="comment" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="email" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="group_id" type="xs:int" />
+      <xs:element minOccurs="0" name="inet_permission" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="login_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="net_password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="permission_group" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="prog_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="prog_password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="user_name" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GetEmployeesTempData" nillable="true" type="tns:GetEmployeesTempData" />
+  <xs:complexType name="ArrayOfPermissionsGroupsList">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PermissionsGroupsList" nillable="true" type="tns:PermissionsGroupsList" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPermissionsGroupsList" nillable="true" type="tns:ArrayOfPermissionsGroupsList" />
+  <xs:complexType name="PermissionsGroupsList">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Division" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Group_Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Group_Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PermissionsGroupsList" nillable="true" type="tns:PermissionsGroupsList" />
+  <xs:complexType name="AddEmployeesRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="customer_number" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="department_id" type="xs:int" />
+      <xs:element minOccurs="0" name="emp_description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="emp_num" type="xs:int" />
+      <xs:element minOccurs="0" name="filial_code" type="xs:int" />
+      <xs:element minOccurs="0" name="first_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="group_id" type="xs:int" />
+      <xs:element minOccurs="0" name="hcm_emp_number" type="xs:int" />
+      <xs:element minOccurs="0" name="last_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="login_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="position_id" type="xs:int" />
+      <xs:element minOccurs="0" name="real_name_eng" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="req_id" type="xs:int" />
+      <xs:element minOccurs="0" name="section_id" type="xs:int" />
+      <xs:element minOccurs="0" name="user_name" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AddEmployeesRequest" nillable="true" type="tns:AddEmployeesRequest" />
+  <xs:complexType name="ArrayOfRequestData">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RequestData" nillable="true" type="tns:RequestData" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfRequestData" nillable="true" type="tns:ArrayOfRequestData" />
+  <xs:complexType name="RequestData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="create_date" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="creater_id" type="xs:int" />
+      <xs:element minOccurs="0" name="customer_number" type="xs:float" />
+      <xs:element minOccurs="0" name="department_id" type="xs:int" />
+      <xs:element minOccurs="0" name="emp_description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="emp_num" type="xs:int" />
+      <xs:element minOccurs="0" name="first_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="group_id" type="xs:int" />
+      <xs:element minOccurs="0" name="last_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="login_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="new_id" type="xs:int" />
+      <xs:element minOccurs="0" name="position_id" type="xs:int" />
+      <xs:element minOccurs="0" name="real_name_eng" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="section_id" type="xs:int" />
+      <xs:element minOccurs="0" name="status" type="xs:int" />
+      <xs:element minOccurs="0" name="user_name" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RequestData" nillable="true" type="tns:RequestData" />
+  <xs:complexType name="CashersOrder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Department_id" type="xs:int" />
+      <xs:element minOccurs="0" name="Position" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Position_id" type="xs:int" />
+      <xs:element minOccurs="0" name="Section_id" type="xs:int" />
+      <xs:element minOccurs="0" name="command_type" type="xs:int" />
+      <xs:element minOccurs="0" name="date_before_disable" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="date_of_disable" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="emp_number" type="xs:int" />
+      <xs:element minOccurs="0" name="filial_code" type="xs:int" />
+      <xs:element minOccurs="0" name="order_identifier" type="xs:int" />
+      <xs:element minOccurs="0" name="replacement_emp_number" type="xs:int" />
+      <xs:element minOccurs="0" name="type_of_order" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CashersOrder" nillable="true" type="tns:CashersOrder" />
+  <xs:complexType name="UserNameAndLogIn">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="login_name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="user_name" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserNameAndLogIn" nillable="true" type="tns:UserNameAndLogIn" />
+  <xs:complexType name="GroupIdForEmp">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="department_id" type="xs:int" />
+      <xs:element minOccurs="0" name="group_id" type="xs:int" />
+      <xs:element minOccurs="0" name="position_id" type="xs:int" />
+      <xs:element minOccurs="0" name="section_id" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GroupIdForEmp" nillable="true" type="tns:GroupIdForEmp" />
 </xs:schema>

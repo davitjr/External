@@ -44,7 +44,6 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     cmd.Parameters.Add("@document_subtype", SqlDbType.Int).Value = order.SubType;
-
                     cmd.Parameters.Add("@filialCode", SqlDbType.Int).Value = order.PlasticCard.FilialCode;
                     cmd.Parameters.Add("@doc_type", SqlDbType.SmallInt).Value = (int)order.Type;
                     cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar, 16).Value = order.PlasticCard.MainCardNumber;
@@ -56,18 +55,20 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@cardSystem", SqlDbType.Int).Value = order.PlasticCard.CardSystem;
                     cmd.Parameters.Add("@involvingSetNumber", SqlDbType.Int).Value = order.InvolvingSetNumber;
                     cmd.Parameters.Add("@servingSetNumber", SqlDbType.Int).Value = order.ServingSetNumber;
-
-
-
-
-
-
                     cmd.Parameters.Add("@cardPINCodeReceivingType", SqlDbType.Int).Value = order.CardPINCodeReceivingType;
                     cmd.Parameters.Add("@cardReceivingType", SqlDbType.Int).Value = order.CardReceivingType;
                     cmd.Parameters.Add("@cardApplicationAcceptanceType", SqlDbType.Int).Value = order.CardApplicationAcceptanceType;
-
                     cmd.Parameters.Add("@organisationNameEng", SqlDbType.NVarChar).Value = order.OrganisationNameEng;
-                    cmd.Parameters.Add("@cardHolderCustomerNumber", SqlDbType.Float).Value = order.CardHolderCustomerNumber;
+                    if (order.PlasticCard.SupplementaryType == SupplementaryType.Attached)
+                    {
+                        PlasticCard mainCard = PlasticCard.GetPlasticCard(order.PlasticCard.MainCardNumber);
+                        ulong cardHolderCustomerNumber = Card.GetCardHolderCustomerNumber((long)mainCard.ProductId);
+                        cmd.Parameters.Add("@cardHolderCustomerNumber", SqlDbType.Float).Value = cardHolderCustomerNumber;
+                    }
+                    else
+                    {
+                        cmd.Parameters.Add("@cardHolderCustomerNumber", SqlDbType.Float).Value = order.CardHolderCustomerNumber;
+                    }
                     cmd.Parameters.Add("@cardSMSPhone", SqlDbType.NVarChar).Value = order.CardSMSPhone == string.Empty ? "37400000000" : order.CardSMSPhone;
                     if (order.PlasticCard.SupplementaryType == SupplementaryType.Main)
                     {
@@ -82,8 +83,38 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@group_id", SqlDbType.Int).Value = order.GroupId;
                     }
                     cmd.Parameters.Add("@ProvidingFilialCode", SqlDbType.Int).Value = order.ProvidingFilialCode;
-
                     cmd.Parameters.Add("@cardDesignId", SqlDbType.Int).Value = order.DesignID;
+                    if (order.Limits != null)
+                    {
+                        order.Limits.ForEach(item =>
+                        {
+                            switch (item.Limit)
+                            {
+                                case LimitType.DailyCashingAmountLimit:
+                                    cmd.Parameters.Add("@daily_cashing_amount", SqlDbType.Float).Value = item.LimitValue;
+                                    break;
+                                case LimitType.DailyCashingQuantityLimit:
+                                    cmd.Parameters.Add("@daily_cashing_quantity", SqlDbType.Float).Value = item.LimitValue;
+                                    break;
+                                case LimitType.DailyPaymentsAmountLimit:
+                                    cmd.Parameters.Add("@daily_payments_amount", SqlDbType.Float).Value = item.LimitValue;
+                                    break;
+                                case LimitType.MonthlyAggregateLimit:
+                                    cmd.Parameters.Add("@monthly_aggregate_amount", SqlDbType.Float).Value = item.LimitValue;
+                                    break;
+                            }
+                        });
+                    }
+                    if (source == SourceType.Bank)
+                    {
+                        //Միայն քարտային գործ.բաժնի աշխատակիցների կողմից 1641 աշխ. ծրագրով հիմնական քարտ պատվիրելիս
+                        user.AdvancedOptions.TryGetValue("isCardDepartment", out string isCardDepartment);
+                        if (isCardDepartment == "1" && order.PlasticCard.RelatedOfficeNumber == 1641 && order.PlasticCard.SupplementaryType == SupplementaryType.Main)
+                        {
+                            cmd.Parameters.Add("@firstName", SqlDbType.NVarChar).Value = order.FirstName;
+                            cmd.Parameters.Add("@lastName", SqlDbType.NVarChar).Value = order.LastName;
+                        }
+                    }                    
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -367,7 +398,7 @@ namespace ExternalBanking.DBManager
                 using SqlCommand cmd = new SqlCommand();
                 conn.Open();
                 cmd.Connection = conn;
-                cmd.CommandText = @"SELECT Top 1 cardType, BillingCurrency, filial, RelatedOfficeNumber  FROM Tbl_VISA_applications WHERE Cardnumber = @mainCardNumber AND  CardStatus = 'NORM'";
+                cmd.CommandText = @"SELECT Top 1 cardType, BillingCurrency, filial, RelatedOfficeNumber, CardNumber  FROM Tbl_VISA_applications WHERE Cardnumber = @mainCardNumber AND  CardStatus = 'NORM'";
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
 
@@ -380,6 +411,7 @@ namespace ExternalBanking.DBManager
                     plasticCard.Currency = rd["BillingCurrency"].ToString();
                     plasticCard.RelatedOfficeNumber = int.Parse(rd["RelatedOfficeNumber"].ToString());
                     plasticCard.FilialCode = int.Parse(rd["filial"].ToString()) + 22000;
+                    plasticCard.CardNumber = rd["CardNumber"].ToString();
                 }
             }
 
@@ -443,7 +475,7 @@ namespace ExternalBanking.DBManager
             conn.Open();
             using SqlCommand cmd = new SqlCommand(@"SELECT customer_number
                                                   FROM Tbl_VISA_applications 
-                                                  WHERE givendate is null and customer_number = @customer_number", conn);
+                                                  WHERE givendate is null and customer_number = @customer_number and  fieldmap = 'NORM' ", conn);
 
             cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = customerNumber;
             dt.Load(cmd.ExecuteReader());
@@ -729,6 +761,92 @@ namespace ExternalBanking.DBManager
                 dt.Load(cmd.ExecuteReader());
                 return (bool)(dt.Rows[0]["Expired"]);
             }
+        }
+
+        public static DataTable GetAllowedCardSystemTypes(int mainCardType)
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(@"SELECT DISTINCT attached_card.CardSystemID, CS.CardSystemType FROM   tbl_type_of_card main_card 
+                                                        INNER JOIN Tbl_additional_card_conditions_checking a
+                                                        ON main_card.id = main_card_type
+                                                        INNER JOIN tbl_type_of_card attached_card
+                                                        ON attached_card.id = additional_card_type
+                                                        INNER JOIN Tbl_type_of_CardSystem CS
+                                                        ON CS.ID = attached_card.CardSystemID
+                                                        WHERE main_card_type = @mainCardType 
+                                                        AND attached_card.quality = 1
+                                                        AND sub_type = 1", conn);
+
+                cmd.Parameters.Add("@mainCardType", SqlDbType.Int).Value = mainCardType;
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
+            }
+            return dt;
+        }
+
+        public static DataTable GetAllowedCardTypes(int mainCardType, int attachedCardSystem)
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(@"SELECT DISTINCT T.ID, CardType FROM Tbl_additional_card_conditions_checking A
+			                                            INNER JOIN tbl_type_of_card T
+			                                            ON A.additional_card_type = T.id
+			                                            WHERE main_card_type = @mainCardType AND cardsystemid = @attachedCardSystem
+			                                            AND sub_type = 1 AND quality = 1", conn);
+
+                cmd.Parameters.Add("@mainCardType", SqlDbType.Int).Value = mainCardType;
+                cmd.Parameters.Add("@attachedCardSystem", SqlDbType.Int).Value = attachedCardSystem;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+                dt.Load(dr);
+            }
+            return dt;
+        }
+
+        public static List<CardLimit> GetLimitsByCardType(int cardType, string currency)
+        {
+            List<CardLimit> cardLimits = new List<CardLimit>();
+
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(@"SELECT CashLimit, CashTransNumber, ISNULL(PurchaseLimit, 0) AS PurchaseLimit 
+                                                        FROM Tbl_trans_limits 
+			                                            WHERE CardType = @cardType AND Currency = @currency ", conn);
+                cmd.CommandType = CommandType.Text;
+
+                cmd.Parameters.Add("@cardType", SqlDbType.Int).Value = cardType;
+                cmd.Parameters.Add("@currency", SqlDbType.NVarChar).Value = currency;
+
+                using SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    cardLimits.Add(new CardLimit
+                    {
+                        Limit = LimitType.DailyCashingAmountLimit,
+                        LimitValue = Convert.ToInt32(dr["CashLimit"].ToString())
+                    });
+
+                    cardLimits.Add(new CardLimit
+                    {
+                        Limit = LimitType.DailyCashingQuantityLimit,
+                        LimitValue = Convert.ToInt32(dr["CashTransNumber"].ToString())
+                    });
+
+                    cardLimits.Add(new CardLimit
+                    {
+                        Limit = LimitType.DailyPaymentsAmountLimit,
+                        LimitValue = Convert.ToInt32(dr["PurchaseLimit"].ToString())
+                    });
+                }
+
+            }
+            return cardLimits;
         }
     }
 }

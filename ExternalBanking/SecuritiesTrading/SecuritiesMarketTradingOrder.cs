@@ -59,6 +59,17 @@ namespace ExternalBanking.SecuritiesTrading
 
 
         /// <summary>
+        /// ACBA միջնորդավճար
+        /// </summary>
+        public double AcbaFee { get; set; }
+
+        /// <summary>
+        /// Հայտի տեսակի նկարագրություն
+        /// </summary>
+        public string TypeDescription { get; set; }
+
+
+        /// <summary>
         /// Բորսայում կատարված գործարքին համապատասխան հայտի պահպանում և կատարում
         /// </summary>
         /// <param name="userName"></param>
@@ -97,6 +108,7 @@ namespace ExternalBanking.SecuritiesTrading
                     base.SetQualityHistoryUserId(OrderQuality.Sent3, user.userID);
 
 
+                    result = base.SaveOrderOPPerson();
                     LogOrderChange(user, Action.Update);
                     result.Id = this.Id;
                     scope.Complete();
@@ -107,15 +119,16 @@ namespace ExternalBanking.SecuritiesTrading
                     return result;
                 }
             }
-            base.Confirm(user);
-
-            return result;
+            return base.Confirm(user);
         }
 
         private void Complete()
         {
+            user = new ACBAServiceReference.User() { userID = 88, userName = "Auto" };
+
             RegistrationDate = DateTime.Now.Date;
             Type = OrderType.SecuritiesMarketTradingOrder;
+            SubType = 1;
             Description = "Հայաստանի ֆոնդային բորսա ԲԲԸ";
 
             //Հայտի համար   
@@ -133,6 +146,12 @@ namespace ExternalBanking.SecuritiesTrading
             {
                 //Նշված խումբը գոյություն չունի։
                 result.Errors.Add(new ActionError(1628));
+            }
+
+            if (ActuallyQuantity > Quantity - GetMarketTradedQuantity(this.OrderId))
+            {
+                //Կատարված քանակ դաշտը չի կարող լինել ավելին քան հայտում նշված քանակը:
+                result.Errors.Add(new ActionError(2070));
             }
 
             return result;

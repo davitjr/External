@@ -214,17 +214,17 @@ namespace ExternalBanking.DBManager
             dt.Columns.Add("FeeInt");
 
             if (CardSystemForService.Any())
-            {             
+            {
                 foreach (var item in CardSystemForService)
                 {
-                    DataRow dr = dt.NewRow();                  
-                   
-                        dr["CardsystemId"] = item.Id;
-                        dr["Fee"] = item.Fee;
-                        dr["FeeInt"] = item.FeeInt;
+                    DataRow dr = dt.NewRow();
+
+                    dr["CardsystemId"] = item.Id;
+                    dr["Fee"] = item.Fee;
+                    dr["FeeInt"] = item.FeeInt;
 
                     dt.Rows.Add(dr);
-                }          
+                }
             }
 
             return dt;
@@ -281,7 +281,7 @@ namespace ExternalBanking.DBManager
         {
             List<string> ActivitySphere = new List<string>();
 
-                DataTable dt = new DataTable();
+            DataTable dt = new DataTable();
 
             string sql = @"SELECT Sphere FROM tbl_Pos_Terminals_Activity_Sphere ORDER BY ID";
 
@@ -302,8 +302,6 @@ namespace ExternalBanking.DBManager
                 return ActivitySphere;
             }
         }
-
-       
 
     }
 }

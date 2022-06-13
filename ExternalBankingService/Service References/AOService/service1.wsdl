@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://tempuri.org/" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" name="AcbaOnlineLogin" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import namespace="http://tempuri.org/" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/AcbaOnlineSecurityService.Helpers" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IAcbaOnlineLogin_AuthorizeUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUser" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_AuthorizeUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_AuthorizeUserByUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_AuthorizeUserByUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_AuthorizeUserByToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByToken" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_AuthorizeUserByToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AuthorizeUserByTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_ResetUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResetUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_ResetUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResetUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_ChangeUserPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_ChangeUserPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_CheckAuthorization_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAuthorization" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_CheckAuthorization_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAuthorizationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_SingData_InputMessage">
+    <wsdl:part name="parameters" element="tns:SingData" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_SingData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SingDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_VerifyToken_InputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyToken" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_VerifyToken_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_GetTypeOfUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetTypeOfUser" />
+  </wsdl:message>
+  <wsdl:message name="IAcbaOnlineLogin_GetTypeOfUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetTypeOfUserResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IAcbaOnlineLogin">
+    <wsdl:operation name="AuthorizeUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUser" message="tns:IAcbaOnlineLogin_AuthorizeUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUserResponse" message="tns:IAcbaOnlineLogin_AuthorizeUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUserByUserPassword" message="tns:IAcbaOnlineLogin_AuthorizeUserByUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUserByUserPasswordResponse" message="tns:IAcbaOnlineLogin_AuthorizeUserByUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUserByToken" message="tns:IAcbaOnlineLogin_AuthorizeUserByToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUserByTokenResponse" message="tns:IAcbaOnlineLogin_AuthorizeUserByToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/ResetUserPassword" message="tns:IAcbaOnlineLogin_ResetUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/ResetUserPasswordResponse" message="tns:IAcbaOnlineLogin_ResetUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/ChangeUserPassword" message="tns:IAcbaOnlineLogin_ChangeUserPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/ChangeUserPasswordResponse" message="tns:IAcbaOnlineLogin_ChangeUserPassword_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorization">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/CheckAuthorization" message="tns:IAcbaOnlineLogin_CheckAuthorization_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/CheckAuthorizationResponse" message="tns:IAcbaOnlineLogin_CheckAuthorization_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SingData">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/SingData" message="tns:IAcbaOnlineLogin_SingData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/SingDataResponse" message="tns:IAcbaOnlineLogin_SingData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VerifyToken">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/VerifyToken" message="tns:IAcbaOnlineLogin_VerifyToken_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/VerifyTokenResponse" message="tns:IAcbaOnlineLogin_VerifyToken_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTypeOfUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/GetTypeOfUser" message="tns:IAcbaOnlineLogin_GetTypeOfUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAcbaOnlineLogin/GetTypeOfUserResponse" message="tns:IAcbaOnlineLogin_GetTypeOfUser_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IAcbaOnlineLogin" type="tns:IAcbaOnlineLogin">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AuthorizeUser">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUserByUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AuthorizeUserByToken">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/AuthorizeUserByToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResetUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/ResetUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUserPassword">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAuthorization">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/CheckAuthorization" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SingData">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/SingData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyToken">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/VerifyToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTypeOfUser">
+      <soap:operation soapAction="http://tempuri.org/IAcbaOnlineLogin/GetTypeOfUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="AcbaOnlineLogin">
+    <wsdl:port name="BasicHttpBinding_IAcbaOnlineLogin" binding="tns:BasicHttpBinding_IAcbaOnlineLogin">
+      <soap:address location="http://as1001-t1.acbaca.local:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

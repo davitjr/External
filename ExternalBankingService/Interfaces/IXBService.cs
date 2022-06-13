@@ -39,9 +39,7 @@ namespace ExternalBankingService.Interfaces
     [ServiceKnownType(typeof(AccountOrder))]
     [ServiceKnownType(typeof(PeriodicOrder))]
     [ServiceKnownType(typeof(PeriodicUtilityPaymentOrder))]
-
     [ServiceKnownType(typeof(PeriodicTransferDataChangeOrder))]
-
     [ServiceKnownType(typeof(PeriodicPaymentOrder))]
     [ServiceKnownType(typeof(BudgetPaymentOrder))]
     [ServiceKnownType(typeof(AccountClosingOrder))]
@@ -88,9 +86,7 @@ namespace ExternalBankingService.Interfaces
     [ServiceKnownType(typeof(RenewedCardAccountRegOrder))]
     [ServiceKnownType(typeof(VisaAliasOrder))]
     [ServiceKnownType(typeof(ConsumeLoanApplicationOrder))]
-    [ServiceKnownType(typeof(NewPosLocationOrder))]
-
-    
+    [ServiceKnownType(typeof(LeasingPaymentOrder))]
     public interface IXBService
     {
 
@@ -3239,7 +3235,7 @@ namespace ExternalBankingService.Interfaces
         List<long> GetAttachedCardOrdersByDocId(List<int> docIds);
         [OperationContract]
         [DataContractFormat]
-        List<GroupTemplateResponse> GetGroupTemplates(int groupId, TemplateStatus status);
+        Task<List<GroupTemplateResponse>> GetGroupTemplates(int groupId, TemplateStatus status);
         [OperationContract]
         byte CardBlockingActionAvailability(string cardNumber);
 
@@ -3580,6 +3576,12 @@ namespace ExternalBankingService.Interfaces
         [OperationContract]
         ActionResult ApproveBrokerContractOrder(BrokerContractOrder order);
 
+
+        [OperationContract]
+         ActionResult SaveDepositCasePenaltyMatureOrder(DepositCasePenaltyMatureOrder order);
+
+        [OperationContract]
+        ActionResult ApproveDepositCasePenaltyMatureOrder(DepositCasePenaltyMatureOrder order);
         [OperationContract]
         ActionResult SaveAndApproveBrokerContractOrder(BrokerContractOrder order);
 
@@ -3683,14 +3685,32 @@ namespace ExternalBankingService.Interfaces
         int GetCustomerSentSecuritiesTradingOrdersQuantity(string iSIN);
 
         [OperationContract]
+        ActionResult CompleteSecuritiesTradingOrder(SecuritiesTradingOrder order);
+
+        [OperationContract]
+        string GetCustomerPhoneNumber();
+
+        [OperationContract]
+        Dictionary<string, string> GetAllowedCardSystemTypes(int mainCardType);
+
+        [OperationContract]
+        Dictionary<string, string> GetAllowedCardTypes(int mainCardType, int attachedCardSystem);
+
+        [OperationContract]
+        List<CardLimit> GetLimitsByCardType(int cardType, string currency);
+
+        [OperationContract]
+        LeasingPaymentOrder GetLeasingPaymentOrder(long id);
+
+        [OperationContract]
         ActionResult SaveAndApproveNewPosLocationOrder(NewPosLocationOrder order);
-      
+
         [OperationContract]
         NewPosLocationOrder NewPosApplicationOrderDetails(long orderId);
 
         [OperationContract]
         List<string> GetPosTerminalActivitySphere();
-       
+
 
     }
 }

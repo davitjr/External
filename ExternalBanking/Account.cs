@@ -1186,10 +1186,20 @@ namespace ExternalBanking
         {
             List<Account> currentAccounts = new List<Account>();
 
-            currentAccounts.AddRange(AccountDB.GetAllCurrentAccounts(customerNumber));
+            currentAccounts.AddRange(AccountDB.GetAllCurrentAccounts(customerNumber).Where(item=>item.JointType == 0));
 
             return currentAccounts;
         }
+
+
+        /// <summary>
+        /// Վերադարձնում է արդյոք հաճախորդը ունի տվյալ առժույթով ընթացիկ հաշիվները թե ոչ
+        /// </summary>
+        /// <param name="customerNumber"></param>
+        /// <param name="currency"></param>
+        /// <returns></returns>
+        internal static bool HasCurrentAccountsNumber(ulong customerNumber, string currency) 
+            => AccountDB.HasCurrentAccountsNumber(customerNumber, currency);
 
     }
 }

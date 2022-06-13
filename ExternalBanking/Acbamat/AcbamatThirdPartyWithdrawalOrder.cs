@@ -23,7 +23,7 @@ namespace ExternalBanking
             ActionResult actionResult = SaveAndApproveAcbamatThirdPartyWithdrawalOrder(schemaType, user);
 
             if (actionResult.ResultCode != ResultCode.Normal)
-                throw new Exception($"Acbamat 3-րդ կողմ կազմակերպություններից կանխիկացման ժամանակ տեղի ունեցավ սխալ TransactionID - {TransactionId}");
+                throw new AcbamatThirdPartyWithdrawalException($"Acbamat 3-րդ կողմ կազմակերպություններից կանխիկացման ժամանակ տեղի ունեցավ սխալ TransactionID - {TransactionId}");
         }
 
         public void GetAcbamatThirdPartyWithdrawalOrder()
@@ -35,8 +35,11 @@ namespace ExternalBanking
         {
             Complete();
             ActionResult result = Validate();
+            
             if (result.Errors.Count > 0)
             {
+                Reject(100, user);
+                SetQualityHistoryUserId(OrderQuality.Declined, user.userID);
                 result.ResultCode = ResultCode.ValidationError;
                 return result;
             }
@@ -98,9 +101,25 @@ namespace ExternalBanking
 
         private ActionResult Validate()
         {
-            ActionResult result = new ActionResult();
-            result.Errors.AddRange(Validation.ValidateAcbamatThirdPartyWithdrawalOrder(this));
-            return result;
+            try
+            {
+                ActionResult result = new ActionResult();
+                result.Errors.AddRange(Validation.ValidateAcbamatThirdPartyWithdrawalOrder(this));
+                return result;
+            }
+            catch
+            {
+                Reject(1, user);
+                SetQualityHistoryUserId(OrderQuality.Declined, user.userID);
+                throw;
+            }
+        }
+
+        public class AcbamatThirdPartyWithdrawalException : Exception
+        {
+            public AcbamatThirdPartyWithdrawalException(string message) : base(message)
+            {
+            }
         }
     }
 }

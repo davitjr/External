@@ -130,7 +130,7 @@ namespace ExternalBanking
             if (string.IsNullOrEmpty(this.OrderNumber) && this.Id == 0)
                 this.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
 
-            this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
+           // this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
 
         }
 
@@ -178,7 +178,7 @@ namespace ExternalBanking
 
                 }
 
-                result = base.SaveOrderOPPerson();
+              //  result = base.SaveOrderOPPerson();
 
                 if (result.ResultCode != ResultCode.Normal)
                 {

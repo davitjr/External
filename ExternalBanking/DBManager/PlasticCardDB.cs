@@ -317,7 +317,8 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                string sql = @"SELECT VA.app_id, VA.cardnumber as card_number, VA.BillingCurrency as currency, ts.CardSystemType + ' ' + Upper(t.CardType)  as Card_Type_description, 
+                string sql = @"SELECT VA.app_id, VA.cardnumber as card_number, VA.BillingCurrency as currency, 
+                                t.CardSystemID, ts.CardSystemType + ' ' + Upper(t.CardType)  as Card_Type_description, 
                                 VA.cardtype as card_type, VA.RelatedOfficeNumber,
                                 CASE WHEN vn.open_date IS NULL THEN VA.RegDate ELSE vn.open_date END open_date,
                                 CASE WHEN vn.filialcode IS NULL THEN (filial + 22000) ELSE vn.filialcode END filialcode
@@ -358,6 +359,7 @@ namespace ExternalBanking.DBManager
                         card.CardNumber = row["card_number"] == DBNull.Value ? "" : row["card_number"].ToString();
                         card.Currency = row["currency"].ToString();
                         card.CardType = uint.Parse(row["card_type"].ToString());
+                        card.CardSystem = int.Parse(row["CardSystemID"].ToString());
                         card.SupplementaryType = SupplementaryType.Main;
                         card.CardTypeDescription = row["Card_Type_description"].ToString();
                         card.RelatedOfficeNumber = int.Parse(row["RelatedOfficeNumber"].ToString());
@@ -497,10 +499,11 @@ namespace ExternalBanking.DBManager
 
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
             {
-                string sql = @"SELECT VA.app_id, VA.cardnumber as card_number, VA.BillingCurrency as currency, ts.CardSystemType + ' ' + Upper(t.CardType)  as Card_Type_description, 
+                string sql = @"SELECT VA.app_id, VA.cardnumber as card_number, VA.BillingCurrency as currency, 
+                                t.CardSystemID, ts.CardSystemType + ' ' + Upper(t.CardType)  as Card_Type_description, 
                                 VA.cardtype as card_type, VA.RelatedOfficeNumber,
                                 CASE WHEN vn.open_date IS NULL THEN VA.RegDate ELSE vn.open_date END open_date,
-                                CASE WHEN vn.filialcode IS NULL THEN (filial + 22000) ELSE vn.filialcode END filialcode
+                                CASE WHEN vn.filialcode IS NULL THEN (filial + 22000) ELSE vn.filialcode END filialcode,C.nameEng,C.LastNameEng
                                 FROM tbl_visa_applications VA
                                 LEFT JOIN Tbl_Visa_Numbers_Accounts vn on VA.app_id = vn.App_Id
                                 INNER JOIN tbl_type_of_card t on VA.cardType=t.id
@@ -509,6 +512,10 @@ namespace ExternalBanking.DBManager
 											FROM Tbl_additional_card_conditions_checking
 											WHERE  sub_type = 1
 											GROUP BY main_card_type ) acc on acc.main_card_type =t.ID
+                                LEFT JOIN Tbl_SupplementaryCards S 
+                                ON VA.app_id  = S.main_app_id and S.app_id = S.main_app_id 
+                                LEFT JOIN (SELECT nameEng, LastNameEng ,customer_number FROM V_CustomerDesription ) C 
+                                ON C.customer_number = S.customer_number  
                                 WHERE  CardStatus = 'NORM' AND VA.customer_number=@customerNumber AND cardnumber = MaincardNumber";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -543,12 +550,14 @@ namespace ExternalBanking.DBManager
                         card.CardTypeDescription = row["Card_Type_description"].ToString();
                         card.RelatedOfficeNumber = int.Parse(row["RelatedOfficeNumber"].ToString());
                         card.OpenDate = DateTime.Parse(row["open_date"].ToString());
-                        card.FilialCode = int.Parse(row["filialcode"].ToString());
+                        card.FilialCode = int.Parse(row["filialcode"].ToString()); 
+                        card.CardSystem = int.Parse(row["CardSystemID"].ToString());
+                        card.CardHolderName = Utility.ConvertAnsiToUnicode(row["nameEng"].ToString());
+                        card.CardHolderLastName = Utility.ConvertAnsiToUnicode(row["LastNameEng"].ToString());
                         cardList.Add(card);
                     }
                 }
             }
-
             return cardList;
         }
 
@@ -571,6 +580,44 @@ namespace ExternalBanking.DBManager
                 }
             }
             return customerNumber;
+        }
+
+        internal static List<PlasticCard> GetLinkedPlasticCards(string mainCardNumber)
+        {
+            List<PlasticCard> plasticCards = new List<PlasticCard>();
+
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                string sql = @"SELECT DISTINCT attached.app_id AS app_id
+                               FROM tbl_visa_applications main
+                               INNER JOIN tbl_visa_applications attached
+                               ON main.Cardnumber = attached.Maincardnumber
+                               WHERE main.Cardnumber = @mainCardNumber
+                               AND main.Maincardnumber <> attached.Cardnumber
+                               AND attached.cardType = main.cardType
+                               AND attached.CardStatus = 'NORM'";
+
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@mainCardNumber", SqlDbType.NVarChar).Value = mainCardNumber;
+
+                conn.Open();
+
+                DataTable dt = new DataTable();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    dt.Load(dr);
+                }
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    ulong cardAppId = ulong.Parse(row["app_id"].ToString());
+                    plasticCards.Add(PlasticCard.GetPlasticCard(cardAppId, true));
+                }
+            }
+
+            return plasticCards;
         }
     }
 }

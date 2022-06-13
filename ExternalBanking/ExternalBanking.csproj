@@ -52,6 +52,52 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestDigital|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\TestDigital\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>8.0</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF01|AnyCPU'">
+    <OutputPath>bin\WCF01\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF02|AnyCPU'">
+    <OutputPath>bin\WCF02\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Regression|AnyCPU'">
+    <OutputPath>bin\Regression\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Testing|AnyCPU'">
+    <OutputPath>bin\Testing\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam1|AnyCPU'">
+    <OutputPath>bin\TestTeam1\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam3|AnyCPU'">
+    <OutputPath>bin\TestTeam3\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam4|AnyCPU'">
+    <OutputPath>bin\TestTeam4\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam5|AnyCPU'">
+    <OutputPath>bin\TestTeam5\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam6|AnyCPU'">
+    <OutputPath>bin\TestTeam6\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam7|AnyCPU'">
+    <OutputPath>bin\TestTeam7\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF03|AnyCPU'">
+    <OutputPath>bin\WCF03\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF04|AnyCPU'">
+    <OutputPath>bin\WCF04\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ExcelFinancialFunctions, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ExcelFinancialFunctions.2.4.1\lib\portable-net45+netcore45+wpa81+wp8\ExcelFinancialFunctions.dll</HintPath>
@@ -236,6 +282,8 @@
     <Compile Include="DBManager\EmployeeSalaryDetailsDB.cs" />
     <Compile Include="DBManager\ENAPaymentsDB.cs" />
     <Compile Include="DBManager\EOServiceDB.cs" />
+    <Compile Include="DBManager\EventsDB\EventsDB.cs" />
+    <Compile Include="DBManager\EventsDB\EventTicketOrderDB.cs" />
     <Compile Include="DBManager\Fond\FondDB.cs" />
     <Compile Include="DBManager\Fond\FondOrderDB.cs" />
     <Compile Include="DBManager\FTPRate\FTPRateDB.cs" />
@@ -319,6 +367,8 @@
     <Compile Include="EmployeeSalary.cs" />
     <Compile Include="EmployeeSalaryDetails.cs" />
     <Compile Include="EncryptionOperations.cs" />
+    <Compile Include="Events\Events.cs" />
+    <Compile Include="Events\EventTicketOrder.cs" />
     <Compile Include="GroupTemplateShrotInfo.cs" />
     <Compile Include="HBDocumentAccountDetails.cs" />
     <Compile Include="HBDocumentArCaBalance.cs" />
@@ -352,6 +402,8 @@
     <Compile Include="Leasing\LeasingLoanStatements.cs" />
     <Compile Include="Leasing\LeasingOverdueDetail.cs" />
     <Compile Include="Leasing\LeasingPaymentsType.cs" />
+    <Compile Include="Leasing\LeasingPaymentOrder.cs" />
+    <Compile Include="Leasing\OtherPayments.cs" />
     <Compile Include="LinkPaymentOrder.cs" />
     <Compile Include="LoanDelayOrder.cs" />
     <Compile Include="LoanInterestRateChangeHistory.cs" />

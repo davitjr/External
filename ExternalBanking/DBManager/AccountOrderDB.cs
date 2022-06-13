@@ -205,7 +205,7 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(
-                    @"select d.amount, d.currency, d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,                                                
+                    @"select d.amount, d.currency, d.registration_date,d.document_number,d.customer_number,n.type_of_account,d.document_type,d.document_subtype,d.quality,                                                
 		                                                 isnull(n.tp_description,'') tp_description,isnull(n.tp_customer_number,0) tp_customer_number,isnull(n.account_type,1) account_type,
                                                          isnull(n.tp_description2,'') tp_description2,isnull(n.tp_customer_number2,0) tp_customer_number2,isnull(statement_type,-1)  as statement_type,operation_date,d.order_group_id, d.confirmation_date 
                                                   from Tbl_HB_documents as d left join Tbl_New_Account_Documents as n on  d.doc_ID=n.Doc_ID
@@ -233,6 +233,14 @@ namespace ExternalBanking.DBManager
                         order.StatementDeliveryType = null;
                     }
 
+                    if (dt.Rows[0]["type_of_account"] != DBNull.Value)
+                    {
+                        if (Convert.ToInt32(dt.Rows[0]["type_of_account"]) == 283)
+                        {
+                            order.RestrictionGroup = 18;
+                        }
+                        
+                    }
 
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                     order.ConfirmationDate = dt.Rows[0]["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["confirmation_date"]) : default(DateTime?);

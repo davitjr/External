@@ -3,6 +3,7 @@ using ExternalBanking.DBManager;
 using ExternalBanking.ServiceClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Transactions;
@@ -125,6 +126,21 @@ namespace ExternalBanking
         /// </summary>
         public int DesignID { get; set; }
 
+        /// <summary>
+        /// Լիմիտներ
+        /// </summary>
+        public List<CardLimit> Limits { get; set; }
+
+        /// <summary>
+        /// Անուն
+        /// </summary>
+        public string FirstName { get; set; }
+
+        /// <summary>
+        /// Ազգանուն
+        /// </summary>
+        public string LastName { get; set; }
+
         private void Complete()
         {
             this.SubType = 1;
@@ -150,11 +166,8 @@ namespace ExternalBanking
             {
                 this.UserId = user.userID;
                 byte customerType = Customer.GetCustomerType(CustomerNumber);
-                if (customerType == 6)
-                {
-                    Customer customer = new Customer(user, CustomerNumber, Languages.hy);
-                    this.MotherName = customer.GetPasswordForCustomerDataOrder();
-                }
+                Customer customer = new Customer(user, CustomerNumber, Languages.hy);
+                this.MotherName = customer.GetPasswordForCustomerDataOrder();
             }
 
             if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
@@ -214,10 +227,11 @@ namespace ExternalBanking
                     }
                 }
 
-                InvolvingSetNumber = 88;
-                ACBAServiceReference.Customer customer = Customer.GetCustomer(CustomerNumber);
+                InvolvingSetNumber = 88;                
+                List<CustomerServingEmployee> customerServingEmployees = ACBAOperationService.GetCustomerServingEmployeeList(CustomerNumber);
+
                 CustomerServingEmployee cse = new CustomerServingEmployee();
-                cse = customer.servingEmployeeList.Find(m => m.type.key == 2);
+                cse = customerServingEmployees.Find(m => m.type.key == 2);
 
                 if (cse == null)
                 {
@@ -246,13 +260,11 @@ namespace ExternalBanking
                 {
                     OrganisationNameEng = null;
                 }
-
-
+                
                 if (PlasticCard.CardType == (uint)PlasticCardType.VISA_VIRTUAL || PlasticCard.CardType == (uint)PlasticCardType.VISA_DIGITAL)
                 {
-                    this.ProvidingFilialCode = (ushort)customer.filial.key;
+                    this.ProvidingFilialCode = (ushort)Customer.GetCustomerFilial(CustomerNumber).key;
                 }
-
 
                 if (PlasticCard.SupplementaryType != SupplementaryType.Linked)
                 {
@@ -426,7 +438,7 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
-            byte customerType = Customer.GetCustomerType(CustomerNumber);
+            byte customerType = Customer.GetCustomerType(CustomerNumber);            
 
             if (((this.Source == SourceType.AcbaOnline) || (this.Source == SourceType.MobileBanking)) && PlasticCardOrderDB.IsCustomerUpdateExpired(this.CustomerNumber))
             {// Արժույթը ընտրված չէ:
@@ -513,7 +525,7 @@ namespace ExternalBanking
                 }
             }
 
-            if (this.PlasticCard.SupplementaryType != SupplementaryType.Attached && customerType != 6)
+            if (this.PlasticCard.SupplementaryType != SupplementaryType.Attached && customerType != (short)CustomerTypes.physical)
             {
                 if (this.MotherName.Length > 24)
                 { // Մայրանուն դաշտի նիշերի քանակը գերազանցում է թույլատրելի 24 նիշը:
@@ -591,9 +603,7 @@ namespace ExternalBanking
                 {//Քարտի պատվերը հնարավոր չէ իրականացնել: Միևնույն արժույթով հնարավոր է ունենալ միայն մեկ վիրտուալ քարտ:
                     result.Errors.Add(new ActionError(1718));
                 }
-            }
-
-            ACBAServiceReference.Customer customer = Customer.GetCustomer(customerNumber);
+            }           
 
             if (PlasticCard.SupplementaryType == SupplementaryType.Main)
             {
@@ -641,9 +651,9 @@ namespace ExternalBanking
             if (PlasticCard.SupplementaryType == SupplementaryType.Linked)
             {//Կից քարտի ստուգումներ
                 result.Errors.AddRange(ValidateAsLinkedPlasticCard().Errors);
-            }
-
-            if ((customer is PhysicalCustomer) && (PlasticCard.CardType == 3 || PlasticCard.CardType == 22 || PlasticCard.CardType == 45))
+            }            
+            
+            if ((customerType == (short)CustomerTypes.physical) && (PlasticCard.CardType == 3 || PlasticCard.CardType == 22 || PlasticCard.CardType == 45))
             {
                 //Բիզնես քարտերը  նախատեսված չեն  ֆիզիկական անձ հաճախորդի համար:
                 result.Errors.Add(new ActionError(1839));
@@ -653,7 +663,7 @@ namespace ExternalBanking
             if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
             {
                 //ֆիզիկական հաճախորդ 
-                if (customer is PhysicalCustomer)
+                if (customerType == (short)CustomerTypes.physical)
                 {
                     if (this.ProvidingFilialCode == 0 && this.PlasticCard.CardType != 51 && this.PlasticCard.CardType != 53)
                     {
@@ -671,9 +681,8 @@ namespace ExternalBanking
                         }
                     }
 
-                }
-                //ոչ ֆիզիկական հաճախորդ 
-                else if (!(customer is PhysicalCustomer))
+                }                 
+                else 
                 {
                     if (Attachments == null || Attachments.Count == 0)
                     {
@@ -785,13 +794,11 @@ namespace ExternalBanking
                 }
 
                 if (PlasticCard.CardType == 53)
-                {
-                    result.Errors.AddRange(Validation.ValidateKYCDocument(customer));
+                {                   
+                    result.Errors.AddRange(Validation.ValidateKYCDocument(customerNumber));
                     if (result.Errors.Count > 0)
                         result.Errors.Where(c => c.Code == 1733).Select(c => { c.Code = 2003; return c; }).ToList();
-
                 }
-
             }
             if (this.CardReportReceivingType == (int)PlasticCardReportRecievingTypes.byEmail && String.IsNullOrEmpty(this.ReportReceivingEmail))
             {//Հաճախորդի Էլ. փոստ դաշտը լրացված չէ
@@ -800,29 +807,22 @@ namespace ExternalBanking
 
 
 
-            if (customer is PhysicalCustomer physicalCustomer)
+            if (customerType == (short)CustomerTypes.physical)
             {
-
                 if (this.PlasticCard.SupplementaryType == SupplementaryType.Linked)
                 {
                     if (Source != SourceType.AcbaOnline && Source != SourceType.MobileBanking)
                     {
-                        ACBAServiceReference.PhysicalCustomer cardHolderCustomer = (PhysicalCustomer)Customer.GetCustomer(this.CardHolderCustomerNumber);
-                        result.Errors.AddRange(ValidateAsPhysicalCustomer(cardHolderCustomer).Errors);
+                        result.Errors.AddRange(ValidateAsPhysicalCustomer(this.CardHolderCustomerNumber).Errors);
                     }
-
                 }
                 else
                 {
-                    result.Errors.AddRange(ValidateAsPhysicalCustomer(physicalCustomer).Errors);
+                    result.Errors.AddRange(ValidateAsPhysicalCustomer(this.CustomerNumber).Errors);
                 }
-
-
             }
-            else if (customer is LegalCustomer legalcustomer)
-            {
-                ACBAServiceReference.Customer cardHolderCustomer = Customer.GetCustomer(this.CardHolderCustomerNumber);
-
+            else
+            {        
                 if (string.IsNullOrEmpty(this.OrganisationNameEng))
                 {//Հաստատության անվանում դաշտը լրացված չէ
                     result.Errors.Add(new ActionError(1611));
@@ -842,14 +842,10 @@ namespace ExternalBanking
                 {//Նշված տիպի քարտ կարելի է պատվիրել միայն ֆիզիկական անձանց համար:
                     result.Errors.Add(new ActionError(1586));
                 }
-
-                if (cardHolderCustomer is PhysicalCustomer physicalCustomerCardHolder)
+                if( Customer.GetCustomerType(this.CardHolderCustomerNumber) == (short)CustomerTypes.physical)
                 {
-                    result.Errors.AddRange(ValidateAsPhysicalCustomer(physicalCustomerCardHolder).Errors);
-                }
-
-
-
+                    result.Errors.AddRange(ValidateAsPhysicalCustomer(this.CardHolderCustomerNumber).Errors);
+                }                                
             }
 
             bool checkSocialSecurityAccount = Info.HasSocialSecurityAccount(customerNumber);
@@ -860,7 +856,7 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1881));
             }
 
-            if (customerType == 6 && String.IsNullOrEmpty(this.MotherName) && this.Source == SourceType.Bank)
+            if (String.IsNullOrEmpty(this.MotherName) && this.Source == SourceType.Bank)
             {
                 //Պահպանումը չհաջողվեց, SAP CRM ծրագրում հաճախորդի գաղտնաբառը բացակայում է:
                 result.Errors.Add(new ActionError(1978));
@@ -871,10 +867,12 @@ namespace ExternalBanking
 
 
 
-        public ActionResult ValidateAsPhysicalCustomer(PhysicalCustomer physicalCustomer)
+        public ActionResult ValidateAsPhysicalCustomer(ulong customerNumber)
         {
             ActionResult result = new ActionResult();
             result.Errors = new List<ActionError>();
+
+            ACBAServiceReference.PhysicalCustomer physicalCustomer = (PhysicalCustomer)Customer.GetCustomer(customerNumber);
 
             if (string.IsNullOrEmpty(physicalCustomer.person.fullName.firstNameEng) || string.IsNullOrEmpty(physicalCustomer.person.fullName.lastNameEng))
             {//Մուտքագրեք քարտապանի անունն ու ազգանունը:
@@ -1034,6 +1032,19 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1621));
             }
 
+            List<PlasticCard> linkedPlasticCards = PlasticCard.GetLinkedPlasticCards(mainPlasticCard.CardNumber);
+            if (linkedPlasticCards.Count >= 4 && PlasticCard.CardType == 41)
+            {
+                //Հնարավոր չէ պահպանել: Գերազանցված է կից քարտերի առավելագույն քանակը:
+                result.Errors.Add(new ActionError(2061));
+            }
+
+            if (linkedPlasticCards.Count >= 2 && PlasticCard.CardType != 45 && PlasticCard.CardType != 52 && PlasticCard.CardType != 22 && PlasticCard.CardType != 41)
+            {
+                //Հնարավոր չէ պահպանել: Գերազանցված է կից քարտերի առավելագույն քանակը:
+                result.Errors.Add(new ActionError(2061));
+            }
+
             return result;
         }
 
@@ -1081,12 +1092,13 @@ namespace ExternalBanking
             }
 
             Action action = this.Id == 0 ? Action.Add : Action.Update;
+            short customerType = Customer.GetCustomerType(CustomerNumber);
 
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
                 result = PlasticCardOrderDB.Save(this, user, source, userName);
-                ACBAServiceReference.Customer customer = Customer.GetCustomer(customerNumber);
-                if ((Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking) && (customer.customerType.key != (byte)CustomerTypes.physical || PlasticCard.SupplementaryType == SupplementaryType.Linked))
+                
+                if ((Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking) && (customerType != (byte)CustomerTypes.physical || PlasticCard.SupplementaryType == SupplementaryType.Linked))
                 {
                     result.ResultCode = SaveOrderAttachments().ResultCode;
                 }
@@ -1108,6 +1120,8 @@ namespace ExternalBanking
         {
             ActionResult result = new ActionResult();
 
+            short customerType = Customer.GetCustomerType(CustomerNumber);
+
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted }))
             {
 
@@ -1120,7 +1134,7 @@ namespace ExternalBanking
                     {
                         if (Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking)
                         {
-                            if (Customer.GetCustomer(CustomerNumber).customerType.key != (byte)CustomerTypes.physical)
+                            if (customerType != (byte)CustomerTypes.physical)
                             {
                                 user.userName = userName;
 
@@ -1161,7 +1175,7 @@ namespace ExternalBanking
 
             }
 
-            if (Customer.GetCustomer(CustomerNumber).customerType.key == (byte)CustomerTypes.physical && PlasticCard.SupplementaryType == SupplementaryType.Main)
+            if (customerType == (byte)CustomerTypes.physical && PlasticCard.SupplementaryType == SupplementaryType.Main)
             {
                 OrderQuality quality = GetOrderQualityByDocID(Id);
                 if (quality != OrderQuality.Approved)
@@ -1246,5 +1260,30 @@ namespace ExternalBanking
         {
             return PlasticCardOrderDB.GetCardDesignImages(id);
         }
+
+        /// <summary>
+        /// Վերադարձնում է ընտրված հիմնական քարտին համապատասխան, սակագնով սահմանված հնարավոր լրացուցիչ քարտի վճարային համակարգերը
+        /// </summary>
+        public static DataTable GetAllowedCardSystemTypes(int mainCardType)
+        {
+            return PlasticCardOrderDB.GetAllowedCardSystemTypes(mainCardType);
+        }
+
+        /// <summary>
+        /// Վերադարձնում է ընտրված հիմնական քարտին համապատասխան, սակագնով սահմանված հնարավոր լրացուցիչ քարտի տեսակները
+        /// </summary>
+        public static DataTable GetAllowedCardTypes(int mainCardType, int attachedCardSystem)
+        {
+            return PlasticCardOrderDB.GetAllowedCardTypes(mainCardType, attachedCardSystem);
+        }
+
+        /// <summary>
+        /// Վերադարձնում է յուրաքանչյուր քարտատեսակի համար Բանկում գործող սահմանաչափերի արժեքները
+        /// </summary>
+        public static List<CardLimit> GetLimitsByCardType(int cardType, string currency)
+        {
+            return PlasticCardOrderDB.GetLimitsByCardType(cardType, currency);
+        }
+
     }
 }

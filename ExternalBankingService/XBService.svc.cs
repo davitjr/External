@@ -1073,6 +1073,27 @@ namespace ExternalBankingService
             }
         }
 
+        public LeasingPaymentOrder GetLeasingPaymentOrder(long id)
+        {
+            try
+            {
+                Customer customer = new Customer(AuthorizedCustomer.CustomerNumber, (Languages)Language);
+                LeasingPaymentOrder order = new LeasingPaymentOrder
+                {
+                    Id = id,
+                    CustomerNumber = AuthorizedCustomer.CustomerNumber
+                };
+                order.Get();
+                Localization.SetCulture(order, customer.Culture);
+                return order;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+        
 
         public ActionResult SaveUtiliyPaymentOrder(UtilityPaymentOrder utilityPaymentOrder)
         {
@@ -5497,7 +5518,7 @@ namespace ExternalBankingService
             }
             catch (Exception ex)
             {
-                WriteLog(ex);
+                WriteLog(ex,new JavaScriptSerializer().Serialize(order));
                 throw new FaultException(Resourse.InternalError);
             }
         }
@@ -6269,6 +6290,25 @@ namespace ExternalBankingService
                         {
                             SecuritiesTradingOrder securitiesTradingOrder = GetSecuritiesTradingOrder(order.Id);
                             result = ApproveSecuritiesTradingOrder(securitiesTradingOrder);
+                            break;
+                        }
+                    case OrderType.DepositCasePenaltyMatureOrder:
+                     {
+                          DepositCasePenaltyMatureOrder depositCasePenaltyMatureOrder = GetDepositCasePenaltyMatureOrder(order.Id);
+                          result = ApproveDepositCasePenaltyMatureOrder(depositCasePenaltyMatureOrder);
+                          break;
+                     }
+                    case OrderType.LinkPaymentOrder:
+                        {
+                            LinkPaymentOrder linkPaymentOrder = GetLinkPaymentOrder(order.Id);
+                            result = ApproveLinkPaymentForApproveOrders(linkPaymentOrder);
+                            break;
+                        }
+                    case OrderType.EventTicketOrder:
+                        {
+                            EventService service = new EventService(ClientIp, Language, AuthorizedCustomer, User, Source);
+                            ExternalBanking.Events.EventTicketOrder eventTicketOrder = service.GetEventTicketOrder(order.Id);
+                            result = service.ApproveEventTicketOrder(eventTicketOrder);
                             break;
                         }
                     default:
@@ -16917,7 +16957,7 @@ namespace ExternalBankingService
                 throw new FaultException(Resourse.InternalError);
             }
         }
-        public List<GroupTemplateResponse> GetGroupTemplates(int groupId, TemplateStatus status)
+        public Task<List<GroupTemplateResponse>> GetGroupTemplates(int groupId, TemplateStatus status)
         {
             try
             {
@@ -18750,7 +18790,26 @@ namespace ExternalBankingService
             {
                 Customer customer = CreateCustomer();
                 InitOrder(order);
-                return customer.ApproveBrokerContractOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+                ActionResult result = customer.ApproveBrokerContractOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+
+                //Գործարքի կատարում
+                if ((order.Source == SourceType.AcbaOnline || Source == SourceType.AcbaOnlineXML || Source == SourceType.MobileBanking || Source == SourceType.ArmSoft) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
+                {
+                    try
+                    {
+                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                        if (quality != OrderQuality.Approved)
+                        {
+                            ConfirmOrderOnline(order.Id);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex);
+                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                    }
+                }
+                return result;
             }
             catch (Exception ex)
             {
@@ -18884,9 +18943,6 @@ namespace ExternalBankingService
         {
             try
             {
-                var desciption = order.Description;
-                order = GetSecuritiesTradingOrderCancellationOrder(order.Id);
-                order.Description = desciption;
                 order.user = User;
                 return order.Confirm();
             }
@@ -18929,9 +18985,6 @@ namespace ExternalBankingService
         {
             try
             {
-                var desciption = order.RejectReasonDescription;
-                order = GetSecuritiesTradingOrderById(order.Id);
-                order.RejectReasonDescription = desciption;
                 order.user = User;
                 return order.Confirm();
             }
@@ -18958,9 +19011,6 @@ namespace ExternalBankingService
         {
             try
             {
-                var desciption = order.RejectReasonDescription;
-                order = GetSecuritiesTradingOrderById(order.Id);
-                order.RejectReasonDescription = desciption;
                 order.user = User;
                 return order.Reject();
             }
@@ -18975,9 +19025,6 @@ namespace ExternalBankingService
         {
             try
             {
-                var desciption = order.Description;
-                order = GetSecuritiesTradingOrderCancellationOrder(order.Id);
-                order.Description = desciption;
                 order.user = User;
                 return order.Reject();
             }
@@ -19252,7 +19299,164 @@ namespace ExternalBankingService
                 WriteLog(ex);
                 throw new FaultException(Resourse.InternalError);
             }
-        }  
+        }
+
+        public ActionResult CompleteSecuritiesTradingOrder(SecuritiesTradingOrder order)
+        {
+            try
+            {
+                order.user = User;
+                return order.CompleteSecuritiesTradingOrder();
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public string GetCustomerPhoneNumber()
+        {
+            try
+            {
+                return Customer.GetCustomerPhoneNumber(AuthorizedCustomer.CustomerNumber);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public Dictionary<string, string> GetAllowedCardSystemTypes(int mainCardType)
+        {
+            try
+            {
+                Dictionary<string, string> cardSystems = new Dictionary<string, string>();
+                DataTable dt = PlasticCardOrder.GetAllowedCardSystemTypes(mainCardType);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    cardSystems.Add(dt.Rows[i]["CardSystemID"].ToString(), dt.Rows[i]["CardSystemType"].ToString());
+                }
+
+                return cardSystems;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public ActionResult SaveDepositCasePenaltyMatureOrder(DepositCasePenaltyMatureOrder order)
+        {
+            try
+            {
+
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                return customer.SaveDepositCasePenaltyMatureOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public ActionResult ApproveDepositCasePenaltyMatureOrder(DepositCasePenaltyMatureOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                ActionResult result = customer.ApproveDepositCasePenaltyMatureOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
+                //Գործարքի կատարում
+                if ((order.Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking) && (result.ResultCode == ResultCode.Normal || result.ResultCode == ResultCode.DoneAndReturnedValues || result.ResultCode == ResultCode.PartiallyCompleted || result.ResultCode == ResultCode.SaveAndSendToConfirm))
+                {
+                    try
+                    {
+                        OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                        if (quality != OrderQuality.Approved)
+                        {
+                            ConfirmOrderOnline(order.Id); 
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex);
+                        //եթե հայտի օնլայն կատարման ժամանակ խնդիր առաջանա, ապա հայտը կկատարվի 24/7 job-ով 
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
+
+        public Dictionary<string, string> GetAllowedCardTypes(int mainCardType, int attachedCardSystem)
+        {
+            try
+            {
+                Dictionary<string, string> cardTypes = new Dictionary<string, string>();
+                DataTable dt = PlasticCardOrder.GetAllowedCardTypes(mainCardType, attachedCardSystem);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    cardTypes.Add(dt.Rows[i]["ID"].ToString(), dt.Rows[i]["CardType"].ToString());
+                }
+
+                return cardTypes;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+        public List<CardLimit> GetLimitsByCardType(int cardType, string currency)
+        {
+            try
+            {
+                return PlasticCardOrder.GetLimitsByCardType(cardType, currency);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
+
+
+        public ActionResult ApproveLinkPaymentForApproveOrders(LinkPaymentOrder order)
+        {
+            try
+            {
+                Customer customer = CreateCustomer();
+                InitOrder(order);
+                var result = customer.ApproveLinkPaymentOrder(order, AuthorizedCustomer.ApprovementScheme, AuthorizedCustomer.UserName);
+                OrderQuality quality = GetOrderQualityByDocID(order.Id);
+                if (quality != OrderQuality.Approved)
+                {
+                    ConfirmOrderOnline(order.Id);
+                }
+
+                return new ActionResult() { ResultCode = result.ResultCode, Errors = result.Errors};
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+
+        }
 
 
         //Davit Pos
@@ -19302,8 +19506,5 @@ namespace ExternalBankingService
             }
         }
 
-
-
-        
     }
 }

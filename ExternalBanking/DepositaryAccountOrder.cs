@@ -76,6 +76,12 @@ namespace ExternalBanking
 
             result.Errors.AddRange(Validation.ValidateDepositaryAccountOrder(this));
 
+            if (Source == SourceType.NotSpecified)
+            {
+                //Տվյալների ստացման եղանակը հստակեցված չէ։
+                result.Errors.Add(new ActionError(2076));
+            }
+
             if (result.Errors.Count == 0)
             {
                 result.ResultCode = ResultCode.Normal;

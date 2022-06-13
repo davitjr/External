@@ -1,5 +1,7 @@
 ﻿using ExternalBanking.DBManager.SecuritiesTrading;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Transactions;
 
 namespace ExternalBanking.SecuritiesTrading
@@ -30,7 +32,16 @@ namespace ExternalBanking.SecuritiesTrading
                 if (result.ResultCode != ResultCode.Normal)
                     return result;
                 else
+                {
+                    ActionResult resultOpPerson = base.SaveOrderOPPerson();
+                    if (resultOpPerson.Errors.Count > 0)
+                    {
+                        resultOpPerson.ResultCode = ResultCode.Failed;
+                        return resultOpPerson;
+                    }
                     base.SetQualityHistoryUserId(OrderQuality.Draft, user.userID);
+                }
+                   
 
                 result = base.Approve(3, user.userName);
 
@@ -58,7 +69,7 @@ namespace ExternalBanking.SecuritiesTrading
 
             OrderQuality orderQuality = Order.GetOrderQualityByDocID(this.SecuritiesTradingOrderId);
 
-            if (orderQuality != OrderQuality.Draft && orderQuality != OrderQuality.Sent3 && orderQuality != OrderQuality.ReviewingByEmployee && orderQuality != OrderQuality.SBQprocessed)
+            if (orderQuality != OrderQuality.Draft || orderQuality != OrderQuality.Sent3 || orderQuality != OrderQuality.ReviewingByEmployee || orderQuality != OrderQuality.SBQprocessed || orderQuality != OrderQuality.TransactionLimitApprovement)
             {
                 //Տվյալ կարգավիճակով հայտը հնարավոր չէ չեղարկել։
                 result.Errors.Add(new ActionError(2065));
@@ -83,11 +94,20 @@ namespace ExternalBanking.SecuritiesTrading
             if (string.IsNullOrEmpty(OrderNumber) && Id == 0)
                 OrderNumber = Order.GenerateNextOrderNumber(CustomerNumber);
             OPPerson = Order.SetOrderOPPerson(CustomerNumber);
-            Description = "chegharkum";
+            Description = "Գործարքից հրաժարում";
         }
 
+        public static SecuritiesTradingOrderCancellationOrder Get(long id)
+        {
+            var securitiesTrandingOrder = SecuritiesTradingOrderCancellationOrderDB.Get(id);
 
-        public static SecuritiesTradingOrderCancellationOrder Get(long id) => SecuritiesTradingOrderCancellationOrderDB.Get(id);
+            List<OrderHistory> orderHistory = Order.GetOrderHistory(id);
+            securitiesTrandingOrder.SentDate = orderHistory.Where(m => m.Quality == OrderQuality.Sent3)?.FirstOrDefault()?.ChangeDate;
+            securitiesTrandingOrder.RejectionDate = orderHistory.Where(m => m.Quality == OrderQuality.Declined)?.FirstOrDefault()?.ChangeDate;
+            securitiesTrandingOrder.CancellationDate = orderHistory.Where(m => m.Quality == OrderQuality.Canceled)?.FirstOrDefault()?.ChangeDate;
+
+            return securitiesTrandingOrder;
+        }
 
         public override ActionResult Confirm()
         {
@@ -100,10 +120,7 @@ namespace ExternalBanking.SecuritiesTrading
                 return result;
             }
 
-            base.Confirm(user);
-            result = new ActionResult();
-            result.ResultCode = ResultCode.Normal;
-            return result;
+            return base.Confirm(user);
         }
 
 

@@ -57,7 +57,7 @@ namespace ExternalBanking.DBManager
                             posRate.CardSystem = Convert.ToUInt16(dr["ID"].ToString());
                             posRate.CardSystemDescription = dr["SystemName"].ToString();
                             posRate.Rate = float.Parse(dr["Rate"].ToString());
-                            posRate.LocalRate = float.Parse(dr["Local_rate"].ToString());
+                            posRate.LocalRate = dr["Local_rate"] == DBNull.Value ? 0 : float.Parse(dr["Local_rate"].ToString());
                             posRate.FixedRate = Convert.ToUInt16(dr["Fixed_rate"].ToString());
                             posRates.Add(posRate);
                         }

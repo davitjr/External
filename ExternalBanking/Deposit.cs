@@ -409,12 +409,11 @@ namespace ExternalBanking
         public static byte[] PrintDepositContract(long docId, bool attachedFile, ulong customerNumber)
         {
             byte[] result;
-            DepositOrder order = new DepositOrder();
             short filialCode = Customer.GetCustomerFilial(customerNumber).key;
             string contractName = "DepositContract";
             Customer customer = new Customer();
             customer.CustomerNumber = customerNumber;
-            order = customer.GetDepositorder(docId);
+            DepositOrder order = customer.GetDepositorder(docId);
 
             if (order.DepositType == ExternalBanking.DepositType.BusinesDeposit && order.Deposit.DepositOption.Count == 1)
             {

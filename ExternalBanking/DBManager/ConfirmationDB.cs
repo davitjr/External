@@ -108,6 +108,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@confirmDate", SqlDbType.SmallDateTime).Value = OperationDate;
                     cmd.Parameters.Add("@confirmOrReject", SqlDbType.TinyInt).Value = 1; //1 - գլխավոր հաշվապահի հաստատում
                     cmd.Parameters.Add("@minItemNumber", SqlDbType.Int).Value = 1;
+                    cmd.Parameters.Add("@transactionIsStarted", SqlDbType.Bit).Value = 1;
 
                     cmd.ExecuteNonQuery();
                 }

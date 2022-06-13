@@ -4,6 +4,7 @@ using ExternalBanking.ARUSDataService;
 using ExternalBanking.CreditLineActivatorARCA;
 using ExternalBanking.DBManager;
 using ExternalBanking.DBManager.Acbamat;
+using ExternalBanking.Events;
 using ExternalBanking.ServiceClient;
 using ExternalBanking.XBManagement;
 using System;
@@ -13,6 +14,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Configuration;
+using static ExternalBanking.AcbamatThirdPartyWithdrawalOrder;
 using static ExternalBanking.CardlessCashoutOrder;
 
 namespace ExternalBanking
@@ -516,12 +518,53 @@ namespace ExternalBanking
         internal static IEnumerable<ActionError> ValidateAcbamatThirdPartyWithdrawalOrder(AcbamatThirdPartyWithdrawalOrder acbamatThirdPartyWithdrawalOrder)
         {
             List<ActionError> result = new List<ActionError>();
+            double sumAmount = AcbamatThirdPartyWithdrawalOrderDB.GetWithdrawnAmountForToday(acbamatThirdPartyWithdrawalOrder.UserId);
+           
+            if (sumAmount >= 2000000)
+            {
+                throw new AcbamatThirdPartyWithdrawalException($"Acbamat {acbamatThirdPartyWithdrawalOrder.ThirdPartyOrganizationType} Գումարի կանխիկացումը հնարավոր չէ կատարել։ ");
+            }
+
+            ulong accountNumber = AcbamatThirdPartyWithdrawalOrderDB.GetThirdPartyOrganizationAccount(acbamatThirdPartyWithdrawalOrder.ThirdPartyOrganizationType);
+            if (accountNumber is 0)
+            {
+                throw new AcbamatThirdPartyWithdrawalException($"Acbamat {acbamatThirdPartyWithdrawalOrder.ThirdPartyOrganizationType} կազմակերպության հաշիվը բացակայում է։");
+            }
+
+            double availableBalance = Account.GetAcccountAvailableBalance(accountNumber.ToString());
+            if (acbamatThirdPartyWithdrawalOrder.Amount > availableBalance)
+            {
+                string toEmail = AcbamatThirdPartyWithdrawalOrderDB.GetThirdPartyOrganizationEmail(acbamatThirdPartyWithdrawalOrder.ThirdPartyOrganizationType);
+                if (string.IsNullOrWhiteSpace(toEmail))
+                {
+                    throw new AcbamatThirdPartyWithdrawalException($"Acbamat {acbamatThirdPartyWithdrawalOrder.ThirdPartyOrganizationType} կազմակերպության էլ. հասցեն բացակայում է։");
+                }
+
+                string mailContent =
+                       $@"Հարգելի գործընկերներ, <br/><br/>
+                        Տեղեկացնում ենք, որ {accountNumber} հաշվի մնացորդը բավարար չէ Ձեր հաճախորդների կանխիկացման գործարքները ապահովելու համար։<br/><br/>
+                        Հարգանքով՝<br/>
+                        «Ակբա Բանկ» ԲԲԸ";
+
+                EmailMessagingService.Email email = new EmailMessagingService.Email
+                {
+                    Content = mailContent,
+                    Subject = "Կանխիկացման գործարքի մերժում",
+                    From = 4,
+                    To = toEmail
+                };
+
+                EmailMessagingOperations.SendEmail(email);
+                throw new AcbamatThirdPartyWithdrawalException($"Acbamat {acbamatThirdPartyWithdrawalOrder.ThirdPartyOrganizationType} կազմակերպության հաշիվը անբավարար է։ կանխիկացվող գումար - {acbamatThirdPartyWithdrawalOrder.Amount}, մնացորդ - {availableBalance}");
+            }
+
             Math.DivRem((int)(decimal)acbamatThirdPartyWithdrawalOrder.Amount, 1000, out int remainder);
             if (acbamatThirdPartyWithdrawalOrder.Amount < 1000 || acbamatThirdPartyWithdrawalOrder.Amount > 399000 || remainder != 0)
             {
                 //Հաճախորդին տրամադրվող գումարը փոքր է 1000 ՀՀ դրամից, կամ մեծ է 399 000 ՀՀ դրամից, կամ չի հանդիսանում 1000 դրամի բազմապատիկ։
                 result.Add(new ActionError(2060));
             }
+
             return result;
         }
 
@@ -2333,19 +2376,10 @@ namespace ExternalBanking
 
             if (order.Source != SourceType.Bank && order.Source != SourceType.PhoneBanking && order.RestrictionGroup != 18)
             {
-                List<Account> accounts = Account.GetCurrentAccounts(order.CustomerNumber, ProductQualityFilter.Opened); //Վերադարձնում է հաճախորդի ընթացիկ հաշիվները
-                accounts.RemoveAll(m => m.AccountType != 10);
+                if (Account.HasCurrentAccountsNumber(order.CustomerNumber, order.Currency))
+                    //Նշված արժույթով ընթացիկ հաշիվ արդեն առկա է: Նույն արժույթով ևս մեկ ընթացիկ հաշիվ բացելու համար անհրաժեշտ է մոտենալ Ձեզ սպասարկող Բանկի մասնաճյուղ:
+                    result.Add(new ActionError(241));
 
-
-                foreach (var item in accounts)
-                {
-                    if (order.Currency == item.Currency)
-                    {
-                        //Նշված արժույթով ընթացիկ հաշիվ արդեն առկա է: Նույն արժույթով ևս մեկ ընթացիկ հաշիվ բացելու համար անհրաժեշտ է մոտենալ Ձեզ սպասարկող Բանկի մասնաճյուղ:
-                        result.Add(new ActionError(241));
-                        break;
-                    }
-                }
                 if (AccountDB.HasAccountOrder(order.Currency, order.CustomerNumber))
                     // Նշված արժույթով ընթացիկ հաշիվ արդեն առկա է: Նույն արժույթով ևս մեկ ընթացիկ հաշիվ բացելու համար անհրաժեշտ է մոտենալ Բանկի Ձեզ սպասարկող մասնաճյուղ:
                     result.Add(new ActionError(1816));
@@ -2367,7 +2401,7 @@ namespace ExternalBanking
             }
             if (order.Source == SourceType.Bank && order.RestrictionGroup == 0)
             {
-                result.AddRange(ValidateKYCDocument(customer));
+                result.AddRange(ValidateKYCDocument(order.CustomerNumber));
 
             }
 
@@ -2497,7 +2531,7 @@ namespace ExternalBanking
                                     result.AddRange(ValidateCustomerSignature(jointCustomer));
                                     if (order.Source == SourceType.Bank)
                                     {
-                                        result.AddRange(ValidateKYCDocument(jointCustomer));
+                                        result.AddRange(ValidateKYCDocument(m.Key));
                                     }
                                 }
                             }
@@ -3024,10 +3058,8 @@ namespace ExternalBanking
             }
 
             if (order.Source == SourceType.Bank)
-            {
-                var customer = ACBAOperationService.GetCustomer(order.CustomerNumber);
-                result.AddRange(ValidateKYCDocument(customer));
-
+            {                
+                result.AddRange(ValidateKYCDocument(order.CustomerNumber));
             }
 
             if (CheckCustomerPhoneNumber(order.CustomerNumber))
@@ -5003,7 +5035,7 @@ namespace ExternalBanking
                 double sentOrdersAmounts = Order.GetSentOrdersAmount(accounts[i].Key.AccountNumber, source); // ashxatum e miayn source == AcbaOnline AcbaOnlineXML MobileBanking ArmSoft depqerum
                 if (OnlySaveAndApprove && (type == OrderType.RATransfer || type == OrderType.InterBankTransferNonCash || type == OrderType.CashCredit
                   || type == OrderType.ReferenceOrder || type == OrderType.InBankConvertation || type == OrderType.CashCreditConvertation
-                  || type == OrderType.SwiftCopyOrder || type == OrderType.FeeForServiceProvided || type == OrderType.Convertation))
+                  || type == OrderType.SwiftCopyOrder || type == OrderType.FeeForServiceProvided || type == OrderType.Convertation || type == OrderType.EventTicketOrder))
                 {
                     debitAccountBalance += Order.GetSentNotConfirmedAmounts(accounts[i].Key.AccountNumber, OrderType.CashDebit);
                 }
@@ -5396,6 +5428,12 @@ namespace ExternalBanking
             else if (order.GetType().Name == "VehicleInsuranceOrder")
             {
                 VehicleInsuranceOrder vehicleInsuranceOrder = (VehicleInsuranceOrder)order;
+                Account debitAccount = Account.GetAccount(vehicleInsuranceOrder.DebitAccount.AccountNumber);
+                list.Add(new KeyValuePair<Account, double>(debitAccount, vehicleInsuranceOrder.Amount));
+            }
+            else if (order.GetType().Name == "EventTicketOrder")
+            {
+                EventTicketOrder vehicleInsuranceOrder = (EventTicketOrder)order;
                 Account debitAccount = Account.GetAccount(vehicleInsuranceOrder.DebitAccount.AccountNumber);
                 list.Add(new KeyValuePair<Account, double>(debitAccount, vehicleInsuranceOrder.Amount));
             }
@@ -8313,7 +8351,7 @@ namespace ExternalBanking
                 result.Add(new ActionError(1904));
             }
 
-            if (order.CustomerNumber!= 100000003724 && !ACBAOperationService.HasLegalCommunication(order.CustomerNumber))
+            if (order.CustomerNumber != 100000003724 && !ACBAOperationService.HasLegalCommunication(order.CustomerNumber))
             {
                 //«SAP CRM» ծրագրում անհրաժեշտ է ընտրել Օրենսդրական ծանուցում(ներ)ի ստացման եղանակ(ներ)ը:
                 result.Add(new ActionError(2004));
@@ -11712,34 +11750,47 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="customer"></param>
         /// <returns></returns>
-        public static List<ActionError> ValidateKYCDocument(ACBAServiceReference.Customer customer)
+        public static List<ActionError> ValidateKYCDocument(ulong customerNumber, SourceType sourceType = SourceType.Bank, bool isCheckAttachment = false)
         {
             List<ActionError> result = new List<ActionError>();
-            List<CustomerDocument> customerDocuments;
-            var customerType = customer.customerType.key;
+            List<CustomerDocument> customerDocuments; 
 
-            if (customerType == 6)
-            {
-                customerDocuments = (customer as PhysicalCustomer).person.documentList;
-            }
-            else
-            {
-                customerDocuments = (customer as LegalCustomer).Organisation.documentList;
-            }
+            customerDocuments = Customer.GetCustomerDocumentList(customerNumber);
+
             if (customerDocuments == null ||
                 customerDocuments?.FindAll(m => m.documentType?.key == 39) == null ||
                 customerDocuments?.FindAll(m => m.documentType?.key == 39).Count == 0 ||
                 customerDocuments?.FindAll(m => m.documentType?.key == 39).OrderByDescending(o => o.givenDate).FirstOrDefault()?.givenDate < new DateTime(2019, 6, 5))
             {
+
                 //Ավելացվել է տվյալ թասկի շրջանակում
                 //https://www.wrike.com/open.htm?id=496217109
 
-                //Գործընթացը շարունակելու համար խնդրում ենք թարմացնել հաճախորդի ` {0} KYC հարցաթերթիկը
-                result.Add(new ActionError(1733, new string[] { customer.customerNumber.ToString() }));
+
+                if (sourceType == SourceType.AcbaOnline || sourceType == SourceType.MobileBanking)
+                {
+                    //Հեռահար եղանակով հաշվի բացումը հնարավոր չէ իրականացնել։ Խնդրում ենք մոտենալ Բանկի մոտակա մասնաճյուղ։
+                    result.Add(new ActionError(2066, new string[] { customerNumber.ToString() }));
+                }
+                else
+                {
+                    //Գործընթացը շարունակելու համար խնդրում ենք թարմացնել հաճախորդի ` {0} KYC հարցաթերթիկը
+                    result.Add(new ActionError(1733, new string[] { customerNumber.ToString() }));
+                }
+
+
             }
+            else if (isCheckAttachment && customerDocuments?.FindAll(m => m.documentType?.key == 39).Any(p => p.attachmentList.Count != 0) == false)
+            {
+              
+                //Հեռահար եղանակով հաշվի բացումը հնարավոր չէ իրականացնել։ Խնդրում ենք մոտենալ Բանկի մոտակա մասնաճյուղ։
+                result.Add(new ActionError(2066, new string[] { customerNumber.ToString() }));
+            } 
 
             return result;
         }
+
+
 
         //internal static List<ActionError> ValidateR2AAccount(string r2aAccount, out Account currentAccount, out Card cardNumber)
         //{
@@ -12633,6 +12684,64 @@ namespace ExternalBanking
 
             return result;
 
+        }
+        
+        /// <summary>
+        /// Ստուգում է հաճախորդի քարտի գառտնաբառի առկայությունը SAP CRM ում, կից քարտերի դեպքում ստուգումը կատարվում է կից քարտապան հաճախորդի համար
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        internal static bool CustomerHasMotherName(Order order)
+        {
+            if (order == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            bool CustomerHasMotherName = true;
+                      
+            if (order.Source == SourceType.Bank && ACBAOperationService.GetCustomerType(order.CustomerNumber) == (short)CustomerTypes.physical)
+            {
+                Customer customer = new Customer();
+                
+                long productId = 0;
+                SupplementaryType SupplementaryType = SupplementaryType.NotDefined;
+
+                switch (order)
+                {
+                    case CardRenewOrder CardRenewOrder:
+                        SupplementaryType = CardRenewOrder.Card.SupplementaryType;
+                        productId = CardRenewOrder.Card.ProductId;
+                        break;
+                    case NonCreditLineCardReplaceOrder NonCreditLineCardReplaceOrder:
+                        SupplementaryType = NonCreditLineCardReplaceOrder.Card.SupplementaryType;
+                        productId = NonCreditLineCardReplaceOrder.Card.ProductId;
+                        break;
+                    case CreditLineCardReplaceOrder CreditLineCardReplaceOrder:
+                        SupplementaryType = CreditLineCardReplaceOrder.Card.SupplementaryType;
+                        productId = CreditLineCardReplaceOrder.Card.ProductId;
+                        break;
+                }
+
+
+                if ( SupplementaryType!= SupplementaryType.Linked)
+                {
+                    customer.CustomerNumber = order.CustomerNumber;
+                }
+                else
+                {
+                    customer.CustomerNumber = Card.GetCardHolderCustomerNumber(productId);
+                }
+
+                string motherName = customer.GetPasswordForCustomerDataOrder();
+
+                if (String.IsNullOrWhiteSpace(motherName))
+                {
+                    CustomerHasMotherName = false;
+                }
+            }
+            return CustomerHasMotherName;
         }
     }
 }

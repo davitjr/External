@@ -823,6 +823,8 @@ namespace ExternalBankingService.Interfaces
 
         [OperationContract]
         Dictionary<string, string> GetLeasingCredentialClosingReasons();
+        [OperationContract]
+        bool CheckNeedToFindoutLeasingDetails(long appId);
 
     }
 }

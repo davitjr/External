@@ -1,6 +1,7 @@
 ﻿using ExternalBanking.ACBAServiceReference;
 using ExternalBanking.ARUSDataService;
 using ExternalBanking.DBManager;
+using ExternalBanking.Events;
 using ExternalBanking.PreferredAccounts;
 using ExternalBanking.SberTransfers.Order;
 using ExternalBanking.SecuritiesTrading;
@@ -1076,6 +1077,7 @@ namespace ExternalBanking
                 currentAccounts.RemoveAll(m => m.Currency != "AMD" || m.TypeOfAccount == 282 || m.AccountType == (ushort)ProductType.CardDahkAccount);
 
                 Localization.SetCulture(currentAccounts, Culture);
+                accounts.AddRange(currentAccounts);
 
                 List<Account> cardAccounts = Account.GetCardAccounts(this.CustomerNumber);
                 cardAccounts.RemoveAll(m => m.Currency != "AMD" || m.ClosingDate != null);
@@ -1091,7 +1093,7 @@ namespace ExternalBanking
                     }
                 });
 
-                accounts.AddRange(currentAccounts);
+
                 return accounts;
             }
             else if ((orderType == OrderType.PreferredAccountActivationOrder || orderType == OrderType.PreferredAccountDeactivationOrder) && orderSubType == 2) // Visa Alias Preferred Accounts
@@ -1217,7 +1219,7 @@ namespace ExternalBanking
 
                 if (accountType == OrderAccountType.FeeAccount && orderType == OrderType.SecuritiesBuyOrder)
                 {
-                    List<Card> Cards = Card.GetCards(this.CustomerNumber, ProductQualityFilter.Opened); 
+                    List<Card> Cards = Card.GetCards(this.CustomerNumber, ProductQualityFilter.Opened);
                     List<Account> cardAccount = Cards.Where(a => a.Currency == "AMD").Select(a => a.CardAccount).ToList();
                     currentAccounts.AddRange(cardAccount.GroupBy(u => u.AccountNumber).Select(grp => grp.First()));
                 }
@@ -1328,7 +1330,7 @@ namespace ExternalBanking
             }
             else
             {
-                if (orderType != OrderType.CommunalPayment && (accountType == OrderAccountType.DebitAccount || accountType == OrderAccountType.CreditAccount))
+                if (orderType != OrderType.CommunalPayment && orderType != OrderType.EventTicketOrder && (accountType == OrderAccountType.DebitAccount || accountType == OrderAccountType.CreditAccount))
                 {
                     //Ընթացիկ հաշիվներ
                     List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
@@ -1493,7 +1495,7 @@ namespace ExternalBanking
 
                 }
                 //Միջնորդավճարի հաշիվներ
-                else if (accountType == OrderAccountType.FeeAccount || orderType == OrderType.CommunalPayment)
+                else if (accountType == OrderAccountType.FeeAccount || orderType == OrderType.CommunalPayment || orderType == OrderType.EventTicketOrder)
                 {
                     //Ընթացիկ հաշիվներ
                     List<Account> currentAccounts = Account.GetCurrentAccounts(this.CustomerNumber, ProductQualityFilter.Opened);
@@ -1503,18 +1505,18 @@ namespace ExternalBanking
 
 
                     //Davit                                             
-                    if (currentAccounts != null && currentAccounts.Count > 0 && !(orderType == OrderType.CommunalPayment || (orderType == OrderType.RATransfer && accountType == OrderAccountType.FeeAccount && orderSubType == 2 && (source == SourceType.MobileBanking || source == SourceType.AcbaOnline))))
+                    if (currentAccounts != null && currentAccounts.Count > 0 && !(orderType == OrderType.CommunalPayment || orderType == OrderType.EventTicketOrder || (orderType == OrderType.RATransfer && accountType == OrderAccountType.FeeAccount && orderSubType == 2 && (source == SourceType.MobileBanking || source == SourceType.AcbaOnline))))
                     {
                         currentAccounts = currentAccounts.FindAll(m => m.AccountType != (ushort)ProductType.OtherLabilities && m.AccountType != (ushort)ProductType.AparikTexum && m.AccountType != (ushort)ProductType.CardDahkAccount);
                     }
 
                     //Eduard
-                    if ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline || source == SourceType.AcbaOnlineXML || source == SourceType.ArmSoft) && orderType == OrderType.CommunalPayment)
+                    if ((source == SourceType.MobileBanking || source == SourceType.AcbaOnline || source == SourceType.AcbaOnlineXML || source == SourceType.ArmSoft) && (orderType == OrderType.CommunalPayment) || orderType == OrderType.EventTicketOrder)
                     {
                         currentAccounts.RemoveAll(m => m.ISDahkCardTransitAccount(m.AccountNumber));
                     }
 
-                    if (orderType == OrderType.CommunalPayment || (orderType == OrderType.RATransfer && accountType == OrderAccountType.FeeAccount && orderSubType == 2 && (source == SourceType.MobileBanking || source == SourceType.AcbaOnline))) //Davit
+                    if (orderType == OrderType.CommunalPayment || orderType == OrderType.EventTicketOrder || (orderType == OrderType.RATransfer && accountType == OrderAccountType.FeeAccount && orderSubType == 2 && (source == SourceType.MobileBanking || source == SourceType.AcbaOnline))) //Davit
                         accounts.RemoveAll(m => m.TypeOfAccount == 282);  //283 Սահմանափակ հասանելիությամ հաշվիներ  
                     else
                         accounts.RemoveAll(m => m.TypeOfAccount == 282 || m.TypeOfAccount == 283);
@@ -11273,6 +11275,89 @@ namespace ExternalBanking
             return bond.GetGovernmentBonds(CustomerNumber);
         }
 
+        /// <summary>
+        /// Պահատուփի տուգանքի մարման հայտի պահպանում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <param name="schemaType"></param>
+        /// <returns></returns>
+
+        public ActionResult SaveDepositCasePenaltyMatureOrder(DepositCasePenaltyMatureOrder order, string userName, short schemaType)
+        {
+
+            ActionResult result = new ActionResult();
+
+            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
+            if (result.Errors.Count > 0)
+            {
+                Localization.SetCulture(result, Culture);
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+
+            result = order.Save(userName, Source, User, schemaType);
+
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+
+        /// <summary>
+        /// Պահատուփի տուգանքի մարման հայտի հաստատում
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="userName"></param>
+        /// <param name="schemaType"></param>
+        /// <returns></returns>
+        public ActionResult ApproveDepositCasePenaltyMatureOrder(DepositCasePenaltyMatureOrder order, string userName, short schemaType)
+        {
+
+            ActionResult result = new ActionResult();
+
+            result.Errors.AddRange(Validation.CheckOperationAvailability(order, User));
+            if (result.Errors.Count > 0)
+            {
+                Localization.SetCulture(result, Culture);
+                result.ResultCode = ResultCode.ValidationError;
+                return result;
+            }
+
+            result = order.Approve(userName, Source, User, schemaType);
+
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public ActionResult SaveEventTicketOrder(EventTicketOrder order, string userName)
+        {
+            order.CustomerNumber = CustomerNumber;
+            if (order.OrderNumber == "" || order.OrderNumber == null)
+                order.OrderNumber = Order.GenerateNextOrderNumber(this.CustomerNumber);
+
+            ActionResult result = order.Save(userName, Source, User);
+
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
+        public EventTicketOrder GetEventTicketOrder(long ID, Languages Language)
+        {
+            EventTicketOrder order = new EventTicketOrder();
+            order.Id = ID;
+            order.CustomerNumber = this.CustomerNumber;
+            order.GetEventTicketOrder(Language);
+            Localization.SetCulture(order, Culture);
+            return order;
+        }
+
+        public ActionResult ApproveEventTicketOrder(EventTicketOrder order, short schemaType, string userName)
+        {
+            ActionResult result = order.Approve(userName, schemaType, User);
+            Localization.SetCulture(result, Culture);
+            return result;
+        }
+
         //Davit Pos
         public ActionResult SaveAndApproveNewPosLocationOrder(NewPosLocationOrder order, string userName, short schemaType)
         {
@@ -11307,7 +11392,7 @@ namespace ExternalBanking
         public List<string> GetPosTerminalActivitySphere()
         {
             NewPosLocationOrder OrderDetail = new NewPosLocationOrder();
-            return OrderDetail.GetPosTerminalActivitySphere(); 
+            return OrderDetail.GetPosTerminalActivitySphere();
         }
     }
 }

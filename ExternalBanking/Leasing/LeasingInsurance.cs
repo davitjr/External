@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExternalBanking.Leasing
 {
@@ -12,6 +8,8 @@ namespace ExternalBanking.Leasing
         /// Ունիկալ համար
         /// </summary>
         public int InsuranceId { get; set; }
+
+        public string InsuranceDescription { get; set; }
 
         /// <summary>
         /// Վճարման գւմար

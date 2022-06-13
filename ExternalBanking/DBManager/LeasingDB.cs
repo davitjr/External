@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Web.Configuration;
-using ExternalBanking.Leasing;
 
 namespace ExternalBanking.DBManager
 {
@@ -71,6 +71,85 @@ namespace ExternalBanking.DBManager
             }
 
             return leasingCustomers;
+        }
+
+        internal static void GetPaymentOrder(LeasingPaymentOrder order)
+        {
+            using SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HBBaseConn"].ToString());
+            using SqlCommand cmd = new SqlCommand();
+            conn.Open();
+            cmd.Connection = conn;
+            cmd.CommandText = @"Select rs.description as ReasonIdDescription,AD.doc_id, AD.pay_type, AD.leasing_insurance_Id, AD.insurance_description, AD.app_id, *  
+                                                            from Tbl_Hb_Documents D  
+															LEFT JOIN Tbl_New_Transfer_Doc TD on D.doc_ID = TD.Doc_id   
+															LEFT JOIN dbo.tbl_type_of_card_debit_reasons rs ON rs.TYPE = d.reason_type  
+                                                            OUTER APPLY (select top 1  CONVERT(VARCHAR(5),change_date, 108)  change_time  from Tbl_HB_quality_history where doc_ID=D.doc_ID  order by quality )time
+                                                            INNER JOIN (SELECT OD.doc_id, OD.pay_type, OD.leasing_insurance_Id, LD.insurance_description, LD.app_id
+																				FROM [dbo].[Tbl_Leasing_Payments_Order_Details]  OD
+																				INNER JOIN V_Leasing_Details LD ON LD.loan_full_number  = OD.loan_full_number AND  LD.date_of_beginning  = OD.date_of_beginning) AD ON AD.doc_id = D.Doc_id
+														   where D.doc_id=@id and D.customer_number=case when @customerNumber = 0 then customer_number else @customerNumber end";
+
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = order.Id;
+            cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = order.CustomerNumber;
+            
+            using SqlDataReader dr = cmd.ExecuteReader();
+          
+            if (dr.Read())
+            {
+                order.Id = long.Parse(dr["doc_id"].ToString());
+                order.Quality = (OrderQuality)Convert.ToInt16(dr["quality"]);
+                order.RegistrationDate = Convert.ToDateTime(dr["registration_date"]);
+                order.Type = (OrderType)Convert.ToInt16(dr["document_type"]);
+                order.SubType = Convert.ToByte(dr["document_subtype"]);
+                order.Receiver = dr["receiver_name"] != DBNull.Value ? Utility.ConvertAnsiToUnicode(dr["receiver_name"].ToString()) : default;
+                order.ReceiverBankCode = dr["credit_bank_code"] != DBNull.Value ? Convert.ToInt32(dr["credit_bank_code"]) : default;
+                order.Amount = dr["amount"] != DBNull.Value ? Convert.ToDouble(dr["amount"]) : default;
+                order.Currency = dr["currency"] != DBNull.Value ? dr["currency"].ToString() : default;
+                order.SubType = Convert.ToByte(dr["document_subtype"]);
+                order.OrderNumber = dr["document_number"].ToString();
+                order.Description = dr["description"] != DBNull.Value ? Utility.ConvertAnsiToUnicode(dr["description"].ToString()) : default;
+                order.ConvertationRate = dr["rate_sell_buy"] != DBNull.Value ? Convert.ToDouble(dr["rate_sell_buy"]) : default;
+                order.ConvertationRate1 = dr["rate_sell_buy_cross"] != DBNull.Value ? Convert.ToDouble(dr["rate_sell_buy_cross"]) : default;
+                order.TransferFee = dr["amount_for_payment"] != DBNull.Value ? Convert.ToDouble(dr["amount_for_payment"]) : default;
+                order.FeeAccount = dr["deb_for_transfer_payment"] != DBNull.Value ? Account.GetAccount(Convert.ToUInt64(dr["deb_for_transfer_payment"])) : default;
+                order.RegistrationTime = dr["change_time"] != DBNull.Value ? dr["change_time"].ToString() : default;
+                order.Source = dr["source_type"] != DBNull.Value ? (SourceType)Convert.ToInt16(dr["source_type"]) : default;
+                order.OperationDate = dr["operation_date"] != DBNull.Value ? Convert.ToDateTime(dr["operation_date"]) : default(DateTime?);
+                order.UseCreditLine = dr["use_credit_line"] != DBNull.Value && Convert.ToBoolean(dr["use_credit_line"]);
+                order.GroupId = dr["order_group_id"] != DBNull.Value ? Convert.ToInt32(dr["order_group_id"]) : default;
+                order.ConfirmationDate = dr["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dr["confirmation_date"]) : default(DateTime?);
+                order.FilialCode = Convert.ToUInt16(dr["filial"].ToString());
+                order.PayType = dr["pay_type"] != DBNull.Value ? Convert.ToInt32(dr["pay_type"].ToString()) : default;
+                order.ProductId = dr["app_id"] != DBNull.Value ? ulong.Parse(dr["app_id"].ToString()) : default;
+                order.InsuranceId = dr["leasing_insurance_Id"] != DBNull.Value ? Convert.ToInt32(dr["leasing_insurance_Id"].ToString()) : default;
+                order.InsuranceDescription = dr["insurance_description"] != DBNull.Value ? dr["insurance_description"].ToString() : default;
+
+                if (dr["reason_type"] != DBNull.Value && Convert.ToInt32(dr["reason_type"]) != 0)
+                {
+                    order.ReasonId = Convert.ToInt32(dr["reason_type"]);
+                    order.ReasonIdDescription = Utility.ConvertAnsiToUnicode(dr["ReasonIdDescription"].ToString());
+                    if (order.ReasonId == 99)
+                    {
+                        order.ReasonIdDescription = Utility.ConvertAnsiToUnicode(dr["reason_type_description"].ToString());
+                    }
+                }
+
+                if (dr["debet_account"] != DBNull.Value)
+                {
+                    order.DebitAccount = new Account
+                    {
+                        AccountNumber = dr["debet_account"].ToString()
+                    };
+                }
+
+                if (dr["credit_account"] != DBNull.Value)
+                {
+                    order.ReceiverAccount = new Account
+                    {
+                        AccountNumber = dr["credit_bank_code"].ToString() + dr["credit_account"].ToString()
+                    };
+                }
+            }
         }
 
         internal static LeasingDetailedInformation GetLeasingDetailedInformation(long loanFullName, DateTime dateOfBeginning)
@@ -153,10 +232,10 @@ namespace ExternalBanking.DBManager
             List<LeasingInsuranceDetails> insuranceInfo = new List<LeasingInsuranceDetails>();
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["LeasingAccOperConn"].ToString()))
             {
-                using SqlCommand cmd = new SqlCommand(@"Select f.id,fo.oper_description,f.sum_amd,f.pay_date 
+                using SqlCommand cmd = new SqlCommand(@"Select f.id,fo.oper_description,f.sum_amd,f.pay_date, f.date_of_registr 
                                                                                             From Tbl_for_1704 f
                                                                                             Inner Join Tbl_type_of_operations_1704 fo on f.operation_type = fo.oper_type
-                                                                                            where f.date_of_repay is null and f.operation_type in (5, 6, 7, 12, 16, 17, 19, 20, 21, 23, 24, 28) and f.loan_full_number = @loan_full_number and f.date_of_beginning = @date_of_beginning group by f.id,fo.oper_description,f.sum_amd,f.pay_date", conn);
+                                                                                            where f.date_of_repay is null and f.operation_type in (5, 6, 7, 12, 16, 17, 19, 20, 21, 23, 24, 28) and f.loan_full_number = @loan_full_number and f.date_of_beginning = @date_of_beginning group by f.id,fo.oper_description,f.sum_amd,f.pay_date, f.date_of_registr ", conn);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@loan_full_number", SqlDbType.BigInt).Value = loanFullNumber;
                 cmd.Parameters.Add("@date_of_beginning", SqlDbType.DateTime).Value = dateOfBeginning;
@@ -173,6 +252,9 @@ namespace ExternalBanking.DBManager
                         insuranceInfoObj.OperDescription = Convert.ToString(reader["oper_description"]);
                         insuranceInfoObj.SumAmd = Convert.ToDouble(reader["sum_amd"]);
                         insuranceInfoObj.PayDate = Convert.ToDateTime(reader["pay_date"]);
+                        if(reader["date_of_registr"] != DBNull.Value)
+                            insuranceInfoObj.RegistrationDate = Convert.ToDateTime(reader["date_of_registr"]);
+
                         insuranceInfo.Add(insuranceInfoObj);
                     }
                 }
@@ -293,7 +375,7 @@ namespace ExternalBanking.DBManager
                         cmd.Parameters.Add("@pay_type", SqlDbType.Int).Value = order.PayType;
 
 
-                    if (order.AdditionalParametrs[9] != null && Convert.ToInt32(order.AdditionalParametrs[9].AdditionValue) != 0)
+                    if (order.AdditionalParametrs.ElementAtOrDefault(9) != null && Convert.ToInt32(order.AdditionalParametrs[9].AdditionValue) != 0)
                     {
                         cmd.Parameters.Add("@leasingInsuranceId", SqlDbType.Int).Value = Convert.ToInt32(order.AdditionalParametrs[9].AdditionValue);
                     }
@@ -326,8 +408,9 @@ namespace ExternalBanking.DBManager
 
         internal static List<CustomerLeasingLoans> GetLeasings(ulong customerNumber)
         {
-
             List<CustomerLeasingLoans> customerLeasingLoans = new List<CustomerLeasingLoans>();
+            string leasingRecieverAccountNumber = Account.GetSystemAccountByNN(118007, 22000).AccountNumber;
+
             using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["LeasingAccOperConn"].ToString()))
             {
                 conn.Open();
@@ -357,8 +440,8 @@ namespace ExternalBanking.DBManager
                             LoanFullNumber = dr["loan_full_number"] != DBNull.Value ? ulong.Parse(dr["loan_full_number"].ToString()) : 0,
                             Quality = dr["quality"] != DBNull.Value ? Convert.ToByte(dr["quality"].ToString()) : (byte)0,
                             QualityDescription = Utility.ConvertAnsiToUnicode(dr["quality_description"].ToString()),
-                            GeneralNumber = dr["general_number"].ToString()
-
+                            GeneralNumber = dr["general_number"].ToString(),
+                            RecieverAccountNumber = leasingRecieverAccountNumber
                         };
                         customerLeasingLoans.Add(oneResult);
                     }
@@ -394,12 +477,12 @@ namespace ExternalBanking.DBManager
                         leasingLoanDetails.AccountBalance = dr["account_balance"] != DBNull.Value ? Convert.ToDouble(dr["account_balance"].ToString()) : 0;
                         leasingLoanDetails.AccountBalanceAMD = dr["account_balance_AMD"] != DBNull.Value ? Convert.ToDouble(dr["account_balance_AMD"].ToString()) : 0;
                         leasingLoanDetails.StartDate = Convert.ToDateTime(dr["date_of_beginning"].ToString());
-                        leasingLoanDetails.EndDate = dr["date_of_normal_end"] != DBNull.Value ? Convert.ToDateTime(dr["date_of_normal_end"].ToString()) : (DateTime?)null;                        
+                        leasingLoanDetails.EndDate = dr["date_of_normal_end"] != DBNull.Value ? Convert.ToDateTime(dr["date_of_normal_end"].ToString()) : (DateTime?)null;
                         leasingLoanDetails.Currency = dr["currency"].ToString();
                         leasingLoanDetails.InterestRate = float.Parse(dr["interest_rate"].ToString());
                         leasingLoanDetails.ActualInterestRate = float.Parse(dr["actual_interest_rate"].ToString());
                         leasingLoanDetails.LoanAccount = dr["account_number"] != DBNull.Value ? long.Parse(dr["account_number"].ToString()) : 0;
-                        leasingLoanDetails.CreditCode = dr["Credit_Code"].ToString();                        
+                        leasingLoanDetails.CreditCode = dr["Credit_Code"].ToString();
                         leasingLoanDetails.LeasingPayment = dr["payable_amount"] != DBNull.Value ? Convert.ToDouble(dr["payable_amount"].ToString()) : 0;
                         leasingLoanDetails.NextRepaymentDate = dr["next_repayment_date"] != DBNull.Value ? Convert.ToDateTime(dr["next_repayment_date"].ToString()) : (DateTime?)null;
                         leasingLoanDetails.Quality = dr["quality"] != DBNull.Value ? Convert.ToByte(dr["quality"].ToString()) : (byte)0;
@@ -436,11 +519,97 @@ namespace ExternalBanking.DBManager
                         leasingLoanDetails.PrepaymentPaymentDate = dr["prepayment_amount_date"] != DBNull.Value ? Convert.ToDateTime(dr["prepayment_amount_date"].ToString()) : (DateTime?)null;
                         leasingLoanDetails.FinalFee = dr["final_fee"] != DBNull.Value ? Convert.ToDouble(dr["final_fee"].ToString()) : 0;
                         leasingLoanDetails.PaymentsCount = dr["payments_count"] != DBNull.Value ? short.Parse(dr["payments_count"].ToString()) : (short)0;
+                        leasingLoanDetails.OrdinalRepayment = dr["ordinal_repayment"] != DBNull.Value ? (Convert.ToDouble(dr["ordinal_repayment"].ToString()) > 0 ? Convert.ToDouble(dr["ordinal_repayment"].ToString()) : 0) : 0;
                     }
                 }
             }
 
+            GetLeasingFees(leasingLoanDetails);
+            GetLeasingOtherPayments(leasingLoanDetails);
+
             return leasingLoanDetails;
+        }
+
+        internal static void GetLeasingFees(LeasingLoanDetails leasingLoanDetails)
+        {
+            List<OtherPayments> fees = new List<OtherPayments>();
+            string sql = string.Empty;
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["LeasingAccOperConn"].ToString()))
+            {
+                if (leasingLoanDetails.Quality == 10 || leasingLoanDetails.Quality == 6 || leasingLoanDetails.Quality == 14)
+                {
+                    sql = @"SELECT  1 AS id, ROUND(SL.fee_prcent * M.start_capital * dbo.fnc_kurs_for_date_bank(SL.currency,dateadd(day,datediff(day,1,M.date_of_beginning_contract),0)),1) AS sum_amd,
+                            dbo.fnc_get_n_th_working_day(date_of_beginning_contract, 5) AS pay_date
+		                                                FROM [Tbl_short_time_loans;] SL 
+														INNER JOIN Tbl_main_loans_contracts M ON M.ID_Contract = SL.ID_Contract
+		                                                WHERE SL.loan_full_number = @loanFullNumber AND SL.date_of_beginning = @DateOfBeginning";
+                }
+                else
+                {
+                    sql = @"SELECT id, sum_amd, pay_date
+		                                                FROM Tbl_for_1704 deb 
+		                                                WHERE deb.loan_full_number = @loanFullNumber AND deb.date_of_beginning = @DateOfBeginning
+			                                            AND deb.date_of_repay IS NULL AND deb.operation_type IN (1,2,3,4,18,25,26) 
+                                                        group by id, sum_amd, pay_date";
+                }
+
+                using SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@loanFullNumber", SqlDbType.BigInt).Value = leasingLoanDetails.LoanFullNumber;
+                cmd.Parameters.Add("@DateOfBeginning", SqlDbType.DateTime).Value = leasingLoanDetails.StartDate;
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        OtherPayments otherPayment = new OtherPayments();
+
+                        otherPayment.Id = Convert.ToInt32(reader["id"]);
+                        otherPayment.Amount = Convert.ToDouble(reader["sum_amd"]);
+                        otherPayment.PayDate = Convert.ToDateTime(reader["pay_date"]);
+
+                        fees.Add(otherPayment);
+                    }
+                }
+            }
+
+            leasingLoanDetails.Fees = fees;
+        }
+
+        internal static void GetLeasingOtherPayments(LeasingLoanDetails leasingLoanDetails)
+        {
+            List<OtherPayments> fees = new List<OtherPayments>();
+            using (SqlConnection conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["LeasingAccOperConn"].ToString()))
+            {
+                using SqlCommand cmd = new SqlCommand(@"SELECT id, sum_amd, pay_date
+		                                                FROM Tbl_for_1704 deb 
+		                                                WHERE deb.loan_full_number = @loanFullNumber AND deb.date_of_beginning = @DateOfBeginning
+			                                            AND deb.date_of_repay IS NULL AND deb.operation_type IN (8,9,10,11,13,14,15,22,27,250) 
+                                                        group by id, sum_amd, pay_date", conn);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@loanFullNumber", SqlDbType.BigInt).Value = leasingLoanDetails.LoanFullNumber;
+                cmd.Parameters.Add("@DateOfBeginning", SqlDbType.DateTime).Value = leasingLoanDetails.StartDate;
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        OtherPayments otherPayment = new OtherPayments();
+
+                        otherPayment.Id = Convert.ToInt32(reader["id"]);
+                        otherPayment.Amount = Convert.ToDouble(reader["sum_amd"]);
+                        otherPayment.PayDate = Convert.ToDateTime(reader["pay_date"]);
+
+                        fees.Add(otherPayment);
+                    }
+                }
+            }
+
+            leasingLoanDetails.OtherPayments = fees;
         }
 
         internal static List<LeasingLoanRepayments> GetLeasingRepayments(ulong productId, byte firstReschedule = 0)
@@ -552,12 +721,12 @@ namespace ExternalBanking.DBManager
             {
                 string query = @"SELECT * FROM V_Leasing_Details WHERE app_id=@productId";
                 if (leasingInsuranceId > 0)
-                    query+= @" AND leasing_insurance_Id = @leasingInsuranceId";
-                
+                    query += @" AND leasing_insurance_Id = @leasingInsuranceId";
+
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    cmd.CommandType = CommandType.Text;                    
+                    cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@productId", SqlDbType.BigInt).Value = productId;
                     if (leasingInsuranceId > 0)
                         cmd.Parameters.Add("@leasingInsuranceId", SqlDbType.Int).Value = leasingInsuranceId;
@@ -571,7 +740,7 @@ namespace ExternalBanking.DBManager
                         details.Add(new AdditionalDetails() { AdditionTypeDescription = "Currency", AdditionValue = dr["currency"].ToString(), AdditionalValueType = AdditionalValueType.String });
                         details.Add(new AdditionalDetails() { AdditionTypeDescription = "Description", AdditionValue = (dr["descr"]).ToString(), AdditionalValueType = AdditionalValueType.String });
                         details.Add(new AdditionalDetails() { AdditionTypeDescription = "AddDescription", AdditionValue = "", AdditionalValueType = AdditionalValueType.String });
-                        details.Add(new AdditionalDetails() { AdditionTypeDescription = "AccountType", AdditionValue = "LeasingAccount", AdditionalValueType = AdditionalValueType.String });                        
+                        details.Add(new AdditionalDetails() { AdditionTypeDescription = "AccountType", AdditionValue = "LeasingAccount", AdditionalValueType = AdditionalValueType.String });
                     }
                 }
             }
@@ -728,24 +897,59 @@ namespace ExternalBanking.DBManager
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"SELECT * FROM V_Leasing_Details WHERE app_id=@productId ", conn))
-                {                       
+                {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@productId", SqlDbType.BigInt).Value = productId;
-                    
+
                     SqlDataReader dr = cmd.ExecuteReader();
                     while (dr.Read())
                     {
                         LeasingInsurance oneResult = new LeasingInsurance()
                         {
-                            InsuranceId = dr["leasing_insurance_Id"] != DBNull.Value ? Convert.ToInt32(dr["leasing_insurance_Id"].ToString()):0,
+                            InsuranceId = dr["leasing_insurance_Id"] != DBNull.Value ? Convert.ToInt32(dr["leasing_insurance_Id"].ToString()) : 0,
+                            InsuranceDescription = dr["insurance_description"] != DBNull.Value ? dr["insurance_description"].ToString() : string.Empty,
                             Amount = dr["insurance_sum"] != DBNull.Value ? Convert.ToDouble(dr["insurance_sum"].ToString()) : 0,
                             PayDate = dr["pay_date"] != DBNull.Value ? Convert.ToDateTime(dr["pay_date"].ToString()) : (DateTime?)null
                         };
                         incurances.Add(oneResult);
-                    }                    
+                    }
                 }
             }
-            return incurances;            
+            return incurances;
+        }
+
+        internal static bool CheckNeedToFindoutLeasingDetails(long appId)
+        {
+            bool need = false;
+            DateTime bankOperDay = UtilityDB.GetCurrentOperDay();
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["LeasingAccOperConn"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(@"SELECT R.date_of_repayment , [dbo].[get_oper_day]() AS current_oper_day, [dbo].[Fnc_Check_need_to_find_out_leasing_details] (SL.app_id) AS need
+                                                        FROM [Tbl_short_time_loans;] SL
+	                                                        OUTER APPLY (SELECT TOP 1 capital_repayment + CASE WHEN ISNULL(SL.subsid_rate,0)>0 THEN subsidy_rate_repayment ELSE rate_repayment END  payable_amount, date_of_repayment 
+					                                                        FROM [Tbl_repayments_of_bl;]						
+					                                                        WHERE loan_full_number = SL.loan_full_number AND date_of_beginning = SL.date_of_beginning AND date_of_repayment >= CONVERT(DATETIME,CONVERT(NVARCHAR(50),GETDATE(),101))
+					                                                        ORDER BY date_of_repayment) R
+                                                        WHERE SL.app_id = @appId", conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@appId", SqlDbType.BigInt).Value = appId;
+
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    while (dr.Read())
+                    {
+                        if(Convert.ToBoolean(dr["need"]) == true)
+                        {
+                            if(Convert.ToDateTime(dr["date_of_repayment"]) >= Convert.ToDateTime(dr["current_oper_day"]) && Convert.ToDateTime(dr["date_of_repayment"]) < bankOperDay)
+                            {
+                                need = true;
+                            }
+                        }
+                    }
+                }
+            }
+            return need;
         }
     }
 }

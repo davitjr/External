@@ -1131,6 +1131,11 @@ namespace ExternalBanking
         SecuritiesTradingOrderCancellationOrder = 265,
 
         /// <summary>
+        /// Տոմսերի գնում
+        /// </summary>
+        EventTicketOrder = 266,
+
+        /// <summary>
         /// POS տերմինալի մուտքագռման հայտ
         /// </summary>
         NewPosTerminalInsertOrder = 268
@@ -1501,7 +1506,11 @@ namespace ExternalBanking
         /// <summary>
         /// Տերմինալով exchange NCR
         /// </summary>
-        AcbaMat = 16
+        AcbaMat = 16,
+        /// <summary>
+        /// Տինկոֆֆ փոխանցման համակարգ
+        /// </summary>
+        TinkoffTransferSystem = 17
     }
 
     /// <summary>
@@ -3597,4 +3606,20 @@ namespace ExternalBanking
         CancellationByCustomer = 2
 
     }
+
+    public enum EventTypes : short
+    {
+        /// <summary>
+        /// Նշված չէ
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Գինու օրեր
+        /// </summary>
+        WineDays = 1
+
+
+    }
+
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="1be29a23-b4b4-4d18-87b2-f2501e101c34" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="1be29a23-b4b4-4d18-87b2-f2501e101c34" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
     <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
@@ -24,22 +24,23 @@
     <MetadataSource Address="http://localhost/ACBAOperationService/OperationService.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="OperationService.xsd" MetadataType="Schema" ID="78ebed66-5062-4c8a-bd3a-d8be254b8cb5" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd7" />
-    <MetadataFile FileName="OperationService1.xsd" MetadataType="Schema" ID="d79a7eda-85ee-4fed-ba1d-237264e0dd7e" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd9" />
-    <MetadataFile FileName="OperationService2.xsd" MetadataType="Schema" ID="56393c68-3da7-4272-8e62-448ac59aee83" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd11" />
-    <MetadataFile FileName="OperationService.disco" MetadataType="Disco" ID="cf6080a6-7bf4-4968-837a-1ecce10b8033" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?disco" />
-    <MetadataFile FileName="OperationService3.xsd" MetadataType="Schema" ID="308efd39-aaaf-489f-9297-5375a382cdf8" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd0" />
-    <MetadataFile FileName="OperationService4.xsd" MetadataType="Schema" ID="4042df9f-af78-4aca-b370-ff3595f0394c" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd10" />
-    <MetadataFile FileName="OperationService5.xsd" MetadataType="Schema" ID="62cd46e8-9fa6-4e25-bcb0-7f34379be9e1" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd6" />
-    <MetadataFile FileName="OperationService6.xsd" MetadataType="Schema" ID="ef7edaf9-2536-4b2b-b548-7984d1be4c6e" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd4" />
-    <MetadataFile FileName="OperationService7.xsd" MetadataType="Schema" ID="7ccb1d82-8f8b-468e-81a9-093a79e1e7b4" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd13" />
-    <MetadataFile FileName="OperationService8.xsd" MetadataType="Schema" ID="e05cbd7f-478d-4204-a8c4-0d3dc9bc25ee" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd3" />
-    <MetadataFile FileName="OperationService.wsdl" MetadataType="Wsdl" ID="f7f0aae0-3270-41c8-9d20-b93a848161cd" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?wsdl" />
-    <MetadataFile FileName="OperationService9.xsd" MetadataType="Schema" ID="59e24ce0-e12f-4941-843c-da44fd3aab77" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd12" />
-    <MetadataFile FileName="OperationService10.xsd" MetadataType="Schema" ID="8c16c694-add1-45ff-8656-1e56111cd305" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd1" />
-    <MetadataFile FileName="OperationService11.xsd" MetadataType="Schema" ID="2b4722e0-db8e-41be-a41d-7fcb05f2587c" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd8" />
-    <MetadataFile FileName="OperationService12.xsd" MetadataType="Schema" ID="6e626c3d-f2ef-4e31-84f7-33884c23d926" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd2" />
-    <MetadataFile FileName="OperationService13.xsd" MetadataType="Schema" ID="e817ba95-8a71-44c1-a7d5-f42388265ae5" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd5" />
+    <MetadataFile FileName="OperationService.xsd" MetadataType="Schema" ID="356714d4-7e4e-4448-80ce-13033fa7039e" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd10" />
+    <MetadataFile FileName="OperationService1.xsd" MetadataType="Schema" ID="e5831ba7-f0ac-4712-ac52-57289226e1a8" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd9" />
+    <MetadataFile FileName="OperationService2.xsd" MetadataType="Schema" ID="0bab49d1-8bc8-4861-9cfd-938db9372bb3" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd8" />
+    <MetadataFile FileName="OperationService3.xsd" MetadataType="Schema" ID="11298066-605e-4d2e-8a89-43288e974405" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd2" />
+    <MetadataFile FileName="OperationService8.xsd" MetadataType="Schema" ID="f1d03976-7c5b-43ab-9fac-3c06ce8ef96f" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd13" />
+    <MetadataFile FileName="OperationService9.xsd" MetadataType="Schema" ID="5832693f-3016-4b93-b425-6b31637b5ce6" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd1" />
+    <MetadataFile FileName="OperationService10.xsd" MetadataType="Schema" ID="b38c83e8-3330-4c42-be52-ae9cca436c08" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd0" />
+    <MetadataFile FileName="OperationService11.xsd" MetadataType="Schema" ID="4c31d75a-86c0-4af8-a814-e719e2ba331d" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd3" />
+    <MetadataFile FileName="OperationService.wsdl" MetadataType="Wsdl" ID="0016084c-47b5-48d4-828d-73b020e3a6ef" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?wsdl" />
+    <MetadataFile FileName="OperationService12.xsd" MetadataType="Schema" ID="6d40c182-9050-45d4-a0d8-f7a91a9bc93a" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd5" />
+    <MetadataFile FileName="OperationService13.xsd" MetadataType="Schema" ID="d5ed7ef9-93da-4ae8-8417-8003e769b3b3" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd4" />
+    <MetadataFile FileName="OperationService28.xsd" MetadataType="Schema" ID="ce6b8bc5-c369-41e1-b528-1d349fa47863" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd7" />
+    <MetadataFile FileName="OperationService.disco" MetadataType="Disco" ID="40b79f89-13bd-43c5-9f05-bddbc529878a" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?disco" />
+    <MetadataFile FileName="OperationService29.xsd" MetadataType="Schema" ID="dcbd3dd0-68f2-4930-ac34-a84514ebeed1" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd6" />
+    <MetadataFile FileName="OperationService30.xsd" MetadataType="Schema" ID="467443c8-badd-4983-a483-32ebbea0309e" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd11" />
+    <MetadataFile FileName="OperationService31.xsd" MetadataType="Schema" ID="c5af10bf-f2a0-4c11-81b2-dc3c65e8db24" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd14" />
+    <MetadataFile FileName="OperationService32.xsd" MetadataType="Schema" ID="accbdcac-a80d-4bec-8233-d3c8cbafb271" SourceId="1" SourceUrl="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd12" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

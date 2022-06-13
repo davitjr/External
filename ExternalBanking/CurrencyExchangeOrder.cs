@@ -561,7 +561,7 @@ namespace ExternalBanking
 
             List<ActionError> warnings = new List<ActionError>();
 
-            if (source != SourceType.SberBankTransfer)
+            if (source != SourceType.SberBankTransfer && source != SourceType.TinkoffTransferSystem)
             {
                 result = this.Validate(user);
 
@@ -734,7 +734,7 @@ namespace ExternalBanking
 
             if (!(Source == SourceType.AcbaOnline || Source == SourceType.MobileBanking))
             {
-                if (Source != SourceType.SSTerminal && Source != SourceType.CashInTerminal && Source != SourceType.SberBankTransfer)
+                if (Source != SourceType.SSTerminal && Source != SourceType.CashInTerminal && Source != SourceType.SberBankTransfer && Source != SourceType.TinkoffTransferSystem)
                 {
                     GetVariation();
                 }

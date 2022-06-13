@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="e0cb4b3c-2527-4c7f-a908-67d4634083d8" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="e0cb4b3c-2527-4c7f-a908-67d4634083d8" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
     <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
@@ -24,11 +24,11 @@
     <MetadataSource Address="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" Protocol="mex" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="3fc167a3-7fd8-4752-b33e-6abf6bf46d6e" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
-    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="7715c566-aa5a-4cd1-bd40-740002a46aa2" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
-    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="1b5090a8-20d1-4477-9df3-a85a9ecfb9d1" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
-    <MetadataFile FileName="AcbaOnlineSecurityService.Helpers.xsd" MetadataType="Schema" ID="81392cd8-0652-46bc-87c3-da4261d43ea0" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
-    <MetadataFile FileName="Arrays.xsd" MetadataType="Schema" ID="65a86d23-ee36-42eb-b83b-f76be389be54" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="service1.wsdl" MetadataType="Wsdl" ID="745690a1-08c4-4819-9ac5-39aaeadab3b6" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="service2.xsd" MetadataType="Schema" ID="f8f7b5a3-5590-4bf2-8e1b-7ebc52811554" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="service21.xsd" MetadataType="Schema" ID="d5bff3eb-357b-4c0b-b4c5-59e27a5463e6" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="AcbaOnlineSecurityService.Helpers1.xsd" MetadataType="Schema" ID="c0061cc8-1f69-4431-bdab-8081e1b093eb" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
+    <MetadataFile FileName="Arrays1.xsd" MetadataType="Schema" ID="6e00e3c2-89e6-453d-95f4-bb2d5ea2c645" SourceId="1" SourceUrl="http://acbaonlinesecservice-test:85/AcbaOnlineSecurityService.Services.AcbaOnlineLogin.svc/mex" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

@@ -10,9 +10,9 @@ namespace ExternalBankingService.Interfaces
     public interface ISberTransfersService
     {
         [OperationContract]
-        SberPreTransferRequisites GetDataForSberTransfer(ulong customerNumber);
+        SberPreTransferRequisites GetDataForSberTransfer(ulong customerNumber, bool onlyAMD);
 
         [OperationContract]
-        (ActionResult, DateTime?) SaveAndApproveSberIncomingTransferOrder(SberIncomingTransferOrder order);
+        (ActionResult, DateTime?) SaveAndApproveSberIncomingTransferOrder(SberIncomingTransferOrder order, SourceType sourceType);
     }
 }

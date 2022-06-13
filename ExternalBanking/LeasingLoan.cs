@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExternalBanking.DBManager;
+using System;
 
 namespace ExternalBanking
 {
@@ -42,6 +43,11 @@ namespace ExternalBanking
         public string GeneralNumber { get; set; }
 
         public double PrepaymentAmount { get; set; }
+
+        public static bool CheckNeedToFindoutLeasingDetails(long appId)
+        {
+            return LeasingDB.CheckNeedToFindoutLeasingDetails(appId);
+        }
 
     }
 }

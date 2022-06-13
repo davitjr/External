@@ -78,5 +78,6 @@ namespace ExternalBanking.Leasing
         /// Պայմանագրի համար
         /// </summary>
         public string GeneralNumber { get; set; }
+        public string RecieverAccountNumber { get; set; }
     }
 }

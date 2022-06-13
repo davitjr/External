@@ -300,12 +300,18 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1588));
             }
 
+            if (!Validation.CustomerHasMotherName(this))
+            {
+                //Պահպանումը չհաջողվեց, SAP CRM ծրագրում հաճախորդի գաղտնաբառը բացակայում է:
+                result.Errors.Add(new ActionError(1978));
+            }
+          
             string MotherName = Card.GetCardMotherName((ulong)Card.ProductId);
             if (string.IsNullOrEmpty(MotherName))
             {
                 //Հաճախորդի գաղտնաբառ դաշտը բացակայում է:
                 result.Errors.Add(new ActionError(1665));
-            }
+            }           
 
             int productType = Utility.GetCardProductType(Convert.ToUInt32(Card.Type));
             if (!Validation.CheckProductAvailabilityByCustomerCountry(customerNumber, productType))

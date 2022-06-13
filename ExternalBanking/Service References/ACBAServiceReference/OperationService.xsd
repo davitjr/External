@@ -1,13 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ACBALibrary.CustomerIdentificationAlgorithm.Models" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ACBALibrary.CustomerIdentificationAlgorithm.Models" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/ACBAOperationService/OperationService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ACBALibrary" />
-  <xs:complexType name="CustomerIdentificationResult">
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ACBALibrary.AutomatedTask" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ACBALibrary.AutomatedTask" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="ArrayOfEmployeeAutomatedTask">
     <xs:sequence>
-      <xs:element minOccurs="0" name="CustomerNumber" type="xs:unsignedLong" />
-      <xs:element minOccurs="0" name="ExistMultipleIdentifiedCustomerWithCustomerQuality" type="xs:boolean" />
-      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ACBALibrary" minOccurs="0" name="IdentificationLevel" type="q1:CustomerIdentificationLevel" />
-      <xs:element minOccurs="0" name="IsNewCustomer" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="EmployeeAutomatedTask" nillable="true" type="tns:EmployeeAutomatedTask" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="CustomerIdentificationResult" nillable="true" type="tns:CustomerIdentificationResult" />
+  <xs:element name="ArrayOfEmployeeAutomatedTask" nillable="true" type="tns:ArrayOfEmployeeAutomatedTask" />
+  <xs:complexType name="EmployeeAutomatedTask">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AdditionalInfo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CoOperatingSetNumber" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="CustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="CustomerNumberSAP" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ScheduledExecutionDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="SetNumber" type="xs:unsignedInt" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EmployeeAutomatedTask" nillable="true" type="tns:EmployeeAutomatedTask" />
+  <xs:complexType name="ArrayOfAutomatedTask">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AutomatedTask" nillable="true" type="tns:AutomatedTask" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAutomatedTask" nillable="true" type="tns:ArrayOfAutomatedTask" />
+  <xs:complexType name="AutomatedTask">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AdditionalInfo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CoOperatingSetNumber" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="CustomerNumber" type="xs:unsignedLong" />
+      <xs:element minOccurs="0" name="CustomerNumberSAP" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="InvalidCoOperatingSetNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="InvalidCustomerNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="InvalidScheduledExecutionDate" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="InvalidSetNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ScheduledExecutionDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="SetNumber" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="ValidData" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AutomatedTask" nillable="true" type="tns:AutomatedTask" />
+  <xs:simpleType name="MobileRegistraionWrongType">
+    <xs:annotation>
+      <xs:appinfo>
+        <ActualType Name="short" Namespace="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="HasCustomerOnlineBanking" />
+      <xs:enumeration value="IsLegalCustomer" />
+      <xs:enumeration value="IsCustomerUpdateExpired" />
+      <xs:enumeration value="IsMissingCustomerEmail" />
+      <xs:enumeration value="IsMissingCustomerPhone" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MobileRegistraionWrongType" nillable="true" type="tns:MobileRegistraionWrongType" />
 </xs:schema>

@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="ExternalBankingService.XBInfoService" CodeBehind="XBInfoService.svc.cs" %>

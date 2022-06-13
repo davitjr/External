@@ -168,6 +168,12 @@ namespace ExternalBanking.DBManager
                              LEFT JOIN dbo.Tbl_Visa_Applications A ON A.app_id = CR.app_id ";
                 }
 
+                if (searchParams.Type == OrderType.CardNotRenewOrder)
+                {
+                    sql += @"INNER JOIN tbl_card_not_renew_order_details CNR ON CNR.doc_ID = D.doc_ID
+                             LEFT JOIN dbo.Tbl_Visa_Applications A ON A.app_id = CNR.app_id ";
+                }
+
                 sql += " WHERE d.quality <> 1 and d.quality <> 40 and document_type not in (135, 137, 138, 151, 157, 158) ";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -281,7 +287,7 @@ namespace ExternalBanking.DBManager
                     }
                     if ((searchParams.Type == OrderType.PlasticCardOrder || searchParams.Type == OrderType.AttachedPlasticCardOrder || searchParams.Type == OrderType.LinkedPlasticCardOrder ||
                         searchParams.Type == OrderType.PINRegenerationOrder || searchParams.Type == OrderType.NonCreditLineCardReplaceOrder || searchParams.Type == OrderType.CreditLineCardReplaceOrder ||
-                        searchParams.Type == OrderType.CardRenewOrder || searchParams.Type == OrderType.RenewedCardAccountRegOrder)
+                        searchParams.Type == OrderType.CardRenewOrder || searchParams.Type == OrderType.RenewedCardAccountRegOrder || searchParams.Type == OrderType.CardNotRenewOrder)
                         && searchParams.CardNumber != null)
                     {
                         cmd.Parameters.Add("@cardNumber", SqlDbType.NVarChar).Value = searchParams.CardNumber;
@@ -473,7 +479,8 @@ namespace ExternalBanking.DBManager
             using (conn = new SqlConnection(WebConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 if ((order.Source != SourceType.Bank && order.Source != SourceType.SSTerminal && order.Source != SourceType.EContract && order.Source != SourceType.STAK
-                    && order.Source != SourceType.SberBankTransfer) && order.Source != SourceType.CashInTerminal && order.Source != SourceType.AcbaMat
+                    && order.Source != SourceType.SberBankTransfer && order.Source != SourceType.TinkoffTransferSystem) 
+                    && order.Source != SourceType.CashInTerminal && order.Source != SourceType.AcbaMat
                     && order.Type != OrderType.ReceivedFastTransferPaymentOrder && order.Type != OrderType.CredentialOrder && order.Type != OrderType.PlasticCardOrder
                      && order.Type != OrderType.HBApplicationUpdateOrder && order.Type != OrderType.HBApplicationOrder && order.Type != OrderType.HBApplicationRestoreOrder
                      && order.Type != OrderType.HBActivation && order.Type != OrderType.HBApplicationTerminationOrder
@@ -482,7 +489,7 @@ namespace ExternalBanking.DBManager
                      && order.Type != OrderType.DepositaryAccountOrder && order.Type != OrderType.CurrentAccountOpen && order.Type != OrderType.BondRegistrationOrder
                      && order.Type != OrderType.VisaAlias && !(confirmationSourceType == ConfirmationSourceType.FromACBADigital && order.Type == OrderType.CancelTransaction)
                      && order.Type != OrderType.DepositaryAccountOpeningOrder && order.Type != OrderType.CardlessCashoutCancellationOrder
-                     && order.Type != OrderType.BrokerContractOrder && order.Type != OrderType.SecuritiesTradingOrderCancellationOrder && order.Type != OrderType.SecuritiesBuyOrder && order.Type != OrderType.SecuritiesSellOrder && order.Type != OrderType.NewPosTerminalInsertOrder)  
+                     && order.Type != OrderType.BrokerContractOrder && order.Type != OrderType.SecuritiesTradingOrderCancellationOrder && order.Type != OrderType.SecuritiesBuyOrder && order.Type != OrderType.SecuritiesSellOrder && order.Type != OrderType.NewPosTerminalInsertOrder)
                 {
 
                     using (SqlCommand cmd = new SqlCommand())
@@ -2374,7 +2381,7 @@ namespace ExternalBanking.DBManager
                                                        debet_account
 								                       FROM TBl_HB_documents 
                                                       WHERE doc_ID IN
-                        (select  H.doc_ID from Tbl_HB_documents H " + abonentNumberJoin + abonentNumberStr + receiverCardNumberJoin + receiverCardNumberStr + " WHERE H.quality <> 40 AND H.document_type NOT IN (132, 137, 69, 135, 116, 138, 191, 245) AND H.customer_number=@customer_number " + groupIdFilter + receiverNameStr + dateStr + accountStr + sourceStr + qualityStr + orderTypeStr + receiverCardNumberStr + "  and not (H.document_type = 259 and H.quality not in (3, 30, 20, 31)) ) order by doc_id desc";
+                        (select  H.doc_ID from Tbl_HB_documents H " + abonentNumberJoin + abonentNumberStr + receiverCardNumberJoin + receiverCardNumberStr + " WHERE H.quality <> 40 AND H.document_type NOT IN (132, 137, 69, 135, 116, 138, 191, 245, 256) AND H.customer_number=@customer_number " + groupIdFilter + receiverNameStr + dateStr + accountStr + sourceStr + qualityStr + orderTypeStr + receiverCardNumberStr + "  and not (H.document_type = 259 and H.quality not in (3, 30, 20, 31)) ) order by doc_id desc";
                     cmd.CommandText = sqlString;
 
 

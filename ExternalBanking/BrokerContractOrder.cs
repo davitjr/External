@@ -121,9 +121,10 @@ namespace ExternalBanking
 
         public ActionResult Approve(string userName, User user, short schemaType)
         {
+            ActionResult result = new ActionResult();
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
             {
-                ActionResult result = Approve(schemaType, userName);
+                result = Approve(schemaType, userName);
 
                 if (result.ResultCode == ResultCode.Normal)
                 {
@@ -138,9 +139,9 @@ namespace ExternalBanking
                     return result;
                 }
             }
+            return result;
 
-            ActionResult resultConfirm = base.Confirm(user);
-            return resultConfirm;
+
         }
 
         public void GetBrokerContractOrder()

@@ -1,28 +1,13 @@
-﻿using ExternalBanking.DBManager;
-using ExternalBanking.EmailMessagingService;
-
+﻿using ExternalBanking.EmailMessagingService;
 
 namespace ExternalBanking
 {
     public class EmailMessagingOperations
     {
-        public static void SendMobileBankingCustomerDetailsRiskyChangeAlert(string TokenSerial)
+        public static void SendEmail(Email email)
         {
-            string mailContent = EmailMessagingOperationsDB.GetRiskyChangesAlertMailContent(TokenSerial);
-
-            using (EmailMessagingServiceClient client = new EmailMessagingServiceClient())
-            {
-                Email email = new Email
-                {
-                    Content = mailContent,
-                    Subject = "ACBA DIGITAL alert",
-                    From = (int)EmailSenderProfiles.Notifications,
-                    To = "digitalmonitoring@acba.am"
-                };
-
-                client.SendEmailNotification(email);
-            }
-
+            using EmailMessagingServiceClient client = new EmailMessagingServiceClient();
+            client.SendEmailNotification(email);
         }
     }
 }

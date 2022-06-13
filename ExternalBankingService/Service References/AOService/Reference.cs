@@ -156,6 +156,9 @@ namespace ExternalBankingService.AOService {
         private string FullNameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string FullNameEngField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int GoodLogonsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -183,7 +186,7 @@ namespace ExternalBankingService.AOService {
         private int TypeOfClientField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<ExternalBankingService.AOService.UserGroup> UserGroupsField;
+        private ExternalBankingService.AOService.UserGroup[] UserGroupsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIDField;
@@ -309,6 +312,19 @@ namespace ExternalBankingService.AOService {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FullNameEng {
+            get {
+                return this.FullNameEngField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FullNameEngField, value) != true)) {
+                    this.FullNameEngField = value;
+                    this.RaisePropertyChanged("FullNameEng");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public int GoodLogons {
             get {
                 return this.GoodLogonsField;
@@ -426,7 +442,7 @@ namespace ExternalBankingService.AOService {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<ExternalBankingService.AOService.UserGroup> UserGroups {
+        public ExternalBankingService.AOService.UserGroup[] UserGroups {
             get {
                 return this.UserGroupsField;
             }
@@ -511,6 +527,9 @@ namespace ExternalBankingService.AOService {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid SessionIDField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string UserNameField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -582,6 +601,19 @@ namespace ExternalBankingService.AOService {
                 if ((this.SessionIDField.Equals(value) != true)) {
                     this.SessionIDField = value;
                     this.RaisePropertyChanged("SessionID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string UserName {
+            get {
+                return this.UserNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UserNameField, value) != true)) {
+                    this.UserNameField = value;
+                    this.RaisePropertyChanged("UserName");
                 }
             }
         }

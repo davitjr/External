@@ -152,7 +152,10 @@ namespace ExternalBanking
 
             this.OPPerson = Order.SetOrderOPPerson(this.CustomerNumber);
             this.CurrentAccount = new Account();
-            this.CurrentAccount.AccountNumber = Account.GetAllCurrentAccounts(this.CustomerNumber).Where(item => item.Currency == "AMD").OrderBy(x => x.OpenDate).ToList()[0].AccountNumber;
+            this.CurrentAccount.AccountNumber = Account.GetAllCurrentAccounts(this.CustomerNumber)
+                .Where(item => item.Currency == "AMD")
+                .OrderBy(x => x.OpenDate)
+                .ToList()[0].AccountNumber;
 
 
         }

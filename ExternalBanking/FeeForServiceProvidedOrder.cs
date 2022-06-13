@@ -46,7 +46,11 @@ namespace ExternalBanking
         public Boolean TaxAccountProvision { get; set; }
 
 
+        /// <summary>
+        /// Շտապ թողարկվող քարտի համար
+        /// </summary>
 
+        public string CardNumber { get; set; }
 
 
 

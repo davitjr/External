@@ -36,6 +36,9 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@operationFilialCode", SqlDbType.Int).Value = order.FilialCode;
                     cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
                     cmd.Parameters.Add("@TaxAccountProvision", SqlDbType.Bit).Value = order.TaxAccountProvision;
+                    cmd.Parameters.Add("@CardNumber", SqlDbType.NVarChar, 30).Value = order.CardNumber;
+
+
 
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
@@ -77,7 +80,8 @@ namespace ExternalBanking.DBManager
                                                          r.service_type,
                                                          isnull(r.customer_residence,0) as customer_residence,
                                                          d.operation_date,
-                                                         r.TaxAccountProvision
+                                                         r.TaxAccountProvision,
+                                                         r.CardNumber
                                                          FROM Tbl_HB_documents AS d 
                                                          INNER JOIN Tbl_fee_for_service_provided_order_details AS r
                                                          ON d.doc_ID=r.Doc_ID
@@ -101,6 +105,7 @@ namespace ExternalBanking.DBManager
                     order.Quality = (OrderQuality)Convert.ToInt16(dt.Rows[0]["quality"]);
                     order.OperationDate = dt.Rows[0]["operation_date"] != DBNull.Value ? Convert.ToDateTime(dt.Rows[0]["operation_date"]) : default(DateTime?);
                     order.TaxAccountProvision = Convert.ToBoolean(dt.Rows[0]["TaxAccountProvision"]);
+                    order.CardNumber = dt.Rows[0]["CardNumber"].ToString();
 
                 }
             }
@@ -152,6 +157,8 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@customerResidenceFromOrder", SqlDbType.TinyInt).Value = order.CustomerResidence;
                     cmd.Parameters.Add("@debetAccount", SqlDbType.Float).Value = order.DebitAccount.AccountNumber;
                     cmd.Parameters.Add("@rowNumberInPrices", SqlDbType.Int).Value = order.ServiceType;
+                    cmd.Parameters.Add("@CardNumber", SqlDbType.NVarChar, 30).Value = order.CardNumber;
+
 
                     SqlParameter param = new SqlParameter("@account1", SqlDbType.Float);
                     param.Direction = ParameterDirection.Output;

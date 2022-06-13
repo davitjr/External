@@ -231,7 +231,7 @@ namespace ExternalBanking.DBManager
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.Add("@accountNumber", SqlDbType.Float).Value = accountNumber;
-
+                   
 
                     DataTable dt = new DataTable();
 
@@ -1946,7 +1946,7 @@ namespace ExternalBanking.DBManager
                                         statementDetails.Description = statementDetails.Description + " ստացող՝ " + statementDetails.Correspondent;
                                     }
                                 }
-                                else if (statementDetails.DebitCredit == 'c' && dr["Payer"].ToString() != "")
+                                else if (statementDetails.DebitCredit == 'c' && dr["Payer"] != DBNull.Value  && dr["Payer"].ToString() != "")
                                 {
                                     statementDetails.Correspondent = dr["Payer"].ToString();
                                     if (sourceType == SourceType.AcbaOnline || sourceType == SourceType.MobileBanking)
@@ -6379,6 +6379,25 @@ namespace ExternalBanking.DBManager
 
             }
             return accountList;
+        }
+
+         internal static bool HasCurrentAccountsNumber(ulong customerNumber, string currency)
+        {
+            string query = @"SELECT 1 FROM  [tbl_all_accounts;] acc
+                            INNER JOIN(SELECT sint_acc_new, type_of_client, type_of_product FROM  dbo.Tbl_define_sint_acc WHERE(type_of_product = 10) AND(type_of_account = 24) 
+                            GROUP BY sint_acc_new, type_of_client, type_of_product) s ON acc.type_of_account_new = s.sint_acc_new 
+                            WHERE closing_date IS NULL AND customer_number = @customerNumber  AND currency = @currency";
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
+                    cmd.Parameters.Add("@currency", SqlDbType.NVarChar, 3).Value = currency;
+                    return cmd.ExecuteReader().Read();
+                }
+            }
         }
 
     }

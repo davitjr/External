@@ -479,7 +479,7 @@ namespace ExternalBanking
                                              accountNumber.ToString().PadLeft(15, '0');
 
                 strSwiftExtractOnePart = strSwiftExtractOnePart + Environment.NewLine + ":28C:" +
-                                             messageUniqNumber.ToString().PadLeft(5, '0') + "/" +
+                                             messageUniqNumber.ToString().Substring(messageUniqNumber.ToString().Length-5).PadLeft(5, '0') + "/" +
                                              (i + 1).ToString().PadLeft(3, '0');
 
 

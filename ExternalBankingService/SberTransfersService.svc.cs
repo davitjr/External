@@ -51,21 +51,21 @@ namespace ExternalBankingService
 
         }
 
-        public SberPreTransferRequisites GetDataForSberTransfer(ulong customerNumber)
+        public SberPreTransferRequisites GetDataForSberTransfer(ulong customerNumber, bool onlyAMD)
         {
-            return SberTransfers.GetDataForSberTransfer(customerNumber);
+            return SberTransfers.GetDataForSberTransfer(customerNumber, onlyAMD);
         }
 
-        private void InitOrder(Order order)
+        private void InitOrder(Order order, SourceType sourceType)
         {
             order.CustomerNumber = AuthorizedCustomer.CustomerNumber;
-            order.Source = SourceType.SberBankTransfer;
+            order.Source = sourceType;
             order.user = User;
             order.OperationDate = Utility.GetNextOperDay();
             order.DailyTransactionsLimit = AuthorizedCustomer.DailyTransactionsLimit;
         }
 
-        private Customer CreateCustomer()
+        private Customer CreateCustomer(SourceType sourceType)
         {
             Customer customer;
             customer = new Customer();
@@ -73,18 +73,18 @@ namespace ExternalBankingService
             customer.DailyOperationAmountLimit = 100000000000;
             customer.User = User;
             customer.User.filialCode = 22000;
-            customer.Source = SourceType.SberBankTransfer;
+            customer.Source = sourceType;
 
             return customer;
         }
 
-        public (ActionResult, DateTime?) SaveAndApproveSberIncomingTransferOrder(SberIncomingTransferOrder order)
+        public (ActionResult, DateTime?) SaveAndApproveSberIncomingTransferOrder(SberIncomingTransferOrder order, SourceType sourceType)
         {
             try
             {
                 Init(order.CustomerNumber);
-                Customer customer = CreateCustomer();
-                InitOrder(order);
+                Customer customer = CreateCustomer(sourceType);
+                InitOrder(order, sourceType);
                 var (result, registrationDate) = customer.SaveAndApproveSberIncomingTransferOrder(order, AuthorizedCustomer.UserName, AuthorizedCustomer.ApprovementScheme);
                 return (result, registrationDate);
             }

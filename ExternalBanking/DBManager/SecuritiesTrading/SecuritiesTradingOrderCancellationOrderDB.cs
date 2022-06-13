@@ -78,8 +78,13 @@ namespace ExternalBanking.DBManager.SecuritiesTrading
         {
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
-                conn.Open();
-                using SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_securities_trading_cancellation_order_details WHERE security_trading_order_doc_id = @DocID ", conn);
+                conn.Open(); 
+                using SqlCommand cmd = new SqlCommand(@"SELECT 1 FROM Tbl_securities_trading_cancellation_order_details d
+                                                                                        INNER JOIN (SELECT quality, doc_id FROM tbl_hb_documents) hb  ON d.security_trading_order_doc_id = hb.doc_id
+                                                                                        INNER JOIN (SELECT quality, doc_id FROM tbl_hb_documents) hbc  ON d.doc_id = hbc.doc_id
+                                                                                        WHERE hb.quality NOT IN (31, 32) AND hbc.quality = 3 AND
+                                                                                        security_trading_order_doc_id = @DocID  ", conn);
+
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = securitiesTradingOrderId;
                 return cmd.ExecuteReader().Read();
             }
@@ -93,13 +98,15 @@ namespace ExternalBanking.DBManager.SecuritiesTrading
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                using SqlCommand cmd = new SqlCommand(@"SELECT hb.*, c.*, d.*, tt.description_arm AS trading_order_types_description, st.description_arm AS securities_type_description
+                using SqlCommand cmd = new SqlCommand(@"SELECT hb.*, c.*, d.*, tt.description_arm AS trading_order_types_description, st.description_arm AS securities_type_description, shb.* ,d.*
 		                                                FROM Tbl_HB_documents hb 
                                                         INNER JOIN Tbl_securities_trading_cancellation_order_details c ON  hb.doc_ID = c.Doc_ID
-                                                        INNER JOIN Tbl_Securities_Trading_Order_Details d ON c.security_trading_order_doc_id = d.doc_id  
+                                                        INNER JOIN Tbl_Securities_Trading_Order_Details d ON c.security_trading_order_doc_id = d.doc_id 
+														INNER JOIN (SELECT amount_for_payment as amount_for_payment_order, deb_for_transfer_payment as deb_for_transfer_payment_order, debet_account as debet_account_order, credit_bank_code as credit_bank_code_order, credit_account as credit_account_order, doc_id as doc_id_order, currency as currency_order, amount as amount_order FROM Tbl_HB_documents) shb ON shb.doc_id_order = d.doc_id
 									                    LEFT JOIN Tbl_type_of_trading_order_types tt ON d.trading_order_type = tt.id
-									                    LEFT JOIN Tbl_type_of_securities st ON d.security_type = st.id                                         
+									                    LEFT JOIN Tbl_type_of_securities st ON d.security_type = st.id                                           
                                                         WHERE hb.Doc_ID=@DocID ", conn);
+
 
                 cmd.Parameters.Add("@DocID", SqlDbType.Int).Value = id;
                 dt.Load(cmd.ExecuteReader());
@@ -138,6 +145,30 @@ namespace ExternalBanking.DBManager.SecuritiesTrading
             order.ExpirationTypeDescription = order.ExpirationType == SecuritiesTradingOrderExpirationType.MarketDayEnd ? "Մինչև առևտրային օրվա ավարտը" : "Ուժի մեջ է մինչև հաճախորդի կողմից չեղարկումը";
             order.LimitPrice = dt["limit_price"] != DBNull.Value ? Convert.ToDouble(dt["limit_price"]) : default;
             order.StopPrice = dt["stop_price"] != DBNull.Value ? Convert.ToDouble(dt["stop_price"]) : default;
+            order.Currency = dt["currency_order"].ToString();
+            var securitiesTradingOrderType = Order.GetOrderType(order.SecuritiesTradingOrderId);
+            if (securitiesTradingOrderType == OrderType.SecuritiesSellOrder)
+            {
+                string creditAccountNumber = dt["credit_bank_code_order"] != DBNull.Value ? dt["credit_bank_code_order"].ToString() + dt["credit_account_order"].ToString() : String.Empty;
+                if (string.IsNullOrEmpty(creditAccountNumber))
+                    order.ReceiverAccount = Account.GetSystemAccount(creditAccountNumber);
+                order.Description = "Վաճառք";
+            }
+            else if (securitiesTradingOrderType == OrderType.SecuritiesBuyOrder)
+            {
+                order.DebitAccount = Account.GetSystemAccount(dt["debet_account_order"].ToString());
+                order.TransferFee = dt["amount_for_payment_order"] != DBNull.Value ? Convert.ToDouble(dt["amount_for_payment_order"]) : default;
+                order.FeeAccount = dt["deb_for_transfer_payment_order"] != DBNull.Value ? Account.GetSystemAccount(dt["deb_for_transfer_payment_order"].ToString()) : default;
+                order.Description = "Առք";
+            }
+            order.Ticker = dt["ticker"].ToString();
+            order.MarketPrice = Convert.ToDouble(dt["market_price"]);
+            order.BrokerageCode = dt["brokerage_code"].ToString();
+            order.BrokerContractId = BrokerContractOrder.GetBrokerContractId(order.CustomerNumber).Result;
+            order.TradingPlatform = dt["trading_platform"].ToString();
+            order.RejectReasonDescription = dt["reject_reason"] != DBNull.Value ? dt["reject_reason"].ToString() : null;
+            order.Amount = dt["amount_order"] != DBNull.Value ? Convert.ToDouble(dt["amount_order"].ToString()) : default;
+
             order.MarketTradedQuantity = SecuritiesMarketTradingOrder.GetMarketTradedQuantity(order.SecuritiesTradingOrderId);
 
 

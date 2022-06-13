@@ -3021,7 +3021,7 @@ namespace ExternalBanking.DBManager
                 filter = " h.quality<>40 and h.quality<>1 ";
             }
 
-            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247, 254, 191, 255, 260, 250) ";
+            filter += " AND h.document_type not in (79, 209, 210, 211, 212, 77, 207, 29,137,73,30, 223, 138, 135, 132, 69, 120, 119, 238, 228, 242, 245, 246, 247, 254, 191, 255, 260, 250, 265, 266, 263) and not (h.document_type in (261,262) and h.quality = 20) ";
 
             if (obj.OnlyACBA == 1)
             {

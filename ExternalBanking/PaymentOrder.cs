@@ -381,6 +381,11 @@ namespace ExternalBanking
                     return resultOpPerson;
                 }
 
+                if (this.AdditionalParametrs != null && this.AdditionalParametrs.Exists(m => m.AdditionValue == "LeasingAccount"))
+                {
+                    LeasingDB.SaveLeasingPaymentDetails(this);
+                }
+
                 LogOrderChange(user, action);
                 scope.Complete();
             }
@@ -940,7 +945,7 @@ namespace ExternalBanking
 
             }
 
-            if (this.ReceiverAccount.AccountNumber == Constants.LEASING_ACCOUNT_NUMBER && this.AdditionalParametrs == null && this.Source == SourceType.Bank)
+            if (this.ReceiverAccount.AccountNumber == Constants.LEASING_ACCOUNT_NUMBER && this.AdditionalParametrs == null && this.Source == SourceType.Bank )
             {
                 //Ընտրված է լիզինգային հաշիվ սակայն վարկի տվյալները լրացված չէ
                 result.Errors.Add(new ActionError(790));
@@ -1903,7 +1908,7 @@ namespace ExternalBanking
                         Transfer transfer = new Transfer();
                         transfer.Id = this.TransferID;
                         transfer.Get();
-                        if (transfer.InstantMoneyTransfer == 1 || transfer.TransferGroup == 5)
+                        if (transfer.InstantMoneyTransfer == 1 || transfer.TransferGroup == 5 || transfer.TransferGroup == 6)
                             this.DebitAccount = Account.GetSystemAccount(transfer.DebitAccount.AccountNumber);
                         else if (transfer.TransferGroup == 4)
                             this.DebitAccount = Account.GetSystemAccount(transfer.CreditAccount.AccountNumber);
@@ -2238,7 +2243,7 @@ namespace ExternalBanking
                     this.Fees.Add(orderFee);
                 }
 
-                if (Type == OrderType.RATransfer && SubType == 1 && string.IsNullOrWhiteSpace(Receiver))
+                if (string.IsNullOrWhiteSpace(Receiver) && ((Type == OrderType.RATransfer && SubType == 1) || Type == OrderType.LeasingPaymentOrder))
                 {
                     Receiver = Account.GetAccountDescription(ReceiverAccount.AccountNumber);
                 }

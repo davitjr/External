@@ -822,7 +822,7 @@ namespace ExternalBanking.DBManager
                             dt.Rows.Clear();
                             dt.Columns.Clear();
 
-                            using (SqlCommand cmd1 = new SqlCommand(@"Select top 1 DateAdd(""m"",period_in_months_min, @date_start) as mindate FROM Tbl_deposit_product_history
+                            using (SqlCommand cmd1 = new SqlCommand(@"Select top 1 CASE WHEN product_code IN(2,6,12,15) THEN DateAdd(DAY,period_in_days_min, @date_start) ELSE DateAdd(""m"",period_in_months_min, @date_start) END as mindate FROM Tbl_deposit_product_history
                                             WHERE product_code=@deposit_type and currency=@curr and date_of_beginning = @d_max and NOT (product_code=12 and currency='EUR' and period_in_months_min in (1, 3))
                                             ORDER BY period_in_months_min ASC", conn))
                             {
@@ -882,7 +882,7 @@ namespace ExternalBanking.DBManager
                     DateTime datetime = Convert.ToDateTime(dt.Rows[0]["date_of_beginning"]);
                     dt.Rows.Clear();
                     dt.Columns.Clear();
-                    cmd = new SqlCommand(@"Select top 1 DateAdd(""m"",  period_in_months_max, @date_start) as max_date FROM Tbl_deposit_product_history
+                    cmd = new SqlCommand(@"Select top 1 CASE WHEN product_code IN(2,6,12,15) THEN DateAdd(DAY,  period_in_days_max, @date_start) ELSE DateAdd(""m"",  period_in_months_max, @date_start) END as max_date FROM Tbl_deposit_product_history
                                       WHERE product_code=@deposit_type and currency=@curr and date_of_beginning = @d_max
                                       ORDER BY period_in_months_max DESC", conn);
                     cmd.Parameters.Add("@deposit_type", SqlDbType.Int).Value = (short)order.DepositType;

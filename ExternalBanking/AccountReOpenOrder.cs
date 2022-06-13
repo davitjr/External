@@ -115,6 +115,10 @@ namespace ExternalBanking
             }
             if (result.Errors.Count > 0)
             {
+                this.Quality = OrderQuality.Declined;
+                base.UpdateQuality(this.Quality);
+                base.SetQualityHistoryUserId(this.Quality, user.userID); 
+
                 result.ResultCode = ResultCode.ValidationError;
             }
             else
@@ -137,6 +141,13 @@ namespace ExternalBanking
                 //Փաստաթղթի ամսաթիվը տարբերվում է այսօրվա ամսաթվից 30-ից ավելի օրով
                 result.Errors.Add(new ActionError(451));
             }
+
+            if (this.Source == SourceType.AcbaOnline || this.Source == SourceType.MobileBanking)
+            {
+                result.Errors.AddRange(Validation.ValidateKYCDocument(CustomerNumber,this.Source,true));
+            }
+
+
             if (result.Errors.Count > 0)
             {
                 result.ResultCode = ResultCode.ValidationError;

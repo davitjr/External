@@ -34,6 +34,7 @@ namespace ExternalBanking.DBManager.SberTransfers.Order
                     cmd.Parameters.Add("@transferID", SqlDbType.BigInt).Value = order.TransferId;
                     cmd.Parameters.Add("@payID", SqlDbType.BigInt).Value = order.PayId;
                     cmd.Parameters.Add("@payDate", SqlDbType.DateTime).Value = order.PaymentDateTime;
+                    cmd.Parameters.Add("@source_type", SqlDbType.SmallInt).Value = order.Source;
 
                     SqlParameter docId = new SqlParameter("@doc_ID", SqlDbType.Int)
                     {

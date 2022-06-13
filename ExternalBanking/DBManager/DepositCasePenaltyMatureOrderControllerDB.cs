@@ -16,26 +16,58 @@ namespace ExternalBanking.DBManager
                 conn.Open();
 
                 using SqlCommand cmd = new SqlCommand(@"	declare @filial as int
-                                                    declare @doc_ID as int
-                                                    select @filial=filialcode from Tbl_customers where customer_number=@customer_number
-                                                    INSERT INTO Tbl_HB_documents
+                                                    
+													select @filial=filialcode from Tbl_customers where customer_number=@customer_number
+													
+													IF  @docID <> 0  
+													begin
+													update Tbl_HB_documents
+													set filial = @filial , customer_number = @customer_number , registration_date = @reg_date,
+													document_type = @doc_type , document_number = @doc_number , document_subtype = @document_subtype ,
+													amount = @amount , currency = @currency , debet_account = @debit_acc  , 
+                                                    credit_account = @credit_acc , [description] = @descr ,  quality = 1 ,
+                                                    source_type = @source_type , operationFilialCode = @operationFilialCode , operation_date = @oper_day
+													where doc_ID = @docID
+													select @docID as ID
+													end
+
+													ELSE
+													begin
+
+													  INSERT INTO Tbl_HB_documents
                                                     (filial,customer_number,registration_date,document_type,
                                                     document_number,document_subtype,amount,currency,debet_account,credit_account,
                                                     [description],quality,
                                                     source_type,operationFilialCode,operation_date)
                                                     values
-                                                    (@filial,@customer_number,@reg_date,@doc_type,@doc_number,@document_subtype,@amount,@currency,
-                                                    @debit_acc,@credit_acc,@descr,1,@source_type,@operationFilialCode,@oper_day)
-                                                    Select @doc_ID= Scope_identity()
-                                                    INSERT INTO Tbl_deposit_case_details(Doc_ID,app_id)
-                                                    VALUES (@doc_ID,@app_ID)                                                  
-                                                    Select @doc_ID as ID", conn);
+                                                    (@filial,@customer_number,@reg_date, @doc_type,@doc_number,@document_subtype,@amount,@currency,
+                                                    @debit_acc,@credit_acc,@descr,
+													1,@source_type,@operationFilialCode,@oper_day)
+
+													 Select @docID= Scope_identity()
+													 INSERT INTO Tbl_deposit_case_details(Doc_ID,app_id)
+                                                    VALUES (@docID,@app_ID)                                                  
+                                                    Select @docID as ID
+													end 
+                                                  ", conn);
+
+
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 cmd.Parameters.Add("@app_ID", SqlDbType.Float).Value = order.ProductId;
                 cmd.Parameters.Add("@reg_date", SqlDbType.SmallDateTime).Value = order.RegistrationDate;
                 cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = (short)order.Type;
-                cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+
+                if (order.OrderNumber == null)
+                {
+                    cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = DBNull.Value;
+
+                }
+                else
+                {
+                    cmd.Parameters.Add("@doc_number", SqlDbType.NVarChar, 20).Value = order.OrderNumber;
+                }
+
                 cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = order.SubType;
                 cmd.Parameters.Add("@amount", SqlDbType.Float).Value = order.Amount;
                 cmd.Parameters.Add("@currency", SqlDbType.VarChar, 3).Value = order.Currency;
@@ -50,10 +82,12 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@source_type", SqlDbType.TinyInt).Value = (short)order.Source;
                 cmd.Parameters.Add("@operationFilialCode", SqlDbType.SmallInt).Value = order.FilialCode;
                 cmd.Parameters.Add("@oper_day", SqlDbType.SmallDateTime).Value = order.OperationDate;
+                cmd.Parameters.Add("@docID", SqlDbType.Float).Value = order.Id;
 
                 order.Id = Convert.ToInt64(cmd.ExecuteScalar());
+                
 
-                result.ResultCode = ResultCode.Normal;
+               result.ResultCode = ResultCode.Normal;
                 return result;
             }
         }
@@ -79,6 +113,7 @@ namespace ExternalBanking.DBManager
                                              hb.credit_account,
                                              hb.amount,
                                              hb.currency,
+                                             hb.confirmation_date,
                                              hb.[description] as description
                                              FROM Tbl_HB_documents hb INNER JOIN Tbl_deposit_case_details dt
                                              ON dt.Doc_ID=hb.doc_ID
@@ -106,6 +141,8 @@ namespace ExternalBanking.DBManager
                     order.Description = Utility.ConvertAnsiToUnicode(dr["description"].ToString());
                     order.ProductId = ulong.Parse(dr["app_id"].ToString());
                     order.CustomerNumber = ulong.Parse(dr["customer_number"].ToString());
+                    order.ConfirmationDate = dr["confirmation_date"] != DBNull.Value ? Convert.ToDateTime(dr["confirmation_date"]) : default(DateTime?);
+
                     if (order.Type == OrderType.DeleteServicePaymentNote)
                     {
                         order.DebitAccount = Account.GetAccount(dr["debet_account"].ToString());

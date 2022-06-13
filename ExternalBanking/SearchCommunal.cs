@@ -308,11 +308,11 @@ namespace ExternalBanking
 
             if (this.CommunalType == CommunalTypes.ArmenTel)
             {
-                description = "Beeline վճարում/" + this.AbonentNumber.ToString() + "/";
+                description = "Team վճարում/" + this.AbonentNumber.ToString() + "/";
             }
             else if (this.CommunalType == CommunalTypes.BeelineInternet)
             {
-                description = "Beeline ինտերնետ վճարում/" + this.AbonentNumber.ToString() + "/";
+                description = "Team ինտերնետ վճարում/" + this.AbonentNumber.ToString() + "/";
             }
             else if (this.CommunalType == CommunalTypes.VivaCell)
             {

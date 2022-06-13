@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Transactions;
 
 namespace ExternalBanking
@@ -165,95 +166,100 @@ namespace ExternalBanking
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static List<GroupTemplateResponse> GetGroupTemplates(int groupId, TemplateStatus status, Languages lang)
+        public  static async Task<List<GroupTemplateResponse>> GetGroupTemplates(int groupId, TemplateStatus status, Languages lang)
         {
-            List<Template> templates = TemplateDB.GetGroupTemplates(groupId, status);
+            List<Template> templates = await Task.Run(()=> TemplateDB.GetGroupTemplates(groupId, status));
 
             List<GroupTemplateResponse> groupTemplates = new List<GroupTemplateResponse>();
 
-            foreach (Template template in templates)
-            {
-                template.GroupTemplateShrotInfo.Currency = Account.GetAccountCurrency(template.GroupTemplateShrotInfo.DebitAccount);
-                if (template.TemplateDocumentType == OrderType.CommunalPayment)
+        
+
+                foreach (Template template in templates)
                 {
-                    template.GroupTemplateShrotInfo = GetCommunalTemplateDetails(template.GroupTemplateShrotInfo, template.ID,
-                        template.TemplateCustomerNumber, template.TemplateSourceType, groupId);
-
-                    Dictionary<string, string> types = new Dictionary<string, string>();
-
-
-
-                    //Ծառայության մանրամասն ստացում
-                    UtilityPaymentOrderTemplate detailedTemplate = UtilityPaymentOrderTemplate.Get(template.ID,
-                        template.TemplateCustomerNumber);
-
-                    GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
-                    groupTemplateResponse.UpToDateShortInfo = template;
-                    groupTemplateResponse.InitialFullInfo = detailedTemplate;
-                    groupTemplates.Add(groupTemplateResponse);
-
-                    template.TemplateDocumentSubTypeDescription = Communal.GetCommunalDescriptionByType((int)detailedTemplate?.UtilityPaymentOrder?.CommunalType, lang);
-                }
-                else if (template.TemplateDocumentType == OrderType.LoanMature)
-                {
-                    template.GroupTemplateShrotInfo = GetLoanTemplateDetails(template.GroupTemplateShrotInfo, template.TemplateCustomerNumber);
-                    template.TemplateAmount = template.GroupTemplateShrotInfo.Amount;
-                    int matureType;
-                    if (template.TemplateDocumentSubType == 6)
+                    template.GroupTemplateShrotInfo.Currency = await Task.Run(() => Account.GetAccountCurrency(template.GroupTemplateShrotInfo.DebitAccount));
+                    if (template.TemplateDocumentType == OrderType.CommunalPayment)
                     {
-                        template.TemplateDocumentSubType = 2;
-                        matureType = 2;
+                        template.GroupTemplateShrotInfo = await Task.Run( () =>
+                        GetCommunalTemplateDetails(template.GroupTemplateShrotInfo, template.ID,
+                        template.TemplateCustomerNumber, template.TemplateSourceType, groupId));
+
+                        Dictionary<string, string> types = new Dictionary<string, string>();
+
+
+
+                        //Ծառայության մանրամասն ստացում
+                        UtilityPaymentOrderTemplate detailedTemplate = await Task.Run(() => UtilityPaymentOrderTemplate.Get(template.ID,
+                            template.TemplateCustomerNumber));
+
+                        GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
+                        groupTemplateResponse.UpToDateShortInfo = template;
+                        groupTemplateResponse.InitialFullInfo = detailedTemplate;
+                        groupTemplates.Add(groupTemplateResponse);
+
+                        template.TemplateDocumentSubTypeDescription = await Task.Run(() => Communal.GetCommunalDescriptionByType((int)detailedTemplate?.UtilityPaymentOrder?.CommunalType, lang));
                     }
-                    else
+                    else if (template.TemplateDocumentType == OrderType.LoanMature)
                     {
-                        matureType = 9;
-                    }
-                    template.TemplateDocumentSubTypeDescription = Info.GetLoanMatureTypeDescriptionForIBankingByMatureType(matureType, (byte)lang);
+                        template.GroupTemplateShrotInfo = await Task.Run(() => GetLoanTemplateDetails(template.GroupTemplateShrotInfo, template.TemplateCustomerNumber));
+                        template.TemplateAmount = template.GroupTemplateShrotInfo.Amount;
+                        int matureType;
+                        if (template.TemplateDocumentSubType == 6)
+                        {
+                            template.TemplateDocumentSubType = 2;
+                            matureType = 2;
+                        }
+                        else
+                        {
+                            matureType = 9;
+                        }
+                        template.TemplateDocumentSubTypeDescription = await Task.Run(() => Info.GetLoanMatureTypeDescriptionForIBankingByMatureType(matureType, (byte)lang));
 
-                    //Ծառայության մանրամասն ստացում
-                    LoanMatureOrderTemplate detailedTemplate = LoanMatureOrderTemplate.Get(template.ID,
-                        template.TemplateCustomerNumber);
-                    GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
-                    groupTemplateResponse.UpToDateShortInfo = template;
-                    groupTemplateResponse.InitialFullInfo = detailedTemplate;
-                    groupTemplates.Add(groupTemplateResponse);
-                }
-                else if (template.TemplateDocumentType == OrderType.Convertation)
-                {
-                    template.GroupTemplateShrotInfo = GetCurrencyExchangeTemplateDetails(template.GroupTemplateShrotInfo);
-
-                    //Ծառայության մանրամասն ստացում
-                    PaymentOrderTemplate detailedTemplate = PaymentOrderTemplate.Get(template.ID,
-                        template.TemplateCustomerNumber);
-                    GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
-                    groupTemplateResponse.UpToDateShortInfo = template;
-                    groupTemplateResponse.InitialFullInfo = detailedTemplate;
-                    groupTemplates.Add(groupTemplateResponse);
-                }
-                else if (template.TemplateDocumentType == OrderType.RATransfer)
-                {
-                    //Ծառայության մանրամասն ստացում
-                    if (template.TemplateDocumentSubType != 5)
-                    {
-                        PaymentOrderTemplate detailedTemplate = PaymentOrderTemplate.Get(template.ID,
-                       template.TemplateCustomerNumber);
+                        //Ծառայության մանրամասն ստացում
+                        LoanMatureOrderTemplate detailedTemplate = await Task.Run(() => LoanMatureOrderTemplate.Get(template.ID,
+                            template.TemplateCustomerNumber));
                         GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
                         groupTemplateResponse.UpToDateShortInfo = template;
                         groupTemplateResponse.InitialFullInfo = detailedTemplate;
                         groupTemplates.Add(groupTemplateResponse);
                     }
-                    else
+                    else if (template.TemplateDocumentType == OrderType.Convertation)
                     {
-                        BudgetPaymentOrderTemplate detailedTemplate = BudgetPaymentOrderTemplate.Get(template.ID,
-                      template.TemplateCustomerNumber);
+                        template.GroupTemplateShrotInfo = await Task.Run(() => GetCurrencyExchangeTemplateDetails(template.GroupTemplateShrotInfo));
+
+                        //Ծառայության մանրամասն ստացում
+                        PaymentOrderTemplate detailedTemplate = await Task.Run(() => PaymentOrderTemplate.Get(template.ID,
+                            template.TemplateCustomerNumber));
                         GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
                         groupTemplateResponse.UpToDateShortInfo = template;
                         groupTemplateResponse.InitialFullInfo = detailedTemplate;
                         groupTemplates.Add(groupTemplateResponse);
                     }
+                    else if (template.TemplateDocumentType == OrderType.RATransfer)
+                    {
+                        //Ծառայության մանրամասն ստացում
+                        if (template.TemplateDocumentSubType != 5)
+                        {
+                            PaymentOrderTemplate detailedTemplate = await Task.Run(() => PaymentOrderTemplate.Get(template.ID,
+                           template.TemplateCustomerNumber));
+                            GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
+                            groupTemplateResponse.UpToDateShortInfo = template;
+                            groupTemplateResponse.InitialFullInfo = detailedTemplate;
+                            groupTemplates.Add(groupTemplateResponse);
+                        }
+                        else
+                        {
+                            BudgetPaymentOrderTemplate detailedTemplate = await Task.Run(() => BudgetPaymentOrderTemplate.Get(template.ID,
+                          template.TemplateCustomerNumber));
+                            GroupTemplateResponse groupTemplateResponse = new GroupTemplateResponse();
+                            groupTemplateResponse.UpToDateShortInfo = template;
+                            groupTemplateResponse.InitialFullInfo = detailedTemplate;
+                            groupTemplates.Add(groupTemplateResponse);
+                        }
 
+                    }
                 }
-            }
+
+         
 
             return groupTemplates;
         }

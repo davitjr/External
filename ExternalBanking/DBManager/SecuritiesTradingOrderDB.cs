@@ -88,7 +88,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@issuer_name_am", SqlDbType.NVarChar, 250).Value = order.IssuerNameAM;
                     cmd.Parameters.Add("@issuer_name_en", SqlDbType.NVarChar, 250).Value = order.IssuerNameEN;
                     cmd.Parameters.Add("@is_bank_security", SqlDbType.Bit).Value = order.IsBankSecurity;
-                    cmd.Parameters.Add("@brokerage_code", SqlDbType.NVarChar,50).Value = order.BrokerageCode;
+                    cmd.Parameters.Add("@brokerage_code", SqlDbType.NVarChar, 50).Value = order.BrokerageCode;
                     cmd.Parameters.Add("@ticker", SqlDbType.NVarChar, 50).Value = order.Ticker;
                     cmd.Parameters.Add("@trading_order_type", SqlDbType.SmallInt).Value = order.TradingOrderType;
                     cmd.Parameters.Add("@trading_order_expiration_type", SqlDbType.SmallInt).Value = order.ExpirationType;
@@ -99,6 +99,7 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@reference_number", SqlDbType.NVarChar).Value = order.ReferenceNumber;
                     cmd.Parameters.Add("@yield", SqlDbType.Float).Value = order.Yield;
                     cmd.Parameters.Add("@stop_yield", SqlDbType.Float).Value = order.StopYield;
+                    cmd.Parameters.Add("@listing_type", SqlDbType.NVarChar, 1).Value = order.ListingType;
 
                     SqlParameter param = new SqlParameter("@id", SqlDbType.Int);
                     param.Direction = ParameterDirection.Output;
@@ -131,13 +132,13 @@ namespace ExternalBanking.DBManager
             }
         }
 
-        internal static SecuritiesTradingOrder GetSecuritiesTradingOrder(SecuritiesTradingOrder order, Languages Language)
+        internal static SecuritiesTradingOrder GetSecuritiesTradingOrder(SecuritiesTradingOrder order, Languages Language, bool getMarketTrandingOrder)
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 conn.Open();
-                using SqlCommand cmd = new SqlCommand(@" SELECT d.debet_account,d.credit_account,d.credit_bank_code,d.amount,d.source_type,d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,d.amount_for_payment,d.deb_for_transfer_payment,d.currency, n.*,d.operation_date,d.order_group_id,d.confirmation_date,reject_id
+                using SqlCommand cmd = new SqlCommand(@" SELECT d.debet_account,d.credit_account,d.credit_bank_code,d.amount,d.source_type,d.registration_date,d.document_number,d.customer_number,d.document_type,d.document_subtype,d.quality,d.amount_for_payment,d.deb_for_transfer_payment,d.currency, n.*,d.operation_date,d.order_group_id,d.confirmation_date,reject_id, rate_sell_buy
 		                                           FROM Tbl_HB_documents as d inner join Tbl_Securities_Trading_Order_Details as n on  d.doc_ID=n.Doc_ID                                                 
                                                    WHERE d.Doc_ID=@DocID and d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end", conn);
 
@@ -145,7 +146,7 @@ namespace ExternalBanking.DBManager
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = order.CustomerNumber;
                 dt.Load(cmd.ExecuteReader());
 
-                SetSecuritiesTradingOrder(dt, order, Language, true);
+                SetSecuritiesTradingOrder(dt, order, Language, getMarketTrandingOrder);
             }
             return order;
         }
@@ -183,17 +184,19 @@ namespace ExternalBanking.DBManager
 
             if (getMarketTrandingOrder)
                 order.SecuritiesMarketTradingOrderList = SecuritiesMarketTradingOrderDB.Get(order.Id);
-            
+
             if (order.Type == OrderType.SecuritiesSellOrder)
             {
                 string creditAccountNumber = dt.Rows[0]["credit_bank_code"].ToString() + dt.Rows[0]["credit_account"].ToString();
                 order.ReceiverAccount = Account.GetSystemAccount(creditAccountNumber);
+                order.Description = "Վաճառք";
             }
             else if (order.Type == OrderType.SecuritiesBuyOrder)
             {
                 order.DebitAccount = Account.GetSystemAccount(dt.Rows[0]["debet_account"].ToString());
                 order.TransferFee = Convert.ToDouble(dt.Rows[0]["amount_for_payment"]);
                 order.FeeAccount = Account.GetSystemAccount(dt.Rows[0]["deb_for_transfer_payment"].ToString());
+                order.Description = "Առք";
             }
 
 
@@ -211,7 +214,8 @@ namespace ExternalBanking.DBManager
             order.Ticker = dt.Rows[0]["ticker"].ToString();
             order.MarketPrice = Convert.ToDouble(dt.Rows[0]["market_price"]);
             order.AcknowledgedByCheckBox = dt.Rows[0]["acknowledged_by_checkbox"] != DBNull.Value ? Convert.ToBoolean(dt.Rows[0]["acknowledged_by_checkbox"].ToString()) : false;
-            order.AcknowledgementText= dt.Rows[0]["acknowledgement_text"].ToString();
+            order.AcknowledgementText = dt.Rows[0]["acknowledgement_text"].ToString();
+            order.ListingType = dt.Rows[0]["listing_type"].ToString();
 
             order.TradingOrderType = (SecuritiesTradingOrderTypes)short.Parse(dt.Rows[0]["trading_order_type"].ToString());
             var TradingTypes = Info.GetTradingOrderTypes(Language);
@@ -220,7 +224,7 @@ namespace ExternalBanking.DBManager
             order.ExpirationType = (SecuritiesTradingOrderExpirationType)short.Parse(dt.Rows[0]["trading_order_expiration_type"].ToString());
             var ExpirationTypes = Info.GetTradingOrderExpirationTypes(Language);
             order.ExpirationTypeDescription = ExpirationTypes.Where(x => x.Key == (short)order.ExpirationType).First().Value;
-            
+
             order.LimitPrice = Convert.ToDouble(dt.Rows[0]["limit_price"]);
             order.StopPrice = Convert.ToDouble(dt.Rows[0]["stop_price"]);
             order.Yield = Convert.ToDouble(dt.Rows[0]["yield"]);
@@ -240,9 +244,10 @@ namespace ExternalBanking.DBManager
             order.Volume = Convert.ToDouble(dt.Rows[0]["volume"]);
             order.ReferenceNumber = dt.Rows[0]["reference_number"].ToString();
             order.TradingPlatform = dt.Rows[0]["trading_platform"].ToString();
-            //order.MarketTradedQuantity = SecuritiesMarketTradingOrder.GetMarketTradedQuantity(order.Id);
+            order.MarketTradedQuantity = SecuritiesMarketTradingOrder.GetMarketTradedQuantity(order.Id);
             order.RejectReasonDescription = dt.Rows[0]["reject_reason"] != DBNull.Value ? dt.Rows[0]["reject_reason"].ToString() : null;
             order.BrokerContractId = BrokerContractOrder.GetBrokerContractId(order.CustomerNumber).Result;
+            order.Rate = dt.Rows[0]["rate_sell_buy"] != DBNull.Value ? Convert.ToDouble(dt.Rows[0]["rate_sell_buy"]) : 0;
 
 
             return order;
@@ -251,14 +256,14 @@ namespace ExternalBanking.DBManager
         internal static List<SecuritiesTradingOrder> GetSecuritiesTradingOrders(ulong CustomerNumber, short QualityType, DateTime StartDate, DateTime EndDate, Languages Language)
         {
             var SecuritiesTypes = Info.GetSecuritiesTypes(Language);
-            List<SecuritiesTradingOrder> orders=new List<SecuritiesTradingOrder>();
+            List<SecuritiesTradingOrder> orders = new List<SecuritiesTradingOrder>();
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
             {
                 string Quality = string.Empty;
                 if (QualityType == 1)
                 {
-                    Quality = " d.quality in (3,20,60) and ";
+                    Quality = " d.quality in (3,20,60,50) and ";
                 }
                 else if (QualityType == 2)
                 {
@@ -267,7 +272,7 @@ namespace ExternalBanking.DBManager
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand(@" SELECT d.registration_date,d.document_type,d.document_subtype,d.quality, n.*
 		                                           FROM Tbl_HB_documents as d inner join Tbl_Securities_Trading_Order_Details as n on  d.doc_ID=n.Doc_ID                                                 
-                                                   WHERE "+ Quality + " d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end AND d.registration_date>= @startDate AND d.registration_date <= @endDate ORDER BY d.registration_date ASC ", conn);
+                                                   WHERE " + Quality + " d.customer_number=case when @customer_number = 0 then d.customer_number else @customer_number end AND d.registration_date>= @startDate AND d.registration_date <= @endDate ORDER BY d.doc_ID DESC ", conn);
 
                 cmd.Parameters.Add("@customer_number", SqlDbType.Float).Value = CustomerNumber;
                 cmd.Parameters.Add("@startDate", SqlDbType.SmallDateTime).Value = StartDate.Date;
@@ -306,13 +311,13 @@ namespace ExternalBanking.DBManager
 
         internal static void RejectOrder(long id, string description, OrderType type, int setNumber)
         {
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["HbBaseConn"].ToString()))
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
             {
                 using (SqlCommand cmd = new SqlCommand())
                 {
                     conn.Open();
                     cmd.Connection = conn;
-                    cmd.CommandText = type == OrderType.SecuritiesTradingOrderCancellationOrder ? "pr_reject_securities_trading_order_cancellation_order" :  "pr_reject_securities_trading_order";
+                    cmd.CommandText = type == OrderType.SecuritiesTradingOrderCancellationOrder ? "pr_reject_securities_trading_order_cancellation_order" : "pr_reject_securities_trading_order";
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@Doc_ID", SqlDbType.Float).Value = id;
@@ -354,7 +359,7 @@ namespace ExternalBanking.DBManager
 
                 cmd.Parameters.Add("@isin", SqlDbType.NVarChar, 50).Value = iSIN;
                 cmd.Parameters.Add("@customerNumber", SqlDbType.Float).Value = customerNumber;
-                SqlDataReader dr =  cmd.ExecuteReader();
+                SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                     return dr["quantity"] != DBNull.Value ? int.Parse(dr["quantity"].ToString()) : 0;
                 else
@@ -362,6 +367,56 @@ namespace ExternalBanking.DBManager
             }
         }
 
+        internal static void CompleteSecuritiesTradingOrder(long id, int setNumber)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConn"].ToString()))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+                    cmd.CommandText = "pr_securities_trading_order_completion";
+                    cmd.CommandType = CommandType.StoredProcedure;
 
+                    cmd.Parameters.Add("@Doc_ID", SqlDbType.Float).Value = id;
+                    cmd.Parameters.Add("@operDay", SqlDbType.SmallDateTime).Value = Utility.GetNextOperDay();
+                    cmd.Parameters.Add("@setNumber", SqlDbType.Float).Value = setNumber;
+                    cmd.Parameters.Add("@isFictiveCompletion", SqlDbType.Bit).Value = 1;
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        internal static (double, double) GetSecuritiesTradingOrderFee(long OrderId, string ISIN, double DepositedAmount, SharesTypes types, string ListingType, string Currency, int OperationQuantity, short CalculatingType)
+        {
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["AccOperBaseConnRO"].ToString()))
+            {
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand();
+
+                cmd.Connection = conn;
+                cmd.CommandText = "pr_get_securities_trading_order_fee";
+                cmd.CommandType = CommandType.StoredProcedure; 
+
+                cmd.Parameters.Add("@Doc_ID", SqlDbType.NVarChar, 20).Value = OrderId;
+                cmd.Parameters.Add("@ISIN", SqlDbType.NVarChar, 20).Value = ISIN;
+                cmd.Parameters.Add("@DepositedAmount", SqlDbType.Float).Value = DepositedAmount;
+                cmd.Parameters.Add("@SharesType", SqlDbType.TinyInt).Value = types;
+                cmd.Parameters.Add("@ListingType", SqlDbType.NVarChar, 1).Value = ListingType;
+                cmd.Parameters.Add("@Currency", SqlDbType.NVarChar, 3).Value = Currency;
+                cmd.Parameters.Add("@OperationQuantity", SqlDbType.Float).Value = OperationQuantity;
+                cmd.Parameters.Add("@CalculatingType", SqlDbType.TinyInt).Value = CalculatingType;
+
+
+                cmd.Parameters.Add(new SqlParameter("@TotalFee", SqlDbType.Float) { Direction = ParameterDirection.Output });
+                cmd.Parameters.Add(new SqlParameter("@ACBA_Fee", SqlDbType.Float) { Direction = ParameterDirection.Output });
+                cmd.ExecuteNonQuery();
+
+                double TotalFee = cmd.Parameters["@TotalFee"].Value != DBNull.Value ? Convert.ToDouble(cmd.Parameters["@TotalFee"].Value) : 0;
+                double ACBA_Fee = cmd.Parameters["@ACBA_Fee"].Value != DBNull.Value ? Convert.ToDouble(cmd.Parameters["@ACBA_Fee"].Value) : 0;
+                return (TotalFee,ACBA_Fee);
+            }
+        }
     }
 }

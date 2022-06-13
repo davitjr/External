@@ -50,6 +50,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FSharp.Core.4.5.0\lib\net45\FSharp.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.4.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
     </Reference>
@@ -106,27 +109,40 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
-    <None Include="Properties\PublishProfiles\FolderProfile2.pubxml" />
     <Content Include="CardXBService.svc" />
+    <Content Include="EventService.svc" />
     <Content Include="LeasingXBService.svc" />
     <Content Include="LoanXBService.svc" />
-    <None Include="Service References\AOService\AcbaOnlineSecurityService.Helpers.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AOService\Arrays.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="SberTransfersService.svc" />
+    <Content Include="SecuritiesTradingService.svc" />
     <Content Include="Service References\AOService\ExternalBankingService.AOService.AcbaOnlineUserData.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <None Include="Service References\AOService\service.wsdl" />
-    <None Include="Service References\AOService\service.xsd">
+    <None Include="Properties\PublishProfiles\Debug.pubxml" />
+    <None Include="Properties\PublishProfiles\Regression.pubxml" />
+    <None Include="Properties\PublishProfiles\TestDigital.pubxml" />
+    <None Include="Properties\PublishProfiles\Testing.pubxml" />
+    <None Include="Properties\PublishProfiles\TestTeam1.pubxml" />
+    <None Include="Properties\PublishProfiles\TestTeam3.pubxml" />
+    <None Include="Properties\PublishProfiles\TestTeam4.pubxml" />
+    <None Include="Properties\PublishProfiles\TestTeam5.pubxml" />
+    <None Include="Properties\PublishProfiles\TestTeam6.pubxml" />
+    <None Include="Properties\PublishProfiles\TestTeam7.pubxml" />
+    <None Include="Properties\PublishProfiles\WCF01.pubxml" />
+    <None Include="Properties\PublishProfiles\WCF02.pubxml" />
+    <None Include="Properties\PublishProfiles\WCF03.pubxml" />
+    <None Include="Properties\PublishProfiles\WCF04.pubxml" />
+    <None Include="Service References\AOService\AcbaOnlineSecurityService.Helpers1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\AOService\service1.xsd">
+    <None Include="Service References\AOService\Arrays1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AOService\service1.wsdl" />
+    <None Include="Service References\AOService\service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AOService\service21.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\InfSecServiceReference\configuration91.svcinfo" />
@@ -161,22 +177,22 @@
     <Content Include="Service References\InfSecServiceReference\ExternalBankingService.InfSecServiceReference.UserAccessForCustomer.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService5.xsd">
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService51.xsd">
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService52.xsd">
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService53.xsd">
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService54.xsd">
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService4.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\InfSecServiceReference\InfSecService1.wsdl" />
+    <None Include="Service References\InfSecServiceReference\InfSecService.wsdl" />
     <None Include="Service References\InfSecServiceReference\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -187,17 +203,13 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\InfSecServiceReference\InformationSecurityService1.disco" />
+    <None Include="Service References\InfSecServiceReference\InformationSecurityService.disco" />
     <Content Include="SSTerminalService.svc" />
     <Content Include="CTPaymentService.svc" />
     <Content Include="Properties\DataSources\ExternalBanking.ACBAServiceReference.AuthorizedUser2.datasource" />
     <Content Include="Properties\DataSources\ExternalBanking.ACBAServiceReference.ClientPermissions2.datasource" />
     <Content Include="Properties\DataSources\System.Data.DataTable.datasource" />
     <Content Include=".tfignore" />
-    <None Include="Properties\PublishProfiles\SQL2016Profile.pubxml" />
-    <None Include="Properties\PublishProfiles\Public REAL.pubxml" />
-    <None Include="Properties\PublishProfiles\TestAlternative.pubxml" />
-    <None Include="Properties\PublishProfiles\TestVersionProfile.pubxml" />
     <Content Include="STAKService.svc" />
     <Content Include="XBAutomatedProcessesService.svc" />
     <Content Include="XBInfoService.svc" />
@@ -206,6 +218,48 @@
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Web.Regression.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.TestDigital.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Testing.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.TestTeam1.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.TestTeam3.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.TestTeam4.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.TestTeam5.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.TestTeam6.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.TestTeam7.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.WCF01.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.WCF02.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.WCF03.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.WCF04.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AcbamatService.svc.cs">
@@ -219,7 +273,11 @@
     <Compile Include="CardXBService.svc.cs">
       <DependentUpon>CardXBService.svc</DependentUpon>
     </Compile>
+    <Compile Include="EventService.svc.cs">
+      <DependentUpon>EventService.svc</DependentUpon>
+    </Compile>
     <Compile Include="Filters\InfSecServiceOperationHeadersMessageInspector.cs" />
+    <Compile Include="Interfaces\IEventService.cs" />
     <Compile Include="Interfaces\IAcbamatService.cs" />
     <Compile Include="Interfaces\ICardXBService.cs" />
     <Compile Include="Interfaces\ILoanXBService.cs" />
@@ -227,6 +285,7 @@
     <Compile Include="Interfaces\ISberTransfersService.cs" />
     <Compile Include="Interfaces\ISTAKService.cs" />
     <Compile Include="Interfaces\IXBAutomatedProcessesService.cs" />
+    <Compile Include="Interfaces\ISecuritiesTradingService.cs" />
     <Compile Include="LeasingXBService.svc.cs">
       <DependentUpon>LeasingXBService.svc</DependentUpon>
     </Compile>
@@ -235,6 +294,9 @@
     </Compile>
     <Compile Include="SberTransfersService.svc.cs">
       <DependentUpon>SberTransfersService.svc</DependentUpon>
+    </Compile>
+    <Compile Include="SecuritiesTradingService.svc.cs">
+      <DependentUpon>SecuritiesTradingService.svc</DependentUpon>
     </Compile>
     <Compile Include="Service References\AOService\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -293,12 +355,7 @@
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Properties\PublishProfiles\WEB1011 REAL.pubxml" />
     <None Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
       <SubType>Designer</SubType>
     </None>
@@ -328,14 +385,50 @@
   <PropertyGroup>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SQL2016|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestDigital|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>8.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF01|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF02|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Regression|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Testing|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam1|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam3|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam4|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam5|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam6|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestTeam7|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF03|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WCF04|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

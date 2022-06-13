@@ -402,5 +402,16 @@ namespace ExternalBanking.ServiceClient
             });
             return hasLegalCommunication;
         }
+
+        public static List<CustomerServingEmployee> GetCustomerServingEmployeeList(ulong customerNumber)
+        {
+            List<CustomerServingEmployee> result = new List<CustomerServingEmployee>();
+
+            ACBAOperationService.Use(client =>
+            {
+               result = client.GetCustomerServingEmployeeList(customerNumber);
+            });
+            return result;
+        }
     }
 }

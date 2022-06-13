@@ -40,7 +40,7 @@ namespace ExternalBanking
         public double SumAmd { get; set; }
         public string OperDescription { get; set; }
         public DateTime PayDate { get; set; }
-
+        public DateTime? RegistrationDate { get; set; }
         //public List<LeasingInsuranceDetails> InsuranceDetails { get; set; }
 
     }

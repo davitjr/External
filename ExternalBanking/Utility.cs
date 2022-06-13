@@ -49,54 +49,25 @@ namespace ExternalBanking
                     }
                     else
                     {
-                        switch (charCode)
+                        uChar = charCode switch
                         {
-                            case 162:
-                                uChar = (char)1415;
-                                break;
-                            case 168:
-                                uChar = (char)1415;
-                                break;
-                            case 176:
-                                uChar = (char)1371;
-                                break;
-                            case 175:
-                                uChar = (char)1372;
-                                break;
-                            case 177:
-                                uChar = (char)1374;
-                                break;
-                            case 170:
-                                uChar = (char)1373;
-                                break;
-                            case 173:
-                                uChar = '-';
-                                break;
-                            case 163:
-                                uChar = (char)1417;
-                                break;
-                            case 169:
-                                uChar = '.';
-                                break;
-                            case 166:
-                                uChar = '»'; //187
-                                break;
-                            case 167:
-                                uChar = '«'; //171
-                                break;
-                            case 164:
-                                uChar = ')';
-                                break;
-                            case 165:
-                                uChar = '(';
-                                break;
-                            case 46:
-                                uChar = '.';
-                                break;
-                            default:
-                                uChar = str[i];
-                                break;
-                        }
+                            162 => (char)1415,
+                            168 => (char)1415,
+                            176 => (char)1371,
+                            175 => (char)1372,
+                            177 => (char)1374,
+                            170 => (char)1373,
+                            173 => '-',
+                            163 => (char)1417,
+                            169 => '.',
+                            166 => '»',//187
+                            167 => '«',//171
+                            164 => ')',
+                            165 => '(',
+                            46 => '.',
+                            8228 => '.',
+                            _ => str[i],
+                        };
                     }
                 }
                 result += uChar;
@@ -899,7 +870,7 @@ namespace ExternalBanking
             for (int i = 0; i <= str.Length - 1; i++)
             {
                 int charCode = (int)str[i];
-                if (charCode >= 178 && charCode <= 253 && charCode != 187)
+                if (charCode >= 178 && charCode <= 253 && charCode != 187 || charCode == 8228)
                 {
                     hasAnsi = true;
                 }

@@ -299,12 +299,21 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1588));
             }
 
-            string MotherName = Card.GetCardMotherName((ulong)Card.ProductId);
-            if (string.IsNullOrEmpty(MotherName))
+            if (!Validation.CustomerHasMotherName(this))
             {
-                //Հաճախորդի գաղտնաբառ դաշտը բացակայում է:
-                result.Errors.Add(new ActionError(1665));
+                //Պահպանումը չհաջողվեց, SAP CRM ծրագրում հաճախորդի գաղտնաբառը բացակայում է:
+                result.Errors.Add(new ActionError(1978));
             }
+
+            string motherName = CardDB.GetCardMotherName((ulong)Card.ProductId);
+            if (string.IsNullOrEmpty(motherName))
+            {
+                if (!CardRenewOrderDB.CheckCustomerDocument(cardHolderCustomerNumber, 2))
+                {
+                    // Գաղտնաբառ դաշտը բացակայում է:
+                    result.Errors.Add(new ActionError(1947));
+                }
+            }           
 
             int productType = Utility.GetCardProductType(Convert.ToUInt32(Card.Type));
             if (!Validation.CheckProductAvailabilityByCustomerCountry(customerNumber, productType))

@@ -5255,5 +5255,17 @@ namespace ExternalBankingService
             }
         }
 
+        public bool CheckNeedToFindoutLeasingDetails(long appId)
+        {
+            try
+            {
+                return LeasingLoan.CheckNeedToFindoutLeasingDetails(appId);
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex);
+                throw new FaultException(Resourse.InternalError);
+            }
+        }
     }
 }

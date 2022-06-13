@@ -427,6 +427,12 @@ namespace ExternalBanking
                 result.Errors.Add(new ActionError(1588));
             }
 
+            if (!Validation.CustomerHasMotherName(this))
+            {
+                //Պահպանումը չհաջողվեց, SAP CRM ծրագրում հաճախորդի գաղտնաբառը բացակայում է:
+                result.Errors.Add(new ActionError(1978));
+            }
+
             string motherName = CardDB.GetCardMotherName((ulong)Card.ProductId);
             if (string.IsNullOrEmpty(motherName))
             {
@@ -436,6 +442,7 @@ namespace ExternalBanking
                     result.Errors.Add(new ActionError(1947));
                 }
             }
+
 
             if (Card.RelatedOfficeNumber == 1692)
             {

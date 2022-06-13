@@ -48,6 +48,8 @@ namespace ExternalBanking.DBManager
                     cmd.Parameters.Add("@document_subtype", SqlDbType.SmallInt).Value = template.UtilityPaymentOrder.SubType;
                     cmd.Parameters.Add("@doc_type", SqlDbType.Int).Value = template.UtilityPaymentOrder.Type;
                     cmd.Parameters.Add("@use_credit_line", SqlDbType.Bit).Value = template.UtilityPaymentOrder.UseCreditLine;
+                    cmd.Parameters.Add("@isAttachedCard", SqlDbType.Bit).Value = template.UtilityPaymentOrder.DebitAccount.IsAttachedCard;
+                    cmd.Parameters.Add("@debet_acc_binding_id", SqlDbType.NVarChar).Value = template.UtilityPaymentOrder.DebitAccount.BindingId;
 
 
                     SqlParameter param = new SqlParameter("@msg", SqlDbType.NVarChar, 4000);
@@ -75,6 +77,12 @@ namespace ExternalBanking.DBManager
                         result.ResultCode = ResultCode.Failed;
                         result.Id = -1;
                     }
+                    else
+                    {
+                        result.ResultCode = ResultCode.ValidationError;
+                        result.Errors.Add(new ActionError(actionResult));
+                        result.Id = -1;
+                    }
 
                 }
             }
@@ -95,7 +103,7 @@ namespace ExternalBanking.DBManager
                     conn.Open();
                     cmd.Connection = conn;
                     cmd.CommandText = @"Select T.id as templateId, T.description as TemplateDescription, T.customer_number, T.serial_number, T.registration_date, T.document_type, T.document_subtype, T.status, 
-                                        T.type, T.order_group_id, T.source_type, T.amount, T.debet_account, T.user_id, P.*  
+                                        T.type, T.order_group_id, T.source_type, T.amount, T.debet_account, T.user_id, T.debet_acc_binding_id, P.*  
                                         FROM Tbl_Templates T  inner join [Tbl_Utility_Payment_Order_Templates] P on T.id = P.template_id                                                                       
                                         WHERE T.id = @id and T.customer_number = @customer_number";
 
@@ -191,6 +199,14 @@ namespace ExternalBanking.DBManager
 
                             template.UtilityPaymentOrder.UseCreditLine = dr["use_credit_line"] != DBNull.Value ? Convert.ToBoolean(dr["use_credit_line"]) : false;
 
+                            if (template.UtilityPaymentOrder.DebitAccount != null)
+                            {
+                                if (template.UtilityPaymentOrder.DebitAccount.IsIPayAccount())
+                                {
+                                    template.UtilityPaymentOrder.DebitAccount.IsAttachedCard = true;
+                                    template.UtilityPaymentOrder.DebitAccount.BindingId = dr["debet_acc_binding_id"].ToString();
+                                }
+                            }
                         }
                         else
                         {

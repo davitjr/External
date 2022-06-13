@@ -7,7 +7,7 @@ namespace ExternalBanking.DBManager.SberTransfers
 {
     public static class SberTransfersDB
     {
-        internal static SberPreTransferRequisites GetDataForSberTransfer(ulong customerNumber)
+        internal static SberPreTransferRequisites GetDataForSberTransfer(ulong customerNumber, bool onlyAMD)
         {
             SberPreTransferRequisites result = null;
 
@@ -21,6 +21,7 @@ namespace ExternalBanking.DBManager.SberTransfers
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@customerNumber", SqlDbType.BigInt).Value = customerNumber;
+                    cmd.Parameters.Add("@onlyAMD", SqlDbType.Bit).Value = onlyAMD;
 
                     var reader = cmd.ExecuteReader();
                     if (reader.HasRows)

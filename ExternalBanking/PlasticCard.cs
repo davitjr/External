@@ -291,5 +291,13 @@ namespace ExternalBanking
         {
             return PlasticCardDB.GetCardCustomerNumber(productId);
         }
+
+        /// <summary>
+        /// Վերադարձնում է հիմնական քարտի կից քարտերը
+        /// </summary>
+        public static List<PlasticCard> GetLinkedPlasticCards(string mainCardnumber)
+        {
+            return PlasticCardDB.GetLinkedPlasticCards(mainCardnumber);
+        }
     }
 }

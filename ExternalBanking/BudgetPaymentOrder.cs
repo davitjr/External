@@ -225,6 +225,23 @@ namespace ExternalBanking
                     {
                         result.Errors.Add(new ActionError(1575, new string[] { "900008000490" }));
                     }
+
+                    if (CreditorCustomerNumber != default)
+                    {
+                        var customerType = ACBAOperationService.GetCustomerType(CreditorCustomerNumber);
+                        var creditorCustomerDocuments = ACBAOperationService.GetCustomerDocumentList(CreditorCustomerNumber);
+
+                        if (customerType == 6)
+                        {
+                            if (creditorCustomerDocuments.Find(cd => cd.documentType.key == 19) != null)
+                                taxCode = Utility.ConvertAnsiToUnicode(creditorCustomerDocuments.Find(cd => cd.documentType.key == 19).documentNumber);
+                        }
+
+                        if (taxCode == null && customerType == 6)
+                        {
+                            result.Errors.Add(new ActionError(1575, new string[] { "900008000490" }));
+                        }
+                    }
                 }
 
             }
